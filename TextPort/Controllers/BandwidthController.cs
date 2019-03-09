@@ -20,9 +20,15 @@ namespace TextPort.Controllers
 {
     //[Route("api/[controller]")]
     //[ApiController]
-    public class BandwidthController : ApiController // ApiController // ControllerBase
+    public class BandwidthController : ApiController
     {
         private readonly TextPortContext _context;
+
+        public BandwidthController(TextPortContext context)
+        {
+            this._context = context;
+        }
+
         //private readonly ICompositeViewEngine _viewEngine;
         //private readonly IHubContext<InboundHub> _hubContext;
 
@@ -40,11 +46,6 @@ namespace TextPort.Controllers
         //private BandwidthController()
         //{
         //}
-
-        private BandwidthController(TextPortContext context)
-        {
-            this._context = context;
-        }
 
         //private IHubContext _hubContext;
 

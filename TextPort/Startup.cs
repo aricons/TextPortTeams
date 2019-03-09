@@ -2,16 +2,12 @@
 using System.Linq;
 using System.Web.Mvc;
 using System.Web.Http;
-using System.Web.Http.Controllers;
-using System.Web.Compilation;
 using System.Web.Configuration;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Owin;
 using Owin;
 
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
 
 using TextPortCore.Data;
 
@@ -25,15 +21,10 @@ namespace TextPort
             var services = new ServiceCollection();
 
             ConfigureAuth(app);
-           
-            //var resolver = new DefaultDependencyResolver(services.BuildServiceProvider());
-            //DependencyResolver.SetResolver(resolver); // Set for MVC pages
-            //GlobalConfiguration.Configuration.DependencyResolver = resolver; //Set for WebAPI controllers
 
-            // Changes prior to switching to Unity DI
             ConfigureServices(services);
             var resolver = new DefaultDependencyResolver(services.BuildServiceProvider());
-            DependencyResolver.SetResolver(resolver);//Set MVC
+            DependencyResolver.SetResolver(resolver); //Set MVC
             GlobalConfiguration.Configuration.DependencyResolver = resolver; //Set for Web API
 
             app.MapSignalR();
@@ -41,16 +32,7 @@ namespace TextPort
 
         public void ConfigureServices(IServiceCollection services)
         {
-            //..services.AddSqlServer();
-            //var connectionString = System.Web.Compilation GetConnectionString("myDb");
-            //services.AddDbContext<TextPortContext>(options => options.UseSqlServer("")
-
-            //string connString = WebConfigurationManager.ConnectionStrings["MyConnectionStringNameHere"].ConnectionString;
-
             services.AddDbContext<TextPortContext>(options => options.UseSqlServer(WebConfigurationManager.ConnectionStrings["TextPortContext"].ConnectionString));
-
-            // Register the service and implementation for the database context
-            //services.AddScoped<TextPortContext>(provider => provider.GetService<TextPortContext>());
 
             //services.AddControllersAsServices(typeof(Startup).Assembly.GetExportedTypes()
             //   .Where(t => !t.IsAbstract && !t.IsGenericTypeDefinition)
