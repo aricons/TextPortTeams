@@ -1,0 +1,35 @@
+﻿@model TextPortCore.Models.LoginCredentials
+
+<div class="modal-dialog" role="document" id="logInModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 class="modal-title" id="addContactLabel">Log In</h2>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">×</span>
+            </button>
+        </div>
+        @using (Html.BeginForm("Login", "Home", FormMethod.Post, new { id = "form-login" }))
+        {
+            <div class="modal-body">
+                <div class="form-group">
+                    <label asp-for="UserNameOrEmail"></label>
+                    <input asp-for="UserNameOrEmail" placeholder="Username or email address" class="form-control" />
+                    <span asp-validation-for="UserNameOrEmail" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="LoginPassword"></label>
+                    <input asp-for="LoginPassword" class="form-control" placeholder="Password" />
+                    <span asp-validation-for="LoginPassword" class="text-danger"></span>
+                </div>
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div id="loginMessage" class="alert alert-danger collapse">
+                    <label id="lblMessage"></label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="submit" id="btnSubmitLogin" class="btn btn-primary">Login</button>
+            </div>
+        }
+    </div>
+</div>

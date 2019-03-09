@@ -1,0 +1,80 @@
+﻿@model TextPortCore.Models.AccountView
+@{
+    ViewData["Title"] = "Profile";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-3 ">
+                <div class="list-group ">
+                    <a href="#" class="list-group-item list-group-item-action active">Actions</a>
+                    <a href="#" class="list-group-item list-group-item-action">Numbers</a>
+                    <a href="#" class="list-group-item list-group-item-action">Contacts</a>
+                    <a href="#" class="list-group-item list-group-item-action">Change Password</a>
+                    <a href="#" class="list-group-item list-group-item-action">Delete Account</a>
+                </div>
+            </div>
+            <div class="col-md-9">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <h4>Profile - @User.Identity.Name</h4>
+                                <hr>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                @using (Html.BeginForm("Profile", "Account", FormMethod.Post, new { id = "form-login" }))
+                                {
+                                    @Html.HiddenFor(m => m.Account.AccountId)
+                                    @Html.HiddenFor(m => m.Account.UserName)
+                                    <div class="form-group row">
+                                        <label asp-for="@Model.Account.UserName" class="col-4 col-form-label"></label>
+                                        <div class="col-8">
+                                            <label class="col-form-label"><strong>@Model.Account.UserName</strong></label>
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label asp-for="@Model.Account.Email" class="col-4 col-form-label"></label>
+                                        <div class="col-8">
+                                            @*<input asp-for="@Model.Account.Email" placeholder="Email address" class="form-control" />*@
+                                            @*<span asp-validation-for="@Model.Account.Email" class="text-danger"></span>*@
+                                            @Html.TextBoxFor(m => m.Account.Email, new { @class = "form-control", placeholder = "Email address" })
+                                            @Html.ValidationMessageFor(m => m.Account.Email, null, new { @class = "text-danger" })
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label asp-for="@Model.Account.TimeZoneId" class="col-4 col-form-label"></label>
+                                        <div class="col-8">
+                                            @Html.DropDownListFor(x => Model.Account.TimeZoneId, new SelectList(Model.TimeZones, "Value", "Text", Model.Account.TimeZoneId), new { @class = "form-control" })
+                                            @Html.ValidationMessageFor(m => m.Account.TimeZoneId, null, new { @class = "text-danger" })
+                                            @*<span asp-validation-for="@Model.Account.TimeZoneId" class="text-danger"></span>*@
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label asp-for="@Model.Account.NotificationsEmailAddress" class="col-4 col-form-label"></label>
+                                        <div class="col-8">
+                                            @*<input asp-for="@Model.Account.NotificationsEmailAddress" placeholder="Notifications email address" class="form-control" />*@
+                                            @Html.TextBoxFor(m => m.Account.NotificationsEmailAddress, new { @class = "form-control", placeholder = "Notifications email address" })
+                                        </div>
+                                        @*<span asp-validation-for="@Model.Account.NotificationsEmailAddress" class="text-danger"></span>*@
+                                        @Html.ValidationMessageFor(m => m.Account.NotificationsEmailAddress, null, new { @class = "text-danger" })
+                                    </div>
+                                    <div class="form-group row">
+                                        <div class="offset-4 col-8">
+                                            <button name="submit" type="submit" class="btn btn-primary">Update My Profile</button>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+

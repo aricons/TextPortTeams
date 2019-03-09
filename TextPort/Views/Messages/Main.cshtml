@@ -1,0 +1,349 @@
+﻿@model TextPortCore.Models.MessagingContainer
+@{
+    ViewData["Title"] = "Messages";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<link rel="stylesheet" href="~/content/css/messaging.css">
+
+<script type="text/javascript">
+    $(function () {
+
+        //var connection = new signalR.HubConnectionBuilder().withUrl("/inboundHub").build();
+
+        $('#from_number').on("change", function (e) {
+            getRecentsForVirtualNumber($("#from_number option:selected").val());
+        });
+
+        $('#btn_send_message').on("click", function (e) {
+            sendMessage();
+        });
+
+        $('#new_recipient_number').on("focus", function (e) {
+            $("#msg_list").html('');
+            $('.chl').removeClass("active_chat");
+            checkSendButtonEligibility();
+        });
+
+        $('#new_recipient_number').on("keyup", function (e) {
+            var newNumber = $("#new_recipient_number").cleanVal();
+            if (newNumber.length >= 10) {
+                $("#hidActiveDestinationNumber").val(newNumber);
+            }
+            else {
+                $("#hidActiveDestinationNumber").val('');
+            }
+            checkSendButtonEligibility();
+        });
+
+        $('#message_text').on("keyup", function (e) {
+            checkSendButtonEligibility();
+        });
+
+        $("#new_recipient_number").mask('(000) 000-0000');
+
+        setChangeDetect();
+        checkSendButtonEligibility();
+
+        // SignalR - Need to declare inHub.client.messageNotification prior to calling $.connection.hub.start();
+        var inHub = $.connection.inboundHub;
+        // Create a function that the hub can call back to display messages.
+        inHub.client.messageNotification = function (fromNumber, toNumber, messageText, messageHtml) {
+            //var message = htmlEncode(message);
+            var activeDestinationNumber = $("#hidActiveDestinationNumber").val();
+            //alert("Message in from " + fromNumber);
+            if (fromNumber == activeDestinationNumber) {
+                var lastMessageItem = $('.msg_item:last').attr('id');
+                if (typeof lastMessageItem != 'undefined') {
+                    $("#" + lastMessageItem).after(messageHtml);
+                }
+                else {
+                    $("#msg_list").html('');
+                    var msgList = document.getElementById("msg_list");
+                    msgList.insertAdjacentHTML("beforeend", messageHtml);
+                }
+                var ml = $("#msg_list");
+                ml.animate({ scrollTop: ml.prop("scrollHeight") - ml.height() }, 50);
+            }
+            else {
+                alert("New message received from " + fromNumber + '. ' + messageText);
+            }
+        }
+
+        // Start the hub;
+        $.connection.hub.start();
+        //$.connection.hub.start().done(function () {
+            //alert("Connected to SignalR hub");
+        //});
+
+        //var inHub = $.connection.inboundHub;
+        ////$.connection.hub.start().then(function () {
+        ////    alert("Connected to hub");
+        ////    //hub.invoke('getConnectionId')
+        ////    //    .then(function (connectionId) {
+        ////    //        alert(connectionId);
+        ////    //    });
+        ////    //alert("Connected to hub with user ID " + hub.id);
+        ////}).catch(function (err) {
+        ////    return console.error(err.toString());
+        ////});
+
+        //var chat = $.connection.inboundHub;
+        //// Create a function that the hub can call back to display messages.
+        //chat.client.messageNotification = function (name, message) {
+        //    // Add the message to the page.
+        //    //$('#discussion').append('<li><strong>' + htmlEncode(name)
+        //    //    + '</strong>: ' + htmlEncode(message) + '</li>');
+        //    alert("Message received from " + name);
+        //};
+
+        //inHub.client.messageNotification = function (fromNumber, toNumber, messageText, messageHtml) {
+        //    // Add the message to the page.
+        //    //$('#discussion').append('<li><strong>' + htmlEncode(name)
+        //    //    + '</strong>: ' + htmlEncode(message) + '</li>');
+        //    alert("Message received from " + fromNumber);
+        //};
+
+        //$.connection.on("MessageNotification", function (fromNumber, toNumber, messageText, messageHtml) {
+        //inHub.client.messageNotification = (function (fromNumber, toNumber, messageText, messageHtml) {
+        //    var activeDestinationNumber = $("#hidActiveDestinationNumber").val();
+        //    alert("Message in from " + fromNumber);
+        //    if (fromNumber == activeDestinationNumber) {
+        //        var lastMessageItem = $('.msg_item:last').attr('id');
+        //        if (typeof lastMessageItem != 'undefined') {
+        //            $("#" + lastMessageItem).after(messageHtml);
+        //        }
+        //        else {
+        //            $("#msg_list").html('');
+        //            var msgList = document.getElementById("msg_list");
+        //            msgList.insertAdjacentHTML("beforeend", messageHtml);
+        //        }
+        //        var ml = $("#msg_list");
+        //        ml.animate({ scrollTop: ml.prop("scrollHeight") - ml.height() }, 50);
+        //    }
+        //    else {
+        //        alert("New message received from " + fromNumber + '. ' + messageText);
+        //    }
+        //    //var msg = html.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        //    ////var encodedMsg = user + " says " + msg;
+        //    //var notifyDiv = document.createElement("div");
+        //    //notifyDiv.textContent = html;
+        //    //document.getElementById("notifications").appendChild(notifyDiv);
+        //});
+    })
+
+    // This optional function html-encodes messages for display in the page.
+    function htmlEncode(value) {
+        var encodedValue = $('<div />').text(value).html();
+        return encodedValue;
+    }
+
+    function setChangeDetect() {
+        $('.chl').on("click", function (e) {
+            var number = this.id.split('_')[1];
+            getMessagesForNumber(number);
+            $("#hidActiveDestinationNumber").val(number);
+            checkSendButtonEligibility();
+        });
+    }
+
+    function checkSendButtonEligibility() {
+        $('#btn_send_message').prop('disabled', true);
+        if ($("#hidActiveDestinationNumber").val().length >= 10) {
+            $('#message_text').prop('placeholder', 'Type message to ' + $("#hidActiveDestinationNumber").val());
+            if ($('#message_text').val().length >= 1) {
+                $('#btn_send_message').prop('disabled', false);
+            }
+            //else {
+            //    $('#btn_send_message').prop('disabled', true);
+            //}
+        }
+        else {
+            //$('#btn_send_message').prop('disabled', true);
+            $('#message_text').prop('placeholder', 'Type message');
+        }
+    }
+
+    function getRecentsForVirtualNumber(virtualNumberId) {
+        $("#hidActiveVirtualNumberId").val(virtualNumberId);
+
+        var url = '@Url.Action("GetRecentToNumbersForDedicatedVirtualNumber", "Messages")';
+        url = url + "?aid=" + @Model.Account.AccountId + "&vnid=" + virtualNumberId;
+
+        $.get({
+            url: url,
+            dataType: "html",
+            cache: false,
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert(textStatus + ": Message data load failed. " + errorThrown);
+            },
+            success: function (newInputHTML) {
+                $("#recents").html('');
+                var recentsList = document.getElementById("recents");
+                recentsList.insertAdjacentHTML("beforeend", newInputHTML);
+
+                var activeNumberElem = $('.active_chat:first').attr('id');
+                if (typeof activeNumberElem != 'undefined') {
+                    var newActiveNumber = activeNumberElem.split('_')[1];
+                    $("#hidActiveDestinationNumber").val(newActiveNumber);
+                    getMessagesForNumber(newActiveNumber);
+                    setChangeDetect();
+                }
+                //var rl = $("#recents");
+                // Animated
+                //rl.animate({ scrollTop: rl.prop("scrollHeight") - rl.height() }, 50);
+            }
+        })
+    }
+
+    function getMessagesForNumber(number) {
+
+        $('#new_recipient_number').val('');
+        activeVirtualNumberId = $("#hidActiveVirtualNumberId").val();
+
+        var url = '@Url.Action("GetMessagesForNumber", "Messages")';
+        url = url + "?aid=" + @Model.Account.AccountId + "&vnid=" + activeVirtualNumberId + "&num=" + number;
+        $.get({
+            url: url,
+            dataType: "html",
+            cache: false,
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert(textStatus + ": Couldn't load form. " + errorThrown);
+            },
+            success: function (newInputHTML) {
+                $("#msg_list").html('');
+                var msgList = document.getElementById("msg_list");
+                msgList.insertAdjacentHTML("beforeend", newInputHTML);
+                var ml = $("#msg_list");
+
+                // Animated
+                ml.animate({ scrollTop: ml.prop("scrollHeight") - ml.height() }, 50);
+
+                $('.chl').removeClass("active_chat");
+                $('#recent_' + number).addClass("active_chat");
+            }
+        })
+    }
+
+    function sendMessage() {
+
+        if ($("#new_recipient_number").cleanVal() != "") {
+            $("#hidActiveDestinationNumber").val("1" + $("#new_recipient_number").cleanVal());
+        }
+        var message = $("#message_text").val();
+        var fromNumberId = $("#hidActiveVirtualNumberId").val();
+        var toNumber = $("#hidActiveDestinationNumber").val();
+
+        if (message != "") {
+            if (fromNumberId != "") {
+                if (toNumber != "") {
+                    var messageData = {
+                        VirtualNumberId: $("#hidActiveVirtualNumberId").val(),
+                        MobileNumber: $("#hidActiveDestinationNumber").val(),
+                        MessageText: $("#message_text").val()
+                    };
+
+                    $.post({
+                        url: '@Url.Action("SendMessage", "Messages")',
+                        data: JSON.stringify(messageData),
+                        contentType: "application/json",
+                        error: function (jqXHR, textStatus, errorThrown) {
+                            alert(textStatus + ": Failure sending message. " + errorThrown);
+                        },
+                        success: function (newInputHTML) {
+                            var lastMessageItem = $('.msg_item:last').attr('id');
+                            if (typeof lastMessageItem != 'undefined') {
+                                $("#" + lastMessageItem).after(newInputHTML);
+                                //setChangeDetect();
+                            }
+                            else {
+                                $("#msg_list").html('');
+                                var msgList = document.getElementById("msg_list");
+                                msgList.insertAdjacentHTML("beforeend", newInputHTML);
+                            }
+
+                            var ml = $("#msg_list");
+
+                            // Animated
+                            ml.animate({ scrollTop: ml.prop("scrollHeight") - ml.height() }, 50);
+                        }
+                    });
+                }
+                else {
+                    alert("No destination number is selected. Make sure a number that the message will be sent to is selected.");
+                }
+            }
+            else {
+                alert("No virtual number is selected. Make sure a number that the message will be sent from is selected.");
+            }
+        }
+        else {
+            alert("No message entered.");
+        }
+    }
+</script>
+
+<input type="hidden" id="hidActiveVirtualNumberId" value="@Model.ActiveVirtualNumberId" />
+<input type="hidden" id="hidActiveDestinationNumber" value="@Model.ActiveDestinationNumber" />
+
+<h3 class=" text-center">My Messages</h3>
+<div class="messaging">
+    <div class="inbox_msg">
+        <div class="inbox_people">
+            <div class="headind_srch headind_border_top">
+                <div class="recent_heading">
+                    <h4 class="num_title">Virtual Number</h4>
+                </div>
+                <div class="srch_bar">
+                    <select id="from_number" class="form-control num_dd">
+                        @foreach (TextPortCore.Models.DedicatedVirtualNumber number in Model.Numbers)
+                        {
+                            <option value="@number.VirtualNumberId">@number.VirtualNumber</option>
+                        }
+                    </select>
+                </div>
+            </div>
+            <div class="headind_srch">
+                <div class="recent_heading">
+                    <h4>Recents</h4>
+                </div>
+            </div>
+            <div id="recents" class="inbox_chat">
+                @foreach (TextPortCore.Models.Recent recent in Model.Recents)
+                {
+                    <div id="recent_@recent.Number" class="chl chat_list@(recent.IsActiveMessage ? " active_chat" : "")" )>
+                        <div class="chat_people">
+                            <div class="chat_img"> <img src="~/content/images/user-profile.png"> </div>
+                            <div class="chat_ib">
+                                <h5>@recent.Number<span class="chat_date">@string.Format("{0:MMMM dd, yy | hh:mm tt}", recent.TimeStamp)</span></h5>
+                                <p>
+                                    @recent.Message
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+            <div class="new_num_wrap">
+                <div class="type_num">
+                    <div class="input_num_write">
+                        <input id="new_recipient_number" type="text" placeholder="New number" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mesgs">
+            <div id="msg_list" class="msg_history">
+                @Html.Partial("_MessageList", Model)
+            </div>
+            <div class="type_msg">
+                <div class="input_msg_write">
+                    <textarea id="message_text" rows="3" placeholder="Type a message"></textarea>
+                    <button id="btn_send_message" class="msg_send_btn" type="button"><i class="fa fa-paper-plane-o msg_send_icon" aria-hidden="true"></i></button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

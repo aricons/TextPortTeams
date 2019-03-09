@@ -1,0 +1,38 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Web.Mvc;
+
+using TextPortCore.Data;
+
+namespace TextPortCore.Models
+{
+    public class AccountView
+    {
+        private readonly TextPortContext _context;
+
+        public Account Account { get; set; }
+
+        public IEnumerable<SelectListItem> TimeZones { get; set; }
+
+        public AccountView(TextPortContext context)
+        {
+            this._context = context;
+        }
+
+        public AccountView()
+        {
+            this.Account = new Account();
+            this.TimeZones = new List<SelectListItem>();
+        }
+
+        public AccountView(TextPortContext context, int accountId)
+        {
+            this._context = context;
+            using (TextPortDA da = new TextPortDA(_context))
+            {
+                this.Account = da.GetAccountById(accountId);
+                this.TimeZones = da.GetTimeZones();
+            }
+        }
+    }
+}

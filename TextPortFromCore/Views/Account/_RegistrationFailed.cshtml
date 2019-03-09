@@ -1,0 +1,22 @@
+﻿@model TextPortCore.Models.RegistrationData
+
+<input type="hidden" id="hidAccountId" value="@Model.AccountId" />
+
+<div class="modal-dialog" role="document" id="purchaseModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 class="modal-title" id="addContactLabel">Registration Failed</h2>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">×</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label id="lblConfirm">An error was encountered while registering your account. Please try again.</label>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">OK</button>
+        </div>
+    </div>
+</div>

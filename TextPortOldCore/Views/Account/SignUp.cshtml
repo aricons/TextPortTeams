@@ -1,0 +1,338 @@
+﻿@model TextPortCore.Models.RegistrationData
+@{
+    ViewData["Title"] = "TextPort - Sign Up";
+}
+
+<script src="https://www.paypalobjects.com/api/checkout.js"></script>
+
+<script type="text/javascript">
+    $(function () {
+        $.ajaxSetup({
+            cache: false
+        });
+
+        $('#AreaCode').on("keyup", function (e) {
+            var areaCode = $(this).val();
+            if (areaCode.length == 3) {
+                getAreaCodeName(areaCode);
+            } else {
+                $("#VirtualNumber").html('');
+                $("#AreaCodeDescription").text('');
+            }
+        });
+
+        $('#btnContinue').on("click", function (e) {
+            if ($("#form-signup").valid()) {
+                showConfirmationModal("purchaseModalCont", "/Account/Purchase");
+            }
+        });
+
+        $('#LeasePeriod').on("change", function (e) {
+            calculateCost();
+        });
+
+        $('#purchaseModalCont').on('show.bs.modal', function () {
+            $("#AccountId").val($("#hidAccountId").val());
+            $('#lblConfirm').text("Purchasing TextPort virtual number " + $("#VirtualNumber option:selected").text() + " for " + $("#LeasePeriod option:selected").text() + ". Cost " + $('#TotalCost').text());
+            renderPayPalButton();
+        });
+
+        calculateCost();
+    });
+
+    function getAreaCodeName(areaCode) {
+        var url = '@Url.Action("GetAreaCodeName", "Numbers")';
+        $.getJSON(url, {
+            areaCode: areaCode
+        }, function (response) {
+            if (response != "") {
+                $("#AreaCodeDescription").text(response);
+                getAvailableNumbers(areaCode);
+            } else {
+                $("#AreaCodeDescription").text("Invalid area code");
+            }
+        });
+    }
+
+    function getAvailableNumbers(areaCode) {
+        var url = '@Url.Action("GetAvailableNumbers", "Numbers")';
+        var numbers = "";
+        $("#VirtualNumber").html("");
+        $("#spintiller1").show();
+        $.getJSON(url, {
+            areaCode: areaCode
+        }, function (response) {
+            $.each(response, function (index, item) {
+                numbers += "<option value='" + item.value + "'>" + item.text + "</option>"
+            });
+            $("#VirtualNumber").html(numbers)
+            $("#spintiller1").hide();
+        });
+    }
+
+    function showConfirmationModal() {
+        $('#purchaseModalCont').html('');
+
+        var regData = {
+            UserName: $("#UserName").val(),
+            EmailAddress: $("#EmailAddress").val(),
+            Password: $("#Password").val(),
+            NumberCountryId: $("#NumberCountryId").val(),
+            AreaCode: $("#AreaCode").val(),
+            VirtualNumber: $("#VirtualNumber").val(),
+            NumberCost: $("#NumberCost").val()
+        };
+
+        $.post({
+            url: '@Url.Action("PrePurchase", "Account")',
+            data: JSON.stringify(regData),
+            contentType: "application/json",
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert(textStatus + ": Couldn't load pre-purchase. " + errorThrown);
+            },
+            success: function (newInputHTML) {
+                var form = document.getElementById("purchaseModalCont");
+                form.insertAdjacentHTML("beforeend", newInputHTML);
+                $(form).removeData("validator") // Added by jQuery Validate
+                    .removeData("unobtrusiveValidation"); // Added by jQuery Unobtrusive Validation
+                $.validator.unobtrusive.parse(form);
+
+                $('#purchaseModalCont').modal({
+                    keyboard: true
+                }, 'show');
+            }
+        });
+    }
+
+    function calculateCost() {
+        var cost = 0;
+        var countryRate = 6;
+        var leasePeriod = 0;
+
+        leasePeriod = parseFloat( $("#LeasePeriod").val());
+        cost = leasePeriod * countryRate;
+
+        $("#TotalCost").text("$" + cost + ".00");
+        $("#hidTotalCost").val(cost);
+    }
+
+    function registration_complete() {
+        //var url = '@Url.Action("ProfileRegComplete", "Account", new { id = "__id__" })';
+        //window.location.href = url.replace('__id__', id);
+        var url = '@Url.Action("ProfileRegComplete", "Account")';
+        window.location.href = url;
+    }
+
+    function renderPayPalButton() {
+        paypal.Button.render({
+            env: 'sandbox', // sandbox | production
+            style: {
+                layout: 'vertical',  // horizontal | vertical
+                size: 'medium',    // medium | large | responsive
+                shape: 'rect',      // pill | rect
+                color: 'blue'       // gold | blue | silver | white | black
+            },
+
+            // Options:
+            // - paypal.FUNDING.CARD
+            // - paypal.FUNDING.CREDIT
+            // - paypal.FUNDING.ELV
+            funding: {
+                allowed: [
+                    paypal.FUNDING.CARD,
+                    paypal.FUNDING.CREDIT
+                ],
+                disallowed: []
+            },
+
+            // Enable Pay Now checkout flow (optional)
+            commit: true,
+
+            client: {
+                sandbox: 'Ac6TTAGnmNme-wJJSdgU6rm8SSyW5nSc757nHhsqNWDz3X7lOa8Yx3eE-96JK-Z2YbN3N54PE_oRRGbO',
+                production: 'AUjK3Zugk_dkKu2ScI-f1S-8Ibxu99MeiuS9MSzogMOiEyKUa8Q4kz5L-wHfMxqZhF3p7ZjIm_64Ju_q'
+            },
+
+            payment: function (data, actions) {
+                return actions.payment.create({
+                    payment: {
+                        transactions: [
+                            {
+                                amount: {
+                                    total: $('#hidTotalCost').val(),
+                                    currency: 'USD'
+                                },
+                                description: "Textport virtual number " + $("#VirtualNumber").val() + " " + $("#LeasePeriod option:selected").text() + " lease.",
+                                custom: "VMN|1|6|1234"
+                            }
+                        ]
+                    },
+                });
+            },
+
+            onAuthorize: function (data, actions) {
+                return actions.payment.execute()
+                    .then(function () {
+                        var regData = {
+                            UserName: $("#UserName").val(),
+                            EmailAddress: $("#EmailAddress").val(),
+                            Password: $("#Password").val(),
+                            NumberCountryId: $("#NumberCountryId").val(),
+                            AreaCode: $("#AreaCode").val(),
+                            VirtualNumber: $("#VirtualNumber").val(),
+                            LeasePeriod: $("#LeasePeriod option:selected").val(),
+                            NumberCost: $("#NumberCost").val(),
+                            TotalCost: $('#hidTotalCost').val()
+                        };
+
+                        var url = '@Url.Action("PostPurchase", "Account")' + '?id=' + $('#AccountId').val();
+                        $.post({
+                            url: url,
+                            data: JSON.stringify(regData),
+                            contentType: "application/json",
+                            error: function (jqXHR, textStatus, errorThrown) {
+                                alert(textStatus + ": Couldn't load post-purchase. " + errorThrown);
+                            },
+                            success: function (newInputHTML) {
+                                $('#purchaseModalCont').modal('toggle');
+                                $('#postPurchaseModalCont').html('');
+                                var form = document.getElementById("postPurchaseModalCont");
+                                form.insertAdjacentHTML("beforeend", newInputHTML);
+                                $('#postPurchaseModalCont').modal({
+                                    backdrop: 'static',
+                                    keyboard: false
+                                }, 'show');
+                            }
+                        });
+                    });
+            }
+        }, '#paypal-button-container');
+    }
+
+    Number.prototype.formatMoney = function (c, d, t) {
+        var n = this,
+            c = isNaN(c = Math.abs(c)) ? 2 : c,
+            d = d == undefined ? "." : d,
+            t = t == undefined ? "," : t,
+            s = n < 0 ? "-" : "",
+            i = String(parseInt(n = Math.abs(Number(n) || 0).toFixed(c))),
+            j = (j = i.length) > 3 ? j % 3 : 0;
+        return '$' + s + (j ? i.substr(0, j) + t : "") + i.substr(j).replace(/(\d{3})(?=\d)/g, "$1" + t) + (c ? d + Math.abs(n - i).toFixed(c).slice(2) : "");
+    };
+</script>
+
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <h4>Sign Up</h4>
+                                <hr>
+                            </div>
+                        </div>
+                        @using (Html.BeginForm("SignUp", "Account", FormMethod.Post, new { id = "form-signup" }))
+                        {
+                            @Html.HiddenFor(m => m.NumberCost)
+                            @Html.HiddenFor(m => m.AccountId)
+                            <input type="hidden" id="hidTotalCost" value="0" />
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group row">
+                                        <label asp-for="UserName" class="col-4 col-form-label"></label>
+                                        <div class="col-8">
+                                            <input asp-for="UserName" placeholder="User name" class="form-control" />
+                                            <span asp-validation-for="UserName" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label asp-for="EmailAddress" class="col-4 col-form-label"></label>
+                                        <div class="col-8">
+                                            <input asp-for="EmailAddress" placeholder="Email address" class="form-control" />
+                                            <span asp-validation-for="EmailAddress" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label asp-for="Password" class="col-4 col-form-label"></label>
+                                        <div class="col-8">
+                                            <input asp-for="Password" placeholder="Password" class="form-control" />
+                                            <span asp-validation-for="Password" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label asp-for="ConfirmPassword" class="col-4 col-form-label"></label>
+                                        <div class="col-8">
+                                            <input asp-for="ConfirmPassword" placeholder="Confirm password" class="form-control" />
+                                            <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <h5>Select a Number</h5>
+                                            <hr>
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label asp-for="NumberCountryId" class="col-4 col-form-label"></label>
+                                        <div class="col-8">
+                                            @Html.DropDownListFor(m => m.NumberCountryId, new SelectList(Model.CountriesList, "Value", "Text"), new { @class = "form-control" })
+                                            <span asp-validation-for="NumberCountryId" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label asp-for="AreaCode" class="col-4 col-form-label"></label>
+                                        <div class="col-2">
+                                            <input asp-for="AreaCode" placeholder="000" class="form-control" />
+                                            <span asp-validation-for="AreaCode" class="text-danger"></span>
+                                        </div>
+                                        <div id="spintiller1" class="spinner-border collapse" role="status">
+                                            <span class="sr-only">Loading...</span>
+                                        </div>
+                                        <div class="col-5">
+                                            <label id="AreaCodeDescription" class="col-12 col-form-label"></label>
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label asp-for="VirtualNumber" class="col-4 col-form-label"></label>
+                                        <div class="col-3">
+                                            @Html.DropDownListFor(m => m.VirtualNumber, new SelectList(Model.NumbersList, "Value", "Text"), new { @class = "form-control" })
+                                            <span asp-validation-for="VirtualNumber" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label asp-for="LeasePeriod" class="col-4 col-form-label"></label>
+                                        <div class="col-3">
+                                            @Html.DropDownListFor(m => m.LeasePeriod, new SelectList(Model.LeasePeriodsList, "Value", "Text"), new { @class = "form-control" })
+                                            <span asp-validation-for="LeasePeriod" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label asp-for="TotalCost" class="col-4 col-form-label"></label>
+                                        <div class="col-8">
+                                            <label id="TotalCost" class="col-12"></label>
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <div class="offset-4 col-8">
+                                            <button id="btnContinue" type="button" class="btn btn-primary">Continue to Payment</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="purchaseModalCont" class="modal hide fade in" data-url='@Url.Action("Purchase", "Numbers")'>
+        @*<div id="purchaseContainer"></div>*@
+    </div>
+    <div id="postPurchaseModalCont" class="modal hide fade in">
+        @*<div id="post{urchaseContainer"></div>*@
+    </div>
+
+</body>

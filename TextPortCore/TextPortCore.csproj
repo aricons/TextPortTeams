@@ -1,0 +1,64 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net472</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <Optimize>false</Optimize>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Integrations\AWS\**" />
+    <Compile Remove="Integrations\REST\**" />
+    <Compile Remove="Models\**" />
+    <EmbeddedResource Remove="Integrations\AWS\**" />
+    <EmbeddedResource Remove="Integrations\REST\**" />
+    <EmbeddedResource Remove="Models\**" />
+    <None Remove="Integrations\AWS\**" />
+    <None Remove="Integrations\REST\**" />
+    <None Remove="Models\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="Models\Account.cs" />
+    <Compile Include="Models\AccountView.cs" />
+    <Compile Include="Models\AreaCode.cs" />
+    <Compile Include="Models\Bandwidth\BandwidthInboundMessage.cs" />
+    <Compile Include="Models\Contact.cs" />
+    <Compile Include="Models\DedicatedVirtualNumber.cs" />
+    <Compile Include="Models\ErrorLog.cs" />
+    <Compile Include="Models\Group.cs" />
+    <Compile Include="Models\GroupMember.cs" />
+    <Compile Include="Models\LoginCredentials.cs" />
+    <Compile Include="Models\Message.cs" />
+    <Compile Include="Models\MessageList.cs" />
+    <Compile Include="Models\MessagingContainer.cs" />
+    <Compile Include="Models\PayPal.cs" />
+    <Compile Include="Models\PurchaseTransaction.cs" />
+    <Compile Include="Models\Recent.cs" />
+    <Compile Include="Models\RegistrationData.cs" />
+    <Compile Include="Models\SupportRequest.cs" />
+    <Compile Include="Models\TimeZone.cs" />
+    <Compile Include="Models\VirtualNumberCountry.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AWSSDK.SQS" Version="3.3.3.59" />
+    <PackageReference Include="Microsoft.AspNet.Mvc" Version="5.2.7" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.2.2" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="2.2.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="2.2.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
+    <PackageReference Include="RestSharp" Version="106.6.9" />
+    <PackageReference Include="System.Diagnostics.EventLog" Version="4.5.0" />
+    <PackageReference Include="System.Net.Http" Version="4.3.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Data.Entity" />
+    <Reference Include="System.Web.Extensions" />
+  </ItemGroup>
+
+</Project>
