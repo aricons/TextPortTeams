@@ -30,7 +30,7 @@ namespace TextPort
             //DependencyResolver.SetResolver(resolver); // Set for MVC pages
             //GlobalConfiguration.Configuration.DependencyResolver = resolver; //Set for WebAPI controllers
 
-            // Test
+            // Changes prior to switching to Unity DI
             ConfigureServices(services);
             var resolver = new DefaultDependencyResolver(services.BuildServiceProvider());
             DependencyResolver.SetResolver(resolver);//Set MVC
