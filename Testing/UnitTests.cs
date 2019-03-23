@@ -1,15 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+Ôªøusing System;
+using System.Web;
+using System.Web.Mvc;
+using System.Web.Script.Serialization;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-using TextPortCore.Data;
 using TextPortCore.Models;
-using TextPortCore.Models.PayPal;
 using TextPortCore.Helpers;
-using TextPortCore.Integrations;
-using TextPortCore.Integrations.AWS.SQS;
 
 namespace Testing
 {
@@ -33,7 +30,7 @@ namespace Testing
         [TestMethod]
         public void TestAESDecryption()
         {
-            string decryptedPassword = AESEncryptDecrypt.Decrypt("1≠ù∑¸", Constants.RC4Key);
+            string decryptedPassword = AESEncryptDecrypt.Decrypt("1¬≠¬ù¬∑√º", Constants.RC4Key);
             string foo = decryptedPassword;
 
             // McKtwp3Ct8O8FQ==
@@ -53,18 +50,18 @@ namespace Testing
             //PayPal.GetAuthToken();
         }
 
-        [TestMethod]
-        public void SubmitPayPalPayment()
-        {
-            PurchaseDetail pd = new PurchaseDetail();
+        //[TestMethod]
+        //public void SubmitPayPalPayment()
+        //{
+        //    PurchaseDetail pd = new PurchaseDetail();
 
-            pd.intent = "sale";
-            pd.redirect_urls = new RedirectUrls()
-            {
-                cancel_url = "textport.com",
-                return_url = "textport.com"
-            };
-        }
+        //    pd.intent = "sale";
+        //    pd.redirect_urls = new RedirectUrls()
+        //    {
+        //        cancel_url = "textport.com",
+        //        return_url = "textport.com"
+        //    };
+        //}
 
         [TestMethod]
         public void GetRecentContacts()
@@ -74,16 +71,44 @@ namespace Testing
         }
 
         [TestMethod]
-        public void SendAWSSQSMessage()
+        public void GetRandomNumberString()
+        {
+            for (int x = 0; x <= 20; x++)
+            {
+                Console.WriteLine(RandomString.RandomNumberString());
+            }
+        }
+
+        [TestMethod]
+        public void StringifyMessageToJSON()
         {
             try
             {
-                AWSSQS awssqs = new AWSSQS();
-                awssqs.SendPosition("1234", "5678");
+                Message msg = new Message()
+                {
+                    AccountId = 1,
+                    CarrierId = 172,
+                    MessageText = "Test message text",
+                    MobileNumber = "19492339386",
+                    VirtualNumberId = 1895,
+                    Ipaddress = "200.1.1.1",
+                    Direction = 0
+                };
 
-                //Task<string> foo = AWSSQS.SendMessage("This is message number 1");
-                //string bar = foo.Result;
-                //AWSSQS.SendPosition("1234", "5678");
+                msg.MMSFiles = new System.Collections.Generic.List<MMSFile>();
+                msg.MMSFiles.Add(new MMSFile()
+                {
+                    FileName = "File1.jpg",
+                    DataBytes = null
+                });
+                msg.MMSFiles.Add(new MMSFile()
+                {
+                    FileName = "File2.jpg",
+                    DataBytes = null
+                });
+
+                string json = new JavaScriptSerializer().Serialize(msg);
+                string foo = json;
             }
             catch (Exception ex)
             {

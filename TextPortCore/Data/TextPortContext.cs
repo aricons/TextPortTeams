@@ -320,10 +320,9 @@ namespace TextPortCore.Data
 
                 entity.Property(e => e.MessageText)
                     .HasColumnName("Message")
-                    .HasMaxLength(160)
-                    .IsUnicode(false);
+                    .IsUnicode(true);
 
-                entity.Property(e => e.MmsfileName)
+                entity.Property(e => e.MmsfileNames)
                     .HasColumnName("MMSFileName")
                     .HasMaxLength(120)
                     .IsUnicode(false);
@@ -366,7 +365,7 @@ namespace TextPortCore.Data
                     .HasMaxLength(18)
                     .IsUnicode(false);
 
-
+                entity.Ignore(e => e.MMSFiles);
 
                 //this.HasRequired(t => t.V).WithMany(t => t.CustomerIntegrationTransactionReferences).HasForeignKey(d => d.CustomerIntegrationDetailID);
             });

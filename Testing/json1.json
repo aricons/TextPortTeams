@@ -1,0 +1,40 @@
+{
+  "MessageId": 0,
+  "TimeStamp": "\/Date(1552434436888)\/",
+  "AccountId": 1,
+  "VirtualNumberId": 1895,
+  "Direction": 0,
+  "Ipaddress": "200.1.1.1",
+  "MobileNumber": "19492339386",
+  "FromNumber": null,
+  "FromEmail": null,
+  "CarrierId": 172,
+  "GatewayEmail": null,
+  "SmtphostName": null,
+  "Subject": null,
+  "MessageText": "Test message text",
+  "Result": null,
+  "VirtualNumber": "",
+  "UniqueMessageId": null,
+  "MobileDevice": null,
+  "GatewayMessageId": "",
+  "MmsfileNames": null,
+  "CreditCost": null,
+  "Delivered": null,
+  "Price": null,
+  "ProcessingMessage": null,
+  "DeleteFlag": null,
+  "SourceType": null,
+  "RoutingType": null,
+  "QueueStatus": null,
+  "MMSFiles": [
+    {
+      "FileName": "File1.jpg",
+      "DataBytes": null
+    },
+    {
+      "FileName": "File2.jpg",
+      "DataBytes": null
+    }
+  ]
+}

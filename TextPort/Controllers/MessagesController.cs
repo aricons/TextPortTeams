@@ -1,6 +1,8 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using System.Collections.Generic;
+using System.Web;
 using System.Web.Mvc;
 
 using TextPortCore.Models;
@@ -124,10 +126,82 @@ namespace TextPort.Controllers
         }
 
         [Authorize]
+        [HttpPost]
+        public ActionResult UploadFile(HttpPostedFileBase file)
+        {
+            string responseHtml = string.Empty;
+            string accountIdStr = System.Security.Claims.ClaimsPrincipal.Current.FindFirst("AccountId").Value;
+
+            try
+            {
+                var fileHandler = new FileHandling(_context);
+                if (fileHandler.SaveMMSFile(file.InputStream, Convert.ToInt32(accountIdStr), file.FileName, true))
+                {
+                    MessageImage mi = new MessageImage(Convert.ToInt32(accountIdStr), file.FileName, MessageDirection.Outbound, ImageStorageRepository.Temporary);
+                    return PartialView("_MessageImage", mi);
+                    //return Json(new
+                    //{
+                    //    success = true,
+                    //    response = responseHtml
+                    //});
+                }
+            }
+            catch (Exception ex)
+            {
+                responseHtml = $"Upload failed. {ex.Message}";
+            }
+
+            responseHtml = "Failure uploading file";
+            return Json(new
+            {
+                success = false,
+                response = responseHtml
+            });
+        }
+
+        [Authorize]
+        [HttpPost]
+        public ActionResult DeleteMMSFile([System.Web.Http.FromBody] FileNameParameter fileNameParam)
+        {
+            string responseMesssage = string.Empty;
+            string accountIdStr = System.Security.Claims.ClaimsPrincipal.Current.FindFirst("AccountId").Value;
+
+            try
+            {
+                var fileHandler = new FileHandling(_context);
+                if (fileHandler.DeleteMMSFile(Convert.ToInt32(accountIdStr), fileNameParam.FileName, true))
+                {
+                    responseMesssage = "File deleted";
+                    return Json(new
+                    {
+                        success = true,
+                        response = responseMesssage
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                responseMesssage = $"Delete failed. {ex.Message}";
+            }
+
+            responseMesssage = "Failure deleting file";
+            return Json(new
+            {
+                success = true,
+                response = responseMesssage
+            });
+        }
+
+        [Authorize]
         [HttpGet]
         public ActionResult SignalRTest()
         {
             return View();
+        }
+
+        public class FileNameParameter
+        {
+            public string FileName { get; set; }
         }
     }
 }

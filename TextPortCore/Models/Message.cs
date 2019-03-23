@@ -52,7 +52,7 @@ namespace TextPortCore.Models
 
         public string GatewayMessageId { get; set; }
 
-        public string MmsfileName { get; set; }
+        public string MmsfileNames { get; set; }
 
         public int? CreditCost { get; set; }
 
@@ -70,6 +70,8 @@ namespace TextPortCore.Models
 
         public byte? QueueStatus { get; set; }
 
+        public List<MMSFile> MMSFiles { get; set; }
+
 
         // Constructors
         public Message()
@@ -80,6 +82,7 @@ namespace TextPortCore.Models
             this.GatewayMessageId = string.Empty;
             this.TimeStamp = DateTime.UtcNow;
             this.MessageText = string.Empty;
+            this.MMSFiles = new List<MMSFile>();
         }
 
         public Message(BandwidthInboundMessage bwMessage)
@@ -101,6 +104,5 @@ namespace TextPortCore.Models
             MessageRouting.WriteSemaphoreFile(this);
             return true;
         }
-
     }
 }

@@ -26,4 +26,16 @@ namespace TextPortCore.Helpers
         [Description("Failed")]
         Failed = 2
     }
+
+    public enum ImageStorageRepository : int
+    {
+        [Description("Unknown")]
+        Unknown = 0,
+        [Description("Temporary")]
+        Temporary = 1,
+        [Description("Recent")]
+        Recent = 2,
+        [Description("Archive")]
+        Archive = 3
+    }
 }

@@ -4,6 +4,26 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
+<link rel="stylesheet" href="~/content/css/emoji.css">
+
+<script src="~/scripts/emoji/config.js"></script>
+<script src="~/scripts/emoji/util.js"></script>
+<script src="~/scripts/emoji/jquery.emojiarea.js"></script>
+<script src="~/scripts/emoji/emoji-picker.js"></script>
+
+<script type="text/javascript">
+    $(function () {
+        window.emojiPicker = new EmojiPicker({
+            emojiable_selector: '[data-emojiable=true]',
+            assetsPath: '/content/images/emoji/',
+            popupButtonClasses: 'fa fa-smile-o'
+        });
+
+        window.emojiPicker.discover();
+
+    })
+</script>
+
 <body>
     <div class="container">
         <div class="row">
@@ -63,6 +83,17 @@
                                         @*<span asp-validation-for="@Model.Account.NotificationsEmailAddress" class="text-danger"></span>*@
                                         @Html.ValidationMessageFor(m => m.Account.NotificationsEmailAddress, null, new { @class = "text-danger" })
                                     </div>
+
+                                    <div class="row justify-content-center">
+                                        <div class="col-10">
+                                            <div class="text-left">
+                                                <p class="lead emoji-picker-container">
+                                                    <input id="emji" type="text" class="form-control" placeholder="Input field" data-emojiable="true">
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+
                                     <div class="form-group row">
                                         <div class="offset-4 col-8">
                                             <button name="submit" type="submit" class="btn btn-primary">Update My Profile</button>

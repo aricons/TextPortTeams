@@ -32,8 +32,10 @@
     <Compile Include="Models\GroupMember.cs" />
     <Compile Include="Models\LoginCredentials.cs" />
     <Compile Include="Models\Message.cs" />
+    <Compile Include="Models\MessageImage.cs" />
     <Compile Include="Models\MessageList.cs" />
     <Compile Include="Models\MessagingContainer.cs" />
+    <Compile Include="Models\MMSFile.cs" />
     <Compile Include="Models\PayPal.cs" />
     <Compile Include="Models\PurchaseTransaction.cs" />
     <Compile Include="Models\Recent.cs" />

@@ -293,11 +293,22 @@
     <Content Include="Content\bootstrap-reboot.min.css" />
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\bootstrap.min.css" />
+    <Content Include="Content\css\emoji.css" />
     <Content Include="Content\css\messaging.css" />
     <Content Include="Content\css\Site.css" />
     <Content Include="Content\css\site.min.css" />
     <Content Include="Content\css\styles.css" />
     <Content Include="Content\css\styles.min.css" />
+    <Content Include="Content\images\emoji\blank.gif" />
+    <Content Include="Content\images\emoji\emoji_spritesheet_0.png" />
+    <Content Include="Content\images\emoji\emoji_spritesheet_1.png" />
+    <Content Include="Content\images\emoji\emoji_spritesheet_2.png" />
+    <Content Include="Content\images\emoji\emoji_spritesheet_3.png" />
+    <Content Include="Content\images\emoji\emoji_spritesheet_4.png" />
+    <Content Include="Content\images\emoji\IconsetSmiles.png" />
+    <Content Include="Content\images\emoji\IconsetSmiles_1x.png" />
+    <Content Include="Content\images\emoji\IconsetW.png" />
+    <Content Include="Content\images\emoji\IconsetW_1x.png" />
     <Content Include="Content\images\tp_logo_240x54.png" />
     <Content Include="Content\images\user-profile.png" />
     <Content Include="Content\signalr\dist\browser\signalr.js" />
@@ -319,6 +330,18 @@
     <Content Include="Content\bootstrap-reboot.css.map" />
     <Content Include="Content\bootstrap-grid.min.css.map" />
     <Content Include="Content\bootstrap-grid.css.map" />
+    <Content Include="Scripts\dropzone\basic.css" />
+    <Content Include="Scripts\dropzone\basic.min.css" />
+    <Content Include="Scripts\dropzone\dropzone-amd-module.js" />
+    <Content Include="Scripts\dropzone\dropzone-amd-module.min.js" />
+    <Content Include="Scripts\dropzone\dropzone.css" />
+    <Content Include="Scripts\dropzone\dropzone.js" />
+    <Content Include="Scripts\dropzone\dropzone.min.css" />
+    <Content Include="Scripts\dropzone\dropzone.min.js" />
+    <Content Include="Scripts\emoji\config.js" />
+    <Content Include="Scripts\emoji\emoji-picker.js" />
+    <Content Include="Scripts\emoji\jquery.emojiarea.js" />
+    <Content Include="Scripts\emoji\util.js" />
     <Content Include="Scripts\esm\popper-utils.js" />
     <Content Include="Scripts\esm\popper-utils.min.js" />
     <Content Include="Scripts\esm\popper.js" />
@@ -327,7 +350,10 @@
     <Content Include="Scripts\esm\popper.js.map" />
     <Content Include="Scripts\esm\popper-utils.min.js.map" />
     <Content Include="Scripts\esm\popper-utils.js.map" />
+    <Content Include="Content\css\emoji.css.map" />
     <None Include="Properties\PublishProfiles\LiveDeploymentProfile.pubxml" />
+    <Content Include="Scripts\emoji\emoji-picker.coffee" />
+    <Content Include="Scripts\emoji\emoji-picker.js.map" />
     <None Include="Scripts\jquery-3.3.1.intellisense.js" />
     <Content Include="Scripts\jquery-3.3.1.js" />
     <Content Include="Scripts\jquery-3.3.1.min.js" />
@@ -349,7 +375,9 @@
     <Content Include="Scripts\umd\popper-utils.min.js" />
     <Content Include="Scripts\umd\popper.js" />
     <Content Include="Scripts\umd\popper.min.js" />
-    <Content Include="Web.config" />
+    <Content Include="Web.config">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </Content>
@@ -392,6 +420,7 @@
     <Content Include="Views\Messages\Main.cshtml" />
     <Content Include="Views\Messages\SignalRTest.cshtml" />
     <Content Include="Views\Bandwidth\_MessageList.cshtml" />
+    <Content Include="Views\Messages\_MessageImage.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
