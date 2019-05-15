@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Web.Mvc;
@@ -12,6 +13,7 @@ namespace TextPortCore.Models
     {
         private readonly TextPortContext _context;
 
+        private string purchaseType;
         private string userName;
         private string emailAddress;
         private string password;
@@ -20,13 +22,23 @@ namespace TextPortCore.Models
         private int numberCountryId;
         private string areaCode;
         private string virtualNumber;
+        private int virtualNumberId;
         private string numberProvider;
         private int leasePeriod;
-        private int creditCount;
+        private decimal creditCurrentBalance;
+        private decimal creditPurchaseAmount;
         private decimal numberCost;
         private decimal totalCost;
         private int accountId;
         private bool success;
+        private string completionTitle;
+        private string completionMessage;
+
+        public string PurchaseType
+        {
+            get { return this.purchaseType; }
+            set { this.purchaseType = value; }
+        }
 
         [Required(ErrorMessage = "A user name is required")]
         [Display(Name = "User Name")]
@@ -59,7 +71,7 @@ namespace TextPortCore.Models
             set { this.password = value; }
         }
 
-        [Required(ErrorMessage = "A password is required")]
+        [Required(ErrorMessage = "A password confirmation is required")]
         [Display(Name = "Confirm Password")]
         [DataType(DataType.Password)]
         [StringLength(60, ErrorMessage = "Must be between 5 and 60 characters", MinimumLength = 5)]
@@ -93,6 +105,12 @@ namespace TextPortCore.Models
             set { this.virtualNumber = value; }
         }
 
+        public int VirtualNumberId
+        {
+            get { return this.virtualNumberId; }
+            set { this.virtualNumberId = value; }
+        }
+
         public string VirtualNumberGlobalFormat
         {
             get { return Utilities.NumberToGlobalFormat(this.virtualNumber); }
@@ -107,11 +125,17 @@ namespace TextPortCore.Models
         }
 
         [Required(ErrorMessage = "A lease period is required")]
+        [Range(typeof(int), "1", "200", ErrorMessage = "A lease period is required")]
         [Display(Name = "Keep Number for")]
         public int LeasePeriod
         {
             get { return this.leasePeriod; }
             set { this.leasePeriod = value; }
+        }
+
+        public string LeasePeriodWord
+        {
+            get { return (this.LeasePeriod == 1) ? "month" : "months"; }
         }
 
         public string NumberProvider
@@ -120,10 +144,20 @@ namespace TextPortCore.Models
             set { this.numberProvider = value; }
         }
 
-        public int CreditCount
+        [Display(Name = "Account balance")]
+        public decimal CreditCurrentBalance
         {
-            get { return this.creditCount; }
-            set { this.creditCount = value; }
+            get { return this.creditCurrentBalance; }
+            set { this.creditCurrentBalance = value; }
+        }
+
+        [Required(ErrorMessage = "An amount is required")]
+        [Range(typeof(decimal), "1", "1000", ErrorMessage = "An amount is required")]
+        [Display(Name = "Amount to Add")]
+        public decimal CreditPurchaseAmount
+        {
+            get { return this.creditPurchaseAmount; }
+            set { this.creditPurchaseAmount = value; }
         }
 
         public decimal NumberCost
@@ -139,23 +173,28 @@ namespace TextPortCore.Models
             set { this.totalCost = value; }
         }
 
-        public string FullNumber
+        public string ProductDescription
         {
             get
             {
-                string numberStripped = this.virtualNumber.Replace(" ", "").Replace("-", "").Replace("(", "").Replace(")", "");
-                return string.Format("1{0}", numberStripped);
-            }
-        }
+                string cost = (this.TotalCost > 0) ? $" {this.TotalCost:C2}" : string.Empty;
+                switch (this.PurchaseType)
+                {
+                    case "VirtualNumberRenew":
+                        return $"TextPort virtual number {this.VirtualNumber}, {this.LeasePeriod} month lease renewal.{cost}";
 
-        public string ProductDescription
-        {
-            get { return string.Format("TextPort virtual number {0}, {1} month lease", this.virtualNumber, "1"); }
+                    case "Credits":
+                        return $"Credit value{cost}.";
+
+                    default: // VirtualNumberSignUp and VirtualNumber
+                        return $"TextPort virtual number {this.VirtualNumber}, {this.LeasePeriod} month lease.{cost}";
+                }
+            }
         }
 
         public string PayPalCustom
         {
-            get { return string.Format("VMN|{0}|{1}|{2}|{3}|{4}", this.accountId, this.FullNumber, this.numberCountryId, this.leasePeriod, this.creditCount); }
+            get { return string.Format("VMN|{0}|{1}|{2}|{3}|{4}", this.accountId, this.VirtualNumber, this.numberCountryId, this.leasePeriod, this.creditPurchaseAmount); }
         }
 
         public int AccountId
@@ -170,16 +209,50 @@ namespace TextPortCore.Models
             set { this.success = value; }
         }
 
+        public string PurchaseTitle
+        {
+            get
+            {
+                switch (this.PurchaseType)
+                {
+                    case "VirtualNumberRenew":
+                        return $"Renew Number {this.VirtualNumber}";
+
+                    case "Credits":
+                        string cost = (this.TotalCost > 0) ? $" {this.TotalCost:C2}" : string.Empty;
+                        return $"Add{cost} TextPort Credit.";
+
+                    default: // VirtualNumberSignUp and VirtualNumber
+                        return $"Register Number {this.VirtualNumber}";
+                }
+            }
+        }
+
+        public string CompletionTitle
+        {
+            get { return this.completionTitle; }
+            set { this.completionTitle = value; }
+        }
+
+        public string CompletionMessage
+        {
+            get { return this.completionMessage; }
+            set { this.completionMessage = value; }
+        }
+
         public IEnumerable<SelectListItem> CountriesList { get; set; }
 
         public IEnumerable<SelectListItem> NumbersList { get; set; }
 
         public IEnumerable<SelectListItem> LeasePeriodsList { get; set; }
 
+        public IEnumerable<SelectListItem> CreditAmountsList { get; set; }
+
 
         // Constructors
         public RegistrationData()
         {
+            this.PurchaseType = string.Empty;
             this.UserName = string.Empty;
             this.Password = string.Empty;
             this.EmailAddress = string.Empty;
@@ -187,21 +260,27 @@ namespace TextPortCore.Models
             this.ChooseNumberNow = false;
             this.AreaCode = string.Empty;
             this.VirtualNumber = string.Empty;
+            this.VirtualNumberId = 0;
             this.NumberProvider = "Bandwidth";
             this.NumberCost = 6;
             this.LeasePeriod = 1;
-            this.CreditCount = 100;
+            this.CreditCurrentBalance = 0;
+            this.CreditPurchaseAmount = 0;
             this.AccountId = 0;
             this.Success = false;
+            this.CompletionTitle = string.Empty;
+            this.CompletionMessage = string.Empty;
 
             // Initialize the numbers drop-down.
             List<SelectListItem> numbers = new List<SelectListItem>();
         }
 
-        public RegistrationData(TextPortContext context)
+        public RegistrationData(TextPortContext context, string purcType, int accId)
         {
             this._context = context;
 
+            this.PurchaseType = purcType;
+            this.AccountId = accId;
             this.UserName = string.Empty;
             this.Password = string.Empty;
             this.EmailAddress = string.Empty;
@@ -209,12 +288,21 @@ namespace TextPortCore.Models
             this.ChooseNumberNow = false;
             this.AreaCode = string.Empty;
             this.VirtualNumber = string.Empty;
+            this.VirtualNumberId = 0;
             this.NumberProvider = "Bandwidth";
             this.NumberCost = 6;
             this.LeasePeriod = 1;
-            this.CreditCount = 100;
-            this.AccountId = 0;
+            this.CreditCurrentBalance = 0;
+            this.CreditPurchaseAmount = 0;
             this.Success = false;
+            this.CompletionTitle = string.Empty;
+            this.CompletionMessage = string.Empty;
+
+            if (purcType == "ComplimentaryNumber")
+            {
+                this.NumberCost = 0;
+                this.LeasePeriod = 1;
+            }
 
             // Initialize the numbers drop-down.
             List<SelectListItem> numbers = new List<SelectListItem>();
@@ -230,7 +318,17 @@ namespace TextPortCore.Models
             using (TextPortDA da = new TextPortDA(_context))
             {
                 this.CountriesList = da.GetNumberCountriesList();
-                this.LeasePeriodsList = da.GetLeasePeriods();
+                this.LeasePeriodsList = da.GetLeasePeriods((purcType == "ComplimentaryNumber"));
+                this.CreditAmountsList = da.GetCreditAmounts();
+            }
+
+            if (this.PurchaseType == "Credits")
+            {
+                Account acc = _context.Accounts.FirstOrDefault(x => x.AccountId == this.AccountId);
+                if (acc != null)
+                {
+                    this.CreditCurrentBalance = acc.Credits;
+                }
             }
         }
     }

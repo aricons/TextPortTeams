@@ -107,7 +107,7 @@ namespace TextPortCore.Helpers
                     {
                         MMSFile mmsFile = new MMSFile();
                         mmsFile.FileName = filePath;
-                        mmsFile.DataBytes = File.ReadAllBytes(filePath);
+                        //mmsFile.DataBytes = File.ReadAllBytes(filePath);
                         mmsFiles.Add(mmsFile);
                     }
                 }

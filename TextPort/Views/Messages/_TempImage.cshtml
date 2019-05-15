@@ -1,30 +1,30 @@
-﻿@model TextPortCore.Models.MessageImage
+﻿@model TextPortCore.Models.TempImage
 
-@if (Model.Direction == (int)TextPortCore.Helpers.MessageDirection.Outbound)
-{
-    <div id="@Model.ImageId" class="msg_item outgoing_msg">
+@*@if (Model.Direction == (int)TextPortCore.Helpers.MessageDirection.Outbound)
+{*@
+    <div id="@Model.ImageId" class="temp_img msg_item outgoing_msg">
         <div class="sent_msg">
-            <p>
-                <img src="@Model.Url" />
-            </p>
+            <div>
+                <img src="@Model.Url" alt="@Model.FileName" />
+            </div>
             @if (Model.MessageId == 0)
             {
                 <span class="time_date"><a href="" onclick="return removeImage(@Model.ImageId, '@Model.FileName')">Remove</a></span>
             }
         </div>
     </div>
-}
+@*}
 else
 {
     <div id="@Model.ImageId" class="msg_item incoming_msg">
         <div class="incoming_msg_img"> <img src="~/content/images/user-profile.png" /> </div>
         <div class="received_msg">
             <div class="received_withd_msg">
-                <p>
+                <div>
                     <img src="@Model.Url" />
-                </p>
+                </div>
                 @*<span class="time_date">@string.Format("{0:MMMM dd, yy | hh:mm tt}", msg.TimeStamp)</span>*@
-            </div>
+            @*</div>
         </div>
-    </div>
-}
+    </div>*@
+@*}*@

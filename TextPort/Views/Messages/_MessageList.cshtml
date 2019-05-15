@@ -1,9 +1,18 @@
-﻿@foreach (TextPortCore.Models.Message msg in Model.Messages)
+﻿@using TextPortCore.Helpers
+@using TextPortCore.Models
+
+@foreach (Message msg in Model.Messages)
 {
     if (msg.Direction == (int)TextPortCore.Helpers.MessageDirection.Outbound)
     {
         <div id="@msg.MessageId" class="msg_item outgoing_msg">
             <div class="sent_msg">
+                @foreach (MMSFile mms in msg.MMSFiles)
+                {
+                    <div>
+                        <img src="@MMSUtils.GetMMSFileURL(msg.AccountId, mms.StorageId, mms.FileName)" alt="@mms.FileName" />
+                    </div>
+                }
                 <p>
                     @msg.MessageText
                 </p>

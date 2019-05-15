@@ -49,11 +49,18 @@ namespace TextPortCore.Data
             return countriesList;
         }
 
-        public List<DedicatedVirtualNumber> GetNumbersForAccount(int accountId)
+        public List<DedicatedVirtualNumber> GetNumbersForAccount(int accountId, bool includeExpiredNumbers)
         {
             try
             {
-                return _context.DedicatedVirtualNumbers.Where(x => x.AccountId == accountId && x.Cancelled == false).OrderByDescending(x => x.IsDefault).ToList();
+                if (includeExpiredNumbers)
+                {
+                    return _context.DedicatedVirtualNumbers.Where(x => x.AccountId == accountId).OrderByDescending(x => x.CreateDate).ToList();
+                }
+                else
+                {
+                    return _context.DedicatedVirtualNumbers.Where(x => x.AccountId == accountId && x.Cancelled == false).OrderByDescending(x => x.CreateDate).ToList();
+                }
             }
             catch (Exception ex)
             {
@@ -86,7 +93,7 @@ namespace TextPortCore.Data
                     RenewalCount = 0,
                     SevenDayReminderSent = null,
                     TwoDayReminderSent = null,
-                    VirtualNumber = rd.FullNumber,
+                    VirtualNumber = rd.VirtualNumberGlobalFormat,
                     VirtualNumberCountryId = rd.NumberCountryId,
                     VirtualNumberId = 0
                 };

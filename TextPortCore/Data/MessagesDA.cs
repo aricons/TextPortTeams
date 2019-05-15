@@ -1,11 +1,15 @@
 ﻿using System;
 using System.Linq;
-using System.Diagnostics;
+//using System.Data.Entity;
 using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore.Diagnostics;
+
+using Microsoft.EntityFrameworkCore;
+
+using Newtonsoft.Json;
 
 using TextPortCore.Models;
 using TextPortCore.Helpers;
+
 
 namespace TextPortCore.Data
 {
@@ -41,7 +45,30 @@ namespace TextPortCore.Data
         {
             try
             {
-                return _context.Messages.Where(x => x.AccountId == accountId && x.VirtualNumberId == virtualNumberId && x.MobileNumber == number).OrderBy(x => x.MessageId).ToList();
+                //var query = (
+                //from messages in _context.Messages
+                //from mmsfiles in _context.MMSFiles
+                //     .Where(mmsfile => mmsfile.MessageId == messages.MessageId)
+                //     .DefaultIfEmpty() // <== makes join left join
+                //where messages.AccountId.Equals(accountId) && messages.VirtualNumberId.Equals(virtualNumberId)
+                //select new
+                //{
+                //    messages.MessageId,
+                //    messages.MessageText,
+                //    m
+                //    messages.MMSFiles = new List<MMSFile>({ mmsfiles })
+                //}
+                //);
+
+                return _context.Messages.Include(m => m.MMSFiles)
+                    .Where(m => m.AccountId == accountId && m.VirtualNumberId == virtualNumberId && m.MobileNumber == number)
+                    .ToList();
+
+                //from c in _context.MMSFiles
+                //join p in _context.Messages on c equals p.MessageId into ps
+                //from p in ps.DefaultIfEmpty()
+
+                //return _context.Messages.Where(x => x.AccountId == accountId && x.VirtualNumberId == virtualNumberId && x.MobileNumber == number).OrderBy(x => x.MessageId).ToList();
             }
             catch (Exception ex)
             {
@@ -63,7 +90,7 @@ namespace TextPortCore.Data
                             {
                                 Message = numGroup.Select(x => new Recent()
                                 {
-                                    Number = numGroup.Key,
+                                    Number = Utilities.NumberToLocalFormat(numGroup.Key, 22),
                                     MessageId = x.MessageId,
                                     TimeStamp = x.TimeStamp,
                                     Message = x.MessageText,
@@ -92,7 +119,7 @@ namespace TextPortCore.Data
                             {
                                 Message = numGroup.Select(x => new Recent()
                                 {
-                                    Number = numGroup.Key,
+                                    Number = Utilities.NumberToLocalFormat(numGroup.Key, 22),
                                     MessageId = x.MessageId,
                                     TimeStamp = x.TimeStamp,
                                     Message = x.MessageText,
@@ -168,6 +195,10 @@ namespace TextPortCore.Data
         {
             try
             {
+                //if (message.MMSFiles != null && message.MMSFiles.Count > 0)
+                //{
+                //    message.MmsfileNames = JsonConvert.SerializeObject(message.MMSFiles.Select(m => m.FileName).ToList());
+                //}
                 _context.Messages.Add(message);
                 _context.SaveChanges();
                 return message.MessageId;

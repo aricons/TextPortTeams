@@ -43,18 +43,31 @@ namespace TextPortCore.Data
             return null;
         }
 
-        public IEnumerable<SelectListItem> GetLeasePeriods()
+        public IEnumerable<SelectListItem> GetLeasePeriods(bool complimentaryOnly)
         {
             try
             {
-                Dictionary<int, string> leasePeriodsDict = new Dictionary<int, string>()
+                Dictionary<int, string> leasePeriodsDict = null;
+
+                if (complimentaryOnly)
                 {
-                    {1, "1 Month"},
-                    {2, "2 Months"},
-                    {3, "3 Months"},
-                    {6, "6 Months"},
-                    {12, "1 Year"},
-                    {24, "2 Years" } };
+                    leasePeriodsDict = new Dictionary<int, string>()
+                    {
+                        {1, "1 Month"}
+                    };
+                }
+                else
+                {
+                    leasePeriodsDict = new Dictionary<int, string>()
+                    {
+                        {1, "1 Month"},
+                        {2, "2 Months"},
+                        {3, "3 Months"},
+                        {6, "6 Months"},
+                        {12, "1 Year"},
+                        {24, "2 Years" }
+                    };
+                }
 
                 List<SelectListItem> periods = leasePeriodsDict
                     .OrderBy(p => p.Key)
@@ -65,10 +78,56 @@ namespace TextPortCore.Data
                             Text = lp.Value
                         }).ToList();
 
+                if (!complimentaryOnly)
+                {
+                    SelectListItem firstItem = new SelectListItem()
+                    {
+                        Value = "0",
+                        Text = "--- select lease period ---"
+                    };
+
+                    periods.Insert(0, firstItem);
+                }
+
+                return new SelectList(periods, "Value", "Text");
+            }
+            catch (Exception ex)
+            {
+                ErrorHandling eh = new ErrorHandling(_context);
+                eh.LogException("Lists.GetLeasePeriods", ex);
+            }
+
+            return null;
+        }
+
+        public IEnumerable<SelectListItem> GetCreditAmounts()
+        {
+            try
+            {
+                Dictionary<decimal, string> creditAmountsDict = new Dictionary<decimal, string>()
+                {
+                    {(decimal)2.00, "$2.00"},
+                    {(decimal)5.00, "$5.00"},
+                    {(decimal)10.00, "$10.00"},
+                    {(decimal)20.00, "$20.00"},
+                    {(decimal)30.00, "$20.00"},
+                    {(decimal)50.00, "$50.00" },
+                    {(decimal)100.00, "$100.00" }
+                };
+
+                List<SelectListItem> periods = creditAmountsDict
+                    .OrderBy(p => p.Key)
+                        .Select(lp =>
+                        new SelectListItem
+                        {
+                            Value = lp.Key.ToString(),
+                            Text = lp.Value
+                        }).ToList();
+
                 SelectListItem firstItem = new SelectListItem()
                 {
-                    Value = null,
-                    Text = "--- select lease period ---"
+                    Value = "0",
+                    Text = "--- select credit amount ---"
                 };
 
                 periods.Insert(0, firstItem);
@@ -78,7 +137,7 @@ namespace TextPortCore.Data
             catch (Exception ex)
             {
                 ErrorHandling eh = new ErrorHandling(_context);
-                eh.LogException("Lists.GetLeasePeriods", ex);
+                eh.LogException("Lists.GetCreditAmountsList", ex);
             }
 
             return null;

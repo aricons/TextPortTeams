@@ -1,12 +1,17 @@
 ﻿using System;
-using System.Web;
-using System.Web.Mvc;
+//using System.Web;
+//using System.Web.Mvc;
+using System.Configuration;
 using System.Web.Script.Serialization;
 
+using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
+using TextPortCore.Data;
 using TextPortCore.Models;
 using TextPortCore.Helpers;
+using TextPortServices.Processes;
+
 
 namespace Testing
 {
@@ -16,6 +21,36 @@ namespace Testing
         [TestMethod]
         public void TestMethod1()
         {
+        }
+
+        [TestMethod]
+        public void ProcessOutboundMessage()
+        {
+            int messageId = 2933866;
+
+            var optionsBuilder = new DbContextOptionsBuilder<TextPortContext>();
+            optionsBuilder.UseSqlServer(ConfigurationManager.ConnectionStrings["TextPortContext"].ConnectionString);
+            TextPortContext context = new TextPortContext(optionsBuilder.Options);
+
+            using (TextPortDA da = new TextPortDA(context))
+            {
+                Message message = da.GetMessageById(messageId);
+
+                if (message.MessageId > 0)
+                {
+                    Communications comms = new Communications(context);
+                    if (comms.GenerateAndSendMessage(message))
+                    {
+                        message.ProcessingMessage += " Comms OK. ";
+                        message.QueueStatus = 1;
+                    }
+                    else
+                    {
+                        message.ProcessingMessage += " Comms Failed. GenerateAndSendMessage failed. ";
+                        message.QueueStatus = 2;
+                    }
+                }
+            }
         }
 
         [TestMethod]
@@ -80,6 +115,15 @@ namespace Testing
         }
 
         [TestMethod]
+        public void GetUniqueToken()
+        {
+            for (int x = 0; x <= 10; x++)
+            {
+                Console.WriteLine(RandomString.GenerateRandomToken(30));
+            }
+        }
+
+        [TestMethod]
         public void StringifyMessageToJSON()
         {
             try
@@ -99,12 +143,12 @@ namespace Testing
                 msg.MMSFiles.Add(new MMSFile()
                 {
                     FileName = "File1.jpg",
-                    DataBytes = null
+                    //DataBytes = null
                 });
                 msg.MMSFiles.Add(new MMSFile()
                 {
                     FileName = "File2.jpg",
-                    DataBytes = null
+                    //DataBytes = null
                 });
 
                 string json = new JavaScriptSerializer().Serialize(msg);
@@ -114,6 +158,22 @@ namespace Testing
             {
                 string foo = ex.Message;
             }
+        }
+
+        [TestMethod]
+        public void NumberFormattingTests()
+        {
+            string number = "19492339386";
+            //string number = "(949) 233-9386";
+
+            DedicatedVirtualNumber num = new DedicatedVirtualNumber()
+            {
+                VirtualNumber = number
+            };
+
+            string foo = num.ToLocalFormat();
+
+            string bar = foo;
         }
     }
 }

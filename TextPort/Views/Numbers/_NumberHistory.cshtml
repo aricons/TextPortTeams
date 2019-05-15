@@ -1,0 +1,63 @@
+﻿@using TextPortCore.Models
+@using TextPortCore.Helpers
+
+@model  MessageHistory
+
+<div class="modal-dialog" role="document" id="historyModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 class="modal-title" id="addContactLabel">Message History for @Model.Number</h2>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">×</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            @if (Model.Messages.Count == 0)
+            {
+                <div id="recent_0">
+                    <div class="text-center">
+                        <br />
+                        <h6>No messages for this number</h6>
+                    </div>
+                </div>
+            }
+            else
+            {
+                foreach (Message msg in Model.Messages)
+                {
+                    if (msg.Direction == (int)TextPortCore.Helpers.MessageDirection.Outbound)
+                    {
+                        <div id="@msg.MessageId" class="msg_item outgoing_msg">
+                            <div class="sent_msg">
+                                @foreach (MMSFile mms in msg.MMSFiles)
+                                {
+                                    <div>
+                                        <img src="@MMSUtils.GetMMSFileURL(msg.AccountId, mms.StorageId, mms.FileName)" alt="@mms.FileName" />
+                                    </div>
+                                }
+                                <p>
+                                    @msg.MessageText
+                                </p>
+                                <span class="time_date">@string.Format("{0:MMMM dd, yy | hh:mm tt}", msg.TimeStamp)</span>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div id="@msg.MessageId" class="msg_item incoming_msg">
+                            <div class="incoming_msg_img"><img src="~/content/images/user-profile.png" /></div>
+                            <div class="received_msg">
+                                <div class="received_withd_msg">
+                                    <p>
+                                        @msg.MessageText
+                                    </p>
+                                    <span class="time_date">@string.Format("{0:MMMM dd, yy | hh:mm tt}", msg.TimeStamp)</span>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+            }
+        </div>
+    </div>
+</div>

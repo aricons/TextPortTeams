@@ -27,6 +27,16 @@ namespace TextPortCore.Helpers
         Failed = 2
     }
 
+    public enum RequestStatus : int
+    {
+        [Description("Pending")]
+        Pending = 0,
+        [Description("Success")]
+        Success = 1,
+        [Description("Failed")]
+        Failed = 2
+    }
+
     public enum ImageStorageRepository : int
     {
         [Description("Unknown")]

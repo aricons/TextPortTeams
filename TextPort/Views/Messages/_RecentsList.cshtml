@@ -1,14 +1,28 @@
-﻿@foreach (TextPortCore.Models.Recent recent in Model)
+﻿@using TextPortCore.Models
+
+@if (Model.Count == 0)
 {
-    <div id="recent_@recent.Number" class="chl chat_list@(recent.IsActiveMessage ? " active_chat" : "")">
-        <div class="chat_people">
-            <div class="chat_img"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil"> </div>
-            <div class="chat_ib">
-                <h5>@recent.Number<span class="chat_date">@string.Format("{0:MMMM dd, yy | hh:mm tt}", recent.TimeStamp)</span></h5>
-                <p>
-                    @recent.Message
-                </p>
-            </div>
+    <div id="recent_0">
+        <div class="text-center">
+            <br />
+            <h6>No messages for this number</h6>
         </div>
     </div>
+}
+else
+{
+    foreach (Recent recent in Model)
+    {
+        <div id="recent_@recent.NumberInternationalFormat" class="chl chat_list@(recent.IsActiveMessage ? " active_chat" : "")">
+            <div class="chat_people">
+                <div class="chat_img"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil"> </div>
+                <div class="chat_ib">
+                    <h5>@recent.Number<span class="chat_date">@string.Format("{0:MMMM dd, yy | hh:mm tt}", recent.TimeStamp)</span></h5>
+                    <p>
+                        @recent.Message
+                    </p>
+                </div>
+            </div>
+        </div>
+    }
 }

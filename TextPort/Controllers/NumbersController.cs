@@ -68,5 +68,68 @@ namespace TextPort.Controllers
 
             return Json(numbersItems, JsonRequestBehavior.AllowGet);
         }
+
+        [Authorize]
+        [HttpGet]
+        public ActionResult Manage()
+        {
+            bool showExpiredNumbers = Request.QueryString["exp"] != null && Request.QueryString["exp"].Equals("1");
+            string accountIdStr = System.Security.Claims.ClaimsPrincipal.Current.FindFirst("AccountId").Value;
+            int accountId = Convert.ToInt32(accountIdStr);
+
+            NumbersContainer nc = new NumbersContainer(_context, accountId, showExpiredNumbers);
+            return View(nc);
+        }
+
+        [Authorize]
+        [HttpGet]
+        public ActionResult GetNumber()
+        {
+            string accountIdStr = System.Security.Claims.ClaimsPrincipal.Current.FindFirst("AccountId").Value;
+            int accountId = Convert.ToInt32(accountIdStr);
+
+            RegistrationData regData = new RegistrationData(_context, "VirtualNumber", accountId);
+            return View(regData);
+        }
+
+        [Authorize]
+        [HttpGet]
+        public ActionResult RenewNumber(int id)
+        {
+            string accountIdStr = System.Security.Claims.ClaimsPrincipal.Current.FindFirst("AccountId").Value;
+            int accountId = Convert.ToInt32(accountIdStr);
+
+            RegistrationData regData = new RegistrationData(_context, "VirtualNumberRenew", accountId);
+
+            DedicatedVirtualNumber vn = _context.DedicatedVirtualNumbers.FirstOrDefault(x => x.VirtualNumberId == id);
+            if (vn != null)
+            {
+                regData.VirtualNumber = vn.VirtualNumber;
+                regData.VirtualNumberId = vn.VirtualNumberId;
+            }
+
+            return View(regData);
+        }
+
+        [Authorize]
+        [HttpGet]
+        public ActionResult ComplimentaryNumber()
+        {
+            string accountIdStr = System.Security.Claims.ClaimsPrincipal.Current.FindFirst("AccountId").Value;
+            int accountId = Convert.ToInt32(accountIdStr);
+
+            RegistrationData regData = new RegistrationData(_context, "ComplimentaryNumber", accountId);
+
+            return View("GetNumber", regData);
+        }
+
+        [Authorize]
+        [HttpGet]
+        public ActionResult NumberHistory(int id)
+        {
+            MessageHistory history = new MessageHistory(_context, id);
+
+            return PartialView("_NumberHistory", history);
+        }
     }
 }

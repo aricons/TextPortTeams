@@ -1,15 +1,11 @@
 ﻿using System;
 using System.Configuration;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 using TextPortCore.Helpers;
 
 namespace TextPortCore.Models
 {
-    public class MessageImage
+    public class TempImage
     {
         private int accountId;
         private int imageId;
@@ -60,7 +56,7 @@ namespace TextPortCore.Models
             set { this.url = value; }
         }
 
-        public MessageImage()
+        public TempImage()
         {
             this.accountId = 0;
             this.ImageId = 0;
@@ -71,14 +67,14 @@ namespace TextPortCore.Models
             this.Url = string.Empty;
         }
 
-        public MessageImage(int acctId, string fileName, MessageDirection msgDirection, ImageStorageRepository storageLocation)
+        public TempImage(int acctId, int imgId, string fileName, MessageDirection msgDirection, ImageStorageRepository storageLocation)
         {
             this.AccountId = acctId;
-            this.ImageId = RandomString.RandomNumber();
+            this.ImageId = imgId;
             this.MessageId = 0;
             this.Direction = msgDirection;
             this.StorageRepository = storageLocation;
-            this.FileName = fileName;
+            this.FileName = $"{imgId}_{fileName}";
             this.Url = getImageUrl(this.AccountId, this.FileName, this.StorageRepository);
         }
 

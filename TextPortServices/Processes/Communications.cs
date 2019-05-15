@@ -27,11 +27,6 @@ namespace TextPortServices.Processes
 
             switch (message.RoutingType)
             {
-                //case "Email":
-                //    returnValue = Email.RouteMessageViaEmailGateway(ref message);
-                //    Thread.Sleep(emailInterMessageWaitMs);
-                //    break;
-
                 //case "Nexmo":
                 //    returnValue = Nexmo.RouteMessageViaNexmoGateway(ref message, "INTERNATIONAL");
                 //    Thread.Sleep(nexmoInterMessageWaitMs);

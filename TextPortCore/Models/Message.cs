@@ -23,6 +23,8 @@ namespace TextPortCore.Models
 
         public string Ipaddress { get; set; }
 
+        public bool IsMMS { get; set; }
+
         [Display(Name = "To")]
         public string MobileNumber { get; set; }
 
@@ -70,7 +72,7 @@ namespace TextPortCore.Models
 
         public byte? QueueStatus { get; set; }
 
-        public List<MMSFile> MMSFiles { get; set; }
+        public List<MMSFile> MMSFiles { get; set; } = new List<MMSFile>();
 
 
         // Constructors
@@ -82,6 +84,7 @@ namespace TextPortCore.Models
             this.GatewayMessageId = string.Empty;
             this.TimeStamp = DateTime.UtcNow;
             this.MessageText = string.Empty;
+            this.IsMMS = false;
             this.MMSFiles = new List<MMSFile>();
         }
 
@@ -97,6 +100,21 @@ namespace TextPortCore.Models
             this.CarrierId = (int)Carriers.BandWidth;
             this.CreditCost = 0;
             this.MessageText = bwMessage.text;
+            this.IsMMS = false;
+            this.MMSFiles = new List<MMSFile>();
+        }
+
+        public Message(BulkMessageItem bulkMessage, int sourceNumberId, string sourceNumber)
+        {
+            this.Direction = (int)MessageDirection.Outbound;
+            this.VirtualNumberId = sourceNumberId;
+            this.VirtualNumber = Utilities.NumberToGlobalFormat(sourceNumber);
+            this.MobileNumber = Utilities.NumberToGlobalFormat( bulkMessage.Number);
+            this.GatewayMessageId = string.Empty;
+            this.TimeStamp = DateTime.UtcNow;
+            this.MessageText = bulkMessage.MessageText;
+            this.IsMMS = false;
+            this.MMSFiles = new List<MMSFile>();
         }
 
         public bool WriteQueueSemaphore()

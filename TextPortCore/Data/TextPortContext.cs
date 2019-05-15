@@ -23,6 +23,7 @@ namespace TextPortCore.Data
         public virtual DbSet<Group> Groups { get; set; }
         public virtual DbSet<GroupMember> GroupMembers { get; set; }
         public virtual DbSet<Message> Messages { get; set; }
+        public virtual DbSet<MMSFile> MMSFiles { get; set; }
         public virtual DbSet<PurchaseTransaction> PurchaseTransactions { get; set; }
         public virtual DbSet<SupportRequest> SupportRequests { get; set; }
         public virtual DbSet<VirtualNumberCountry> VirtualNumberCountries { get; set; }
@@ -61,6 +62,10 @@ namespace TextPortCore.Data
                 entity.Property(e => e.AccountValidationKey)
                     .HasMaxLength(40)
                     .IsUnicode(false);
+
+                entity.Property(e => e.PasswordResetToken)
+                   .HasMaxLength(40)
+                   .IsUnicode(false);
 
                 entity.Property(e => e.CreateDate).HasColumnType("datetime");
 
@@ -103,6 +108,8 @@ namespace TextPortCore.Data
                     .IsRequired()
                     .HasMaxLength(10)
                     .IsUnicode(false);
+
+                //entity.Property(e => e.ComplimentaryNumber).HasColumnType("bit");
             });
 
             modelBuilder.Entity<AreaCode>(entity =>
@@ -279,6 +286,16 @@ namespace TextPortCore.Data
 
                 entity.Property(e => e.MessageId).HasColumnName("MessageID");
 
+                entity.HasMany(e => e.MMSFiles).WithOne().HasForeignKey(e => e.MessageId);
+
+
+                entity.HasMany(m => m.MMSFiles).WithOne().IsRequired(false);
+
+                //entity.HasOne(u => u.Role).WithMany().HasForeignKey(u => u.RoleId).IsRequired(true);
+                //.WithRequired()
+                //.HasForeignKey(e => e.Mess);
+
+
                 entity.Property(e => e.AccountId)
                     .HasColumnName("AccountID")
                     .HasDefaultValueSql("((0))");
@@ -316,6 +333,9 @@ namespace TextPortCore.Data
                     .IsRequired()
                     .HasColumnName("IPAddress")
                     .HasMaxLength(16)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.IsMMS)
                     .IsUnicode(false);
 
                 entity.Property(e => e.MessageText)
@@ -365,9 +385,27 @@ namespace TextPortCore.Data
                     .HasMaxLength(18)
                     .IsUnicode(false);
 
-                entity.Ignore(e => e.MMSFiles);
+                //entity.Ignore(e => e.MMSFiles);
 
                 //this.HasRequired(t => t.V).WithMany(t => t.CustomerIntegrationTransactionReferences).HasForeignKey(d => d.CustomerIntegrationDetailID);
+            });
+
+            modelBuilder.Entity<MMSFile>(entity =>
+            {
+                entity.ToTable("MMSFiles");
+
+                entity.HasKey(e => e.FileId);
+
+                entity.Property(e => e.MessageId)
+                   .HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.StorageId)
+                  .HasDefaultValueSql("((1))");
+
+                entity.Property(e => e.FileName)
+                    .IsRequired()
+                    .HasMaxLength(200)
+                    .IsUnicode(false);
             });
 
             modelBuilder.Entity<PurchaseTransaction>(entity =>

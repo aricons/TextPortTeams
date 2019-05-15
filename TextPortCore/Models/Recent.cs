@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Text;
 
+using TextPortCore.Helpers;
+
 namespace TextPortCore.Models
 {
     public class Recent
@@ -11,6 +13,11 @@ namespace TextPortCore.Models
         public DateTime TimeStamp { get; set; }
 
         public string Number { get; set; }
+
+        public string NumberInternationalFormat
+        {
+            get { return Utilities.NumberToGlobalFormat(this.Number); }
+        }
 
         public string Message { get; set; }
 

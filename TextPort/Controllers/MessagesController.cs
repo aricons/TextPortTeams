@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Web;
 using System.Web.Mvc;
 
+using Newtonsoft.Json.Serialization;
+
 using TextPortCore.Models;
 using TextPortCore.Data;
 using TextPortCore.Helpers;
@@ -50,7 +52,10 @@ namespace TextPort.Controllers
                 {
                     List<Recent> recentsList = new List<Recent>();
                     recentsList = da.GetRecentToNumbersForDedicatedVirtualNumber(aid, vnid);
-                    recentsList.FirstOrDefault().IsActiveMessage = true;
+                    if (recentsList.Any())
+                    {
+                        recentsList.FirstOrDefault().IsActiveMessage = true;
+                    }
 
                     return PartialView("_RecentsList", recentsList);
                 }
@@ -131,19 +136,16 @@ namespace TextPort.Controllers
         {
             string responseHtml = string.Empty;
             string accountIdStr = System.Security.Claims.ClaimsPrincipal.Current.FindFirst("AccountId").Value;
+            int imageId = RandomString.RandomNumber();
 
             try
             {
+                string fileName = Utilities.RemoveWhitespace(file.FileName);
                 var fileHandler = new FileHandling(_context);
-                if (fileHandler.SaveMMSFile(file.InputStream, Convert.ToInt32(accountIdStr), file.FileName, true))
+                if (fileHandler.SaveMMSFile(file.InputStream, Convert.ToInt32(accountIdStr), $"{imageId}_{fileName}", false))
                 {
-                    MessageImage mi = new MessageImage(Convert.ToInt32(accountIdStr), file.FileName, MessageDirection.Outbound, ImageStorageRepository.Temporary);
-                    return PartialView("_MessageImage", mi);
-                    //return Json(new
-                    //{
-                    //    success = true,
-                    //    response = responseHtml
-                    //});
+                    TempImage mi = new TempImage(Convert.ToInt32(accountIdStr), imageId, fileName, MessageDirection.Outbound, ImageStorageRepository.Archive);
+                    return PartialView("_TempImage", mi);
                 }
             }
             catch (Exception ex)
@@ -169,7 +171,7 @@ namespace TextPort.Controllers
             try
             {
                 var fileHandler = new FileHandling(_context);
-                if (fileHandler.DeleteMMSFile(Convert.ToInt32(accountIdStr), fileNameParam.FileName, true))
+                if (fileHandler.DeleteMMSFile(Convert.ToInt32(accountIdStr), fileNameParam.FileName, false))
                 {
                     responseMesssage = "File deleted";
                     return Json(new

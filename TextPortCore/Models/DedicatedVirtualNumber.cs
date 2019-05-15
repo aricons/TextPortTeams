@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
+using TextPortCore.Helpers;
+
 namespace TextPortCore.Models
 {
     public partial class DedicatedVirtualNumber
@@ -46,5 +48,21 @@ namespace TextPortCore.Models
         public int ReminderFailureCount { get; set; }
 
         public int CancellationFailureCount { get; set; }
+
+        public string NumberInternationalFormat
+        {
+            get
+            {
+                return Utilities.NumberToGlobalFormat(this.VirtualNumber);
+            }
+        }
+
+        public string NumberLocalFormat
+        {
+            get
+            {
+                return Utilities.NumberToLocalFormat(this.VirtualNumber, this.VirtualNumberCountryId);
+            }
+        }
     }
 }

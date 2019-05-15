@@ -38,8 +38,10 @@ namespace TextPortCore.Models
         [Display(Name = "Messages Received")]
         public int MessageInCount { get; set; }
         public string AccountValidationKey { get; set; }
+        public string PasswordResetToken { get; set; }
         public bool AccountValidated { get; set; }
         public bool Deleted { get; set; }
         public bool Enabled { get; set; }
+        public bool ComplimentaryNumber { get; set; }
     }
 }

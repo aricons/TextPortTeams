@@ -83,15 +83,9 @@ namespace TextPortCore.Integrations.Bandwidth
                 var request = new RestRequest($"users/{userId}/phoneNumbers/", Method.POST);
                 request.RequestFormat = DataFormat.Json;
                 request.AddJsonBody(new BandwidthAllocateNumber(regData.VirtualNumberGlobalFormat, regData.AccountId, applicationId));
-                _client.Execute(request);
-
-                //RestRequest request = new RestRequest($"/availableNumbers/local?areaCode={areaCode}&quantity=20", Method.POST);
+                // Disable for development and testing.
                 //_client.Execute(request);
 
-                //foreach (BandwidthClasses number in _client.Execute<List<BandwidthClasses>>(request).Data)
-
-                //  string url = String.Format("{0}/users/{1}/phoneNumbers/{2}", baseUrl, userId, HttpUtility.UrlEncode(String.Format("+{0}", virtualNumber)));
-                //string foo = REST.PostData(url, String.Empty);
                 return true;
             }
             catch (Exception)

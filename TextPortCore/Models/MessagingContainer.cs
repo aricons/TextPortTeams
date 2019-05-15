@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 
 using TextPortCore.Data;
+using TextPortCore.Helpers;
 
 namespace TextPortCore.Models
 {
@@ -66,6 +67,21 @@ namespace TextPortCore.Models
             set { this.activeDestinationNumber = value; }
         }
 
+        public int VirtualNumberCount
+        {
+            get
+            {
+                if (this.Numbers != null)
+                {
+                    if (this.Numbers.Any())
+                    {
+                        return (this.Numbers.Count);
+                    }
+                }
+                return 0;
+            }
+        }
+
 
         // Constructors
         public MessagingContainer(TextPortContext context, int accountId)
@@ -76,7 +92,7 @@ namespace TextPortCore.Models
             using (TextPortDA da = new TextPortDA(_context))
             {
                 this.Account = da.GetAccountById(accountId);
-                this.Numbers = da.GetNumbersForAccount(accountId);
+                this.Numbers = da.GetNumbersForAccount(accountId, false);
 
                 if (this.Numbers.Any())
                 {
@@ -88,7 +104,7 @@ namespace TextPortCore.Models
                 {
                     recents.FirstOrDefault().IsActiveMessage = true;
                     this.Messages = da.GetMessagesForAccountAndRecipient(accountId, this.ActiveVirtualNumberId, this.Recents.FirstOrDefault().Number);
-                    this.ActiveDestinationNumber = recents.FirstOrDefault().Number;
+                    this.ActiveDestinationNumber =  Utilities.NumberToGlobalFormat(recents.FirstOrDefault().Number);
                 }
                 else
                 {

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Text;
 using System.Xml;
+using System.Linq;
 using System.Xml.Serialization;
 using System.Globalization;
 using System.Text.RegularExpressions;
@@ -89,6 +90,35 @@ namespace TextPortCore.Helpers
                 string foo = ex.Message;
             }
             return globalNumber;
+        }
+
+        public static string NumberToLocalFormat(string number, int countryId)
+        {
+            string localNumber = string.Empty;
+
+            try
+            {
+                if (!string.IsNullOrEmpty(number))
+                {
+                    localNumber = Regex.Replace(number, @"\D", "");
+                    //if (localNumber.StartsWith("1"))
+                    //{
+                    //    localNumber = localNumber.Substring(1);
+                    //}
+
+                    localNumber = $"{localNumber.Substring(0, 1)} ({localNumber.Substring(1, 3)}) {localNumber.Substring(4, 3)}-{localNumber.Substring(7)}";
+                }
+            }
+            catch (Exception ex)
+            {
+                string foo = ex.Message;
+            }
+            return localNumber;
+        }
+
+        public static string RemoveWhitespace(string input)
+        {
+            return new string(input.ToCharArray().Where(c => !Char.IsWhiteSpace(c)).ToArray());
         }
 
         public static bool WriteEventLogEntry(string eventMessage, EventLogEntryType eventType)

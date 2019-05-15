@@ -186,7 +186,7 @@ namespace TextPortCore.Data
                 newAccount.LoginCount = 0;
                 newAccount.MessageInCount = 0;
                 newAccount.MessageOutCount = 0;
-                newAccount.Password = Helpers.AESEncryptDecrypt.Encrypt(rd.Password, Constants.RC4Key);
+                newAccount.Password = AESEncryptDecrypt.Encrypt(rd.Password, Constants.RC4Key);
                 newAccount.TimeZoneId = 5;
                 newAccount.UserName = rd.UserName;
 
@@ -224,7 +224,7 @@ namespace TextPortCore.Data
                 temporaryAccount.LoginCount = 0;
                 temporaryAccount.MessageInCount = 0;
                 temporaryAccount.MessageOutCount = 0;
-                temporaryAccount.Password = Helpers.AESEncryptDecrypt.Encrypt(rd.Password, Constants.RC4Key);
+                temporaryAccount.Password = AESEncryptDecrypt.Encrypt(rd.Password, Constants.RC4Key);
                 temporaryAccount.TimeZoneId = 5;
                 temporaryAccount.UserName = rd.UserName;
 

@@ -249,3 +249,8 @@
 .row.register-form {
 }
 
+/* Custom form label */
+.form-label {
+    font-size: 0.9rem;
+    margin-bottom: 0.1rem;
+}

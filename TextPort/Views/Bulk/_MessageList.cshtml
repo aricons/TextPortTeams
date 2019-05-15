@@ -1,0 +1,27 @@
+﻿@model TextPortCore.Models.BulkMessages
+<div class="row">
+    <div class="col-md-12">
+        <table class="table table-striped table-sm">
+            <thead>
+                <tr class="bg-primary text-white">
+                    <th class="text-center" scope="col">#</th>
+                    <th scope="col">Number</th>
+                    <th scope="col">Message</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (int i = 0; i < Model.Messages.Count; i++)
+                {
+                    <tr>
+                        <td class="text-center"><label class="form-label font-weight-bold">@((i + 1).ToString())</label></td>
+                        <td class="num_field">@Html.TextBoxFor(m => m.Messages[i].Number, new { @class = "num_input form-control" })</td>
+                        <td class="msg_field">@Html.TextBoxFor(m => m.Messages[i].MessageText, new { @class = "form-control" })</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+<script type="text/javascript">
+    $('.num_input').mask('(000) 000-0000');
+</script>

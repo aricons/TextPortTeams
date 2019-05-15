@@ -12,20 +12,20 @@
         {
             <div class="modal-body">
                 <div class="form-group">
-                    <label asp-for="UserNameOrEmail"></label>
-                    @*<input asp-for="UserNameOrEmail" placeholder="Username or email address" class="form-control" />*@
+                    @Html.LabelFor(m => m.UserNameOrEmail, new { @class = "form-label" })
                     @Html.TextBoxFor(m => m.UserNameOrEmail, new { @class = "form-control", placeholder = "Username or email address" })
                     @Html.ValidationMessageFor(m => m.UserNameOrEmail)
-                    @*<span asp-validation-for="UserNameOrEmail" class="text-danger"></span>*@
                 </div>
                 <div class="form-group">
-                    <label asp-for="LoginPassword"></label>
-                    @*<input asp-for="LoginPassword" class="form-control" placeholder="Password" />*@
+                    @Html.LabelFor(m => m.LoginPassword, new { @class = "form-label" })
                     @Html.TextBoxFor(m => m.LoginPassword, new { @class = "form-control", placeholder = "Username or email address", @type = "password" })
                     @Html.ValidationMessageFor(m => m.LoginPassword)
-                    @*<span asp-validation-for="LoginPassword" class="text-danger"></span>*@
                 </div>
-                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="form-group">
+                    <p>
+                        @Html.ActionLink("Forgot your password?", "ForgotPassword", "Account")
+                    </p>
+                </div>
                 <div id="loginMessage" class="alert alert-danger collapse">
                     <label id="lblMessage"></label>
                 </div>

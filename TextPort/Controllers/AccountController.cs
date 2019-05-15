@@ -5,9 +5,13 @@ using System.Security.Claims;
 using System.Web;
 using System.Web.Mvc;
 using Microsoft.Owin.Security;
+using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.Identity.EntityFramework;
 
+using TextPort.Helpers;
 using TextPortCore.Models;
 using TextPortCore.Data;
+using TextPortCore.Helpers;
 using TextPortCore.Integrations.Bandwidth;
 
 namespace TextPort.Controllers
@@ -38,20 +42,24 @@ namespace TextPort.Controllers
                         new Claim(ClaimTypes.Name, account.UserName.ToString()),
                         new Claim(ClaimTypes.NameIdentifier, account.UserName.ToString()),
                         new Claim(ClaimTypes.Email, account.Email.ToString()),
-                        new Claim(ClaimTypes.Role, "User")
-                    };
+                        new Claim(ClaimTypes.Role, "User") };
 
                         ClaimsIdentity identity = new ClaimsIdentity(claims, "ApplicationCookie");
                         ClaimsPrincipal principal = new ClaimsPrincipal(identity);
 
-                        //HttpContext.SignIn(CookieAuthenticationDefaults.AuthenticationScheme, principal);
-
                         var context = Request.GetOwinContext();
                         var authManager = context.Authentication;
 
-                        authManager.SignIn(new AuthenticationProperties { IsPersistent = false }, identity);
+                        authManager.SignIn(new AuthenticationProperties { IsPersistent = true }, identity);
 
-                        result = new { success = "true", response = Url.Action("Main", "Messages") };
+                        if (account.ComplimentaryNumber)
+                        {
+                            result = new { success = "true", response = Url.Action("ComplimentaryNumber", "Numbers") };
+                        }
+                        else
+                        {
+                            result = new { success = "true", response = Url.Action("Main", "Messages") };
+                        }
                     }
                     else
                     {
@@ -70,10 +78,6 @@ namespace TextPort.Controllers
         [Authorize]
         public ActionResult Logout()
         {
-            //HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            //Request.GetOwinContext().Authentication.SignOut(Microsoft.AspNet.Identity.DefaultAuthenticationTypes.ApplicationCookie);
-            //HttpContext.Current.GetOwinContext().Authentication.SignOut(Microsoft.AspNet.Identity.DefaultAuthenticationTypes.ApplicationCookie);
-
             Request.GetOwinContext().Authentication.SignOut();
             return RedirectToAction("Index", "Home");
         }
@@ -83,7 +87,7 @@ namespace TextPort.Controllers
         {
             try
             {
-                RegistrationData rd = new RegistrationData(_context);
+                RegistrationData rd = new RegistrationData(_context, "VirtualNumberSignUp", 0);
 
                 // For testing
                 rd.UserName = "regley1";
@@ -108,62 +112,147 @@ namespace TextPort.Controllers
             {
                 using (TextPortDA da = new TextPortDA(_context))
                 {
-                    // Add a temporary account (Enabled flag set to 0).
-                    regData.AccountId = da.AddTemporaryAccount(regData);
+                    //regData.PurchaseTitle += $"Cost {regData.TotalCost}";
+                    switch (regData.PurchaseType)
+                    {
+                        case "VirtualNumberSignUp":
+                            // Add a temporary account (Enabled flag set to 0).
+                            regData.AccountId = da.AddTemporaryAccount(regData);
+                            //return PartialView("_Purchase", regData);
+                            break;
+                    }
                     return PartialView("_Purchase", regData);
                 }
             }
             catch (Exception ex)
             {
                 string bar = ex.Message;
-                return null;
+                //return null;
             }
+
+            return PartialView("_PurchaseFailed", regData);
         }
 
         [AllowAnonymous]
         [HttpPost]
-        public ActionResult PostPurchase([System.Web.Http.FromBody] RegistrationData regData, int id)
+        public ActionResult PostPurchase([System.Web.Http.FromBody] RegistrationData regData)
         {
             try
             {
                 using (TextPortDA da = new TextPortDA(_context))
                 {
-                    regData.AccountId = id;
-                    if (da.EnableTemporaryAccount(regData))
+                    switch (regData.PurchaseType)
                     {
-                        if (da.AddNumberToAccount(regData))
-                        {
-                            // Log the user in
-                            List<Claim> claims = new List<Claim> {
-                                new Claim("AccountId", regData.AccountId.ToString(), ClaimValueTypes.Integer),
-                                new Claim(ClaimTypes.Name, regData.UserName.ToString()),
-                                new Claim(ClaimTypes.Email, regData.EmailAddress.ToString()),
-                                new Claim(ClaimTypes.Role, "User")
-                            };
+                        case "VirtualNumberSignUp":
+                            if (da.EnableTemporaryAccount(regData))
+                            {
+                                if (da.AddNumberToAccount(regData))
+                                {
+                                    // Log the user in
+                                    List<Claim> claims = new List<Claim> {
+                                    new Claim("AccountId", regData.AccountId.ToString(), ClaimValueTypes.Integer),
+                                    new Claim(ClaimTypes.Name, regData.UserName.ToString()),
+                                    new Claim(ClaimTypes.Email, regData.EmailAddress.ToString()),
+                                    new Claim(ClaimTypes.Role, "User") };
 
-                            //ClaimsIdentity identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-                            //ClaimsPrincipal principal = new ClaimsPrincipal(identity);
-                            //await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
-                            //HttpContext.SignIn(CookieAuthenticationDefaults.AuthenticationScheme, principal);
+                                    ClaimsIdentity identity = new ClaimsIdentity(claims, "ApplicationCookie");
+                                    ClaimsPrincipal principal = new ClaimsPrincipal(identity);
 
-                            ClaimsIdentity identity = new ClaimsIdentity(claims, "ApplicationCookie");
-                            ClaimsPrincipal principal = new ClaimsPrincipal(identity);
+                                    var context = Request.GetOwinContext();
+                                    var authManager = context.Authentication;
 
-                            var context = Request.GetOwinContext();
-                            var authManager = context.Authentication;
+                                    authManager.SignIn(new AuthenticationProperties { IsPersistent = false }, identity);
 
-                            authManager.SignIn(new AuthenticationProperties { IsPersistent = false }, identity);
+                                    if (!string.IsNullOrEmpty(regData.VirtualNumber))
+                                    {
+                                        using (Bandwidth bw = new Bandwidth(_context))
+                                        {
+                                            //bw.PurchaseVirtualNumber(regData);
+                                        }
+                                    }
 
+                                    regData.CompletionTitle = "Registration Complete";
+                                    regData.CompletionMessage = "Your account and number were successfully registered.";
+
+                                    return PartialView("_RegistrationComplete", regData);
+                                }
+                            }
+                            break;
+
+                        case "VirtualNumber":
                             if (!string.IsNullOrEmpty(regData.VirtualNumber))
                             {
                                 using (Bandwidth bw = new Bandwidth(_context))
                                 {
-                                    bw.PurchaseVirtualNumber(regData);
+                                    if (bw.PurchaseVirtualNumber(regData))
+                                    {
+                                        if (da.AddNumberToAccount(regData))
+                                        {
+                                            regData.CompletionTitle = "Number Successfully Assigned";
+                                            regData.CompletionMessage = $"The number {regData.VirtualNumber} has been sucessfully assigned to your account.";
+                                        }
+                                    }
                                 }
                             }
 
                             return PartialView("_RegistrationComplete", regData);
-                        }
+
+                        case "ComplimentaryNumber":
+                            if (!string.IsNullOrEmpty(regData.VirtualNumber))
+                            {
+                                using (Bandwidth bw = new Bandwidth(_context))
+                                {
+                                    if (bw.PurchaseVirtualNumber(regData))
+                                    {
+                                        if (da.AddNumberToAccount(regData))
+                                        {
+                                            regData.CompletionTitle = "Number Successfully Assigned";
+                                            regData.CompletionMessage = $"The number {regData.VirtualNumber} has been sucessfully assigned to your account.";
+                                        }
+                                    }
+                                }
+                            }
+
+                            return PartialView("_RegistrationComplete", regData);
+
+                        case "VirtualNumberRenew":
+                            if (!string.IsNullOrEmpty(regData.VirtualNumber))
+                            {
+                                DedicatedVirtualNumber vn = _context.DedicatedVirtualNumbers.FirstOrDefault(x => x.VirtualNumberId == regData.VirtualNumberId);
+                                if (vn != null)
+                                {
+                                    vn.ExpirationDate = vn.ExpirationDate.AddMonths(regData.LeasePeriod);
+                                    vn.RenewalCount = vn.RenewalCount + 1;
+                                    vn.Fee = regData.TotalCost;
+                                    vn.SevenDayReminderSent = null;
+                                    vn.TwoDayReminderSent = null;
+                                    _context.SaveChanges();
+                                }
+                            }
+
+                            regData.CompletionTitle = "Number Renewal Complete";
+                            regData.CompletionMessage = $"The number {regData.VirtualNumber} has been sucessfully renewed for {regData.LeasePeriod} {regData.LeasePeriodWord}.";
+
+                            return PartialView("_RegistrationComplete", regData);
+
+                        case "Credits":
+                            if (regData != null)
+                            {
+                                string accountId = ClaimsPrincipal.Current.FindFirst("AccountId").Value;
+                                AccountView av = new AccountView(_context, Convert.ToInt32(accountId));
+
+                                Account acc = _context.Accounts.FirstOrDefault(x => x.AccountId == Convert.ToInt32(accountId));
+                                if (acc != null)
+                                {
+                                    acc.Credits += Convert.ToInt32(regData.CreditPurchaseAmount);
+                                    _context.SaveChanges();
+                                }
+                            }
+
+                            regData.CompletionTitle = "Credit PurchaseComplete";
+                            regData.CompletionMessage = $"{regData.CreditPurchaseAmount:C2} credit was sucessfully added to your account";
+
+                            return PartialView("_RegistrationComplete", regData);
                     }
                 }
             }
@@ -179,15 +268,24 @@ namespace TextPort.Controllers
         [HttpGet]
         public ActionResult Profile()
         {
-            //string accountId = principal.FindFirst("AccountId").Value;
-            //TextPortContext ctxt = new TextPortContext();
-            //AccountView av = new AccountView(_context, Convert.ToInt32(User.FindFirstValue("AccountId")));
-
             string accountId = ClaimsPrincipal.Current.FindFirst("AccountId").Value;
             AccountView av = new AccountView(_context, Convert.ToInt32(accountId));
             if (av != null)
             {
                 return View(av);
+            }
+            return View();
+        }
+
+        [Authorize]
+        [HttpGet]
+        public ActionResult Balance()
+        {
+            string accountId = ClaimsPrincipal.Current.FindFirst("AccountId").Value;
+            RegistrationData regData = new RegistrationData(_context, "Credits", Convert.ToInt32(accountId));
+            if (regData != null)
+            {
+                return View(regData);
             }
             return View();
         }
@@ -244,6 +342,234 @@ namespace TextPort.Controllers
             return Json(true, JsonRequestBehavior.AllowGet);
         }
 
+        [HttpGet]
+        [AllowAnonymous]
+        public ActionResult ForgotPassword()
+        {
+            ForgotPasswordRequest request = new ForgotPasswordRequest();
+            return View(request);
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        //[ValidateAntiForgeryToken]
+        public ActionResult ForgotPassword([System.Web.Http.FromBody] ForgotPasswordRequest request)
+        {
+            request.Status = RequestStatus.Failed;
+
+            Account acc = _context.Accounts.FirstOrDefault(x => x.Email == request.EmailAddress);
+            if (acc != null)
+            {
+                request.UserName = acc.UserName;
+                request.BrowserType = Request.Browser.Type;
+                request.IPAddress = Request.UserHostAddress;
+
+                string passwordResetToken = RandomString.GenerateRandomToken(30);
+                request.ResetUrl = $"http://textport.com/account/resetpassword/{passwordResetToken}";
+
+                acc.PasswordResetToken = passwordResetToken;
+                _context.SaveChanges();
+
+                string body = Rendering.RenderForgotPasswordEmailBody(request);
+                using (EmailMessage message = new EmailMessage(_context, request.EmailAddress, "TextPort Password Reset", body))
+                {
+                    if (message.Send())
+                    {
+                        request.Status = RequestStatus.Success;
+                        request.ConfirmationMessage = $"An email has been sent to {request.EmailAddress}. Please check your inbox for a link to reset your password.";
+                    }
+                    else
+                    {
+                        request.ConfirmationMessage = $"There was a problem trying to send a password reset notification to {request.EmailAddress}. The request wss not sent.";
+                    }
+                }
+
+            }
+            else
+            {
+                request.ConfirmationMessage = $"The email address {request.EmailAddress} was not found.";
+            }
+            return View(request);
+        }
+
+        [HttpGet]
+        [AllowAnonymous]
+        public ActionResult ResetPassword(string id)
+        {
+            ForgotPasswordRequest fpr = new ForgotPasswordRequest();
+            fpr.Status = RequestStatus.Failed;
+
+            if (!string.IsNullOrEmpty(id))
+            {
+                Account acc = _context.Accounts.FirstOrDefault(x => x.PasswordResetToken == id);
+                if (acc != null)
+                {
+                    fpr.Status = RequestStatus.Pending;
+                    fpr.AccountId = acc.AccountId;
+                    fpr.UserName = acc.UserName;
+                }
+                else
+                {
+                    fpr.ConfirmationMessage = "Invalid reset token.";
+                }
+            }
+            else
+            {
+                fpr.ConfirmationMessage = "Missing reset token.";
+            }
+            return View(fpr);
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        public ActionResult ResetPassword([System.Web.Http.FromBody] ForgotPasswordRequest request)
+        {
+            request.Status = RequestStatus.Failed;
+            if (!string.IsNullOrEmpty(request.Password) && !string.IsNullOrEmpty(request.ConfirmPassword))
+            {
+                Account acc = _context.Accounts.FirstOrDefault(x => x.AccountId == request.AccountId);
+                if (acc != null)
+                {
+                    try
+                    {
+                        acc.Password = AESEncryptDecrypt.Encrypt(request.Password, TextPortCore.Helpers.Constants.RC4Key);
+                        int changes = _context.SaveChanges();
+                        if (changes > 0)
+                        {
+                            request.Status = RequestStatus.Success;
+                            request.ConfirmationMessage = "Your password was successfully reset. ";
+                        }
+                        else
+                        {
+                            request.ConfirmationMessage = "An error occurred while resetting the password. The password reset failed.";
+                        }
+                    }
+                    catch (Exception)
+                    {
+                        request.ConfirmationMessage = "An error occurred while resetting the password. The password reset failed.";
+                    }
+                }
+                else
+                {
+                    request.ConfirmationMessage = "An account was not found. The password reset failed.";
+                }
+            }
+            else
+            {
+                request.ConfirmationMessage = "A password and password confirmation were not entered.";
+            }
+            return View(request);
+        }
+
+        [HttpGet]
+        [Authorize]
+        public ActionResult ChangePassword()
+        {
+            ChangePasswordRequest request = new ChangePasswordRequest();
+            string accountId = System.Security.Claims.ClaimsPrincipal.Current.FindFirst("AccountId").Value;
+            request.AccountId = Convert.ToInt32(accountId);
+            return View(request);
+        }
+
+        [HttpPost]
+        [Authorize]
+        public ActionResult ChangePassword([System.Web.Http.FromBody] ChangePasswordRequest request)
+        {
+            request.Status = RequestStatus.Failed;
+            if (!string.IsNullOrEmpty(request.OldPassword) && !string.IsNullOrEmpty(request.NewPassword) && !string.IsNullOrEmpty(request.ConfirmPassword))
+            {
+                Account acc = _context.Accounts.FirstOrDefault(x => x.AccountId == request.AccountId);
+                if (acc != null)
+                {
+                    try
+                    {
+                        string oldPasswordFromDB = AESEncryptDecrypt.Decrypt(acc.Password, TextPortCore.Helpers.Constants.RC4Key);
+                        if (oldPasswordFromDB == request.OldPassword)
+                        {
+                            acc.Password = AESEncryptDecrypt.Encrypt(request.NewPassword, TextPortCore.Helpers.Constants.RC4Key);
+                            int changes = _context.SaveChanges();
+                            if (changes > 0)
+                            {
+                                request.Status = RequestStatus.Success;
+                                request.ConfirmationMessage = "Your password was successfully changed. ";
+                            }
+                            else
+                            {
+                                request.ConfirmationMessage = "An error occurred while resetting the password. The password reset failed.";
+                            }
+                        }
+                        else
+                        {
+                            request.ConfirmationMessage = "The old password entered is incorrect. The password reset failed.";
+                        }
+                    }
+                    catch (Exception)
+                    {
+                        request.ConfirmationMessage = "An error occurred while resetting the password. The password reset failed.";
+                    }
+                }
+                else
+                {
+                    request.ConfirmationMessage = "An account was not found. The password reset failed.";
+                }
+            }
+            else
+            {
+                request.ConfirmationMessage = "An old password, new password or password confirmation were not entered.";
+            }
+            return View(request);
+        }
+
+
+
+        [HttpGet]
+        [AllowAnonymous]
+        public ActionResult PasswordResetEmail()
+        {
+            //ForgotPasswordRequest req = new ForgotPasswordRequest()
+            //{
+            //    EmailAddress = "richard@egley.com",
+            //    UserName = "regley",
+            //    ConfirmationMessage = string.Empty,
+
+            //}
+            return View();
+        }
+
+        //
+        // POST: /Account/ResetPassword
+        //[HttpPost]
+        //[AllowAnonymous]
+        //[ValidateAntiForgeryToken]
+        //public async Task<ActionResult> ResetPassword(ResetPasswordViewModel model)
+        //{
+        //    if (!ModelState.IsValid)
+        //    {
+        //        return View(model);
+        //    }
+        //    var user = await UserManager.FindByNameAsync(model.Email);
+        //    if (user == null)
+        //    {
+        //        // Don't reveal that the user does not exist
+        //        return RedirectToAction("ResetPasswordConfirmation", "Account");
+        //    }
+        //    var result = await UserManager.ResetPasswordAsync(user.Id, model.Code, model.Password);
+        //    if (result.Succeeded)
+        //    {
+        //        return RedirectToAction("ResetPasswordConfirmation", "Account");
+        //    }
+        //    AddErrors(result);
+        //    return View();
+        //}
+
+        //
+        // GET: /Account/ResetPasswordConfirmation
+        //[AllowAnonymous]
+        //public ActionResult ResetPasswordConfirmation()
+        //{
+        //    return View();
+        //}
+
     }
 }
 
@@ -266,7 +592,7 @@ namespace TextPort.Controllers
 //    public class AccountController : Controller
 //    {
 //        private ApplicationSignInManager _signInManager;
-//        private ApplicationUserManager _userManager;
+//private ApplicationUserManager _userManager;
 
 //        public AccountController()
 //        {

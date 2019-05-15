@@ -97,7 +97,7 @@ img.emoji {
     height: 92px; /* RDE: Edited */
     max-height: 300px;
     overflow: auto;
-    /*line-height: 20px;*/
+    line-height: 1.2;
     color: #4c4c4c;
     font-size: 18px;
     border: medium none;
@@ -127,11 +127,16 @@ img.emoji {
         margin: -3px 0 0 0;
     }
 
+    .emoji-wysiwyg-editor p {
+        margin-top: 0px;
+        margin-bottom: 0px;
+    }
+
 /* RDE: Edit to change emoji picker pop-up placement and size */
 .emoji-menu {
     position: absolute;
-    top: -227px;
-    right: 25px;
+    top: -228px;
+    right: 50px;
     z-index: 999;
     width: 350px;
     overflow: hidden;

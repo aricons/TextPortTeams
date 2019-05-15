@@ -1,12 +1,9 @@
 ﻿@model TextPortCore.Models.MessagingContainer
+@using TextPortCore.Helpers;
 @{
     ViewData["Title"] = "Messages";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
-
-@*<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous"> *@
-@*<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/5.7.0/css/font-awesome.min.css">*@
-@*<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css">*@
 
 <link rel="stylesheet" href="~/content/css/messaging.css">
 <link rel="stylesheet" href="~/content/css/emoji.css">
@@ -21,11 +18,12 @@
 <script type="text/javascript">
 
     Dropzone.autoDiscover = false;
+    var mmsFiles = [];
 
     $(function () {
 
         $('#from_number').on("change", function (e) {
-            getRecentsForVirtualNumber($("#from_number option:selected").val());
+            getRecentsForVirtualNumber(numberToInternationalFormat($("#from_number option:selected").val()));
         });
 
         $('#btn_send_message').on("click", function (e) {
@@ -89,9 +87,6 @@
             popupButtonClasses: 'fa fa-smile-o'
         });
         window.emojiPicker.discover();
-        $('#message_text').on("change", function (e) {
-            checkSendButtonEligibility();
-        });
 
         $('#emojipick_1').on("keyup", function (e) {
             checkSendButtonEligibility();
@@ -114,6 +109,12 @@
                 file.previewElement.parentNode.removeChild(file.previewElement);
                 //alert("Successfully uploaded : " + file.name + ". HTML: " + file.xhr.response);
 
+                var fileId = $(file.xhr.response).attr("id");
+                var fileName = file.name.replace(/\s/g, "");
+                //mmsFiles.push({ "Name": fileName, "UniqueName": fileId + "_" + fileName });
+                mmsFiles.push({ "UniqueName": fileId + "_" + fileName });
+
+                //debugger;
                 var lastMessageItem = $('.msg_item:last').attr('id');
                 if (typeof lastMessageItem != 'undefined') {
                     $("#" + lastMessageItem).after(file.xhr.response);
@@ -140,7 +141,7 @@
             //    alert("removed file " + file.name);
             //},
 
-            init: function () {
+            //init: function () {
                 //this.on("addedfile", function (file) { alert("Added file." + file.name); });
                 //this.on("removedfile", function (file) {
                     //alert("Deleting X " + file.name);
@@ -158,7 +159,7 @@
                         }
                     });*@
                 //});
-            }
+            //}
         });
 
         // Scroll to the most-recent message.
@@ -166,6 +167,8 @@
         ml.animate({ scrollTop: ml.prop("scrollHeight") - ml.height() }, 50);
 
         // Check send button eligibility
+        var emjpick = $('#emojipick_1');
+        //alert(emjpick.html());
         checkSendButtonEligibility();
     });
 
@@ -188,7 +191,8 @@
         $('#btn_send_message').prop('disabled', true);
         if ($("#hidActiveDestinationNumber").val().length >= 10) {
             $('#emojipick_1').attr('placeholder', 'Type message to ' + $("#hidActiveDestinationNumber").val());
-            if ($('#message_text').text().length >= 1) {
+            if ($('#emojipick_1').html().length >= 1 && $('#emojipick_1').html() != "<br>") {
+                var foo = $('#emojipick_1').html();
                 $('#btn_send_message').prop('disabled', false);
             };
 
@@ -235,6 +239,9 @@
                     getMessagesForNumber(newActiveNumber);
                     setChangeDetect();
                 }
+                else {
+                    $("#msg_list").html('');
+                }
                 //var rl = $("#recents");
                 // Animated
                 //rl.animate({ scrollTop: rl.prop("scrollHeight") - rl.height() }, 50);
@@ -272,26 +279,23 @@
     }
 
     function removeImage(imageId, imageFileName) {
-        var dz = Dropzone.forElement("#mmsDropzone");
-        var mmsFiles = dz.files;
-        for (i = 0, len = mmsFiles.length; i < len; i++) {
-            if (mmsFiles[i].name == imageFileName) {
-               // Set the accepted flag on the file object to false. Use this method to "delete" the file from the list.
-                dz.files[i].accepted = false;
-                var fileNameParam = { FileName: imageFileName };
-                    $.post({
-                    url: '@Url.Action("DeleteMMSFile", "Messages")',
-                    data: JSON.stringify(fileNameParam),
-                    contentType: "application/json",
-                    error: function (jqXHR, textStatus, errorThrown) {
-                        alert("Unable to remove file");
-                    },
-                    success: function (newInputHTML) {
-                        //alert("File deleted OK");
-                    }
-                });
+        mmsFiles = jQuery.grep(mmsFiles, function (a) {
+            return a.UniqueName !== imageFileName;
+        });
+
+        var fileNameParam = { FileName: imageFileName };
+        $.post({
+            url: '@Url.Action("DeleteMMSFile", "Messages")',
+            data: JSON.stringify(fileNameParam),
+            contentType: "application/json",
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert("Unable to remove file");
+            },
+            success: function (newInputHTML) {
+                //alert("File deleted OK");
             }
-        }
+        });
+
         document.getElementById(imageId).outerHTML = "";
         var ml = $("#msg_list");
         ml.animate({ scrollTop: ml.prop("scrollHeight") - ml.height() }, 50);
@@ -309,24 +313,22 @@
         var fromNumberId = $("#hidActiveVirtualNumberId").val();
         var toNumber = $("#hidActiveDestinationNumber").val();
 
-        if (message != "") {
+        if (message != "" || mmsFiles.length > 0) {
             if (fromNumberId != "") {
                 if (toNumber != "") {
                     // Get MMS files
-                    var mmsFiles = [];
-                    var dz = Dropzone.forElement("#mmsDropzone");
-                    var attachments = dz.getAcceptedFiles();
-                    for (i = 0, len = attachments.length; i < len; i++) {
-                        //if (attachments[i].accepted == true) {
-                        mmsFiles.push({ "FileName": attachments[i].name });
-                        //}
+                    var mmsList = [];
+                    //var dz = Dropzone.forElement("#mmsDropzone");
+                    //var attachments = dz.getAcceptedFiles();
+                    for (i = 0, len = mmsFiles.length; i < len; i++) {
+                        mmsList.push({ "FileName": mmsFiles[i].UniqueName });
                     }
 
                     var messageData = {
                         VirtualNumberId: $("#hidActiveVirtualNumberId").val(),
                         MobileNumber: $("#hidActiveDestinationNumber").val(),
                         MessageText: $("#message_text").val(),
-                        MMSFiles: mmsFiles
+                        MMSFiles: mmsList
                     };
 
                     $.post({
@@ -340,7 +342,29 @@
                             var lastMessageItem = $('.msg_item:last').attr('id');
                             if (typeof lastMessageItem != 'undefined') {
                                 $("#" + lastMessageItem).after(newInputHTML);
-                                //setChangeDetect();
+
+                                $(".temp_img").remove();
+
+                                //dz.removeAllFiles();
+
+                                //$("#msg_list").html('');
+                                // Clear all dropzone files
+                                var dz = Dropzone.forElement("#mmsDropzone");
+                                //dz.removeAllFiles();
+                                dz.files = [];
+                                mmsFiles = [];
+
+                                //for (i = 0, len = mmsFiles.length; i < len; i++) {
+                                //    dz.files[i].accepted = false;
+
+                                //}
+
+                                // Remove any uploaded images (will have the class temp_img)
+                                //$(".temp_img").remove();
+
+                                // Clear the message area and apply the placeholder
+                                $('#emojipick_1').text('');
+                                //$('#emojipick_1').attr('placeholder', 'Type message to ' + $("#hidActiveDestinationNumber").val());
                             }
                             else {
                                 $("#msg_list").html('');
@@ -367,76 +391,116 @@
             alert("No message entered.");
         }
     }
+
+    function numberToInternationalFormat(number) {
+        return number.replace("\D", "");
+    }
+
+    function showEmojiPicker() {
+        var ep = $(".emoji_menu");
+        if (ep.visible == false) {
+            ep.visible = true;
+        } else {
+            ep.visible = false;
+        }
+    }
 </script>
 
 <input type="hidden" id="hidActiveVirtualNumberId" value="@Model.ActiveVirtualNumberId" />
 <input type="hidden" id="hidActiveDestinationNumber" value="@Model.ActiveDestinationNumber" />
 
-<h3 class=" text-center">My Messages</h3>
+@*<h3 class=" text-center">My Messages</h3>*@
+<br />
 
-<div class="inbox_msg">
-    <div class="inbox_people">
-        <div class="heading_wrap">
-            <h4 class="num_title">Virtual Number</h4>
-            <select id="from_number" class="form-control num_dd">
-                @foreach (TextPortCore.Models.DedicatedVirtualNumber number in Model.Numbers)
+<div class="messages_container">
+    @*Left hand column*@
+    @if (Model.VirtualNumberCount > 0)
+    {
+        <div class="inbox_people">
+            <div class="heading_wrap">
+                <h4 class="num_title">Virtual Number</h4>
+                <select id="from_number" class="form-control num_dd">
+                    @foreach (TextPortCore.Models.DedicatedVirtualNumber number in Model.Numbers)
+                    {
+                        <option value="@number.VirtualNumberId">@number.NumberLocalFormat</option>
+                    }
+                </select>
+            </div>
+            <div class="heading_wrap_thin">
+                <h4 class="heading_title">Recents</h4>
+            </div>
+            <div id="recents" class="inbox_chat">
+                @foreach (TextPortCore.Models.Recent recent in Model.Recents)
                 {
-                    <option value="@number.VirtualNumberId">@number.VirtualNumber</option>
-                }
-            </select>
-        </div>
-        <div class="heading_wrap_thin">
-            <h4 class="heading_title">Recents</h4>
-        </div>
-        <div id="recents" class="inbox_chat">
-            @foreach (TextPortCore.Models.Recent recent in Model.Recents)
-            {
-                <div id="recent_@recent.Number" class="chl chat_list@(recent.IsActiveMessage ? " active_chat" : "")" )>
-                    <div class="chat_people">
-                        <div class="chat_img"> <img src="~/content/images/user-profile.png"> </div>
-                        <div class="chat_ib">
-                            <h5>@recent.Number<span class="chat_date">@string.Format("{0:MMMM dd, yy | hh:mm tt}", recent.TimeStamp)</span></h5>
-                            <p>
-                                @recent.Message
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            }
-        </div>
-        <div class="new_num_wrap">
-            <div class="type_num">
-                <div class="input_num_write">
-                    <input id="new_recipient_number" type="text" placeholder="New number" />
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="mesgs">
-        <div id="msg_list" class="msg_history">
-            @Html.Partial("_MessageList", Model)
-        </div>
-        <div class="row no-gutters">
-            <div class="col-sm-11">
-                <textarea id="message_text" class="message_texarea" data-emojiable="true" data-emoji-ta-id="emojipick_1"></textarea>
-            </div>
-            <div class="col-sm-1">
-                <div class="container">
-                    <div class="row no-gutters" style="border: solid">
-                        <div class="col">
-                            <div class="dz-wrap">
-                                <form action="/messages/UploadFile/" class="dropzone" id="mmsDropzone">
-                                    <span class="dz-message"><i class="fa fa-image mms-icon"></i></span>
-                                </form>
+                    <div id="recent_@recent.Number" class="chl chat_list@(recent.IsActiveMessage ? " active_chat" : "")" )>
+                        <div class="chat_people">
+                            <div class="chat_img"> <img src="~/content/images/user-profile.png"> </div>
+                            <div class="chat_ib">
+                                <h5>@recent.Number<span class="chat_date">@string.Format("{0:MMMM dd, yy | hh:mm tt}", recent.TimeStamp)</span></h5>
+                                <p>
+                                    @recent.Message
+                                </p>
                             </div>
                         </div>
                     </div>
-                    <div class="row no-gutters">
-                        <div class="col">
-                            <button id="btn_send_message" class="btn btn-primary">Send</button>
-                        </div>
+                }
+            </div>
+            <div class="new_num_wrap">
+                <div class="type_num">
+                    <div class="input_num_write">
+                        <input id="new_recipient_number" type="text" placeholder="New number" />
                     </div>
                 </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="no_num_wrap">
+            <div class="center_vertically">
+                <div class="alert alert-primary text-center">
+                    <h3 class="alert-primary">No Active Numbers</h3>
+                    <p>
+                        You don't have any numbers assigned to your account. Click the link below to add a number.
+                    </p>
+                    <p>
+                        <h5>
+                            <a href="/numbers/getnumber/">Add a Number</a>
+                        </h5>
+                    </p>
+                </div>
+            </div>
+        </div>
+    }
+
+    @*Right hand column*@
+    <div class="message_wrap">
+        <div class="mesgs">
+            <div id="msg_list" class="msg_history">
+                @Html.Partial("_MessageList", Model)
+            </div>
+        </div>
+        <div class="container no-gutters new_msg_pad">
+            <div class="row no-gutters">
+                <div class="col-sm-10 border-right"><textarea id="message_text" class="message_texarea" data-emojiable="true" data-emoji-ta-id="emojipick_1"></textarea></div>
+                <div class="col-sm-2 h-100 my-auto text-center send-btn-container">
+                    <div>
+                        <button id="btn_send_message" class="btn btn-primary">Send</button>
+                    </div>
+                </div>
+            </div>
+            <div class="row no-gutters border-top">
+                <div class="col-sm-4"></div>
+                <div class="dz-wrap col-sm1 h-100 my-auto text-center">
+                    <form action="/messages/UploadFile/" class="dropzone" id="mmsDropzone">
+                        <span class="dz-message"><i class="fa fa-image mms-icon msg_function_icon"></i></span>
+                    </form>
+                </div>
+                <div class="col-sm-2"></div>
+                <div class="col-sm-1 h-100 my-auto text-center">
+                    <i id="emoji-sel-button" class="fa fa-image fa-smile-o msg_function_icon"></i>
+                </div>
+                <div class="col-sm-4"></div>
             </div>
         </div>
     </div>

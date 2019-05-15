@@ -5,15 +5,15 @@
 <div class="modal-dialog" role="document" id="purchaseModal">
     <div class="modal-content">
         <div class="modal-header">
-            <h2 class="modal-title" id="addContactLabel">Registration Complete</h2>
+            <h2 class="modal-title" id="addContactLabel">@Model.CompletionTitle</h2>
         </div>
         <div class="modal-body">
             <div class="form-group">
-                <label id="lblConfirm">Your account and number were successfully registered.</label>
+                <label id="lblConfirm">@Model.CompletionMessage</label>
             </div>
         </div>
         <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="registration_complete()">OK</button>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="registration_complete('@Model.PurchaseType')">OK</button>
         </div>
     </div>
 </div>

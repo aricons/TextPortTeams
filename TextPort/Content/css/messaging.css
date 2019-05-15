@@ -6,12 +6,12 @@
     background: #f8f8f8 none repeat scroll 0 0;
     float: left;
     width: 40%;
-    border: 1px solid #c4c4c4;
 }
 
-.inbox_msg {
+.messages_container {
     border: 1px solid #c4c4c4;
-    clear: both;
+    width: 100%;
+    float: left;
 }
 
 .top_spac {
@@ -23,7 +23,6 @@
     border-bottom: 1px solid #c4c4c4;
     width: 100%;
 }
-
 
 .heading_wrap_thin {
     padding: 1px 5px 1px 18px;
@@ -45,7 +44,6 @@
 
 .heading_wrap h4, .heading_wrap_thin h4 {
     padding: 5px 12px 0px 2px;
-    /*color: #05728f;*/
     color: #007bff;
     font-size: 21px;
 }
@@ -90,7 +88,7 @@
 }
 
 .inbox_chat {
-    height: 540px;
+    height: 550px;
     overflow-y: auto;
 }
 
@@ -131,23 +129,24 @@
     width: 57%;
 }
 
-.mesgs {
+.message_wrap {
     float: left;
-    padding: 10px 15px 0px 25px;
     width: 60%;
-    border-top: 1px solid #c4c4c4;
+    border-left: 1px solid #c4c4c4;
+}
+
+.mesgs {
+    padding: 10px 0px 0px 10px;
     border-bottom: 1px solid #c4c4c4;
-    border-right: 1px solid #c4c4c4;
 }
 
 .msg_history {
-    height: 577px;
+    height: 557px;
     overflow-y: auto;
     margin-bottom: 16px;
 }
 
 .sent_msg p {
-    /*background: #05728f none repeat scroll 0 0;*/
     background: #007bff none repeat scroll 0 0;
     border-radius: 3px;
     font-size: 14px;
@@ -157,13 +156,13 @@
     width: 100%;
 }
 
-.sent_msg p img {
-    background: #ffffff none repeat scroll 0 0;
-}
+    .sent_msg p img {
+        background: #ffffff none repeat scroll 0 0;
+    }
 
 .outgoing_msg {
     overflow: hidden;
-    margin: 26px 0 26px;
+    margin: 25px 8px 25px 8px;
 }
 
 .sent_msg {
@@ -187,8 +186,7 @@
 }
 
 .message_texarea {
-    /*border: medium none;*/
-    width: 80%;
+    width: 100%;
     overflow: scroll;
 }
 
@@ -201,6 +199,21 @@
 .type_num {
     border-top: 1px solid #c4c4c4;
     padding: 10px 15px 10px 15px;
+}
+
+.no_num_wrap {
+    float: left;
+    width: 40%;
+    background: #FFFFFF;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 250px;
+}
+
+.send-btn-container {
+    width: 80px;
 }
 
 .msg_send_btn {
@@ -235,4 +248,24 @@
 
 .mms-icon {
     font-size: 24px;
+}
+
+.borders {
+    border: solid black 1px;
+}
+
+.msg_function_icon {
+    padding: 10px 0px 10px 0px;
+    font-size: 26px;
+    color: #464646;
+}
+
+    .msg_function_icon:hover {
+        cursor: pointer;
+        color: black;
+    }
+
+.new_msg_pad {
+    padding-right: 0px;
+    padding-left: 0px;
 }

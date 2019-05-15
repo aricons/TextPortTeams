@@ -1,0 +1,112 @@
+﻿@using TextPortCore.Models
+@model RegistrationData
+
+@{
+    ViewBag.Title = "Get Number";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script type="text/javascript" src="/Scripts/TextPort/GetNumbers.js"></script>
+<script src="https://www.paypalobjects.com/api/checkout.js"></script>
+
+<div class="row">
+    <div class="col-md-3 ">
+        <div class="list-group ">
+            <a href="/Account/Profile" class="list-group-item list-group-item-action">Profile</a>
+            <a href="/Account/Balance" class="list-group-item list-group-item-action">Balance</a>
+            <a href="/Numbers/Manage" class="list-group-item list-group-item-action active">Numbers</a>
+            <a href="#" class="list-group-item list-group-item-action">Contacts</a>
+            <a href="#" class="list-group-item list-group-item-action">Change Password</a>
+            <a href="#" class="list-group-item list-group-item-action">Delete Account</a>
+        </div>
+    </div>
+    <div class="col-md-9">
+        <div class="card">
+            <div class="card-header">
+                <h4>Get a new Number</h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    @if (Model.PurchaseType == "ComplimentaryNumber")
+                    {
+                        <div class="form-group">
+                            <div class="alert alert-success" role="alert">
+                                <h4>NOTICE TO OUR EXISTING ACCOUNT HOLDERS</h4>
+                                <p>
+                                    The mobile industry is phasing out the delivery methods that allowed us to provide free texting.
+                                    Because of this all <b>accounts will now require a dedicated virtual number.</b>
+                                </p>
+                                <p>
+                                    We feel it's unfair to require existing account holders to buy a number, so we're offering all
+                                    <b>current account holders a free number for 30 days</b>, along with 100 free texting credits.
+                                </p>
+                                <p>
+                                    Use the section below to select the area code and number of your choice. You will <b>not be charged for the number</b>.
+                                    Your number will automatically expire in 30 days, or you have the option to renew it.
+                                </p>
+                            </div>
+                        </div>
+                    }
+                    <div class="offset-1 col-11">
+                        @using (Html.BeginForm("PostPurchase", "Account", FormMethod.Post, new { id = "form-signup" }))
+                        {
+                            @Html.HiddenFor(m => m.NumberCost)
+                            @Html.HiddenFor(m => m.AccountId)
+                            @Html.HiddenFor(m => m.PurchaseType)
+                            @Html.HiddenFor(m => m.PayPalCustom)
+                            @Html.HiddenFor(m => m.VirtualNumberId)
+                            @Html.HiddenFor(m => m.PurchaseTitle)
+                            @Html.HiddenFor(m => m.ProductDescription)
+                            @Html.HiddenFor(m => m.CompletionTitle)
+                            @Html.HiddenFor(m => m.CompletionMessage)
+                            <input type="hidden" id="hidTotalCost" value="0" />
+
+                            <div class="form-group">
+                                @Html.LabelFor(m => m.NumberCountryId, new { @class = "form-label" })
+                                @Html.DropDownListFor(m => m.NumberCountryId, new SelectList(Model.CountriesList, "Value", "Text"), new { @class = "col-5 form-control" })
+                                @Html.ValidationMessageFor(m => m.NumberCountryId, null, new { @class = "text-danger" })
+                            </div>
+                            <div class="form-group">
+                                @Html.LabelFor(m => m.AreaCode, new { @class = "form-label" })
+                                <div class="row">
+                                    <div class="col-2">
+                                        @Html.TextBoxFor(m => m.AreaCode, new { id = "AreaCode", @class = "form-control", placeholder = "000" })
+                                    </div>
+                                    <div id="spintiller1" class="spinner-border collapse" role="status">
+                                        <span class="sr-only">Loading...</span>
+                                    </div>
+                                    <div class="col">
+                                        <label id="AreaCodeDescription" class="col-form-label"></label>
+                                    </div>
+                                </div>
+                                @Html.ValidationMessageFor(m => m.AreaCode, null, new { @class = "text-danger" })
+                            </div>
+                            <div class="form-group">
+                                @Html.LabelFor(m => m.VirtualNumber, new { @class = "form-label" })
+                                @Html.DropDownListFor(m => m.VirtualNumber, new SelectList(Model.NumbersList, "Value", "Text"), new { @class = "col-5 form-control" })
+                                @Html.ValidationMessageFor(m => m.VirtualNumber, null, new { @class = "text-danger" })
+                            </div>
+                            <div class="form-group">
+                                @Html.LabelFor(m => m.LeasePeriod, new { @class = "form-label" })
+                                @Html.DropDownListFor(m => m.LeasePeriod, new SelectList(Model.LeasePeriodsList, "Value", "Text"), new { @class = "col-5 form-control" })
+                                @Html.ValidationMessageFor(m => m.LeasePeriod, null, new { @class = "text-danger" })
+                            </div>
+                            <div class="form-group">
+                                @Html.LabelFor(m => m.TotalCost, new { @class = "form-label" })
+                                <label id="TotalCost" class="col-6"></label>
+                            </div>
+                            <div class="form-group">
+                                <button id="btnContinue" type="button" class="btn btn-primary">@(Model.PurchaseType == "ComplimentaryNumber" ? "Select Number" : "Continue to Payment")</button>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="purchaseModalCont" class="modal hide fade in" data-url='@Url.Action("Purchase", "Numbers")'>
+</div>
+<div id="postPurchaseModalCont" class="modal hide fade in">
+</div>

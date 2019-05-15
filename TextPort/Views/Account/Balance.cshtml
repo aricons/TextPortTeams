@@ -1,0 +1,78 @@
+﻿@using TextPortCore.Models
+@model RegistrationData
+@{
+    ViewBag.Title = "My Balance";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script type="text/javascript" src="/Scripts/TextPort/GetNumbers.js"></script>
+<script src="https://www.paypalobjects.com/api/checkout.js"></script>
+
+<div class="row">
+    <div class="col-md-3 ">
+        <div class="list-group ">
+            <a href="/Account/Profile" class="list-group-item list-group-item-action">Profile</a>
+            @Html.ActionLink("Balance", "Balance", "Account", null, htmlAttributes: new { @class = "list-group-item list-group-item-action active" })
+            @Html.ActionLink("Numbers", "Manage", "Numbers", null, htmlAttributes: new { @class = "list-group-item list-group-item-action" })
+            <a href="#" class="list-group-item list-group-item-action">Contacts</a>
+            @Html.ActionLink("Change Password", "ChangePassword", "Account", null, htmlAttributes: new { @class = "list-group-item list-group-item-action" })
+            <a href="#" class="list-group-item list-group-item-action">Delete Account</a>
+        </div>
+    </div>
+    <div class="col-md-9">
+        <div class="card">
+            <div class="card-header">
+                <h4>My Balance</h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="offset-1 col-md-7">
+                        <div class="form-group">
+                            @Html.LabelFor(m => m.CreditCurrentBalance, new { @class = "form-label" })
+                            <label id="VirtualNumberLabel" class="col-4 form-label font-weight-bold">@String.Format("{0:C}", Model.CreditCurrentBalance)</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">
+                <h4>Add Credit</h4>
+            </div>
+            <div class="card-body">
+                @using (Html.BeginForm("PostPurchase", "Account", FormMethod.Post, new { id = "form-signup" }))
+                {
+                    @Html.HiddenFor(m => m.NumberCost)
+                    @Html.HiddenFor(m => m.AccountId)
+                    @Html.HiddenFor(m => m.PurchaseType)
+                    @Html.HiddenFor(m => m.PayPalCustom)
+                    @Html.HiddenFor(m => m.VirtualNumberId)
+                    @Html.HiddenFor(m => m.PurchaseTitle)
+                    @Html.HiddenFor(m => m.ProductDescription)
+                    @Html.HiddenFor(m => m.CompletionTitle)
+                    @Html.HiddenFor(m => m.CompletionMessage)
+                    <input type="hidden" id="hidTotalCost" value="0" />
+                    <div class="row">
+                        <div class="offset-1 col-md-7">
+                            <div class="form-group">
+                                @Html.LabelFor(m => m.CreditPurchaseAmount, new { @class = "form-label" })
+                                @Html.DropDownListFor(m => m.CreditPurchaseAmount, new SelectList(Model.CreditAmountsList, "Value", "Text"), new { @class = "form-control" })
+                                @Html.ValidationMessageFor(m => m.CreditPurchaseAmount, null, new { @class = "text-danger" })
+                            </div>
+                            <div class="form-group">
+                                @Html.LabelFor(m => m.TotalCost, new { @class = "form-label" })
+                                <label id="TotalCost" class="col-7 form-label"></label>
+                            </div>
+                            <div class="form-group">
+                                <button id="btnContinue" type="button" class="btn btn-primary">Continue to Payment</button>
+                            </div>
+
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+<div id="purchaseModalCont" class="modal hide fade in"></div>
+<div id="postPurchaseModalCont" class="modal hide fade in"></div>

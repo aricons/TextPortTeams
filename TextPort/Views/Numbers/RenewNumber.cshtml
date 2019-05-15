@@ -1,0 +1,66 @@
+﻿@using TextPortCore.Models
+@model RegistrationData
+
+@{
+    ViewBag.Title = "Renew Number";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script type="text/javascript" src="/Scripts/TextPort/GetNumbers.js"></script>
+<script src="https://www.paypalobjects.com/api/checkout.js"></script>
+
+<div class="row">
+    <div class="col-md-3 ">
+        <div class="list-group ">
+            <a href="/Account/Profile" class="list-group-item list-group-item-action">Profile</a>
+            <a href="/Numbers/Manage" class="list-group-item list-group-item-action active">Numbers</a>
+            <a href="#" class="list-group-item list-group-item-action">Contacts</a>
+            <a href="#" class="list-group-item list-group-item-action">Change Password</a>
+            <a href="#" class="list-group-item list-group-item-action">Delete Account</a>
+        </div>
+    </div>
+    <div class="col-md-9">
+        <div class="card">
+            <div class="card-header">
+                <h4>Renew Number @Model.VirtualNumber</h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="offset-1 col-11">
+                        @using (Html.BeginForm("RenewNumber", "Numbers", FormMethod.Post, new { id = "form-signup" }))
+                        {
+                            @Html.HiddenFor(m => m.NumberCost)
+                            @Html.HiddenFor(m => m.AccountId)
+                            @Html.HiddenFor(m => m.PurchaseType)
+                            @Html.HiddenFor(m => m.PayPalCustom)
+                            @Html.HiddenFor(m => m.VirtualNumber)
+                            @Html.HiddenFor(m => m.VirtualNumberId)
+                            @Html.HiddenFor(m => m.PurchaseTitle)
+                            @Html.HiddenFor(m => m.ProductDescription)
+                            @Html.HiddenFor(m => m.CompletionTitle)
+                            @Html.HiddenFor(m => m.CompletionMessage)
+                            <input type="hidden" id="hidTotalCost" value="0" />
+                            <div class="form-group">
+                                <label for="LeasePeriod" class="form-label">Renew @Model.VirtualNumber for</label>
+                                @Html.DropDownListFor(m => m.LeasePeriod, new SelectList(Model.LeasePeriodsList, "Value", "Text"), new { @class = "col-5 form-control" })
+                                @Html.ValidationMessageFor(m => m.LeasePeriod, null, new { @class = "text-danger" })
+                            </div>
+                            <div class="form-group">
+                                @Html.LabelFor(m => m.TotalCost, new { @class = "form-label" })
+                                <label id="TotalCost" class="col-6"></label>
+                            </div>
+                            <div class="form-group">
+                                <button id="btnContinue" type="button" class="btn btn-primary">Continue to Payment</button>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="purchaseModalCont" class="modal hide fade in">
+</div>
+<div id="postPurchaseModalCont" class="modal hide fade in">
+</div>

@@ -25,14 +25,21 @@
     <Compile Include="Models\AccountView.cs" />
     <Compile Include="Models\AreaCode.cs" />
     <Compile Include="Models\Bandwidth\BandwidthInboundMessage.cs" />
+    <Compile Include="Models\BulkMessages.cs" />
+    <Compile Include="Models\ChangePasswordRequest.cs" />
     <Compile Include="Models\Contact.cs" />
     <Compile Include="Models\DedicatedVirtualNumber.cs" />
+    <Compile Include="Models\EmailMessage.cs" />
     <Compile Include="Models\ErrorLog.cs" />
+    <Compile Include="Models\ForgotPasswordRequest.cs" />
     <Compile Include="Models\Group.cs" />
     <Compile Include="Models\GroupMember.cs" />
     <Compile Include="Models\LoginCredentials.cs" />
     <Compile Include="Models\Message.cs" />
-    <Compile Include="Models\MessageImage.cs" />
+    <Compile Include="Models\MessageHistory.cs" />
+    <Compile Include="Models\NewNumberModel.cs" />
+    <Compile Include="Models\NumbersContainer.cs" />
+    <Compile Include="Models\TempImage.cs" />
     <Compile Include="Models\MessageList.cs" />
     <Compile Include="Models\MessagingContainer.cs" />
     <Compile Include="Models\MMSFile.cs" />
@@ -47,11 +54,12 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNet.Mvc" Version="5.2.7" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.2.2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.2.3" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="2.2.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="2.2.0" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
     <PackageReference Include="RestSharp" Version="106.6.9" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.6.0" />
     <PackageReference Include="System.Diagnostics.EventLog" Version="4.5.0" />
     <PackageReference Include="System.Net.Http" Version="4.3.4" />
   </ItemGroup>

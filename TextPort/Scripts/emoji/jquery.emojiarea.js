@@ -52,6 +52,7 @@
             .each(function () {
                 var id = getGuid();
                 var originalInput = $(this);
+                //var originalInput = $document.getElementById("message_text");
                 if ('contentEditable' in document.body
                     && options.wysiwyg !== false) {
                     //var id = getGuid();
@@ -236,14 +237,22 @@
 
     EmojiArea.prototype.setupButton = function () {
         var self = this;
-        var $button = $('[data-id=' + this.id + '][data-type=picker]');
+        //var $button = $('[data-id=' + this.id + '][data-type=picker]');
+        var $button = $('#emoji-sel-button');
 
         $button.on('click', function (e) {
+            //if (self.emojiMenu.visible) {
+            //    //alert("Hiding");
+            //    self.emojiMenu.hide();
+            //    //self.emojiMenu.show();
+            //} else {
             self.emojiMenu.show(self);
+            //}
         });
 
         this.$button = $button;
         this.$dontHideOnClick = 'emoji-picker';
+        //this.$dontHideOnClick = 'emoji-sel-button';
     };
 
     /*
@@ -405,7 +414,8 @@
             });
         }
 
-        $textarea.after("<i class='emoji-picker-icon emoji-picker " + this.options.popupButtonClasses + "' data-id='" + id + "' data-type='picker'></i>");
+        // RDE - Remove the built-in emoji picker icon
+        //$textarea.after("<i class='emoji-picker-icon emoji-picker " + this.options.popupButtonClasses + "' data-id='" + id + "' data-type='picker'></i>");
 
         $textarea.hide().after(this.$editor);
         this.setup();
@@ -607,6 +617,12 @@
             e = e.originalEvent || e;
             var target = e.originalTarget || e.target || window;
 
+            // RDE
+            if (target.id === "emoji-sel-button" & self.emojiarea.emojiMenu.visible)
+            {
+                return;
+            }
+
             if ($(target).hasClass(self.emojiarea.$dontHideOnClick)) {
                 return;
             }
@@ -740,6 +756,7 @@
     };
 
     EmojiMenu.prototype.hide = function (callback) {
+        //alert("Hiding");
         this.visible = false;
         this.$menu.hide("fast");
     };
@@ -749,8 +766,10 @@
          * MODIFICATION: Following line was modified by Igor Zhukov, in order to
          * improve EmojiMenu behaviour
          */
-        if (this.visible)
+        if (this.visible) {
             return this.hide();
+        }
+
         $(this.$menu).css('z-index', ++EmojiMenu.menuZIndex);
         this.$menu.show("fast");
         /*
@@ -760,7 +779,9 @@
         if (!this.currentCategory) {
             this.load(0);
         }
+
         this.visible = true;
+
     };
 
 })(jQuery, window, document);
