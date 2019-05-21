@@ -67,7 +67,7 @@ namespace TextPortCore.Models
                 this.VirtualNumbers.Add(new SelectListItem()
                 {
                     Value = dvn.VirtualNumberId.ToString(),
-                    Text = dvn.NumberLocalFormat
+                    Text = dvn.NumberDisplayFormat
                 });
             };
 

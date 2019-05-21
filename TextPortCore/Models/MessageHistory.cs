@@ -42,7 +42,7 @@ namespace TextPortCore.Models
             DedicatedVirtualNumber vn = _context.DedicatedVirtualNumbers.FirstOrDefault(x => x.VirtualNumberId == virtualNumberId);
             if (vn != null)
             {
-                this.Number = vn.NumberLocalFormat;
+                this.Number = vn.NumberDisplayFormat;
                 this.Messages = _context.Messages.Include(m => m.MMSFiles).Where(x => x.VirtualNumberId == vn.VirtualNumberId).OrderByDescending(x => x.MessageId).ToList();
             }
             else

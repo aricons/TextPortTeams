@@ -14,9 +14,9 @@ namespace TextPortCore.Models
 
         public string Number { get; set; }
 
-        public string NumberInternationalFormat
+        public string NumberDisplayFormat
         {
-            get { return Utilities.NumberToGlobalFormat(this.Number); }
+            get { return Utilities.NumberToDisplayFormat(this.Number, 22); }
         }
 
         public string Message { get; set; }

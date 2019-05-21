@@ -13,11 +13,11 @@ else
 {
     foreach (Recent recent in Model)
     {
-        <div id="recent_@recent.NumberInternationalFormat" class="chl chat_list@(recent.IsActiveMessage ? " active_chat" : "")">
+        <div id="recent_@recent.Number" class="chl chat_list@(recent.IsActiveMessage ? " active_chat" : "")">
             <div class="chat_people">
                 <div class="chat_img"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil"> </div>
                 <div class="chat_ib">
-                    <h5>@recent.Number<span class="chat_date">@string.Format("{0:MMMM dd, yy | hh:mm tt}", recent.TimeStamp)</span></h5>
+                    <h5>@recent.NumberDisplayFormat<span class="chat_date">@string.Format("{0:MMMM dd, yy | hh:mm tt}", recent.TimeStamp)</span></h5>
                     <p>
                         @recent.Message
                     </p>

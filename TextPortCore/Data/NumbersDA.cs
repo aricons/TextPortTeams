@@ -93,7 +93,7 @@ namespace TextPortCore.Data
                     RenewalCount = 0,
                     SevenDayReminderSent = null,
                     TwoDayReminderSent = null,
-                    VirtualNumber = rd.VirtualNumberGlobalFormat,
+                    VirtualNumber = rd.VirtualNumber,
                     VirtualNumberCountryId = rd.NumberCountryId,
                     VirtualNumberId = 0
                 };

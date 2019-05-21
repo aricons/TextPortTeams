@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 using TextPortCore.Helpers;
-using TextPortCore.Models.Bandwidth;
+using TextPortCore.Integrations.Bandwidth;
 
 namespace TextPortCore.Models
 {
@@ -74,6 +74,13 @@ namespace TextPortCore.Models
 
         public List<MMSFile> MMSFiles { get; set; } = new List<MMSFile>();
 
+        public string NumberBandwidthFormat
+        {
+            get
+            {
+                return Utilities.NumberToBandwidthFormat(this.VirtualNumber);
+            }
+        }
 
         // Constructors
         public Message()
@@ -93,23 +100,38 @@ namespace TextPortCore.Models
             this.Direction = (int)MessageDirection.Inbound;
             this.VirtualNumber = bwMessage.to.Replace("+", "");
             this.VirtualNumberId = 0;
-            this.MobileNumber = bwMessage.from.Replace("+", "");
-            this.GatewayMessageId = bwMessage.messageId;
             this.TimeStamp = DateTime.UtcNow;
             this.Ipaddress = "0.0.0.0";
             this.CarrierId = (int)Carriers.BandWidth;
             this.CreditCost = 0;
-            this.MessageText = bwMessage.text;
-            this.IsMMS = false;
-            this.MMSFiles = new List<MMSFile>();
+
+            if (bwMessage.message != null)
+            {
+                this.MobileNumber = bwMessage.message.from.Replace("+", "");
+                this.GatewayMessageId = bwMessage.message.id;
+                this.MessageText = bwMessage.message.text;
+                this.IsMMS = false;
+                this.MMSFiles = new List<MMSFile>();
+                if (bwMessage.message.media != null && bwMessage.message.media.Count > 0)
+                {
+                    this.IsMMS = true;
+                    foreach (string mediaItem in bwMessage.message.media)
+                    {
+                        this.MMSFiles.Add(new MMSFile()
+                        {
+                            FileName = mediaItem
+                        });
+                    }
+                }
+            }
         }
 
         public Message(BulkMessageItem bulkMessage, int sourceNumberId, string sourceNumber)
         {
             this.Direction = (int)MessageDirection.Outbound;
             this.VirtualNumberId = sourceNumberId;
-            this.VirtualNumber = Utilities.NumberToGlobalFormat(sourceNumber);
-            this.MobileNumber = Utilities.NumberToGlobalFormat( bulkMessage.Number);
+            this.VirtualNumber = Utilities.NumberToE164(sourceNumber);
+            this.MobileNumber = Utilities.NumberToE164(bulkMessage.Number);
             this.GatewayMessageId = string.Empty;
             this.TimeStamp = DateTime.UtcNow;
             this.MessageText = bulkMessage.MessageText;

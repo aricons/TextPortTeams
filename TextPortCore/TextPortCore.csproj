@@ -2,9 +2,14 @@
 
   <PropertyGroup>
     <TargetFramework>net472</TargetFramework>
+    <Configurations>Debug;Release;Production</Configurations>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <Optimize>false</Optimize>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Production|AnyCPU'">
     <Optimize>false</Optimize>
   </PropertyGroup>
 
@@ -54,12 +59,12 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNet.Mvc" Version="5.2.7" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.2.3" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.2.4" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="2.2.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="2.2.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
     <PackageReference Include="RestSharp" Version="106.6.9" />
-    <PackageReference Include="System.Data.SqlClient" Version="4.6.0" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.6.1" />
     <PackageReference Include="System.Diagnostics.EventLog" Version="4.5.0" />
     <PackageReference Include="System.Net.Http" Version="4.3.4" />
   </ItemGroup>

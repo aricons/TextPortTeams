@@ -33,6 +33,7 @@ namespace TextPortCore.Models
         private bool success;
         private string completionTitle;
         private string completionMessage;
+        private string orderingMessage;
 
         public string PurchaseType
         {
@@ -105,15 +106,15 @@ namespace TextPortCore.Models
             set { this.virtualNumber = value; }
         }
 
+        public string NumberDisplayFormat
+        {
+            get { return Utilities.NumberToDisplayFormat(this.virtualNumber, 22); }
+        }
+
         public int VirtualNumberId
         {
             get { return this.virtualNumberId; }
             set { this.virtualNumberId = value; }
-        }
-
-        public string VirtualNumberGlobalFormat
-        {
-            get { return Utilities.NumberToGlobalFormat(this.virtualNumber); }
         }
 
         [Required(ErrorMessage = "A country must be selected")]
@@ -181,13 +182,13 @@ namespace TextPortCore.Models
                 switch (this.PurchaseType)
                 {
                     case "VirtualNumberRenew":
-                        return $"TextPort virtual number {this.VirtualNumber}, {this.LeasePeriod} month lease renewal.{cost}";
+                        return $"TextPort virtual number {this.NumberDisplayFormat}, {this.LeasePeriod} month lease renewal.{cost}";
 
                     case "Credits":
                         return $"Credit value{cost}.";
 
                     default: // VirtualNumberSignUp and VirtualNumber
-                        return $"TextPort virtual number {this.VirtualNumber}, {this.LeasePeriod} month lease.{cost}";
+                        return $"TextPort virtual number {this.NumberDisplayFormat}, {this.LeasePeriod} month lease.{cost}";
                 }
             }
         }
@@ -216,14 +217,14 @@ namespace TextPortCore.Models
                 switch (this.PurchaseType)
                 {
                     case "VirtualNumberRenew":
-                        return $"Renew Number {this.VirtualNumber}";
+                        return $"Renew Number {this.NumberDisplayFormat}";
 
                     case "Credits":
                         string cost = (this.TotalCost > 0) ? $" {this.TotalCost:C2}" : string.Empty;
                         return $"Add{cost} TextPort Credit.";
 
                     default: // VirtualNumberSignUp and VirtualNumber
-                        return $"Register Number {this.VirtualNumber}";
+                        return $"Register Number {this.NumberDisplayFormat}";
                 }
             }
         }
@@ -238,6 +239,12 @@ namespace TextPortCore.Models
         {
             get { return this.completionMessage; }
             set { this.completionMessage = value; }
+        }
+
+        public string OrderingMessage
+        {
+            get { return this.orderingMessage; }
+            set { this.orderingMessage = value; }
         }
 
         public IEnumerable<SelectListItem> CountriesList { get; set; }
@@ -270,6 +277,7 @@ namespace TextPortCore.Models
             this.Success = false;
             this.CompletionTitle = string.Empty;
             this.CompletionMessage = string.Empty;
+            this.OrderingMessage = string.Empty;
 
             // Initialize the numbers drop-down.
             List<SelectListItem> numbers = new List<SelectListItem>();
@@ -297,6 +305,7 @@ namespace TextPortCore.Models
             this.Success = false;
             this.CompletionTitle = string.Empty;
             this.CompletionMessage = string.Empty;
+            this.OrderingMessage = string.Empty;
 
             if (purcType == "ComplimentaryNumber")
             {

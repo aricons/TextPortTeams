@@ -14,8 +14,10 @@ namespace TextPortCore.Integrations.Bandwidth
         public string from { get; set; }
         public string to { get; set; }
         public string text { get; set; }
+        public string applicationId { get; set; }
+        public string tag { get; set; }
         public List<string> media { get; set; }
-        public string callbackUrl { get; set; }
+        //public string callbackUrl { get; set; }
 
         // Constructors
         public BandwidthOutboundMessage()
@@ -24,44 +26,44 @@ namespace TextPortCore.Integrations.Bandwidth
             this.to = String.Empty;
             this.text = String.Empty;
             this.media = null;
-            this.callbackUrl = ConfigurationManager.AppSettings["BandwidthComCallbackUrl"];
+            //this.callbackUrl = ConfigurationManager.AppSettings["BandwidthComCallbackUrl"];
         }
 
         //public BandwidthOutboundMessage(string fromNumber, string toNumber, string message)
-        public BandwidthOutboundMessage(Message msg)
+        public BandwidthOutboundMessage(Message msg, string appId)
         {
-            this.from = msg.VirtualNumber;
+            this.from = msg.NumberBandwidthFormat;
             this.to = msg.MobileNumber;
             this.text = msg.MessageText;
-            this.callbackUrl = ConfigurationManager.AppSettings["BandwidthComCallbackUrl"];
-            if (!string.IsNullOrEmpty(msg.MmsfileNames))
+            this.applicationId = appId;
+            this.tag = $"Account {msg.AccountId}";
+            //this.callbackUrl = ConfigurationManager.AppSettings["BandwidthComCallbackUrl"];
+            if (msg.MMSFiles != null && msg.MMSFiles.Count > 0)
             {
-                List<string> mmsFileNames = JsonConvert.DeserializeObject<List<string>>(msg.MmsfileNames);
-                if (mmsFileNames.Count > 0)
+                //List<string> mmsFileNames = JsonConvert.DeserializeObject<List<string>>(msg.MmsfileNames);
+                this.media = new List<string>();
+                foreach (MMSFile mmsFile in msg.MMSFiles)
                 {
-                    this.media = new List<string>();
-                    foreach (string mmsFileName in mmsFileNames)
-                    {
-                        this.media.Add($"{ConfigurationManager.AppSettings["MMSPublicBaseUrl"]}temp/{msg.AccountId}/{mmsFileName}");
-                    }
+                    this.media.Add($"{ConfigurationManager.AppSettings["MMSPublicBaseUrl"]}{msg.AccountId}/{mmsFile.FileName}");
                 }
             }
         }
     }
 
-    // Public methods
-    //public BandwidthResponseData Send(string url)
-    //{
-    //    BandwidthResponseData responseData = new BandwidthResponseData((decimal)0.0075);
-    //    try
-    //    {
-    //        string jsonMessage = new JavaScriptSerializer().Serialize(this);
-    //        responseData.MessageID = REST.PostData(url, jsonMessage);
-    //    }
-    //    catch (Exception ex)
-    //    {
-    //        string foo = ex.Message;
-    //    }
-    //    return responseData;
-    //}
+    //{"id":"1558161653161imgtl7etubespbfe","owner":"+15053172293","applicationId":"5abf6fa7-5e0f-4f1c-828b-c01f0c9674c1","time":"2019-05-18T06:40:53.161Z","segmentCount":1,"direction":"out","to":["+19492339386"],"from":"+15053172293","text":"Bandwidth V2 Test Message","tag":"Account 1"}
+
+
+    public class BandwidthMessageResponse
+    {
+        public string id { get; set; }
+        public string owner { get; set; }
+        public string applicationId { get; set; }
+        public DateTime time { get; set; }
+        public int segmentCount { get; set; }
+        public string direction { get; set; }
+        public List<string> to { get; set; }
+        public string from { get; set; }
+        public string text { get; set; }
+        public string tag { get; set; }
+    }
 }

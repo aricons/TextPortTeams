@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 //using System.Web.Mvc;
 using System.Web.Http;
 using Microsoft.AspNet.SignalR;
@@ -72,7 +73,7 @@ namespace TextPort.Controllers
 
         [HttpPost]
         //[Route("[action]")]
-        public IHttpActionResult MessageIn([FromBody] BandwidthInboundMessage messageData)
+        public IHttpActionResult MessageIn([FromBody] List<BandwidthInboundMessage> messageData)
         {
             using (TextPortDA da = new TextPortDA(_context))
             {

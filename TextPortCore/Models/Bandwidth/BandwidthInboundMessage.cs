@@ -4,7 +4,7 @@ using System.Text;
 
 namespace TextPortCore.Models.Bandwidth
 {
-    public class BandwidthInboundMessage
+    public class BandwidthInboundMessageV1
     {
         public string eventType { get; set; }
         public string direction { get; set; }
@@ -18,7 +18,7 @@ namespace TextPortCore.Models.Bandwidth
         public DateTime time { get; set; }
 
         // Default constructor
-        public BandwidthInboundMessage()
+        public BandwidthInboundMessageV1()
         {
             this.eventType = String.Empty;
             this.direction = String.Empty;

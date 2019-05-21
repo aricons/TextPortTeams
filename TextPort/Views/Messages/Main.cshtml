@@ -23,7 +23,7 @@
     $(function () {
 
         $('#from_number').on("change", function (e) {
-            getRecentsForVirtualNumber(numberToInternationalFormat($("#from_number option:selected").val()));
+            getRecentsForVirtualNumber(numberToE164($("#from_number option:selected").val()));
         });
 
         $('#btn_send_message').on("click", function (e) {
@@ -309,7 +309,7 @@
         if ($("#new_recipient_number").cleanVal() != "") {
             $("#hidActiveDestinationNumber").val("1" + $("#new_recipient_number").cleanVal());
         }
-        var message = $("#message_text").text();
+        var message = $("#message_text").val();
         var fromNumberId = $("#hidActiveVirtualNumberId").val();
         var toNumber = $("#hidActiveDestinationNumber").val();
 
@@ -392,7 +392,7 @@
         }
     }
 
-    function numberToInternationalFormat(number) {
+    function numberToE164(number) {
         return number.replace("\D", "");
     }
 
@@ -422,7 +422,7 @@
                 <select id="from_number" class="form-control num_dd">
                     @foreach (TextPortCore.Models.DedicatedVirtualNumber number in Model.Numbers)
                     {
-                        <option value="@number.VirtualNumberId">@number.NumberLocalFormat</option>
+                        <option value="@number.VirtualNumberId">@number.NumberDisplayFormat</option>
                     }
                 </select>
             </div>
@@ -430,20 +430,21 @@
                 <h4 class="heading_title">Recents</h4>
             </div>
             <div id="recents" class="inbox_chat">
-                @foreach (TextPortCore.Models.Recent recent in Model.Recents)
-                {
-                    <div id="recent_@recent.Number" class="chl chat_list@(recent.IsActiveMessage ? " active_chat" : "")" )>
-                        <div class="chat_people">
-                            <div class="chat_img"> <img src="~/content/images/user-profile.png"> </div>
-                            <div class="chat_ib">
-                                <h5>@recent.Number<span class="chat_date">@string.Format("{0:MMMM dd, yy | hh:mm tt}", recent.TimeStamp)</span></h5>
-                                <p>
-                                    @recent.Message
-                                </p>
+                @Html.Partial("_RecentsList", Model.Recents)
+                @*@foreach (TextPortCore.Models.Recent recent in Model.Recents)
+                    {
+                        <div id="recent_@recent.NumberE164" class="chl chat_list@(recent.IsActiveMessage ? " active_chat" : "")" )>
+                            <div class="chat_people">
+                                <div class="chat_img"> <img src="~/content/images/user-profile.png"> </div>
+                                <div class="chat_ib">
+                                    <h5>@recent.Number<span class="chat_date">@string.Format("{0:MMMM dd, yy | hh:mm tt}", recent.TimeStamp)</span></h5>
+                                    <p>
+                                        @recent.Message
+                                    </p>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                }
+                    }*@
             </div>
             <div class="new_num_wrap">
                 <div class="type_num">

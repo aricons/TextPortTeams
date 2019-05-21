@@ -4,8 +4,11 @@ using System.Net;
 using System.Web;
 using System.Linq;
 using System.Collections.Generic;
+using System.Threading;
+using System.Configuration;
 
 using RestSharp;
+using RestSharp.Serializers;
 using RestSharp.Authenticators;
 
 using TextPortCore.Models;
@@ -19,19 +22,27 @@ namespace TextPortCore.Integrations.Bandwidth
     public class Bandwidth : IDisposable
     {
         const string userId = "u-imdmn6chhceskespwwwox7a";
-        const string baseUrl = @"https://api.catapult.inetwork.com/v1/";
-        const string applicationId = "a-gp37trhojrbs2fgemvw5wzq";
-        const string apiToken = "t-h5xlmcsiydxo5ye7l4q7why";
-        const string apiSecret = "uw7ybc3i5vqatixqktw5wtrlz5gk3jnds5dbchq";
+        const string accountId = "3000006";
+        const string subAccountId = "23092";
+        const string applicationId = "5abf6fa7-5e0f-4f1c-828b-c01f0c9674c1"; // TextPortV2
+        const string userName = "richard@arionconsulting.com"; // Use userName and password when retreiving numbers
+        const string password = "Zealand!4";
+        const string apiToken = "091c02aae3e8dd660fc2f99a328561790da68779e83aabd1"; // Use token and secret when sending messages
+        const string apiSecret = "f015bb36ce195ed94610f2e1489dc3619e47bb5c8ffc37f1";
         const decimal defaultPrice = (decimal)0.0075;
+        const int orderCheckPollingCycles = 5; // number of times to check on an order
+        const int orderCheckWaitTime = 1500; // milliseconds to wait between each order status check
+
+        private string accountBaseUrl = $"https://dashboard.bandwidth.com/api/accounts/{accountId}";
+        private string messageBaseUrl = $"https://messaging.bandwidth.com/api/v2/users/{accountId}";
 
         private readonly TextPortContext _context;
-        private readonly RestClient _client = new RestClient(baseUrl);
+        private readonly RestClient _client;
 
         public Bandwidth(TextPortContext context)
         {
             this._context = context;
-            this._client = new RestClient(baseUrl);
+            this._client = new RestClient();
             this._client.Authenticator = new HttpBasicAuthenticator(apiToken, apiSecret);
         }
 
@@ -41,10 +52,16 @@ namespace TextPortCore.Integrations.Bandwidth
 
             try
             {
-                RestRequest request = new RestRequest($"availableNumbers/local?areaCode={areaCode}&quantity=20", Method.GET);
-                foreach (BandwidthNumber number in _client.Execute<List<BandwidthNumber>>(request).Data)
+                _client.BaseUrl = new Uri(accountBaseUrl);
+                _client.Authenticator = new HttpBasicAuthenticator(userName, password);
+
+                RestRequest request = new RestRequest($"/availableNumbers?areaCode={areaCode}&quantity=20", Method.GET);
+                request.AddHeader("Content-Type", "application/xml; charset=utf-8");
+
+                SearchResult result = _client.Execute<SearchResult>(request).Data;
+                foreach (string number in result.TelephoneNumberList)
                 {
-                    numbersOut.Add(number.nationalNumber);
+                    numbersOut.Add($"1{number}"); // Add a leading 1 to Bandwidth numbers
                 }
             }
             catch (Exception ex)
@@ -54,138 +71,257 @@ namespace TextPortCore.Integrations.Bandwidth
             return numbersOut;
         }
 
-
-        //public List<string> GetVirtualNumbersListOld(string areaCode)
-        //{
-        //    List<String> numbersOut = new List<String>();
-
-        //    try
-        //    {
-        //        var numbersJson = REST.GetData(String.Format("{0}/availableNumbers/local?areaCode={1}&quantity=20", baseUrl, HttpUtility.UrlEncode(areaCode)));
-
-        //        List<BandwidthNumber> bwNumbersList = JsonConvert.DeserializeObject<List<BandwidthNumber>>(numbersJson);
-        //        foreach (BandwidthNumber number in bwNumbersList)
-        //        {
-        //            numbersOut.Add(number.nationalNumber);
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        string foo = ex.Message;
-        //    }
-        //    return numbersOut;
-        //}
-
         public bool PurchaseVirtualNumber(RegistrationData regData)
         {
             try
             {
-                var request = new RestRequest($"users/{userId}/phoneNumbers/", Method.POST);
-                request.RequestFormat = DataFormat.Json;
-                request.AddJsonBody(new BandwidthAllocateNumber(regData.VirtualNumberGlobalFormat, regData.AccountId, applicationId));
-                // Disable for development and testing.
-                //_client.Execute(request);
+                string orderId = placeOrderForNumber(regData);
 
-                return true;
+                if (!orderId.Contains("FAILED"))
+                {
+                    for (int x = 0; x < orderCheckPollingCycles; x++)
+                    {
+                        string orderStatus = string.Empty;
+                        string errorMessage = string.Empty;
+
+                        Thread.Sleep(orderCheckWaitTime);
+
+                        orderStatus = CheckOrderStatus(orderId, ref errorMessage);
+
+                        if (orderStatus.Equals("COMPLETE", StringComparison.CurrentCultureIgnoreCase))
+                        {
+                            regData.OrderingMessage += $"Order complete. Number successfully assigned to account ID {regData.AccountId}.";
+                            return true;
+                        }
+                        else if (orderStatus.Equals("FAILED", StringComparison.CurrentCultureIgnoreCase))
+                        {
+                            regData.OrderingMessage += errorMessage;
+                            return false;
+                        }
+
+                        // Otherwise wait and keep checking.
+                        regData.OrderingMessage += $"Poll {x + 1}. ";
+                    }
+                }
+                else
+                {
+                    regData.OrderingMessage = "Order placement failed.";
+                }
+
+                return false;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                EventLogging.WriteEventLogEntry("An error occurred in BandwidthCom.PurchaseVirtualNumber(). Message: " + ex.ToString(), System.Diagnostics.EventLogEntryType.Error);
                 return false;
             }
         }
 
-        public bool CancelVirtualNumber(string virtualNumber)
+        private string placeOrderForNumber(RegistrationData regData)
         {
             try
             {
-                string url = String.Format("{0}/users/{1}/phoneNumbers/{2}", baseUrl, userId, HttpUtility.UrlEncode(String.Format("+{0}", virtualNumber)));
-                //string foo = REST.Delete(url);
-                return true;
+                _client.BaseUrl = new Uri(accountBaseUrl);
+                _client.Authenticator = new HttpBasicAuthenticator(userName, password);
+
+                RestRequest request = new RestRequest("/orders", Method.POST)
+                {
+                    RequestFormat = DataFormat.Xml,
+                    XmlSerializer = new DotNetXmlSerializer()
+                };
+                request.AddHeader("Content-Type", "application/xml; charset=utf-8");
+
+                Order ord = new Order(regData, subAccountId);
+                request.AddXmlBody(ord);
+
+                // Disable for development and testing.
+                BandwidthOrderResponse result = _client.Execute<BandwidthOrderResponse>(request).Data;
+
+                if (result != null)
+                {
+                    if (result.ErrorList.Count > 0)
+                    {
+                        if (result.ErrorList.FirstOrDefault() != null)
+                        {
+                            regData.OrderingMessage = $"Failure ordering number {regData.VirtualNumber}. Error: {result.ErrorList.FirstOrDefault().Description}. ";
+                            return "FAILED";
+                        }
+                    }
+                    else if (result.Order != null)
+                    {
+                        if (result.OrderStatus.Equals("RECEIVED", StringComparison.CurrentCultureIgnoreCase) && !String.IsNullOrEmpty(result.Order.id))
+                        {
+                            regData.OrderingMessage = $"Number {regData.VirtualNumber} ordered successfully. Order ID {result.Order.id}. ";
+                            return result.Order.id;
+                        }
+                        else
+                        {
+                            regData.OrderingMessage = $"Failure ordering number {regData.VirtualNumber}. Order status returned was {result.OrderStatus}. Order ID {result.Order.id}. ";
+                            return "FAILED";
+                        }
+                    }
+                }
+
+                regData.OrderingMessage = $"Failure ordering number {regData.VirtualNumber}. No error response. ";
+                return "FAILED";
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                regData.OrderingMessage = $"Failure ordering number {regData.VirtualNumber}. Exception: {ex.ToString()}. ";
+                EventLogging.WriteEventLogEntry("An error occurred in BandwidthCom.placeOrderForNumber(). Message: " + ex.ToString(), System.Diagnostics.EventLogEntryType.Error);
+                return "FAILED";
+            }
+        }
+
+        public string CheckOrderStatus(string bwOrderid, ref string errorDescription)
+        {
+            try
+            {
+                errorDescription = string.Empty;
+
+                _client.BaseUrl = new Uri(accountBaseUrl);
+                _client.Authenticator = new HttpBasicAuthenticator(userName, password);
+
+                RestRequest request = new RestRequest($"/orders/{bwOrderid}", Method.GET);
+                request.AddHeader("Content-Type", "application/xml; charset=utf-8");
+
+                BandwidthOrderResponse result = _client.Execute<BandwidthOrderResponse>(request).Data;
+
+                if (result != null)
+                {
+                    if (result.OrderStatus.Equals("FAILED", StringComparison.CurrentCultureIgnoreCase))
+                    {
+                        if (result.ErrorList != null)
+                        {
+                            if (result.ErrorList.FirstOrDefault() != null)
+                            {
+                                errorDescription = $"The order failed with response: {result.ErrorList.FirstOrDefault().Description}. ";
+                            }
+                        }
+                    }
+
+                    return result.OrderStatus;
+                }
+
+                return "FAILED";
+            }
+            catch (Exception ex)
+            {
+                EventLogging.WriteEventLogEntry("An error occurred in BandwidthCom.CheckOrderStatus(). Message: " + ex.ToString(), System.Diagnostics.EventLogEntryType.Error);
+                return "FAILED";
+            }
+        }
+
+        public bool DisconnectVirtualNumber(DedicatedVirtualNumber number, ref string processingMessage)
+        {
+            try
+            {
+                processingMessage = string.Empty;
+
+                _client.BaseUrl = new Uri(accountBaseUrl);
+                _client.Authenticator = new HttpBasicAuthenticator(userName, password);
+
+                RestRequest request = new RestRequest("/disconnects", Method.POST)
+                {
+                    RequestFormat = DataFormat.Xml,
+                    XmlSerializer = new DotNetXmlSerializer()
+                };
+                request.AddHeader("Content-Type", "application/xml; charset=utf-8");
+
+                DisconnectTelephoneNumberOrder ord = new DisconnectTelephoneNumberOrder(number);
+                request.AddXmlBody(ord);
+
+                DisconnectTelephoneNumberOrderResponse result = _client.Execute<DisconnectTelephoneNumberOrderResponse>(request).Data;
+
+                if (result != null)
+                {
+                    if (result.ErrorList != null)
+                    {
+                        if (result.ErrorList.Count > 0)
+                        {
+                            int i = 1;
+                            processingMessage += "Disconnect request failed with error(s): ";
+                            foreach (Error err in result.ErrorList)
+                            {
+                                processingMessage += $"{i}. {err.Description}. ";
+                                i++;
+                            }
+                            return false;
+                        }
+                    }
+
+                    if (result.OrderRequest != null)
+                    {
+                        if (!string.IsNullOrEmpty(result.OrderRequest.id))
+                        {
+                            processingMessage += $"Disconnect request accepted. Request ID {result.OrderRequest.id}.";
+                            return true;
+                        }
+                    }
+                }
+
+                processingMessage += "Disconnect request failed. ";
+                return false;
+            }
+            catch (Exception ex)
+            {
+                EventLogging.WriteEventLogEntry("An error occurred in BandwidthCom.DisconnectVirtualNumber(). Message: " + ex.ToString(), System.Diagnostics.EventLogEntryType.Error);
                 return false;
             }
         }
 
-        public Message ProcessBandwidthInboundMessage(BandwidthInboundMessage bwMessage)
+        public Message ProcessBandwidthInboundMessage(List<BandwidthInboundMessage> bwMessage)
         {
             string resultMessage = String.Empty;
             string forwardVNMessagesTo = String.Empty;
             string userName = String.Empty;
 
-            try
+            BandwidthInboundMessage mssg = bwMessage.FirstOrDefault();
+
+            switch (mssg.type)
             {
-                using (TextPortDA da = new TextPortDA(_context))
-                {
-                    Message messageIn = new Message(bwMessage);
-                    DedicatedVirtualNumber dvn = da.GetVirtualNumberByNumber(messageIn.VirtualNumber, true);
-                    if (dvn != null)
+                case "message-received":
+                    try
                     {
-                        messageIn.AccountId = dvn.AccountId;
-                        messageIn.VirtualNumberId = dvn.VirtualNumberId;
+                        using (TextPortDA da = new TextPortDA(_context))
+                        {
+                            Message messageIn = new Message(mssg);
+                            DedicatedVirtualNumber dvn = da.GetVirtualNumberByNumber(messageIn.VirtualNumber, true);
+                            if (dvn != null)
+                            {
+                                messageIn.AccountId = dvn.AccountId;
+                                messageIn.VirtualNumberId = dvn.VirtualNumberId;
+                            }
+
+                            string result = "Notification received from Bandwidth on " + messageIn.TimeStamp.ToString() + "\r\n";
+                            result += "Notification Type: " + mssg.type + "\r\n";
+                            result += "From mobile number: " + messageIn.MobileNumber + "\r\n";
+                            result += "To virtual number: " + messageIn.VirtualNumber + "\r\n";
+                            result += "Virtual Number ID: " + messageIn.VirtualNumberId.ToString() + "\r\n";
+                            result += "Gateway Message ID: " + messageIn.GatewayMessageId + "\r\n";
+                            result += "Account Id: " + messageIn.AccountId.ToString() + "\r\n";
+                            result += "Message: " + messageIn.MessageText + "\r\n";
+
+                            int messageId = da.InsertMessage(messageIn);
+                            result += (messageId > 0) ? $"Message successfully added to messages table.{Environment.NewLine}" : $"Failure adding message to messages table.{Environment.NewLine}";
+
+                            writeXMLToDisk(result, "BandwidthInboundMessage");
+
+                            return messageIn;
+                        }
                     }
+                    catch (Exception)
+                    {
+                    }
+                    break;
 
-                    string result = "Notification received from Bandwidth on " + messageIn.TimeStamp.ToString() + "\r\n";
-                    result += "API ID: " + bwMessage.applicationId + "\r\n";
-                    result += "From mobile number: " + messageIn.MobileNumber + "\r\n";
-                    result += "To virtual number: " + messageIn.VirtualNumber + "\r\n";
-                    result += "Virtual Number ID: " + messageIn.VirtualNumberId.ToString() + "\r\n";
-                    result += "Gateway Message ID: " + messageIn.GatewayMessageId + "\r\n";
-                    result += "Account Id: " + messageIn.AccountId.ToString() + "\r\n";
-                    result += "Message: " + messageIn.MessageText + "\r\n";
-
-                    int messageId = da.InsertMessage(messageIn);
-                    result += (messageId > 0) ? $"Message successfully added to messages table.{Environment.NewLine}" : $"Failure adding message to messages table.{Environment.NewLine}";
-
-                    writeXMLToDisk(result, "BandwidthInboundMessage");
-
-                    return messageIn;
-
-                    //        // If a virtual number forwarding address is specified for the account, send the message to the forwarding number.
-                    //        if (accountId != null)
-                    //        {
-                    //            if (accountId > 0 && !String.IsNullOrEmpty(forwardVNMessagesTo))
-                    //            {
-                    //                result += "Forwarding number detected.\r\n";
-                    //                result += String.Format("Forwarding inbound message to {0} for account ID {1}. ", forwardVNMessagesTo, accountId);
-                    //                string fromEmailAddress = String.Format("{0}@textport.com", userName);
-
-                    //                //TextPort.Classes.Message message = new TextPort.Classes.Message("VNFORWARD", "173", forwardVNMessagesTo, fromEmailAddress, "SMS", true, messageIn.MobileTo, messageIn.Message, (int)accountId, TextPort.Classes.SourceTypes.Normal, true);
-                    //                //if (message.PreSendChecksOK)
-                    //                //{
-                    //                //    if (TextPort.Common.SendSMSMessage(ref message))
-                    //                //    {
-                    //                //        message.UserMessage = "Your message was sent. Message ID: " + message.MessageID.ToString();
-                    //                //        result += String.Format("Output from forwarding processing: {0}", message.ProcessingMessage);
-                    //                //    }
-                    //                //    else
-                    //                //    {
-                    //                //        result += String.Format("Sending of forward failed. Processing message: {0}. User message: {1}", message.ProcessingMessage, message.UserMessage);
-                    //                //    }
-                    //                //}
-                    //                //else
-                    //                //{
-                    //                //    result += String.Format("Pre-send checks failed: {0}", message.ProcessingMessage);
-                    //                //}
-                    //            }
-                    //        }
-                    //    }
-                    //    catch (Exception ex)
-                    //    {
-                    //        result += String.Format("Error detected. Details: {0}", ex.ToString());
-                    //    }
-
-                    //    writeXMLToDisk(result, "BandwidthInboundMessage");
-
-                    //    return retVal;
-                    //}
-                }
+                case "message-delivered":
+                    string resultDev = "Notification received from Bandwidth on\r\n";
+                    resultDev += "Notification Type: " + mssg.type + "\r\n";
+                    resultDev += "To virtual number: " + mssg.to + "\r\n";
+                    writeXMLToDisk(resultDev, "BandwidthDeliveryNotification");
+                    break;
             }
-            catch (Exception)
-            {
-            }
-
             return null;
         }
 
@@ -193,24 +329,49 @@ namespace TextPortCore.Integrations.Bandwidth
         {
             try
             {
-                var request = new RestRequest($"users/{userId}/messages/", Method.POST);
-                request.RequestFormat = DataFormat.Json;
-                request.AddJsonBody(new BandwidthOutboundMessage(message));
-                IRestResponse response = _client.Execute(request);
+                _client.BaseUrl = new Uri(messageBaseUrl);
+                _client.Authenticator = new HttpBasicAuthenticator(apiToken, apiSecret);
 
-                string gatewayMessageId = getMessageIdFromResponse(response);
+                RestRequest request = new RestRequest("/messages", Method.POST)
+                {
+                    RequestFormat = DataFormat.Json
+                };
+                request.AddHeader("Content-Type", "application/json; charset=utf-8");
 
-                if (!string.IsNullOrEmpty(gatewayMessageId))
+                BandwidthOutboundMessage bwMessage = new BandwidthOutboundMessage(message, applicationId);
+                request.AddJsonBody(bwMessage);
+
+                BandwidthMessageResponse response = _client.Execute<BandwidthMessageResponse>(request).Data;
+
+                if (response != null)
                 {
-                    message.GatewayMessageId = gatewayMessageId;
-                    message.Price = defaultPrice;
-                    message.ProcessingMessage += "Message delivered to Bandwidth gateway. ";
-                    return true;
+                    if (!string.IsNullOrEmpty(response.id))
+                    {
+                        message.GatewayMessageId = response.id;
+                        message.Price = defaultPrice;
+                        message.ProcessingMessage += "Message delivered to Bandwidth gateway. ";
+                        return true;
+                    }
+                    else
+                    {
+                        message.ProcessingMessage += "Message delivery to Bandwidth gateway failed. Response processing failure. ";
+                    }
                 }
-                else
-                {
-                    message.ProcessingMessage += "Message delivery to Bandwidth gateway failed. Response processing failure. ";
-                }
+                //IRestResponse response = _client.Execute(request);
+
+                //string gatewayMessageId = getMessageIdFromResponse(response);
+
+                //if (!string.IsNullOrEmpty(gatewayMessageId))
+                //{
+                //    message.GatewayMessageId = gatewayMessageId;
+                //    message.Price = defaultPrice;
+                //    message.ProcessingMessage += "Message delivered to Bandwidth gateway. ";
+                //    return true;
+                //}
+                //else
+                //{
+                //    message.ProcessingMessage += "Message delivery to Bandwidth gateway failed. Response processing failure. ";
+                //}
             }
             catch (Exception ex)
             {
@@ -252,7 +413,8 @@ namespace TextPortCore.Integrations.Bandwidth
 
             AppConfiguration config = new AppConfiguration();
 
-            string fileName = $"{config.APILogFiles}{filePrefix}_{DateTime.Now:yyyy-MM-ddThh-mm-ss}.txt";
+            string baseFolder = ConfigurationManager.AppSettings["APILogFiles"];
+            string fileName = $"{baseFolder}{filePrefix}_{DateTime.Now:yyyy-MM-ddThh-mm-ss}.txt";
 
             try
             {

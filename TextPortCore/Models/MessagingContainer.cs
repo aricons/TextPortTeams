@@ -104,7 +104,7 @@ namespace TextPortCore.Models
                 {
                     recents.FirstOrDefault().IsActiveMessage = true;
                     this.Messages = da.GetMessagesForAccountAndRecipient(accountId, this.ActiveVirtualNumberId, this.Recents.FirstOrDefault().Number);
-                    this.ActiveDestinationNumber =  Utilities.NumberToGlobalFormat(recents.FirstOrDefault().Number);
+                    this.ActiveDestinationNumber =  Utilities.NumberToE164(recents.FirstOrDefault().Number);
                 }
                 else
                 {

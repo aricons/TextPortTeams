@@ -49,19 +49,19 @@ namespace TextPortCore.Models
 
         public int CancellationFailureCount { get; set; }
 
-        public string NumberInternationalFormat
+        public string NumberDisplayFormat
         {
             get
             {
-                return Utilities.NumberToGlobalFormat(this.VirtualNumber);
+                return Utilities.NumberToDisplayFormat(this.VirtualNumber, this.VirtualNumberCountryId);
             }
         }
 
-        public string NumberLocalFormat
+        public string NumberBandwidthFormat
         {
             get
             {
-                return Utilities.NumberToLocalFormat(this.VirtualNumber, this.VirtualNumberCountryId);
+                return Utilities.NumberToBandwidthFormat(this.VirtualNumber);
             }
         }
     }

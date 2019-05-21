@@ -73,7 +73,7 @@ namespace TextPortCore.Helpers
             return strippedNumber;
         }
 
-        public static string NumberToGlobalFormat(string number)
+        public static string NumberToE164(string number)
         {
             string globalNumber = string.Empty;
 
@@ -92,7 +92,7 @@ namespace TextPortCore.Helpers
             return globalNumber;
         }
 
-        public static string NumberToLocalFormat(string number, int countryId)
+        public static string NumberToDisplayFormat(string number, int countryId)
         {
             string localNumber = string.Empty;
 
@@ -106,7 +106,9 @@ namespace TextPortCore.Helpers
                     //    localNumber = localNumber.Substring(1);
                     //}
 
-                    localNumber = $"{localNumber.Substring(0, 1)} ({localNumber.Substring(1, 3)}) {localNumber.Substring(4, 3)}-{localNumber.Substring(7)}";
+                    // With leading "1".
+                    //localNumber = $"{localNumber.Substring(0, 1)} ({localNumber.Substring(1, 3)}) {localNumber.Substring(4, 3)}-{localNumber.Substring(7)}";
+                    localNumber = $"({localNumber.Substring(1, 3)}) {localNumber.Substring(4, 3)}-{localNumber.Substring(7)}";
                 }
             }
             catch (Exception ex)
@@ -114,6 +116,25 @@ namespace TextPortCore.Helpers
                 string foo = ex.Message;
             }
             return localNumber;
+        }
+
+        public static string NumberToBandwidthFormat(string number)
+        {
+            string bwNumber = string.Empty;
+
+            try
+            {
+                bwNumber = Regex.Replace(number, @"\D", "");
+                if (bwNumber.StartsWith("1"))
+                {
+                    bwNumber = bwNumber.Substring(1);
+                }
+            }
+            catch (Exception ex)
+            {
+                string foo = ex.Message;
+            }
+            return bwNumber;
         }
 
         public static string RemoveWhitespace(string input)

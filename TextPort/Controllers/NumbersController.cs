@@ -5,6 +5,7 @@ using System.Web.Mvc;
 
 using TextPortCore.Data;
 using TextPortCore.Models;
+using TextPortCore.Helpers;
 using TextPortCore.Integrations.Bandwidth;
 
 namespace TextPort.Controllers
@@ -57,7 +58,7 @@ namespace TextPort.Controllers
                 {
                     foreach (string number in numbers)
                     {
-                        numbersItems.Add(new SelectListItem() { Text = number, Value = number });
+                        numbersItems.Add(new SelectListItem() { Text = Utilities.NumberToDisplayFormat(number, 22), Value = number });
                     }
                 }
                 else

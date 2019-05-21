@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Linq;
-//using System.Data.Entity;
 using System.Collections.Generic;
 
 using Microsoft.EntityFrameworkCore;
-
-using Newtonsoft.Json;
 
 using TextPortCore.Models;
 using TextPortCore.Helpers;
@@ -21,7 +18,7 @@ namespace TextPortCore.Data
         {
             try
             {
-                Message msg = _context.Messages.FirstOrDefault(x => x.MessageId == messageId);
+                Message msg = _context.Messages.Include(m => m.MMSFiles).Where(x => x.MessageId == messageId).FirstOrDefault();
                 // Get the virtual number.
                 if (msg.VirtualNumberId > 0)
                 {
@@ -90,7 +87,7 @@ namespace TextPortCore.Data
                             {
                                 Message = numGroup.Select(x => new Recent()
                                 {
-                                    Number = Utilities.NumberToLocalFormat(numGroup.Key, 22),
+                                    Number = numGroup.Key,
                                     MessageId = x.MessageId,
                                     TimeStamp = x.TimeStamp,
                                     Message = x.MessageText,
@@ -119,7 +116,7 @@ namespace TextPortCore.Data
                             {
                                 Message = numGroup.Select(x => new Recent()
                                 {
-                                    Number = Utilities.NumberToLocalFormat(numGroup.Key, 22),
+                                    Number = numGroup.Key,
                                     MessageId = x.MessageId,
                                     TimeStamp = x.TimeStamp,
                                     Message = x.MessageText,
@@ -195,10 +192,7 @@ namespace TextPortCore.Data
         {
             try
             {
-                //if (message.MMSFiles != null && message.MMSFiles.Count > 0)
-                //{
-                //    message.MmsfileNames = JsonConvert.SerializeObject(message.MMSFiles.Select(m => m.FileName).ToList());
-                //}
+                message.MobileNumber = Utilities.NumberToE164(message.MobileNumber);
                 _context.Messages.Add(message);
                 _context.SaveChanges();
                 return message.MessageId;

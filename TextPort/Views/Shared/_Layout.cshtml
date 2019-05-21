@@ -56,7 +56,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.15/jquery.mask.min.js"></script>
 
     @*<script src="~/content/signalr/dist/browser/signalr.min.js"></script>*@
-    <script src="~/scripts/jquery.signalR-2.4.0.min.js"></script>
+    <script src="~/scripts/jquery.signalR-2.4.1.min.js"></script>
     <script src="~/signalr/hubs"></script>
 
     <style type="text/css">
@@ -73,8 +73,14 @@
         });
 
         $('#loginModalCont').on('shown.bs.modal', function (e) {
+            $('#form-login').validate();
+            $("#UserNameOrEmail").valid();
+            $("#LoginPassword").valid();
+
             $('#btnSubmitLogin').on("click", function (e) {
-                validateLogin();
+                if ($("#form-login").valid()) {
+                    validateLogin();
+                }
             });
         });
     });
@@ -108,7 +114,7 @@
             UserNameOrEmail: $("#UserNameOrEmail").val(),
             LoginPassword: $("#LoginPassword").val()
         };
-            event.preventDefault();
+        //event.preventDefault();
             $.ajax({
                 type: 'POST',
                 cache: false,
@@ -125,7 +131,7 @@
                         window.location.href = result.response;
                     }
                 }
-            });
+        });
         }
 
     </script>
@@ -134,41 +140,41 @@
     <br />
     <div class="container">
         @*<div class="header clearfix">*@
-            <nav>
-                <ul class="nav nav-pills float-right">
-                    @if (User.Identity.IsAuthenticated)
-                    {
-                        <li class="nav-item">
-                            @Html.ActionLink("My Messages", "Main", "Messages", null, htmlAttributes: new { @class = "nav-link" })
-                        </li>
-                        <li class="nav-item">
-                            @Html.ActionLink("Bulk Messaging", "Main", "Bulk", null, htmlAttributes: new { @class = "nav-link" })
-                        </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link active dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">@User.Identity.Name</a>
-                            <div class="dropdown-menu">
-                                @Html.ActionLink("Profile", "Profile", "Account", null, htmlAttributes: new { @class = "dropdown-item" })
-                                @Html.ActionLink("Balance", "Balance", "Account", null, htmlAttributes: new { @class = "dropdown-item" })
-                                @Html.ActionLink("Numbers", "Manage", "Numbers", null, htmlAttributes: new { @class = "dropdown-item" })
+        <nav>
+            <ul class="nav nav-pills float-right">
+                @if (User.Identity.IsAuthenticated)
+                {
+                    <li class="nav-item">
+                        @Html.ActionLink("My Messages", "Main", "Messages", null, htmlAttributes: new { @class = "nav-link" })
+                    </li>
+                    <li class="nav-item">
+                        @Html.ActionLink("Bulk Messaging", "Main", "Bulk", null, htmlAttributes: new { @class = "nav-link" })
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link active dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">@User.Identity.Name</a>
+                        <div class="dropdown-menu">
+                            @Html.ActionLink("Profile", "Profile", "Account", null, htmlAttributes: new { @class = "dropdown-item" })
+                            @Html.ActionLink("Balance", "Balance", "Account", null, htmlAttributes: new { @class = "dropdown-item" })
+                            @Html.ActionLink("Numbers", "Manage", "Numbers", null, htmlAttributes: new { @class = "dropdown-item" })
 
-                                <div class="dropdown-divider"></div>
-                                @Html.ActionLink("Log Out", "LogOut", "Account", null, htmlAttributes: new { @class = "dropdown-item" })
-                            </div>
-                        </li>
-                    }
-                    else
-                    {
-                        <li class="nav-item">
-                            <a href='#' id="btnLogin" class="nav-link" data-toggle="modal" data-target="#logInModal">Log In</a>
-                        </li>
-                        <li class="nav-item">
-                            @Html.ActionLink("Sign Up", "SignUp", "Account", null, htmlAttributes: new { @class = "nav-link active", id = "loginLink" })
-                        </li>
-                    }
+                            <div class="dropdown-divider"></div>
+                            @Html.ActionLink("Log Out", "LogOut", "Account", null, htmlAttributes: new { @class = "dropdown-item" })
+                        </div>
+                    </li>
+                }
+                else
+                {
+                    <li class="nav-item">
+                        <a href='#' id="btnLogin" class="nav-link" data-toggle="modal" data-target="#logInModal">Log In</a>
+                    </li>
+                    <li class="nav-item">
+                        @Html.ActionLink("Sign Up", "SignUp", "Account", null, htmlAttributes: new { @class = "nav-link active", id = "loginLink" })
+                    </li>
+                }
 
-                </ul>
-            </nav>
-            <h3 class="text-muted"><a class="nav-link active" href="/"><img src="~/content/images/tp_logo_240x54.png?h=06d3a6bd33a5b974da6ee4b4c5b06da3" width="130"></a></h3>
+            </ul>
+        </nav>
+        <h3 class="text-muted"><a class="nav-link active" href="/"><img src="~/content/images/tp_logo_240x54.png?h=06d3a6bd33a5b974da6ee4b4c5b06da3" width="130"></a></h3>
         @*</div>*@
 
         @RenderBody()

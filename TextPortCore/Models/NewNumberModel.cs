@@ -40,9 +40,9 @@ namespace TextPortCore.Models
             set { this.virtualNumber = value; }
         }
 
-        public string VirtualNumberGlobalFormat
+        public string VirtualNumberE164
         {
-            get { return Utilities.NumberToGlobalFormat(this.virtualNumber); }
+            get { return Utilities.NumberToE164(this.virtualNumber); }
         }
 
         [Required(ErrorMessage = "A country must be selected")]

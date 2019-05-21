@@ -1,6 +1,7 @@
 ﻿using System;
 //using System.Web;
 //using System.Web.Mvc;
+using System.Collections.Generic;
 using System.Configuration;
 using System.Web.Script.Serialization;
 
@@ -10,6 +11,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using TextPortCore.Data;
 using TextPortCore.Models;
 using TextPortCore.Helpers;
+using TextPortCore.Integrations.Bandwidth;
 using TextPortServices.Processes;
 
 
@@ -26,7 +28,7 @@ namespace Testing
         [TestMethod]
         public void ProcessOutboundMessage()
         {
-            int messageId = 2933866;
+            int messageId = 10160106;
 
             var optionsBuilder = new DbContextOptionsBuilder<TextPortContext>();
             optionsBuilder.UseSqlServer(ConfigurationManager.ConnectionStrings["TextPortContext"].ConnectionString);
@@ -74,9 +76,81 @@ namespace Testing
         [TestMethod]
         public void GetBandwidthNumbersForAreaCode()
         {
+            var optionsBuilder = new DbContextOptionsBuilder<TextPortContext>();
+            optionsBuilder.UseSqlServer(ConfigurationManager.ConnectionStrings["TextPortContext"].ConnectionString);
+            TextPortContext context = new TextPortContext(optionsBuilder.Options);
+
             string areaCode = "949";
-            //List<string> numbers = Bandwidth.GetVirtualNumbersList(areaCode);
-            //var foo = numbers;
+
+            using (Bandwidth bw = new Bandwidth(context))
+            {
+                List<string> numbers = bw.GetVirtualNumbersList(areaCode);
+                var foo = numbers;
+            }
+        }
+
+        [TestMethod]
+        public void BandwidthPurchaseNumber()
+        {
+            var optionsBuilder = new DbContextOptionsBuilder<TextPortContext>();
+            optionsBuilder.UseSqlServer(ConfigurationManager.ConnectionStrings["TextPortContext"].ConnectionString);
+            TextPortContext context = new TextPortContext(optionsBuilder.Options);
+
+            RegistrationData regData = new RegistrationData()
+            {
+                //VirtualNumber = "9495551212",
+                //VirtualNumber = "9496880745",
+                //VirtualNumber = "9495035607",
+                //VirtualNumber = "9095052389",
+                VirtualNumber = "8122692012",
+                AccountId = 1
+            };
+
+            using (Bandwidth bw = new Bandwidth(context))
+            {
+                bool foo = bw.PurchaseVirtualNumber(regData);
+                bool bar = foo;
+            }
+        }
+
+        [TestMethod]
+        public void BandwidthDisconnectNumber()
+        {
+            var optionsBuilder = new DbContextOptionsBuilder<TextPortContext>();
+            optionsBuilder.UseSqlServer(ConfigurationManager.ConnectionStrings["TextPortContext"].ConnectionString);
+            TextPortContext context = new TextPortContext(optionsBuilder.Options);
+            string processingMessage = string.Empty;
+
+            DedicatedVirtualNumber number = new DedicatedVirtualNumber()
+            {
+                AccountId = 1,
+                VirtualNumber = "19095052389"
+            };
+
+            using (Bandwidth bw = new Bandwidth(context))
+            {
+                bool foo = bw.DisconnectVirtualNumber(number, ref processingMessage);
+                bool bar = foo;
+                string msg = processingMessage;
+            }
+        }
+
+        [TestMethod]
+        public void BandwidthCheckOrderStatus()
+        {
+            var optionsBuilder = new DbContextOptionsBuilder<TextPortContext>();
+            optionsBuilder.UseSqlServer(ConfigurationManager.ConnectionStrings["TextPortContext"].ConnectionString);
+            TextPortContext context = new TextPortContext(optionsBuilder.Options);
+
+            //string orderId = "f54817fd-6fb4-4573-9463-78e09d65b47a"; // Complete
+            string orderId = "39bc2d9c-0d29-4dbe-996f-3123d5c10d85"; // Failed
+
+            using (Bandwidth bw = new Bandwidth(context))
+            {
+                string errorMessage = string.Empty;
+                string foo = bw.CheckOrderStatus(orderId, ref errorMessage);
+                string bar = foo;
+            }
         }
 
         [TestMethod]
@@ -171,7 +245,7 @@ namespace Testing
                 VirtualNumber = number
             };
 
-            string foo = num.ToLocalFormat();
+            string foo = num.NumberDisplayFormat;
 
             string bar = foo;
         }

@@ -5,8 +5,6 @@ using System.Security.Claims;
 using System.Web;
 using System.Web.Mvc;
 using Microsoft.Owin.Security;
-using Microsoft.AspNet.Identity;
-using Microsoft.AspNet.Identity.EntityFramework;
 
 using TextPort.Helpers;
 using TextPortCore.Models;
@@ -167,7 +165,7 @@ namespace TextPort.Controllers
                                     {
                                         using (Bandwidth bw = new Bandwidth(_context))
                                         {
-                                            //bw.PurchaseVirtualNumber(regData);
+                                            bw.PurchaseVirtualNumber(regData);
                                         }
                                     }
 
@@ -189,8 +187,12 @@ namespace TextPort.Controllers
                                         if (da.AddNumberToAccount(regData))
                                         {
                                             regData.CompletionTitle = "Number Successfully Assigned";
-                                            regData.CompletionMessage = $"The number {regData.VirtualNumber} has been sucessfully assigned to your account.";
+                                            regData.CompletionMessage = $"The number {regData.NumberDisplayFormat} has been sucessfully assigned to your account.";
                                         }
+                                    }
+                                    else
+                                    {
+                                        string foo = regData.OrderingMessage;
                                     }
                                 }
                             }
@@ -207,7 +209,14 @@ namespace TextPort.Controllers
                                         if (da.AddNumberToAccount(regData))
                                         {
                                             regData.CompletionTitle = "Number Successfully Assigned";
-                                            regData.CompletionMessage = $"The number {regData.VirtualNumber} has been sucessfully assigned to your account.";
+                                            regData.CompletionMessage = $"The number {regData.NumberDisplayFormat} has been sucessfully assigned to your account.";
+
+                                            Account acc = _context.Accounts.FirstOrDefault(x => x.AccountId == regData.AccountId);
+                                            if (acc != null)
+                                            {
+                                                acc.ComplimentaryNumber = false;
+                                                _context.SaveChanges();
+                                            }
                                         }
                                     }
                                 }
@@ -231,7 +240,7 @@ namespace TextPort.Controllers
                             }
 
                             regData.CompletionTitle = "Number Renewal Complete";
-                            regData.CompletionMessage = $"The number {regData.VirtualNumber} has been sucessfully renewed for {regData.LeasePeriod} {regData.LeasePeriodWord}.";
+                            regData.CompletionMessage = $"The number {regData.NumberDisplayFormat} has been sucessfully renewed for {regData.LeasePeriod} {regData.LeasePeriodWord}.";
 
                             return PartialView("_RegistrationComplete", regData);
 
