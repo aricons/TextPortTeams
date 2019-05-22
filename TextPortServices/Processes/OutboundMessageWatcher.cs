@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Configuration;
 using System.Threading;
 using Microsoft.EntityFrameworkCore;
@@ -99,7 +100,6 @@ namespace TextPortServices.Processes
                             message.ProcessingMessage += " Comms Failed. Message ID not found.";
                             message.QueueStatus = 3;
                         }
-
                         _context.SaveChanges();
                     }
                 }

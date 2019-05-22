@@ -34,6 +34,7 @@
     <Compile Include="Models\ChangePasswordRequest.cs" />
     <Compile Include="Models\Contact.cs" />
     <Compile Include="Models\DedicatedVirtualNumber.cs" />
+    <Compile Include="Models\DeliveryReceipt.cs" />
     <Compile Include="Models\EmailMessage.cs" />
     <Compile Include="Models\ErrorLog.cs" />
     <Compile Include="Models\ForgotPasswordRequest.cs" />

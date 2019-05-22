@@ -16,7 +16,7 @@
                 <p>
                     @msg.MessageText
                 </p>
-                <span class="time_date">@string.Format("{0:MMMM dd, yy | hh:mm tt}", msg.TimeStamp)</span>
+                <span id="td_@msg.MessageId" class="time_date">@string.Format("{0:MMMM dd, yy | hh:mm tt}", msg.TimeStamp)</span>
             </div>
         </div>
     }

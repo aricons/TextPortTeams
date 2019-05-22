@@ -17,6 +17,11 @@ namespace TextPort.Hubs
             _hubContext.Clients.User(userName).messageNotification(fromNumber, toNumber, messageText, messageHtml);
         }
 
+        public void SendDeliveryReceipt(string userName, string messageId, string messageHtml)
+        {
+            _hubContext.Clients.User(userName).deliveryReceipt(messageId, messageHtml);
+        }
+
         #region "Disposal"
 
         public void Dispose()

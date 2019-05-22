@@ -36,6 +36,7 @@ namespace TextPortServices.Processes
                     using (Bandwidth bw = new Bandwidth(_context))
                     {
                         returnValue = bw.RouteMessageViaBandwidthDotComGateway(message);
+                        _context.SaveChanges();
                     }
                     Thread.Sleep(nexmoInterMessageWaitMs);
                     break;

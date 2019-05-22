@@ -76,6 +76,12 @@
             }
         }
 
+        inHub.client.deliveryReceipt = function (messageId, messageHtml) {
+            //alert("Message for message ID " + messageId + " delivered");
+            var msgItem = document.getElementById("td_" + messageId);
+            msgItem.insertAdjacentHTML("beforeend", messageHtml);
+        }
+
         // Start the hub
         $.connection.hub.start();
 

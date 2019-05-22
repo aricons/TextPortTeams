@@ -11,8 +11,10 @@ using RestSharp;
 using RestSharp.Serializers;
 using RestSharp.Authenticators;
 
-using TextPortCore.Models;
+using Newtonsoft.Json;
+
 using TextPortCore.Data;
+using TextPortCore.Models;
 using TextPortCore.Helpers;
 using TextPortCore.AppConfig;
 using TextPortCore.Models.Bandwidth;
@@ -270,59 +272,110 @@ namespace TextPortCore.Integrations.Bandwidth
             }
         }
 
-        public Message ProcessBandwidthInboundMessage(List<BandwidthInboundMessage> bwMessage)
+        public Message ProcessInboundMessage(BandwidthInboundMessage bwMessage)
         {
-            string resultMessage = String.Empty;
-            string forwardVNMessagesTo = String.Empty;
-            string userName = String.Empty;
-
-            BandwidthInboundMessage mssg = bwMessage.FirstOrDefault();
-
-            switch (mssg.type)
+            try
             {
-                case "message-received":
-                    try
+                string resultMessage = String.Empty;
+                string forwardVNMessagesTo = String.Empty;
+                string userName = String.Empty;
+                string jsonPayload = JsonConvert.SerializeObject(bwMessage);
+
+                using (TextPortDA da = new TextPortDA(_context))
+                {
+                    Message messageIn = new Message(bwMessage);
+
+                    DedicatedVirtualNumber dvn = da.GetVirtualNumberByNumber(messageIn.VirtualNumber, true);
+                    if (dvn != null)
                     {
-                        using (TextPortDA da = new TextPortDA(_context))
-                        {
-                            Message messageIn = new Message(mssg);
-                            DedicatedVirtualNumber dvn = da.GetVirtualNumberByNumber(messageIn.VirtualNumber, true);
-                            if (dvn != null)
-                            {
-                                messageIn.AccountId = dvn.AccountId;
-                                messageIn.VirtualNumberId = dvn.VirtualNumberId;
-                            }
-
-                            string result = "Notification received from Bandwidth on " + messageIn.TimeStamp.ToString() + "\r\n";
-                            result += "Notification Type: " + mssg.type + "\r\n";
-                            result += "From mobile number: " + messageIn.MobileNumber + "\r\n";
-                            result += "To virtual number: " + messageIn.VirtualNumber + "\r\n";
-                            result += "Virtual Number ID: " + messageIn.VirtualNumberId.ToString() + "\r\n";
-                            result += "Gateway Message ID: " + messageIn.GatewayMessageId + "\r\n";
-                            result += "Account Id: " + messageIn.AccountId.ToString() + "\r\n";
-                            result += "Message: " + messageIn.MessageText + "\r\n";
-
-                            int messageId = da.InsertMessage(messageIn);
-                            result += (messageId > 0) ? $"Message successfully added to messages table.{Environment.NewLine}" : $"Failure adding message to messages table.{Environment.NewLine}";
-
-                            writeXMLToDisk(result, "BandwidthInboundMessage");
-
-                            return messageIn;
-                        }
+                        messageIn.AccountId = dvn.AccountId;
+                        messageIn.VirtualNumberId = dvn.VirtualNumberId;
                     }
-                    catch (Exception)
-                    {
-                    }
-                    break;
 
-                case "message-delivered":
-                    string resultDev = "Notification received from Bandwidth on\r\n";
-                    resultDev += "Notification Type: " + mssg.type + "\r\n";
-                    resultDev += "To virtual number: " + mssg.to + "\r\n";
-                    writeXMLToDisk(resultDev, "BandwidthDeliveryNotification");
-                    break;
+                    string result = "Message received from Bandwidth on " + messageIn.TimeStamp.ToString() + "\r\n";
+                    result += "Notification Type: " + bwMessage.type + "\r\n";
+                    result += "From mobile number: " + messageIn.MobileNumber + "\r\n";
+                    result += "To virtual number: " + messageIn.VirtualNumber + "\r\n";
+                    result += "Virtual Number ID: " + messageIn.VirtualNumberId.ToString() + "\r\n";
+                    result += "Gateway Message ID: " + messageIn.GatewayMessageId + "\r\n";
+                    result += "Account Id: " + messageIn.AccountId.ToString() + "\r\n";
+                    result += "Message: " + messageIn.MessageText + "\r\n";
+                    result += "Data Received: " + jsonPayload + "\r\n";
+
+                    int messageId = da.InsertMessage(messageIn);
+                    result += (messageId > 0) ? $"Message successfully added to messages table.{Environment.NewLine}" : $"Failure adding message to messages table.{Environment.NewLine}";
+
+                    writeXMLToDisk(result, "BandwidthInboundMessage");
+
+                    return messageIn;
+                }
+            }
+            catch (Exception ex)
+            {
+                string resultErr = $"An error occurred in BandwidthCom.ProcessInboundMessage(). Message: {ex.ToString()}";
+                writeXMLToDisk(resultErr, "Error_InboundMessage");
+
+                EventLogging.WriteEventLogEntry(resultErr, System.Diagnostics.EventLogEntryType.Error);
             }
             return null;
+        }
+
+        public bool ProcessDeliveryReceipt(BandwidthInboundMessage receipt)
+        {
+            try
+            {
+                string resultMessage = String.Empty;
+                string forwardVNMessagesTo = String.Empty;
+                string userName = String.Empty;
+                string jsonPayload = JsonConvert.SerializeObject(receipt);
+
+                using (TextPortDA da = new TextPortDA(_context))
+                {
+                    string resultDev = "Delivery receipt received from Bandwidth\r\n";
+                    resultDev += "Notification Type: " + receipt.type + "\r\n";
+                    resultDev += "To virtual number: " + receipt.to + "\r\n";
+                    resultDev += "Data Received: " + jsonPayload + "\r\n";
+                    writeXMLToDisk(resultDev, "BandwidthDeliveryReceipt");
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                string resultErr = $"An error occurred in BandwidthCom.ProcessDeliveryReceipt(). Message: {ex.ToString()}";
+                writeXMLToDisk(resultErr, "Error_ProcessDeliveryReceipt");
+
+                EventLogging.WriteEventLogEntry(resultErr, System.Diagnostics.EventLogEntryType.Error);
+            }
+            return false;
+        }
+
+        public bool ProcessDeliveryFailure(BandwidthInboundMessage receipt)
+        {
+            try
+            {
+                string resultMessage = String.Empty;
+                string forwardVNMessagesTo = String.Empty;
+                string userName = String.Empty;
+                string jsonPayload = JsonConvert.SerializeObject(receipt);
+
+                using (TextPortDA da = new TextPortDA(_context))
+                {
+                    string resultDev = "Delivery failure received from Bandwidth\r\n";
+                    resultDev += "Notification Type: " + receipt.type + "\r\n";
+                    resultDev += "To virtual number: " + receipt.to + "\r\n";
+                    resultDev += "Data Received: " + jsonPayload + "\r\n";
+                    writeXMLToDisk(resultDev, "BandwidthDeliveryFailure");
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                string resultErr = $"An error occurred in BandwidthCom.ProcessDeliveryFailure(). Message: {ex.ToString()}";
+                writeXMLToDisk(resultErr, "Error_ProcessDeliveryFailure");
+
+                EventLogging.WriteEventLogEntry(resultErr, System.Diagnostics.EventLogEntryType.Error);
+            }
+            return false;
         }
 
         public bool RouteMessageViaBandwidthDotComGateway(Message message)

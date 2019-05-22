@@ -278,6 +278,8 @@ namespace TextPortCore.Data
 
                 entity.HasIndex(e => e.VirtualNumberId);
 
+                entity.HasIndex(e => e.GatewayMessageId);
+
                 entity.HasIndex(e => e.TimeStamp);
 
                 entity.HasIndex(e => e.UniqueMessageId);

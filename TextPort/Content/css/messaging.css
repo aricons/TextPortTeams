@@ -125,6 +125,14 @@
     margin: 8px 0 0;
 }
 
+.rcpt {
+    float: right;
+    margin-right: 4px;
+    color: #28a745;
+    font-size: 13px;
+    font-weight: bold;
+}
+
 .received_withd_msg {
     width: 57%;
 }
