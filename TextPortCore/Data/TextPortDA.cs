@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Configuration;
+
+using Microsoft.EntityFrameworkCore;
 
 namespace TextPortCore.Data
 {
@@ -9,6 +12,11 @@ namespace TextPortCore.Data
         public TextPortDA(TextPortContext context)
         {
             this._context = context;
+        }
+
+        public TextPortDA()
+        {
+            this._context = new TextPortContext();
         }
 
         #region "Disposal"

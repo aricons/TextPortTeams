@@ -16,12 +16,12 @@ namespace TextPort.Controllers
 {
     public class AccountController : Controller
     {
-        private TextPortContext _context;
+        //private TextPortContext _context;
 
-        public AccountController(TextPortContext context)
-        {
-            _context = context;
-        }
+        //public AccountController(TextPortContext context)
+        //{
+        //    _context = context;
+        //}
 
         [HttpPost]
         public ActionResult ValidateLogin(LoginCredentials model)
@@ -31,7 +31,8 @@ namespace TextPort.Controllers
 
             try
             {
-                using (TextPortDA da = new TextPortDA(_context))
+
+                using (TextPortDA da = new TextPortDA())
                 {
                     if (da.ValidateLogin(model.UserNameOrEmail, model.LoginPassword, ref account))
                     {
@@ -85,7 +86,7 @@ namespace TextPort.Controllers
         {
             try
             {
-                RegistrationData rd = new RegistrationData(_context, "VirtualNumberSignUp", 0);
+                RegistrationData rd = new RegistrationData("VirtualNumberSignUp", 0);
 
                 // For testing
                 rd.UserName = "regley1";
@@ -108,7 +109,7 @@ namespace TextPort.Controllers
         {
             try
             {
-                using (TextPortDA da = new TextPortDA(_context))
+                using (TextPortDA da = new TextPortDA())
                 {
                     //regData.PurchaseTitle += $"Cost {regData.TotalCost}";
                     switch (regData.PurchaseType)
@@ -137,7 +138,7 @@ namespace TextPort.Controllers
         {
             try
             {
-                using (TextPortDA da = new TextPortDA(_context))
+                using (TextPortDA da = new TextPortDA())
                 {
                     switch (regData.PurchaseType)
                     {
@@ -163,7 +164,7 @@ namespace TextPort.Controllers
 
                                     if (!string.IsNullOrEmpty(regData.VirtualNumber))
                                     {
-                                        using (Bandwidth bw = new Bandwidth(_context))
+                                        using (Bandwidth bw = new Bandwidth())
                                         {
                                             bw.PurchaseVirtualNumber(regData);
                                         }
@@ -180,7 +181,7 @@ namespace TextPort.Controllers
                         case "VirtualNumber":
                             if (!string.IsNullOrEmpty(regData.VirtualNumber))
                             {
-                                using (Bandwidth bw = new Bandwidth(_context))
+                                using (Bandwidth bw = new Bandwidth())
                                 {
                                     if (bw.PurchaseVirtualNumber(regData))
                                     {
@@ -202,7 +203,7 @@ namespace TextPort.Controllers
                         case "ComplimentaryNumber":
                             if (!string.IsNullOrEmpty(regData.VirtualNumber))
                             {
-                                using (Bandwidth bw = new Bandwidth(_context))
+                                using (Bandwidth bw = new Bandwidth())
                                 {
                                     if (bw.PurchaseVirtualNumber(regData))
                                     {
@@ -248,7 +249,7 @@ namespace TextPort.Controllers
                             if (regData != null)
                             {
                                 string accountId = ClaimsPrincipal.Current.FindFirst("AccountId").Value;
-                                AccountView av = new AccountView(_context, Convert.ToInt32(accountId));
+                                AccountView av = new AccountView(Convert.ToInt32(accountId));
 
                                 Account acc = _context.Accounts.FirstOrDefault(x => x.AccountId == Convert.ToInt32(accountId));
                                 if (acc != null)
@@ -278,7 +279,7 @@ namespace TextPort.Controllers
         public ActionResult Profile()
         {
             string accountId = ClaimsPrincipal.Current.FindFirst("AccountId").Value;
-            AccountView av = new AccountView(_context, Convert.ToInt32(accountId));
+            AccountView av = new AccountView(Convert.ToInt32(accountId));
             if (av != null)
             {
                 return View(av);
@@ -287,11 +288,34 @@ namespace TextPort.Controllers
         }
 
         [Authorize]
+        [HttpPost]
+        public ActionResult Profile(AccountView av)
+        {
+            av.Status = RequestStatus.Failed;
+
+            using (TextPortDA da = new TextPortDA())
+            {
+                if (da.UpdateAccount(av.Account))
+                {
+                    av.Status = RequestStatus.Success;
+                    av.ConfirmationMessage = "Your settings have been updated.";
+                }
+                else
+                {
+                    av.ConfirmationMessage = "There was a problem updating your settings.";
+                }
+                av.TimeZones = da.GetTimeZones();
+
+                return View(av);
+            }
+        }
+
+        [Authorize]
         [HttpGet]
         public ActionResult Balance()
         {
             string accountId = ClaimsPrincipal.Current.FindFirst("AccountId").Value;
-            RegistrationData regData = new RegistrationData(_context, "Credits", Convert.ToInt32(accountId));
+            RegistrationData regData = new RegistrationData("Credits", Convert.ToInt32(accountId));
             if (regData != null)
             {
                 return View(regData);
@@ -304,7 +328,7 @@ namespace TextPort.Controllers
         public ActionResult ProfileRegComplete()
         {
             string accountId = System.Security.Claims.ClaimsPrincipal.Current.FindFirst("AccountId").Value;
-            AccountView av = new AccountView(_context, Convert.ToInt32(accountId));
+            AccountView av = new AccountView(Convert.ToInt32(accountId));
             if (av != null)
             {
                 return View("Profile", av);
@@ -312,23 +336,10 @@ namespace TextPort.Controllers
             return View();
         }
 
-        [Authorize]
-        [HttpPost]
-        public ActionResult Profile(AccountView av)
-        {
-            using (TextPortDA da = new TextPortDA(_context))
-            {
-                da.UpdateAccount(av.Account);
-                av.TimeZones = da.GetTimeZones();
-
-                return View(av);
-            }
-        }
-
         [AcceptVerbs("GET", "POST")]
         public ActionResult VerifyUsername(string username)
         {
-            using (TextPortDA da = new TextPortDA(_context))
+            using (TextPortDA da = new TextPortDA())
             {
                 if (!da.IsUsernameAvailable(username))
                 {
@@ -341,7 +352,7 @@ namespace TextPort.Controllers
         [AcceptVerbs("GET", "POST")]
         public ActionResult VerifyEmail(string email)
         {
-            using (TextPortDA da = new TextPortDA(_context))
+            using (TextPortDA da = new TextPortDA())
             {
                 if (!da.IsUsernameAvailable(email))
                 {
@@ -366,7 +377,9 @@ namespace TextPort.Controllers
         {
             request.Status = RequestStatus.Failed;
 
-            Account acc = _context.Accounts.FirstOrDefault(x => x.Email == request.EmailAddress);
+            using (TextPortDA = new TextPortDA())
+            {
+                Account acc = _context.Accounts.FirstOrDefault(x => x.Email == request.EmailAddress);
             if (acc != null)
             {
                 request.UserName = acc.UserName;

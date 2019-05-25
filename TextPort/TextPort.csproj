@@ -278,6 +278,7 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Helpers\Extensions.cs" />
     <Compile Include="Helpers\Rendering.cs" />
     <Compile Include="Hubs\HubFunctions.cs" />
     <Compile Include="Hubs\InboundHubOld.cs" />
@@ -379,6 +380,7 @@
     <Content Include="Scripts\popper.js" />
     <Content Include="Scripts\popper.min.js" />
     <Content Include="Scripts\TextPort\GetNumbers.js" />
+    <Content Include="Scripts\TextPort\RequiredIfValidation.js" />
     <Content Include="Scripts\umd\popper-utils.js" />
     <Content Include="Scripts\umd\popper-utils.min.js" />
     <Content Include="Scripts\umd\popper.js" />

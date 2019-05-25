@@ -120,11 +120,14 @@ namespace TextPortCore.Data
                     Account dbRecord = _context.Accounts.FirstOrDefault(x => x.AccountId == account.AccountId);
                     if (dbRecord != null)
                     {
+                        dbRecord.EnableEmailNotifications = account.EnableEmailNotifications;
+                        dbRecord.EnableMobileForwarding = account.EnableMobileForwarding;
                         dbRecord.NotificationsEmailAddress = account.NotificationsEmailAddress;
+                        dbRecord.ForwardVnmessagesTo = Utilities.NumberToE164(account.ForwardVnmessagesTo);
                         dbRecord.TimeZoneId = account.TimeZoneId;
                         dbRecord.Email = account.Email;
 
-                        //_context.Accounts.Update(dbRecord);
+                        _context.Accounts.Update(dbRecord);
                         _context.SaveChanges();
 
                         return true;

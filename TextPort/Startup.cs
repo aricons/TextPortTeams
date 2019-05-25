@@ -10,6 +10,7 @@ using Owin;
 using Microsoft.EntityFrameworkCore;
 
 using TextPortCore.Data;
+using TextPortCore.Helpers.CustomValidation;
 
 [assembly: OwinStartupAttribute(typeof(TextPort.Startup))]
 namespace TextPort
@@ -26,6 +27,8 @@ namespace TextPort
             var resolver = new DefaultDependencyResolver(services.BuildServiceProvider());
             DependencyResolver.SetResolver(resolver); //Set MVC
             GlobalConfiguration.Configuration.DependencyResolver = resolver; //Set for Web API
+
+            // DataAnnotationsModelValidatorProvider.RegisterAdapter(typeof(RequiredIfAttribute), typeof(RequiredAttributeAdapter));
 
             app.MapSignalR();
         }

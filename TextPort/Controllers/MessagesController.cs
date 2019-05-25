@@ -115,7 +115,7 @@ namespace TextPort.Controllers
                                 Messages = { message }
                             };
 
-                            message.WriteQueueSemaphore();
+                            message.Send();
                             _context.SaveChanges();
 
                             return PartialView("_MessageList", messageList);

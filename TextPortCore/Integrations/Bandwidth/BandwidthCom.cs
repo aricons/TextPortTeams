@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Net;
-using System.Web;
 using System.Linq;
 using System.Collections.Generic;
 using System.Threading;
@@ -17,7 +16,6 @@ using TextPortCore.Data;
 using TextPortCore.Models;
 using TextPortCore.Helpers;
 using TextPortCore.AppConfig;
-using TextPortCore.Models.Bandwidth;
 
 namespace TextPortCore.Integrations.Bandwidth
 {
@@ -304,6 +302,63 @@ namespace TextPortCore.Integrations.Bandwidth
 
                     int messageId = da.InsertMessage(messageIn);
                     result += (messageId > 0) ? $"Message successfully added to messages table.{Environment.NewLine}" : $"Failure adding message to messages table.{Environment.NewLine}";
+
+                    // Check for forwarding
+                    if (messageIn.AccountId > 0)
+                    {
+                        string nl = Environment.NewLine;
+                        Account account = da.GetAccountById(messageIn.AccountId);
+                        if (account != null)
+                        {
+                            // Check for email forwarding.
+                            if (account.EnableEmailNotifications && !string.IsNullOrEmpty(account.NotificationsEmailAddress))
+                            {
+                                result += $"Email forwarding enabled. Sending notification to {account.NotificationsEmailAddress}. ";
+
+                                // Send email notification
+                                string body = $"Hello {account.UserName}:{nl}{nl}";
+                                body += $"You received a text message on your TextPort number.{nl}{nl}";
+                                body += $"From number: {Utilities.NumberToDisplayFormat(messageIn.MobileNumber, 22)}{nl}";
+                                body += $"To your number: {Utilities.NumberToDisplayFormat(messageIn.VirtualNumber, 22)}{nl}";
+                                body += $"Message: {messageIn.MessageText}{nl}{nl}";
+                                body += $"TextPort.com";
+
+                                EmailMessage email = new EmailMessage(_context, account.NotificationsEmailAddress, $"TextPort - New Message From {Utilities.NumberToDisplayFormat(messageIn.MobileNumber, 22)}", body);
+                                result += (email.Send()) ? "Email sent successfully.\r\n" : "Email send failed.\r\n";
+                            }
+
+                            // Check for mobile forwarding.
+                            if (account.EnableMobileForwarding && !string.IsNullOrEmpty(account.ForwardVnmessagesTo))
+                            {
+                                // Make sure the virtual number receiving the message and the forwarding number aren't the same, to avoid pushing a notification
+                                // to the same number from which it came and creating a loop.
+                                if (messageIn.VirtualNumber != account.ForwardVnmessagesTo)
+                                {
+                                    result += $"SMS forwarding enabled. Sending notification to {account.ForwardVnmessagesTo}. ";
+                                    // Check whether the user has a credit balance
+                                    if (account.Balance > 1)
+                                    {
+                                        result += $"Balance is {account.Balance:C}. OK. ";
+                                        // Check whether the account has an active virtual number
+                                        //DedicatedVirtualNumber vn = _context.DedicatedVirtualNumbers.Where(x => x.AccountId == account.AccountId && !x.Cancelled).OrderByDescending(x => x.VirtualNumberId).FirstOrDefault();
+                                        //if (vn != null)
+                                        //{
+                                        // Send the message from the same virtual number on which it was received.
+                                        string msg = $"TextPort message received from {Utilities.NumberToDisplayFormat(messageIn.MobileNumber, 22)}:{nl}";
+                                        msg += $"{messageIn.MessageText}";
+
+                                        Message notificationMessage = new Message(account.AccountId, messageIn.VirtualNumberId, msg);
+                                        result += (notificationMessage.Send()) ? "SMS sent successfully.\r\n" : "SMS send failed.\r\n";
+                                        //}
+                                    }
+                                    else
+                                    {
+                                        result += $"Insufficient balance: {account.Balance:C}. SMS not sent.\r\n";
+                                    }
+                                }
+                            }
+                        }
+                    }
 
                     writeXMLToDisk(result, "BandwidthInboundMessage");
 

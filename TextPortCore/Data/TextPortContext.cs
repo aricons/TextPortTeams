@@ -15,6 +15,13 @@ namespace TextPortCore.Data
         {
         }
 
+        public TextPortContext()
+        {
+            var optionsBuilder = new DbContextOptionsBuilder<TextPortContext>();
+            optionsBuilder.UseSqlServer(ConfigurationManager.ConnectionStrings["TextPortContext"].ConnectionString);
+            //TextPortContext context = new TextPortContext(optionsBuilder.Options);
+        }
+
         public virtual DbSet<Account> Accounts { get; set; }
         public virtual DbSet<AreaCode> AreaCodes { get; set; }
         public virtual DbSet<Contact> Contacts { get; set; }
@@ -71,12 +78,18 @@ namespace TextPortCore.Data
 
                 entity.Property(e => e.Credits).HasDefaultValueSql("((0))");
 
+                entity.Property(e => e.Balance).HasDefaultValueSql("((0))");
+
                 entity.Property(e => e.Email)
                     .IsRequired()
                     .HasMaxLength(60)
                     .IsUnicode(false);
 
                 entity.Property(e => e.Enabled).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.EnableEmailNotifications).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.EnableMobileForwarding).HasDefaultValueSql("((0))");
 
                 entity.Property(e => e.ForwardVnmessagesTo)
                     .HasColumnName("ForwardVNMessagesTo")

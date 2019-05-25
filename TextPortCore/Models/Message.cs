@@ -95,6 +95,20 @@ namespace TextPortCore.Models
             this.MMSFiles = new List<MMSFile>();
         }
 
+        public Message(int accId, int virtualNumId, string msgText)
+        {
+            this.AccountId = accId;
+            this.VirtualNumberId = virtualNumId;
+            this.Direction = (int)MessageDirection.Outbound;
+            this.VirtualNumber = string.Empty;
+            this.MobileNumber = string.Empty;
+            this.GatewayMessageId = string.Empty;
+            this.TimeStamp = DateTime.UtcNow;
+            this.MessageText = msgText;
+            this.IsMMS = false;
+            this.MMSFiles = new List<MMSFile>();
+        }
+
         public Message(BandwidthInboundMessage bwMessage)
         {
             this.Direction = (int)MessageDirection.Inbound;
@@ -139,9 +153,10 @@ namespace TextPortCore.Models
             this.MMSFiles = new List<MMSFile>();
         }
 
-        public bool WriteQueueSemaphore()
+        public bool Send()
         {
             MessageRouting.WriteSemaphoreFile(this);
+            // Do billing here.
             return true;
         }
     }

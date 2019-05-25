@@ -17,7 +17,7 @@ namespace TextPortCore.Models
             this._context = context;
         }
 
-        private List<int> gridSizeOptions = new List<int>() { 5, 10, 15, 20, 50, 75, 100, 150, 200 };
+        private List<int> gridSizeOptions = new List<int>() { 5, 10, 15, 20, 50, 75, 100, 150, 200, 250 };
 
         public int AccountId { get; set; }
 

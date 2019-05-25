@@ -7,12 +7,12 @@ namespace TextPortCore.Helpers
 {
     public class ErrorHandling
     {
-        private readonly TextPortContext _context;
+        //private readonly TextPortContext _context;
 
-        public ErrorHandling(TextPortContext context)
-        {
-            this._context = context;
-        }
+        //public ErrorHandling(TextPortContext context)
+        //{
+        //    this._context = context;
+        //}
 
         public bool LogException(string programName, Exception ex)
         {
@@ -20,7 +20,7 @@ namespace TextPortCore.Helpers
             {
                 if (ex != null)
                 {
-                    using (TextPortDA da = new TextPortDA(_context))
+                    using (TextPortDA da = new TextPortDA())
                     {
                         return da.InsertErrorLogItem(programName, ex, string.Empty);
                     }
@@ -40,7 +40,7 @@ namespace TextPortCore.Helpers
             {
                 if (ex != null)
                 {
-                    using (TextPortDA da = new TextPortDA(_context))
+                    using (TextPortDA da = new TextPortDA())
                     {
                         return da.InsertErrorLogItem(programName, ex, details);
                     }
