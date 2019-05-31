@@ -38,7 +38,7 @@ namespace TextPort.Controllers
         [HttpGet]
         public JsonResult GetAreaCodeName(string areaCode)
         {
-            using (TextPortDA da = new TextPortDA(_context))
+            using (TextPortDA da = new TextPortDA())
             {
                 string description = da.GetAreaCodeName(areaCode);
                 return Json(description, JsonRequestBehavior.AllowGet);
@@ -51,7 +51,7 @@ namespace TextPort.Controllers
         {
             List<SelectListItem> numbersItems = new List<SelectListItem>();
 
-            using (Bandwidth bw = new Bandwidth(_context))
+            using (Bandwidth bw = new Bandwidth())
             {
                 List<string> numbers = bw.GetVirtualNumbersList(areaCode);
                 if (numbers.Any())
@@ -78,7 +78,7 @@ namespace TextPort.Controllers
             string accountIdStr = System.Security.Claims.ClaimsPrincipal.Current.FindFirst("AccountId").Value;
             int accountId = Convert.ToInt32(accountIdStr);
 
-            NumbersContainer nc = new NumbersContainer(_context, accountId, showExpiredNumbers);
+            NumbersContainer nc = new NumbersContainer(accountId, showExpiredNumbers);
             return View(nc);
         }
 
@@ -89,7 +89,7 @@ namespace TextPort.Controllers
             string accountIdStr = System.Security.Claims.ClaimsPrincipal.Current.FindFirst("AccountId").Value;
             int accountId = Convert.ToInt32(accountIdStr);
 
-            RegistrationData regData = new RegistrationData(_context, "VirtualNumber", accountId);
+            RegistrationData regData = new RegistrationData("VirtualNumber", accountId);
             return View(regData);
         }
 
@@ -100,7 +100,7 @@ namespace TextPort.Controllers
             string accountIdStr = System.Security.Claims.ClaimsPrincipal.Current.FindFirst("AccountId").Value;
             int accountId = Convert.ToInt32(accountIdStr);
 
-            RegistrationData regData = new RegistrationData(_context, "VirtualNumberRenew", accountId);
+            RegistrationData regData = new RegistrationData("VirtualNumberRenew", accountId);
 
             DedicatedVirtualNumber vn = _context.DedicatedVirtualNumbers.FirstOrDefault(x => x.VirtualNumberId == id);
             if (vn != null)
@@ -119,7 +119,7 @@ namespace TextPort.Controllers
             string accountIdStr = System.Security.Claims.ClaimsPrincipal.Current.FindFirst("AccountId").Value;
             int accountId = Convert.ToInt32(accountIdStr);
 
-            RegistrationData regData = new RegistrationData(_context, "ComplimentaryNumber", accountId);
+            RegistrationData regData = new RegistrationData("ComplimentaryNumber", accountId);
 
             return View("GetNumber", regData);
         }

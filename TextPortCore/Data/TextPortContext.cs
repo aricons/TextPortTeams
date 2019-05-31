@@ -303,7 +303,6 @@ namespace TextPortCore.Data
 
                 entity.HasMany(e => e.MMSFiles).WithOne().HasForeignKey(e => e.MessageId);
 
-
                 entity.HasMany(m => m.MMSFiles).WithOne().IsRequired(false);
 
                 //entity.HasOne(u => u.Role).WithMany().HasForeignKey(u => u.RoleId).IsRequired(true);
@@ -326,6 +325,8 @@ namespace TextPortCore.Data
                 entity.Property(e => e.Delivered).HasColumnType("datetime");
 
                 entity.Property(e => e.Direction).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.MessageType).HasDefaultValueSql("((0))");
 
                 entity.Property(e => e.FromEmail)
                     .HasMaxLength(60)
@@ -366,23 +367,23 @@ namespace TextPortCore.Data
                     .HasMaxLength(30)
                     .IsUnicode(false);
 
+                entity.Property(e => e.CustomerCost)
+                    .HasColumnType("money")
+                    .HasColumnName("CreditCost");
+
                 entity.Property(e => e.Price).HasColumnType("money");
 
                 entity.Property(e => e.ProcessingMessage)
                     .HasMaxLength(250)
                     .IsUnicode(false);
 
-                entity.Property(e => e.RoutingType)
-                    .HasMaxLength(10)
-                    .IsUnicode(false);
+                //entity.Property(e => e.RoutingType)
+                //    .HasMaxLength(10)
+                //    .IsUnicode(false);
 
                 entity.Property(e => e.SmtphostName)
                     .HasColumnName("SMTPHostName")
                     .HasMaxLength(60)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.SourceType)
-                    .HasMaxLength(10)
                     .IsUnicode(false);
 
                 entity.Property(e => e.Subject)

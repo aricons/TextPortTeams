@@ -29,7 +29,7 @@
                     <div class="offset-1 col-md-7">
                         <div class="form-group">
                             @Html.LabelFor(m => m.CreditCurrentBalance, new { @class = "form-label" })
-                            <label id="VirtualNumberLabel" class="col-4 form-label font-weight-bold">@String.Format("{0:C}", Model.CreditCurrentBalance)</label>
+                            <label id="VirtualNumberLabel" class="col-4 form-label font-weight-bold">@String.Format("{0:C3}", Model.CreditCurrentBalance)</label>
                         </div>
                     </div>
                 </div>
@@ -37,7 +37,7 @@
         </div>
         <div class="card">
             <div class="card-header">
-                <h4>Add Credit</h4>
+                <h4>Top Up</h4>
             </div>
             <div class="card-body">
                 @using (Html.BeginForm("PostPurchase", "Account", FormMethod.Post, new { id = "form-signup" }))

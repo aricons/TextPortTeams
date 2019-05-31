@@ -7,6 +7,7 @@ using System.Globalization;
 using System.Text.RegularExpressions;
 using System.Diagnostics;
 using System.Net.Mail;
+using System.Web;
 
 namespace TextPortCore.Helpers
 {
@@ -49,6 +50,23 @@ namespace TextPortCore.Helpers
                     @"^(?("")("".+?(?<!\\)""@)|(([0-9a-z]((\.(?!\.))|[-!#\$%&'\*\+/=\?\^`\{\}\|~\w])*)(?<=[0-9a-z])@))" +
                     @"(?(\[)(\[(\d{1,3}\.){3}\d{1,3}\])|(([0-9a-z][-0-9a-z]*[0-9a-z]*\.)+[a-z0-9][\-a-z0-9]{0,22}[a-z0-9]))$",
                     RegexOptions.IgnoreCase, TimeSpan.FromMilliseconds(250));
+            }
+            catch (RegexMatchTimeoutException)
+            {
+                return false;
+            }
+        }
+
+        public static bool IsValidNumber(string number)
+        {
+            if (string.IsNullOrEmpty(number) || string.IsNullOrWhiteSpace(number))
+                return false;
+
+            try
+            {
+                number = Utilities.NumberToE164(number);
+
+                return Regex.IsMatch(number, @"^[1][0-9]{10}$", RegexOptions.IgnoreCase);
             }
             catch (RegexMatchTimeoutException)
             {
@@ -193,6 +211,19 @@ namespace TextPortCore.Helpers
                 serializer.Serialize(stringWriter, objectToSerialize, ns);
                 return builder.ToString();
             }
+        }
+
+        public static string GetUserHostAddress()
+        {
+            if (HttpContext.Current != null)
+            {
+                if (HttpContext.Current.Request != null)
+                {
+                    return HttpContext.Current.Request.UserHostAddress;
+                }
+            }
+
+            return "0.0.0.0";
         }
 
         //public static void DeleteEventLogFromSystem(string sourceName)

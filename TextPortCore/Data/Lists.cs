@@ -36,7 +36,7 @@ namespace TextPortCore.Data
             }
             catch (Exception ex)
             {
-                ErrorHandling eh = new ErrorHandling(_context);
+                ErrorHandling eh = new ErrorHandling();
                 eh.LogException("Lists.GetTimeZones", ex);
             }
 
@@ -93,7 +93,7 @@ namespace TextPortCore.Data
             }
             catch (Exception ex)
             {
-                ErrorHandling eh = new ErrorHandling(_context);
+                ErrorHandling eh = new ErrorHandling();
                 eh.LogException("Lists.GetLeasePeriods", ex);
             }
 
@@ -106,12 +106,15 @@ namespace TextPortCore.Data
             {
                 Dictionary<decimal, string> creditAmountsDict = new Dictionary<decimal, string>()
                 {
+                    {(decimal)1.00, "$1.00"},
                     {(decimal)2.00, "$2.00"},
                     {(decimal)5.00, "$5.00"},
                     {(decimal)10.00, "$10.00"},
                     {(decimal)20.00, "$20.00"},
-                    {(decimal)30.00, "$20.00"},
+                    {(decimal)30.00, "$30.00"},
+                    {(decimal)40.00, "$40.00"},
                     {(decimal)50.00, "$50.00" },
+                    {(decimal)75.00, "$75.00" },
                     {(decimal)100.00, "$100.00" }
                 };
 
@@ -136,7 +139,7 @@ namespace TextPortCore.Data
             }
             catch (Exception ex)
             {
-                ErrorHandling eh = new ErrorHandling(_context);
+                ErrorHandling eh = new ErrorHandling();
                 eh.LogException("Lists.GetCreditAmountsList", ex);
             }
 

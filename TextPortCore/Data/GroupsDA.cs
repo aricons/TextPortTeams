@@ -26,7 +26,7 @@ namespace TextPortCore.Data
             }
             catch (Exception ex)
             {
-                ErrorHandling eh = new ErrorHandling(_context);
+                ErrorHandling eh = new ErrorHandling();
                 eh.LogException("GroupsDA.GetGroupsForAccount", ex);
             }
             return null;

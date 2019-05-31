@@ -25,7 +25,7 @@ namespace TextPort
                 AuthenticationType = DefaultAuthenticationTypes.ApplicationCookie,
                 LoginPath = new PathString("/Home/Index"),
                 SlidingExpiration = true,
-                ExpireTimeSpan = TimeSpan.FromMinutes(600),
+                ExpireTimeSpan = TimeSpan.FromMinutes(180), // Auto log-out after 3 hours of inactivity
                 Provider = new CookieAuthenticationProvider
                 {
                     // Enables the application to validate the security stamp when the user logs in.

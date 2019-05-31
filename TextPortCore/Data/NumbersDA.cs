@@ -20,7 +20,7 @@ namespace TextPortCore.Data
             }
             catch (Exception ex)
             {
-                ErrorHandling eh = new ErrorHandling(_context);
+                ErrorHandling eh = new ErrorHandling();
                 eh.LogException("NumbersDA.GetAreaCodeName", ex);
             }
             return string.Empty;
@@ -43,10 +43,24 @@ namespace TextPortCore.Data
             }
             catch (Exception ex)
             {
-                ErrorHandling eh = new ErrorHandling(_context);
+                ErrorHandling eh = new ErrorHandling();
                 eh.LogException("NumbersDA.GetNumberCountriesList", ex);
             }
             return countriesList;
+        }
+
+        public DedicatedVirtualNumber GetVirtualNumberById(int virtualNumberId)
+        {
+            try
+            {
+                return _context.DedicatedVirtualNumbers.FirstOrDefault(x => x.VirtualNumberId == virtualNumberId);
+            }
+            catch (Exception ex)
+            {
+                ErrorHandling eh = new ErrorHandling();
+                eh.LogException("NumbersDA.GetVirtualNumberById", ex);
+            }
+            return null;
         }
 
         public List<DedicatedVirtualNumber> GetNumbersForAccount(int accountId, bool includeExpiredNumbers)
@@ -64,7 +78,7 @@ namespace TextPortCore.Data
             }
             catch (Exception ex)
             {
-                ErrorHandling eh = new ErrorHandling(_context);
+                ErrorHandling eh = new ErrorHandling();
                 eh.LogException("NumbersDA.GetNumbersForAccount", ex);
             }
             return new List<DedicatedVirtualNumber>();
@@ -105,7 +119,7 @@ namespace TextPortCore.Data
             }
             catch (Exception ex)
             {
-                ErrorHandling eh = new ErrorHandling(_context);
+                ErrorHandling eh = new ErrorHandling();
                 eh.LogException("NumbersDA.AddNumberToAccount", ex);
             }
             return false;

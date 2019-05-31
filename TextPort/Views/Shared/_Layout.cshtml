@@ -55,66 +55,60 @@
     <script src="https://ajax.aspnetcdn.com/ajax/jquery.validation.unobtrusive/3.2.6/jquery.validate.unobtrusive.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.15/jquery.mask.min.js"></script>
 
-    @*<script src="~/content/signalr/dist/browser/signalr.min.js"></script>*@
     <script src="~/scripts/jquery.signalR-2.4.1.min.js"></script>
     <script src="~/signalr/hubs"></script>
 
-    <style type="text/css">
-        .modal-content {
-            width: 600px !important;
-            margin: 30px auto !important;
-        }
-    </style>
-
     <script type="text/javascript">
-    $(function () {
-        $('#btnLogin').on("click", function (e) {
-            showModal("loginModalCont", "/Home/Login");
-        });
-
-        $('#loginModalCont').on('shown.bs.modal', function (e) {
-            $('#form-login').validate();
-            $("#UserNameOrEmail").valid();
-            $("#LoginPassword").valid();
-
-            $('#btnSubmitLogin').on("click", function (e) {
-                if ($("#form-login").valid()) {
-                    validateLogin();
-                }
+        $(function () {
+            $('#btnLogin').on("click", function (e) {
+                showModal("loginModalCont", "/Home/Login");
             });
+
+            $('#loginModalCont').on('shown.bs.modal', function (e) {
+                $('#form-login').validate();
+                $("#UserNameOrEmail").valid();
+                $("#LoginPassword").valid();
+
+                $('#btnSubmitLogin').on("click", function (e) {
+                    if ($("#form-login").valid()) {
+                        validateLogin();
+                    }
+                });
+            });
+
+            getBalance();
         });
-    });
 
-    function showModal(containerName, formURL) {
-        $('#' + containerName).html('');
-        $.get({
-            url: formURL,
-            dataType: "html",
-            error: function (jqXHR, textStatus, errorThrown) {
-                alert(textStatus + ": Couldn't load form. " + errorThrown);
-            },
-            success: function (newInputHTML) {
-                var form = document.getElementById(containerName);
-                form.insertAdjacentHTML("beforeend", newInputHTML);
-                $(form).removeData("validator")    // Added by jQuery Validate
-                    .removeData("unobtrusiveValidation");   // Added by jQuery Unobtrusive Validation
-                $.validator.unobtrusive.parse(form);
+        function showModal(containerName, formURL) {
+            $('#' + containerName).html('');
+            $.get({
+                url: formURL,
+                dataType: "html",
+                error: function (jqXHR, textStatus, errorThrown) {
+                    alert(textStatus + ": Couldn't load form. " + errorThrown);
+                },
+                success: function (newInputHTML) {
+                    var form = document.getElementById(containerName);
+                    form.insertAdjacentHTML("beforeend", newInputHTML);
+                    $(form).removeData("validator")    // Added by jQuery Validate
+                        .removeData("unobtrusiveValidation");   // Added by jQuery Unobtrusive Validation
+                    $.validator.unobtrusive.parse(form);
 
-                $('#' + containerName).modal({
-                    keyboard: true
-                }, 'show');
-            }
-        })
-    }
+                    $('#' + containerName).modal({
+                        keyboard: true
+                    }, 'show');
+                }
+            })
+        }
 
-    function validateLogin() {
-        var url = '@Url.Action("ValidateLogin", "Account")';
+        function validateLogin() {
+            var url = '/account/validatelogin/';
 
-        var creds = {
-            UserNameOrEmail: $("#UserNameOrEmail").val(),
-            LoginPassword: $("#LoginPassword").val()
-        };
-        //event.preventDefault();
+            var creds = {
+                UserNameOrEmail: $("#UserNameOrEmail").val(),
+                LoginPassword: $("#LoginPassword").val()
+            };
+
             $.ajax({
                 type: 'POST',
                 cache: false,
@@ -131,7 +125,22 @@
                         window.location.href = result.response;
                     }
                 }
-        });
+            });
+        }
+
+        function readCookie(name) {
+            var nameEQ = name + "=";
+            var ca = document.cookie.split(';');
+            for (var i = 0; i < ca.length; i++) {
+                var c = ca[i];
+                while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+                if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
+            }
+            return null;
+        }
+
+        function getBalance() {
+            $("#balance").html(readCookie("balance"));
         }
 
     </script>
@@ -139,8 +148,8 @@
 <body>
     <br />
     <div class="container">
-        @*<div class="header clearfix">*@
         <nav>
+            <a class="navbar-brand nav-link" href="/"><img src="~/content/images/tp_logo_240x54.png?h=06d3a6bd33a5b974da6ee4b4c5b06da3" width="130" alt="TextPort"></a>
             <ul class="nav nav-pills float-right">
                 @if (User.Identity.IsAuthenticated)
                 {
@@ -171,11 +180,20 @@
                         @Html.ActionLink("Sign Up", "SignUp", "Account", null, htmlAttributes: new { @class = "nav-link active", id = "loginLink" })
                     </li>
                 }
-
             </ul>
         </nav>
-        <h3 class="text-muted"><a class="nav-link active" href="/"><img src="~/content/images/tp_logo_240x54.png?h=06d3a6bd33a5b974da6ee4b4c5b06da3" width="130"></a></h3>
-        @*</div>*@
+        <div class="row">
+            <div class="col-sm-12">
+                @if (User.Identity.IsAuthenticated)
+                {
+                    <p class="mt-1 mb-2 mr-0 text-secondary tp-bal">Balance: $<span id="balance"></span></p>
+                }
+                else
+                {
+                    <p class="m-3"></p>
+                }
+            </div>
+        </div>
 
         @RenderBody()
 
@@ -189,7 +207,7 @@
         <div id="loginContainer"></div>
     </div>
 
-    @RenderSection("Scripts", required: false)
+    @*@RenderSection("Scripts", required: false)*@
 
 </body>
 </html>

@@ -5,21 +5,17 @@ using System.ComponentModel.DataAnnotations;
 using System.Web.Mvc;
 
 using TextPortCore.Data;
+using TextPortCore.Helpers;
 
 namespace TextPortCore.Models
 {
     public class BulkMessages
     {
-        private readonly TextPortContext _context;
-
-        public BulkMessages(TextPortContext context)
-        {
-            this._context = context;
-        }
-
         private List<int> gridSizeOptions = new List<int>() { 5, 10, 15, 20, 50, 75, 100, 150, 200, 250 };
 
         public int AccountId { get; set; }
+
+        public decimal Balance { get; set; }
 
         [Required(ErrorMessage = "A virtual number must be selected")]
         [Display(Name = "Send From Number")]
@@ -41,35 +37,43 @@ namespace TextPortCore.Models
 
         public string ProcessingState { get; set; }
 
+        public string BalanceAlert { get; set; }
+
         /* Constructors */
         public BulkMessages()
         {
             this.AccountId = 0;
+            this.Balance = 0;
             this.MessageLimit = 0;
             this.Messages = new List<BulkMessageItem>();
             this.MessageCountOptions = new List<SelectListItem>();
             this.VirtualNumbers = new List<SelectListItem>();
             this.ProcessingState = string.Empty;
+            this.BalanceAlert = string.Empty;
         }
 
-        public BulkMessages(TextPortContext context, int accId, int gridRows)
+        public BulkMessages(int accId, int gridRows)
         {
-            this._context = context;
             this.AccountId = accId;
             this.MessageLimit = gridRows;
             this.Messages = new List<BulkMessageItem>();
             this.MessageCountOptions = new List<SelectListItem>();
             this.VirtualNumbers = new List<SelectListItem>();
 
-            List<DedicatedVirtualNumber> dvns = _context.DedicatedVirtualNumbers.Where(x => x.AccountId == accId && !x.Cancelled).OrderByDescending(x => x.VirtualNumberId).ToList();
-            foreach (DedicatedVirtualNumber dvn in dvns)
+            using (TextPortDA da = new TextPortDA())
             {
-                this.VirtualNumbers.Add(new SelectListItem()
+                this.Balance = da.GetAccountBalance(accId);
+
+                List<DedicatedVirtualNumber> dvns = da.GetNumbersForAccount(accId, false);
+                foreach (DedicatedVirtualNumber dvn in dvns)
                 {
-                    Value = dvn.VirtualNumberId.ToString(),
-                    Text = dvn.NumberDisplayFormat
-                });
-            };
+                    this.VirtualNumbers.Add(new SelectListItem()
+                    {
+                        Value = dvn.VirtualNumberId.ToString(),
+                        Text = dvn.NumberDisplayFormat
+                    });
+                };
+            }
 
             foreach (int opt in this.gridSizeOptions)
             {
@@ -86,6 +90,11 @@ namespace TextPortCore.Models
             }
 
             this.ProcessingState = "PENDING";
+
+            if (this.Balance <= (Constants.BaseSMSMessageCost * 2))
+            {
+                this.BalanceAlert = $"Your balance of {this.Balance:C3} is insufficient for sending messages.";
+            }
         }
     }
 

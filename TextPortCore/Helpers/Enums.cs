@@ -11,20 +11,32 @@ namespace TextPortCore.Helpers
         Inbound = 1
     }
 
+    public enum MessageTypes : byte
+    {
+        [Description("Normal")]
+        Normal = 0,
+        [Description("Bulk")]
+        Bulk = 1,
+        [Description("Notification")]
+        Notification = 2
+    }
+
     public enum Carriers : int
     {
         [Description("Bandwidth.com")]
         BandWidth = 172
     }
 
-    public enum QueueStatus : int
+    public enum QueueStatuses : byte
     {
         [Description("Queued")]
         Queued = 0,
         [Description("Success")]
         Success = 1,
         [Description("Failed")]
-        Failed = 2
+        Failed = 2,
+        [Description("Received")]
+        Received = 3
     }
 
     public enum RequestStatus : int

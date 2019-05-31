@@ -26,6 +26,12 @@
             <div class="incoming_msg_img"><img src="~/content/images/user-profile.png" /></div>
             <div class="received_msg">
                 <div class="received_withd_msg">
+                    @foreach (MMSFile mms in msg.MMSFiles)
+                    {
+                        <div>
+                            <img src="@MMSUtils.GetMMSFileURL(msg.AccountId, mms.StorageId, mms.FileName)" alt="@mms.FileName" />
+                        </div>
+                    }
                     <p>
                         @msg.MessageText
                     </p>

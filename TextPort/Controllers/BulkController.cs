@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Security.Claims;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 
+using TextPort.Helpers;
 using TextPortCore.Models;
 using TextPortCore.Data;
 using TextPortCore.Helpers;
@@ -23,12 +25,12 @@ namespace TextPort.Controllers
         [HttpGet]
         public ActionResult Main()
         {
-            string accountIdStr = System.Security.Claims.ClaimsPrincipal.Current.FindFirst("AccountId").Value;
+            string accountIdStr = ClaimsPrincipal.Current.FindFirst("AccountId").Value;
             int accountId = Convert.ToInt32(accountIdStr);
 
             if (accountId > 0)
             {
-                BulkMessages bulk = new BulkMessages(_context, accountId, 10);
+                BulkMessages bulk = new BulkMessages(accountId, 10);
                 return View(bulk);
             }
 
@@ -39,39 +41,82 @@ namespace TextPort.Controllers
         [HttpPost]
         public ActionResult Main(BulkMessages messageData)
         {
-            string accountIdStr = System.Security.Claims.ClaimsPrincipal.Current.FindFirst("AccountId").Value;
+            string accountIdStr = ClaimsPrincipal.Current.FindFirst("AccountId").Value;
             int accountId = Convert.ToInt32(accountIdStr);
+            decimal balance = 0;
 
-            if (accountId > 0)
+            try
             {
-                messageData.ProcessingState = "PROCESSED";
-                if (messageData.Messages.Count > 0 && messageData.VirtualNumberId > 0)
+                if (accountId > 0)
                 {
-                    //BulkMessages results = new BulkMessages(_context, accountId, 0);
-                    foreach (BulkMessageItem message in messageData.Messages)
+                    using (TextPortDA da = new TextPortDA())
                     {
-                        if (!string.IsNullOrEmpty(message.Number))
-                        {
-                            if (!string.IsNullOrEmpty(message.MessageText))
-                            {
-                                Message bulkMessage = new Message(message, messageData.VirtualNumberId, string.Empty);
+                        balance = da.GetAccountBalance(accountId);
 
-                                //if (bulkMessage.WriteQueueSemaphore())
-                                if (true)
+                        messageData.ProcessingState = "PROCESSED";
+                        if (messageData.Messages.Count > 0 && messageData.VirtualNumberId > 0)
+                        {
+                            foreach (BulkMessageItem message in messageData.Messages)
+                            {
+                                if (!string.IsNullOrEmpty(message.Number))
                                 {
-                                    message.ProcessingStatus = "OK";
-                                    message.ProcessingResult = $"Messaage to {message.Number} queued successfully.";
-                                }
-                                else
-                                {
-                                    message.ProcessingStatus = "FAIL";
-                                    message.ProcessingResult = $"Error queuing message to {message.Number}";
+                                    if (Utilities.IsValidNumber(message.Number))
+                                    {
+                                        if (!string.IsNullOrEmpty(message.MessageText))
+                                        {
+                                            if (balance > 0M)
+                                            {
+                                                Message bulkMessage = new Message(message, accountId, messageData.VirtualNumberId, string.Empty);
+
+                                                if (da.InsertMessage(bulkMessage, ref balance) > 0)
+                                                {
+                                                    Cookies.Write("balance", balance.ToString(), 0);
+
+                                                    if (bulkMessage.Send())
+                                                    {
+                                                        message.ProcessingStatus = "OK";
+                                                        message.ProcessingResult = $"Messaage to {message.Number} queued successfully.";
+                                                    }
+                                                    else
+                                                    {
+                                                        message.ProcessingStatus = "FAIL";
+                                                        message.ProcessingResult = $"Error queuing message to {message.Number}.";
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    message.ProcessingStatus = "FAIL";
+                                                    message.ProcessingResult = $"Error saving message for {message.Number}.";
+                                                }
+                                            }
+                                            else
+                                            {
+                                                message.ProcessingStatus = "FAIL";
+                                                message.ProcessingResult = $"The account balance is exhausted.";
+                                            }
+                                        }
+                                        else
+                                        {
+                                            message.ProcessingStatus = "FAIL";
+                                            message.ProcessingResult = $"The message was empty.";
+                                        }
+                                    }
+                                    else
+                                    {
+                                        message.ProcessingStatus = "FAIL";
+                                        message.ProcessingResult = $"The number {message.Number} is invalid.";
+                                    }
                                 }
                             }
+                            return View(messageData);
                         }
                     }
-                    return View(messageData);
                 }
+            }
+            catch (Exception ex)
+            {
+                ErrorHandling eh = new ErrorHandling();
+                eh.LogException("BulkController.Main_POST", ex);
             }
 
             return View(messageData);

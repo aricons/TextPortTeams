@@ -1,19 +1,15 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
-//using System.Web.Mvc;
 using System.Web.Http;
 using Microsoft.AspNet.SignalR;
 using System.Web.Http.Results;
-//using Microsoft.AspNetCore.Mvc.Rendering;
-//using Microsoft.AspNetCore.Mvc.ViewEngines;
-//using Microsoft.AspNetCore.Mvc.ViewFeatures;
 
 using TextPort.Hubs;
 using TextPort.Helpers;
 using TextPortCore.Data;
 using TextPortCore.Models;
-using TextPortCore.Models.Bandwidth;
+using TextPortCore.Helpers;
 using TextPortCore.Integrations.Bandwidth;
 
 namespace TextPort.Controllers
@@ -22,12 +18,12 @@ namespace TextPort.Controllers
     //[ApiController]
     public class BandwidthController : ApiController
     {
-        private readonly TextPortContext _context;
+        //private readonly TextPortContext _context;
 
-        public BandwidthController(TextPortContext context)
-        {
-            this._context = context;
-        }
+        //public BandwidthController(TextPortContext context)
+        //{
+        //    this._context = context;
+        //}
 
         //private readonly ICompositeViewEngine _viewEngine;
         //private readonly IHubContext<InboundHub> _hubContext;
@@ -80,31 +76,38 @@ namespace TextPort.Controllers
                 switch (bwMessage.type)
                 {
                     case "message-received":
-                        using (Bandwidth bw = new Bandwidth(_context))
+                        using (Bandwidth bw = new Bandwidth())
                         {
                             Message newMessage = bw.ProcessInboundMessage(bwMessage);
                             if (newMessage != null)
                             {
-                                Account account = _context.Accounts.FirstOrDefault(x => x.AccountId == newMessage.AccountId);
-                                if (account != null)
+                                using (TextPortDA da = new TextPortDA())
                                 {
-                                    if (!String.IsNullOrEmpty(account.UserName))
+                                    Account account = da.GetAccountById(newMessage.AccountId);
+                                    if (account != null)
                                     {
-                                        //MessageList msgList = new MessageList(newMessage);
-                                        string messageHtml = Rendering.RenderMessageIn(newMessage);
-                                        using (HubFunctions hubFunctions = new HubFunctions())
+                                        if (!String.IsNullOrEmpty(account.UserName))
                                         {
-                                            hubFunctions.SendInboundMessageNotification(account.UserName, newMessage.MobileNumber, newMessage.VirtualNumber, newMessage.MessageText, messageHtml);
+                                            string messageHtml = Rendering.RenderMessageIn(newMessage);
+                                            using (HubFunctions hubFunctions = new HubFunctions())
+                                            {
+                                                hubFunctions.SendInboundMessageNotification(account.UserName, newMessage.MobileNumber, newMessage.VirtualNumber, newMessage.MessageText, messageHtml);
+                                                if (account.EnableMobileForwarding && !string.IsNullOrEmpty(account.ForwardVnmessagesTo))
+                                                {
+                                                    decimal balance = account.Balance - Constants.BaseSMSMessageCost;
+                                                    hubFunctions.SendBalanceUpdate(account.UserName, balance.ToString());
+                                                }
+                                            }
                                         }
                                     }
+                                    return Ok();
                                 }
-                                return Ok();
                             }
                         }
                         break;
 
                     case "message-delivered":
-                        using (Bandwidth bw = new Bandwidth(_context))
+                        using (Bandwidth bw = new Bandwidth())
                         {
                             bw.ProcessDeliveryReceipt(bwMessage);
                         }
@@ -112,22 +115,33 @@ namespace TextPort.Controllers
                         DeliveryReceipt receipt = new DeliveryReceipt(bwMessage);
                         if (!string.IsNullOrEmpty(receipt.GatewayMessageId))
                         {
-                            Message originatingMessage = _context.Messages.FirstOrDefault(x => x.GatewayMessageId == receipt.GatewayMessageId);
-                            if (originatingMessage != null)
+                            using (TextPortDA da = new TextPortDA())
                             {
-                                int messageId = originatingMessage.MessageId;
-                                Account account = _context.Accounts.FirstOrDefault(x => x.AccountId == originatingMessage.AccountId);
-                                if (account != null)
+                                Message originatingMessage = da.GetMessageByGatewayMessageId(receipt.GatewayMessageId);
+                                if (originatingMessage != null)
                                 {
-                                    string messageHtml = @"<span class=""rcpt"">Delivered</span>";
-                                    using (HubFunctions hubFunctions = new HubFunctions())
+                                    int messageId = originatingMessage.MessageId;
+                                    Account account = da.GetAccountById(originatingMessage.AccountId);
+                                    if (account != null)
                                     {
-                                        hubFunctions.SendDeliveryReceipt(account.UserName, messageId.ToString(), messageHtml);
+                                        string messageHtml = @"<span class=""rcpt"">Delivered</span>";
+                                        using (HubFunctions hubFunctions = new HubFunctions())
+                                        {
+                                            hubFunctions.SendDeliveryReceipt(account.UserName, messageId.ToString(), messageHtml);
+                                        }
                                     }
                                 }
                             }
                         }
                         return Ok();
+
+                    default: // Log anything else
+                        using (Bandwidth bw = new Bandwidth())
+                        {
+                            bw.ProcessDeliveryReceipt(bwMessage);
+                        }
+                        return Ok();
+
                 }
             }
             return NotFound();

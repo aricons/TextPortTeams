@@ -18,9 +18,9 @@ namespace TextPortServices.Processes
         public OutboundMessageWatcher()
         {
             // Instantiate the DB context.
-            var optionsBuilder = new DbContextOptionsBuilder<TextPortContext>();
-            optionsBuilder.UseSqlServer(ConfigurationManager.ConnectionStrings["TextPortContext"].ConnectionString);
-            this._context = new TextPortContext(optionsBuilder.Options);
+            //var optionsBuilder = new DbContextOptionsBuilder<TextPortContext>();
+            //optionsBuilder.UseSqlServer(ConfigurationManager.ConnectionStrings["TextPortContext"].ConnectionString);
+            //this._context = new TextPortContext(optionsBuilder.Options);
         }
 
         public void Watch()
@@ -77,13 +77,13 @@ namespace TextPortServices.Processes
 
                 if (messageId > 0)
                 {
-                    using (TextPortDA da = new TextPortDA(_context))
+                    using (TextPortDA da = new TextPortDA())
                     {
                         Message message = da.GetMessageById(messageId);
 
                         if (message.MessageId > 0)
                         {
-                            Communications comms = new Communications(_context);
+                            Communications comms = new Communications();
                             if (comms.GenerateAndSendMessage(message))
                             {
                                 message.ProcessingMessage += " Comms OK. ";

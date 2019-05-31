@@ -3,7 +3,6 @@ using System.Configuration;
 using System.Net;
 using System.Net.Mail;
 
-using TextPortCore.Data;
 using TextPortCore.Helpers;
 
 namespace TextPortCore.Models

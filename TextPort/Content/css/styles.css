@@ -249,8 +249,27 @@
 .row.register-form {
 }
 
-/* Custom form label */
+/* Custom styles */
 .form-label {
     font-size: 0.9rem;
     margin-bottom: 0.1rem;
+}
+
+.modal-content {
+    width: 600px !important;
+    margin: 30px auto !important;
+}
+
+.tp-bal {
+    font-size: smaller;
+    text-align: right;
+}
+
+/* Bulk messaging */
+.num_field {
+    width: 180px;
+}
+
+.msg_field {
+    width: auto;
 }

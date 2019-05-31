@@ -278,8 +278,8 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Helpers\Cookies.cs" />
     <Compile Include="Helpers\Extensions.cs" />
-    <Compile Include="Helpers\Rendering.cs" />
     <Compile Include="Hubs\HubFunctions.cs" />
     <Compile Include="Hubs\InboundHubOld.cs" />
     <Compile Include="Hubs\InboundHub.cs" />
@@ -302,6 +302,7 @@
     <Content Include="Content\css\site.min.css" />
     <Content Include="Content\css\styles.css" />
     <Content Include="Content\css\styles.min.css" />
+    <Content Include="Content\EmailTemplates\InboundMessageNotification.html" />
     <Content Include="Content\EmailTemplates\ResetPassword.html" />
     <Content Include="Content\images\emoji\blank.gif" />
     <Content Include="Content\images\emoji\emoji_spritesheet_0.png" />
@@ -437,7 +438,7 @@
     <Content Include="Views\Numbers\RenewNumber.cshtml" />
     <Content Include="Views\Account\Balance.cshtml" />
     <Content Include="Views\Account\ForgotPassword.cshtml" />
-    <Content Include="Views\Account\PasswordResetEmail.cshtml" />
+    <Content Include="Views\Account\PasswordResetEmail.html" />
     <Content Include="Views\Account\ResetPassword.cshtml" />
     <Content Include="Views\Account\ChangePassword.cshtml" />
     <Content Include="Views\Numbers\_NumberHistory.cshtml" />

@@ -22,6 +22,11 @@ namespace TextPort.Hubs
             _hubContext.Clients.User(userName).deliveryReceipt(messageId, messageHtml);
         }
 
+        public void SendBalanceUpdate(string userName, string balanceText)
+        {
+            _hubContext.Clients.User(userName).balanceUpdate(balanceText);
+        }
+
         #region "Disposal"
 
         public void Dispose()

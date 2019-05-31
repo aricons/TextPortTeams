@@ -21,29 +21,21 @@ namespace TextPortCore.Integrations.Bandwidth
 {
     public class Bandwidth : IDisposable
     {
-        const string userId = "u-imdmn6chhceskespwwwox7a";
-        const string accountId = "3000006";
-        const string subAccountId = "23092";
-        const string applicationId = "5abf6fa7-5e0f-4f1c-828b-c01f0c9674c1"; // TextPortV2
-        const string userName = "richard@arionconsulting.com"; // Use userName and password when retreiving numbers
-        const string password = "Zealand!4";
-        const string apiToken = "091c02aae3e8dd660fc2f99a328561790da68779e83aabd1"; // Use token and secret when sending messages
-        const string apiSecret = "f015bb36ce195ed94610f2e1489dc3619e47bb5c8ffc37f1";
         const decimal defaultPrice = (decimal)0.0075;
         const int orderCheckPollingCycles = 5; // number of times to check on an order
         const int orderCheckWaitTime = 1500; // milliseconds to wait between each order status check
 
-        private string accountBaseUrl = $"https://dashboard.bandwidth.com/api/accounts/{accountId}";
-        private string messageBaseUrl = $"https://messaging.bandwidth.com/api/v2/users/{accountId}";
+        private string accountBaseUrl = $"https://dashboard.bandwidth.com/api/accounts/{Constants.Bandwidth.AccountId}";
+        private string messageBaseUrl = $"https://messaging.bandwidth.com/api/v2/users/{Constants.Bandwidth.AccountId}";
 
-        private readonly TextPortContext _context;
+        //private readonly TextPortContext _context;
         private readonly RestClient _client;
 
-        public Bandwidth(TextPortContext context)
+        public Bandwidth()
         {
-            this._context = context;
+            //this._context = context;
             this._client = new RestClient();
-            this._client.Authenticator = new HttpBasicAuthenticator(apiToken, apiSecret);
+            this._client.Authenticator = new HttpBasicAuthenticator(Constants.Bandwidth.ApiToken, Constants.Bandwidth.ApiSecret);
         }
 
         public List<string> GetVirtualNumbersList(string areaCode)
@@ -53,7 +45,7 @@ namespace TextPortCore.Integrations.Bandwidth
             try
             {
                 _client.BaseUrl = new Uri(accountBaseUrl);
-                _client.Authenticator = new HttpBasicAuthenticator(userName, password);
+                _client.Authenticator = new HttpBasicAuthenticator(Constants.Bandwidth.UserName, Constants.Bandwidth.Password);
 
                 RestRequest request = new RestRequest($"/availableNumbers?areaCode={areaCode}&quantity=20", Method.GET);
                 request.AddHeader("Content-Type", "application/xml; charset=utf-8");
@@ -122,7 +114,7 @@ namespace TextPortCore.Integrations.Bandwidth
             try
             {
                 _client.BaseUrl = new Uri(accountBaseUrl);
-                _client.Authenticator = new HttpBasicAuthenticator(userName, password);
+                _client.Authenticator = new HttpBasicAuthenticator(Constants.Bandwidth.UserName, Constants.Bandwidth.Password);
 
                 RestRequest request = new RestRequest("/orders", Method.POST)
                 {
@@ -131,7 +123,7 @@ namespace TextPortCore.Integrations.Bandwidth
                 };
                 request.AddHeader("Content-Type", "application/xml; charset=utf-8");
 
-                Order ord = new Order(regData, subAccountId);
+                Order ord = new Order(regData, Constants.Bandwidth.SubAccountId);
                 request.AddXmlBody(ord);
 
                 // Disable for development and testing.
@@ -180,7 +172,7 @@ namespace TextPortCore.Integrations.Bandwidth
                 errorDescription = string.Empty;
 
                 _client.BaseUrl = new Uri(accountBaseUrl);
-                _client.Authenticator = new HttpBasicAuthenticator(userName, password);
+                _client.Authenticator = new HttpBasicAuthenticator(Constants.Bandwidth.UserName, Constants.Bandwidth.Password);
 
                 RestRequest request = new RestRequest($"/orders/{bwOrderid}", Method.GET);
                 request.AddHeader("Content-Type", "application/xml; charset=utf-8");
@@ -219,7 +211,7 @@ namespace TextPortCore.Integrations.Bandwidth
                 processingMessage = string.Empty;
 
                 _client.BaseUrl = new Uri(accountBaseUrl);
-                _client.Authenticator = new HttpBasicAuthenticator(userName, password);
+                _client.Authenticator = new HttpBasicAuthenticator(Constants.Bandwidth.UserName, Constants.Bandwidth.Password);
 
                 RestRequest request = new RestRequest("/disconnects", Method.POST)
                 {
@@ -279,16 +271,19 @@ namespace TextPortCore.Integrations.Bandwidth
                 string userName = String.Empty;
                 string jsonPayload = JsonConvert.SerializeObject(bwMessage);
 
-                using (TextPortDA da = new TextPortDA(_context))
+                using (TextPortDA da = new TextPortDA())
                 {
-                    Message messageIn = new Message(bwMessage);
+                    int accountId = 0;
+                    int virtualNumberId = 0;
 
-                    DedicatedVirtualNumber dvn = da.GetVirtualNumberByNumber(messageIn.VirtualNumber, true);
+                    DedicatedVirtualNumber dvn = da.GetVirtualNumberByNumber(bwMessage.to.Replace("+", ""), true);
                     if (dvn != null)
                     {
-                        messageIn.AccountId = dvn.AccountId;
-                        messageIn.VirtualNumberId = dvn.VirtualNumberId;
+                        accountId = dvn.AccountId;
+                        virtualNumberId = dvn.VirtualNumberId;
                     }
+
+                    Message messageIn = new Message(bwMessage, accountId, virtualNumberId);
 
                     string result = "Message received from Bandwidth on " + messageIn.TimeStamp.ToString() + "\r\n";
                     result += "Notification Type: " + bwMessage.type + "\r\n";
@@ -300,7 +295,8 @@ namespace TextPortCore.Integrations.Bandwidth
                     result += "Message: " + messageIn.MessageText + "\r\n";
                     result += "Data Received: " + jsonPayload + "\r\n";
 
-                    int messageId = da.InsertMessage(messageIn);
+                    decimal newBalance = 0;
+                    int messageId = da.InsertMessage(messageIn, ref newBalance);
                     result += (messageId > 0) ? $"Message successfully added to messages table.{Environment.NewLine}" : $"Failure adding message to messages table.{Environment.NewLine}";
 
                     // Check for forwarding
@@ -310,20 +306,23 @@ namespace TextPortCore.Integrations.Bandwidth
                         Account account = da.GetAccountById(messageIn.AccountId);
                         if (account != null)
                         {
+                            messageIn.Account = account;
                             // Check for email forwarding.
                             if (account.EnableEmailNotifications && !string.IsNullOrEmpty(account.NotificationsEmailAddress))
                             {
                                 result += $"Email forwarding enabled. Sending notification to {account.NotificationsEmailAddress}. ";
 
                                 // Send email notification
-                                string body = $"Hello {account.UserName}:{nl}{nl}";
-                                body += $"You received a text message on your TextPort number.{nl}{nl}";
-                                body += $"From number: {Utilities.NumberToDisplayFormat(messageIn.MobileNumber, 22)}{nl}";
-                                body += $"To your number: {Utilities.NumberToDisplayFormat(messageIn.VirtualNumber, 22)}{nl}";
-                                body += $"Message: {messageIn.MessageText}{nl}{nl}";
-                                body += $"TextPort.com";
+                                //string body = $"Hello {account.UserName}:{nl}{nl}";
+                                //body += $"You received a text message on your TextPort number.{nl}{nl}";
+                                //body += $"From number: {Utilities.NumberToDisplayFormat(messageIn.MobileNumber, 22)}{nl}";
+                                //body += $"To your number: {Utilities.NumberToDisplayFormat(messageIn.VirtualNumber, 22)}{nl}";
+                                //body += $"Message: {messageIn.MessageText}{nl}{nl}";
+                                //body += $"TextPort.com";
 
-                                EmailMessage email = new EmailMessage(_context, account.NotificationsEmailAddress, $"TextPort - New Message From {Utilities.NumberToDisplayFormat(messageIn.MobileNumber, 22)}", body);
+                                string body = Rendering.RenderMessageInEmail(messageIn);
+
+                                EmailMessage email = new EmailMessage(account.NotificationsEmailAddress, $"TextPort - New Message From {Utilities.NumberToDisplayFormat(messageIn.MobileNumber, 22)}", body);
                                 result += (email.Send()) ? "Email sent successfully.\r\n" : "Email send failed.\r\n";
                             }
 
@@ -339,17 +338,16 @@ namespace TextPortCore.Integrations.Bandwidth
                                     if (account.Balance > 1)
                                     {
                                         result += $"Balance is {account.Balance:C}. OK. ";
-                                        // Check whether the account has an active virtual number
-                                        //DedicatedVirtualNumber vn = _context.DedicatedVirtualNumbers.Where(x => x.AccountId == account.AccountId && !x.Cancelled).OrderByDescending(x => x.VirtualNumberId).FirstOrDefault();
-                                        //if (vn != null)
-                                        //{
                                         // Send the message from the same virtual number on which it was received.
                                         string msg = $"TextPort message received from {Utilities.NumberToDisplayFormat(messageIn.MobileNumber, 22)}:{nl}";
                                         msg += $"{messageIn.MessageText}";
 
-                                        Message notificationMessage = new Message(account.AccountId, messageIn.VirtualNumberId, msg);
+                                        Message notificationMessage = new Message(account.AccountId, (byte)MessageTypes.Notification, messageIn.VirtualNumberId, msg);
+                                        notificationMessage.MobileNumber = account.ForwardVnmessagesTo;
+
+                                        decimal newBalance2 = 0;
+                                        da.InsertMessage(notificationMessage, ref newBalance2);
                                         result += (notificationMessage.Send()) ? "SMS sent successfully.\r\n" : "SMS send failed.\r\n";
-                                        //}
                                     }
                                     else
                                     {
@@ -379,20 +377,29 @@ namespace TextPortCore.Integrations.Bandwidth
         {
             try
             {
-                string resultMessage = String.Empty;
-                string forwardVNMessagesTo = String.Empty;
-                string userName = String.Empty;
                 string jsonPayload = JsonConvert.SerializeObject(receipt);
+                string resultDev = string.Empty;
 
-                using (TextPortDA da = new TextPortDA(_context))
+                switch (receipt.type)
                 {
-                    string resultDev = "Delivery receipt received from Bandwidth\r\n";
-                    resultDev += "Notification Type: " + receipt.type + "\r\n";
-                    resultDev += "To virtual number: " + receipt.to + "\r\n";
-                    resultDev += "Data Received: " + jsonPayload + "\r\n";
-                    writeXMLToDisk(resultDev, "BandwidthDeliveryReceipt");
-                    return true;
+                    case "message-delivered":
+                        resultDev = "Delivery receipt received from Bandwidth\r\n";
+                        resultDev += "Notification Type: " + receipt.type + "\r\n";
+                        resultDev += "To virtual number: " + receipt.to + "\r\n";
+                        resultDev += "Data Received: " + jsonPayload + "\r\n";
+                        writeXMLToDisk(resultDev, "BandwidthDeliveryReceipt");
+                        break;
+
+                    default:
+                        resultDev = "Other notificationreceived from Bandwidth\r\n";
+                        resultDev += "Notification Type: " + receipt.type + "\r\n";
+                        resultDev += "To virtual number: " + receipt.to + "\r\n";
+                        resultDev += "Data Received: " + jsonPayload + "\r\n";
+                        writeXMLToDisk(resultDev, "BandwidthOTHERReceipt");
+                        break;
                 }
+
+                return true;
             }
             catch (Exception ex)
             {
@@ -413,15 +420,13 @@ namespace TextPortCore.Integrations.Bandwidth
                 string userName = String.Empty;
                 string jsonPayload = JsonConvert.SerializeObject(receipt);
 
-                using (TextPortDA da = new TextPortDA(_context))
-                {
-                    string resultDev = "Delivery failure received from Bandwidth\r\n";
-                    resultDev += "Notification Type: " + receipt.type + "\r\n";
-                    resultDev += "To virtual number: " + receipt.to + "\r\n";
-                    resultDev += "Data Received: " + jsonPayload + "\r\n";
-                    writeXMLToDisk(resultDev, "BandwidthDeliveryFailure");
-                    return true;
-                }
+                string resultDev = "Delivery failure received from Bandwidth\r\n";
+                resultDev += "Notification Type: " + receipt.type + "\r\n";
+                resultDev += "To virtual number: " + receipt.to + "\r\n";
+                resultDev += "Data Received: " + jsonPayload + "\r\n";
+                writeXMLToDisk(resultDev, "BandwidthDeliveryFailure");
+
+                return true;
             }
             catch (Exception ex)
             {
@@ -438,7 +443,7 @@ namespace TextPortCore.Integrations.Bandwidth
             try
             {
                 _client.BaseUrl = new Uri(messageBaseUrl);
-                _client.Authenticator = new HttpBasicAuthenticator(apiToken, apiSecret);
+                _client.Authenticator = new HttpBasicAuthenticator(Constants.Bandwidth.ApiToken, Constants.Bandwidth.ApiSecret);
 
                 RestRequest request = new RestRequest("/messages", Method.POST)
                 {
@@ -446,7 +451,7 @@ namespace TextPortCore.Integrations.Bandwidth
                 };
                 request.AddHeader("Content-Type", "application/json; charset=utf-8");
 
-                BandwidthOutboundMessage bwMessage = new BandwidthOutboundMessage(message, applicationId);
+                BandwidthOutboundMessage bwMessage = new BandwidthOutboundMessage(message, Constants.Bandwidth.ApplicationId);
                 request.AddJsonBody(bwMessage);
 
                 BandwidthMessageResponse response = _client.Execute<BandwidthMessageResponse>(request).Data;
@@ -455,31 +460,23 @@ namespace TextPortCore.Integrations.Bandwidth
                 {
                     if (!string.IsNullOrEmpty(response.id))
                     {
-                        message.GatewayMessageId = response.id;
-                        message.Price = defaultPrice;
                         message.ProcessingMessage += "Message delivered to Bandwidth gateway. ";
+                        using (TextPortDA da = new TextPortDA())
+                        {
+                            da.UpdateMessageWithGatewayMessageId(message.MessageId, response.id, defaultPrice, message.ProcessingMessage);
+                        };
+
                         return true;
                     }
                     else
                     {
                         message.ProcessingMessage += "Message delivery to Bandwidth gateway failed. Response processing failure. ";
+                        using (TextPortDA da = new TextPortDA())
+                        {
+                            da.UpdateMessageWithGatewayMessageId(message.MessageId, null, 0, message.ProcessingMessage);
+                        };
                     }
                 }
-                //IRestResponse response = _client.Execute(request);
-
-                //string gatewayMessageId = getMessageIdFromResponse(response);
-
-                //if (!string.IsNullOrEmpty(gatewayMessageId))
-                //{
-                //    message.GatewayMessageId = gatewayMessageId;
-                //    message.Price = defaultPrice;
-                //    message.ProcessingMessage += "Message delivered to Bandwidth gateway. ";
-                //    return true;
-                //}
-                //else
-                //{
-                //    message.ProcessingMessage += "Message delivery to Bandwidth gateway failed. Response processing failure. ";
-                //}
             }
             catch (Exception ex)
             {

@@ -82,6 +82,10 @@
             msgItem.insertAdjacentHTML("beforeend", messageHtml);
         }
 
+        inHub.client.balanceUpdate = function (balTxt) {
+            $("#balance").html(balTxt);
+        }
+
         // Start the hub
         $.connection.hub.start();
 
@@ -382,6 +386,8 @@
 
                             // Animated
                             ml.animate({ scrollTop: ml.prop("scrollHeight") - ml.height() }, 50);
+
+                            getBalance();
                         }
                     });
                 }
@@ -414,9 +420,6 @@
 
 <input type="hidden" id="hidActiveVirtualNumberId" value="@Model.ActiveVirtualNumberId" />
 <input type="hidden" id="hidActiveDestinationNumber" value="@Model.ActiveDestinationNumber" />
-
-@*<h3 class=" text-center">My Messages</h3>*@
-<br />
 
 <div class="messages_container">
     @*Left hand column*@

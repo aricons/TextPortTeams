@@ -11,7 +11,7 @@ namespace TextPortCore.Models
 {
     public class RegistrationData
     {
-        private readonly TextPortContext _context;
+        //private readonly TextPortContext _context;
 
         private string purchaseType;
         private string userName;
@@ -283,10 +283,8 @@ namespace TextPortCore.Models
             List<SelectListItem> numbers = new List<SelectListItem>();
         }
 
-        public RegistrationData(TextPortContext context, string purcType, int accId)
+        public RegistrationData(string purcType, int accId)
         {
-            this._context = context;
-
             this.PurchaseType = purcType;
             this.AccountId = accId;
             this.UserName = string.Empty;
@@ -324,19 +322,19 @@ namespace TextPortCore.Models
             this.NumbersList = numbers;
 
             // Initialize number countries drop-down
-            using (TextPortDA da = new TextPortDA(_context))
+            using (TextPortDA da = new TextPortDA())
             {
                 this.CountriesList = da.GetNumberCountriesList();
                 this.LeasePeriodsList = da.GetLeasePeriods((purcType == "ComplimentaryNumber"));
                 this.CreditAmountsList = da.GetCreditAmounts();
-            }
 
-            if (this.PurchaseType == "Credits")
-            {
-                Account acc = _context.Accounts.FirstOrDefault(x => x.AccountId == this.AccountId);
-                if (acc != null)
+                if (this.PurchaseType == "Credits")
                 {
-                    this.CreditCurrentBalance = acc.Credits;
+                    Account acc = da.GetAccountById(AccountId);
+                    if (acc != null)
+                    {
+                        this.CreditCurrentBalance = acc.Balance;
+                    }
                 }
             }
         }

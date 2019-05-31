@@ -20,7 +20,7 @@ namespace TextPortCore.Data
             }
             catch (Exception ex)
             {
-                ErrorHandling eh = new ErrorHandling(_context);
+                ErrorHandling eh = new ErrorHandling();
                 eh.LogException("ContactsDA.GetContactsForAccount", ex);
             }
 

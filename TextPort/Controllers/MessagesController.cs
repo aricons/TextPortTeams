@@ -4,9 +4,9 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Web;
 using System.Web.Mvc;
+using System.Security.Claims;
 
-using Newtonsoft.Json.Serialization;
-
+using TextPort.Helpers;
 using TextPortCore.Models;
 using TextPortCore.Data;
 using TextPortCore.Helpers;
@@ -16,12 +16,12 @@ namespace TextPort.Controllers
 
     public class MessagesController : Controller
     {
-        private readonly TextPortContext _context;
+        //private readonly TextPortContext _context;
 
-        public MessagesController(TextPortContext context)
-        {
-            _context = context;
-        }
+        //public MessagesController(TextPortContext context)
+        //{
+        //    _context = context;
+        //}
 
         [Authorize]
         [HttpGet]
@@ -31,7 +31,7 @@ namespace TextPort.Controllers
             int accountId = Convert.ToInt32(accountIdStr);
             if (accountId > 0)
             {
-                MessagingContainer mc = new MessagingContainer(_context, accountId);
+                MessagingContainer mc = new MessagingContainer(accountId);
                 return View(mc);
             }
             else
@@ -48,7 +48,7 @@ namespace TextPort.Controllers
         {
             try
             {
-                using (TextPortDA da = new TextPortDA(_context))
+                using (TextPortDA da = new TextPortDA())
                 {
                     List<Recent> recentsList = new List<Recent>();
                     recentsList = da.GetRecentToNumbersForDedicatedVirtualNumber(aid, vnid);
@@ -73,7 +73,7 @@ namespace TextPort.Controllers
         {
             try
             {
-                using (TextPortDA da = new TextPortDA(_context))
+                using (TextPortDA da = new TextPortDA())
                 {
                     MessageList messageList = new MessageList();
                     messageList.Messages = da.GetMessagesForAccountAndRecipient(aid, vnid, num);
@@ -94,29 +94,38 @@ namespace TextPort.Controllers
         {
             try
             {
-                string accountIdStr = System.Security.Claims.ClaimsPrincipal.Current.FindFirst("AccountId").Value;
+                string accountIdStr = ClaimsPrincipal.Current.FindFirst("AccountId").Value;
                 message.AccountId = Convert.ToInt32(accountIdStr);
                 message.TimeStamp = DateTime.UtcNow;
-                message.Direction = (int)MessageDirection.Outbound;
+                message.MessageType = (byte)MessageTypes.Normal;
+                message.Direction = (byte)MessageDirection.Outbound;
                 message.CarrierId = (int)Carriers.BandWidth;
-                message.QueueStatus = (int)QueueStatus.Queued;
-                message.Ipaddress = "0.0.0.0";
-                message.RoutingType = "Bandwidth";
-                message.SourceType = "Normal";
+                message.QueueStatus = (byte)QueueStatuses.Queued;
+                message.Ipaddress = Utilities.GetUserHostAddress();
+                if (message.MMSFiles.Count > 0)
+                {
+                    message.CustomerCost = Constants.BaseMMSMessageCost;
+                }
+                else
+                {
+                    message.CustomerCost = Constants.BaseSMSMessageCost;
+                }
 
                 if (message.AccountId > 0)
                 {
-                    using (TextPortDA da = new TextPortDA(_context))
+                    using (TextPortDA da = new TextPortDA())
                     {
-                        if (da.InsertMessage(message) > 0)
+                        decimal newBalance = 0;
+                        if (da.InsertMessage(message, ref newBalance) > 0)
                         {
+                            Cookies.Write("balance", newBalance.ToString(), 0);
+
                             MessageList messageList = new MessageList()
                             {
                                 Messages = { message }
                             };
 
                             message.Send();
-                            _context.SaveChanges();
 
                             return PartialView("_MessageList", messageList);
                         }
@@ -135,13 +144,13 @@ namespace TextPort.Controllers
         public ActionResult UploadFile(HttpPostedFileBase file)
         {
             string responseHtml = string.Empty;
-            string accountIdStr = System.Security.Claims.ClaimsPrincipal.Current.FindFirst("AccountId").Value;
+            string accountIdStr = ClaimsPrincipal.Current.FindFirst("AccountId").Value;
             int imageId = RandomString.RandomNumber();
 
             try
             {
                 string fileName = Utilities.RemoveWhitespace(file.FileName);
-                var fileHandler = new FileHandling(_context);
+                var fileHandler = new FileHandling();
                 if (fileHandler.SaveMMSFile(file.InputStream, Convert.ToInt32(accountIdStr), $"{imageId}_{fileName}", false))
                 {
                     TempImage mi = new TempImage(Convert.ToInt32(accountIdStr), imageId, fileName, MessageDirection.Outbound, ImageStorageRepository.Archive);
@@ -170,7 +179,7 @@ namespace TextPort.Controllers
 
             try
             {
-                var fileHandler = new FileHandling(_context);
+                var fileHandler = new FileHandling();
                 if (fileHandler.DeleteMMSFile(Convert.ToInt32(accountIdStr), fileNameParam.FileName, false))
                 {
                     responseMesssage = "File deleted";

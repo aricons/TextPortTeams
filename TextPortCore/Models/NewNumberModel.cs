@@ -10,8 +10,6 @@ namespace TextPortCore.Models
 {
     public class NewNumberModel
     {
-        private readonly TextPortContext _context;
-
         private int numberCountryId;
         private string areaCode;
         private string virtualNumber;
@@ -140,10 +138,8 @@ namespace TextPortCore.Models
             List<SelectListItem> numbers = new List<SelectListItem>();
         }
 
-        public NewNumberModel(TextPortContext context, int accId)
+        public NewNumberModel(int accId)
         {
-            this._context = context;
-
             this.AreaCode = string.Empty;
             this.VirtualNumber = string.Empty;
             this.NumberProvider = "Bandwidth";
@@ -164,7 +160,7 @@ namespace TextPortCore.Models
             this.NumbersList = numbers;
 
             // Initialize number countries drop-down
-            using (TextPortDA da = new TextPortDA(_context))
+            using (TextPortDA da = new TextPortDA())
             {
                 this.CountriesList = da.GetNumberCountriesList();
                 this.LeasePeriodsList = da.GetLeasePeriods(false);

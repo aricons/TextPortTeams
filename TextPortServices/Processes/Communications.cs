@@ -2,22 +2,22 @@
 using System.Threading;
 using System.Configuration;
 
-using TextPortCore.Data;
 using TextPortCore.Models;
+using TextPortCore.Helpers;
 using TextPortCore.Integrations.Bandwidth;
 
 namespace TextPortServices.Processes
 {
     public class Communications
     {
-        private readonly TextPortContext _context;
+        //private readonly TextPortContext _context;
         private int emailInterMessageWaitMs = 250;
-        private int nexmoInterMessageWaitMs = 1000;
+        private int bandwidthInterMessageWaitMs = 1000;
 
-        public Communications(TextPortContext context)
-        {
-            this._context = context;
-        }
+        //public Communications(TextPortContext context)
+        //{
+        //    this._context = context;
+        //}
 
         public bool GenerateAndSendMessage(Message message)
         {
@@ -25,20 +25,19 @@ namespace TextPortServices.Processes
 
             getInterMessageWaitTimes();
 
-            switch (message.RoutingType)
+            switch (message.CarrierId)
             {
                 //case "Nexmo":
                 //    returnValue = Nexmo.RouteMessageViaNexmoGateway(ref message, "INTERNATIONAL");
                 //    Thread.Sleep(nexmoInterMessageWaitMs);
                 //    break;
 
-                case "Bandwidth":
-                    using (Bandwidth bw = new Bandwidth(_context))
+                case (int)Carriers.BandWidth:
+                    using (Bandwidth bw = new Bandwidth())
                     {
                         returnValue = bw.RouteMessageViaBandwidthDotComGateway(message);
-                        _context.SaveChanges();
                     }
-                    Thread.Sleep(nexmoInterMessageWaitMs);
+                    Thread.Sleep(bandwidthInterMessageWaitMs);
                     break;
 
                 //case "InfoBip":
@@ -58,12 +57,12 @@ namespace TextPortServices.Processes
             try
             {
                 int.TryParse(ConfigurationManager.AppSettings["EmailInterMessageWaitMs"], out emailInterMessageWaitMs);
-                int.TryParse(ConfigurationManager.AppSettings["NexmoInterMessageWaitMs"], out nexmoInterMessageWaitMs);
+                int.TryParse(ConfigurationManager.AppSettings["NexmoInterMessageWaitMs"], out bandwidthInterMessageWaitMs);
             }
             catch (Exception)
             {
                 emailInterMessageWaitMs = 250;
-                nexmoInterMessageWaitMs = 1000;
+                bandwidthInterMessageWaitMs = 1000;
             }
         }
     }

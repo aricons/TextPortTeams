@@ -3,20 +3,19 @@ using System.IO;
 using System.Configuration;
 using System.Collections.Generic;
 
-using TextPortCore.Data;
 using TextPortCore.Models;
 
 namespace TextPortCore.Helpers
 {
     public class FileHandling
     {
-        private readonly TextPortContext _context;
+        //private readonly TextPortContext _context;
         private readonly string mmsFilePath = ConfigurationManager.AppSettings["MMSFilePath"];
 
-        public FileHandling(TextPortContext context)
-        {
-            _context = context;
-        }
+        //public FileHandling(TextPortContext context)
+        //{
+        //    _context = context;
+        //}
 
         public bool SaveMMSFile(Stream strm, int accountId, string fileName, bool temporaryFile)
         {
@@ -54,7 +53,7 @@ namespace TextPortCore.Helpers
             }
             catch (Exception ex)
             {
-                ErrorHandling eh = new ErrorHandling(_context);
+                ErrorHandling eh = new ErrorHandling();
                 eh.LogException("FileHandling.SaveMMSFile", ex);
             }
             return false;
@@ -80,7 +79,7 @@ namespace TextPortCore.Helpers
                 }
                 catch (Exception ex)
                 {
-                    ErrorHandling eh = new ErrorHandling(_context);
+                    ErrorHandling eh = new ErrorHandling();
                     eh.LogException("FileHandling.DeleteMMSFile", ex);
                 }
             }

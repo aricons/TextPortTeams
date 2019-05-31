@@ -32,8 +32,32 @@ namespace TextPortCore.Data
             }
             catch (Exception ex)
             {
-                ErrorHandling eh = new ErrorHandling(_context);
+                ErrorHandling eh = new ErrorHandling();
                 eh.LogException("MessagesDA.GetMessageById", ex);
+            }
+            return null;
+        }
+
+        public Message GetMessageByGatewayMessageId(string gatewayMessageId)
+        {
+            try
+            {
+                Message msg = _context.Messages.FirstOrDefault(x => x.GatewayMessageId == gatewayMessageId);
+                // Get the virtual number.
+                if (msg != null && msg.VirtualNumberId > 0)
+                {
+                    DedicatedVirtualNumber dvn = _context.DedicatedVirtualNumbers.FirstOrDefault(x => x.VirtualNumberId == msg.VirtualNumberId);
+                    if (dvn != null)
+                    {
+                        msg.VirtualNumber = dvn.VirtualNumber;
+                    }
+                }
+                return msg;
+            }
+            catch (Exception ex)
+            {
+                ErrorHandling eh = new ErrorHandling();
+                eh.LogException("MessagesDA.GetMessageByGatewayMessageId", ex);
             }
             return null;
         }
@@ -58,7 +82,10 @@ namespace TextPortCore.Data
                 //);
 
                 return _context.Messages.Include(m => m.MMSFiles)
-                    .Where(m => m.AccountId == accountId && m.VirtualNumberId == virtualNumberId && m.MobileNumber == number)
+                    .Where(m => m.AccountId == accountId
+                        && m.VirtualNumberId == virtualNumberId
+                        && m.MobileNumber == number
+                        && m.MessageType != (byte)MessageTypes.Notification)
                     .ToList();
 
                 //from c in _context.MMSFiles
@@ -69,7 +96,7 @@ namespace TextPortCore.Data
             }
             catch (Exception ex)
             {
-                ErrorHandling eh = new ErrorHandling(_context);
+                ErrorHandling eh = new ErrorHandling();
                 eh.LogException("MessagesDA.GetRecentMessagesForAccountAndRecipient", ex);
             }
             return null;
@@ -81,7 +108,7 @@ namespace TextPortCore.Data
             {
                 var query = from dvn in _context.DedicatedVirtualNumbers
                             join msg in _context.Messages on dvn.VirtualNumberId equals msg.VirtualNumberId
-                            where dvn.AccountId == accountId && dvn.VirtualNumberId == virtualNumberId //&& msg.Direction == 0
+                            where dvn.AccountId == accountId && dvn.VirtualNumberId == virtualNumberId && msg.MessageType != (byte)MessageTypes.Notification
                             group msg by msg.MobileNumber into numGroup
                             select new
                             {
@@ -99,7 +126,7 @@ namespace TextPortCore.Data
             }
             catch (Exception ex)
             {
-                ErrorHandling eh = new ErrorHandling(_context);
+                ErrorHandling eh = new ErrorHandling();
                 eh.LogException("MessagesDA.GetRecentMessagesForAccountAndVirtualNumber", ex);
             }
             return null;
@@ -110,7 +137,7 @@ namespace TextPortCore.Data
             try
             {
                 var query = from m in _context.Messages
-                            where m.AccountId == accountId && m.VirtualNumberId == virtualNumberId //&& m.Direction == 0
+                            where m.AccountId == accountId && m.VirtualNumberId == virtualNumberId && m.MessageType != (byte)MessageTypes.Notification
                             group m by m.MobileNumber into numGroup
                             select new
                             {
@@ -128,7 +155,7 @@ namespace TextPortCore.Data
             }
             catch (Exception ex)
             {
-                ErrorHandling eh = new ErrorHandling(_context);
+                ErrorHandling eh = new ErrorHandling();
                 eh.LogException("MessagesDA.GetRecentMessagesForAccountAndVirtualNumber", ex);
             }
             return null;
@@ -149,7 +176,7 @@ namespace TextPortCore.Data
             }
             catch (Exception ex)
             {
-                ErrorHandling eh = new ErrorHandling(_context);
+                ErrorHandling eh = new ErrorHandling();
                 eh.LogException("MessagesDA.GetAccountIdByVirtualNumber", ex);
             }
             return null;
@@ -159,47 +186,55 @@ namespace TextPortCore.Data
 
         #region "Update Methods"
 
-        //public bool UpdateMessageQueueStatus(Message message)
-        //{
-        //    try
-        //    {
-        //        if (message != null)
-        //        {
-        //            //dbRecord.NotificationsEmailAddress = account.NotificationsEmailAddress;
-        //            //dbRecord.TimeZoneId = account.TimeZoneId;
-        //            //dbRecord.Email = account.Email;
+        public bool UpdateMessageWithGatewayMessageId(int messageId, string gatewayMessageId, decimal price, string processingMessage)
+        {
+            try
+            {
+                Message message = _context.Messages.FirstOrDefault(x => x.MessageId == messageId);
+                if (message != null)
+                {
+                    message.GatewayMessageId = gatewayMessageId;
+                    message.Price = price;
+                    message.ProcessingMessage += processingMessage;
 
-        //            //_context.Accounts.Update(dbRecord);
-        //            _context.SaveChanges();
+                    this.SaveChanges();
 
-        //            return true;
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        ErrorHandling eh = new ErrorHandling(_context);
-        //        eh.LogException("AccountDA.UpdateLastLoginAndLoginCount", ex);
-        //    }
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorHandling eh = new ErrorHandling();
+                eh.LogException("AccountDA.ApplyGatewayMessageIdToMessage", ex);
+            }
 
-        //    return false;
-        //}
+            return false;
+        }
 
         #endregion
 
         #region "Insert Methods"
 
-        public int InsertMessage(Message message)
+        public int InsertMessage(Message message, ref decimal newBalance)
         {
+            newBalance = 0;
             try
             {
                 message.MobileNumber = Utilities.NumberToE164(message.MobileNumber);
                 _context.Messages.Add(message);
                 _context.SaveChanges();
+
+                // Update the account balance
+                Account acc = _context.Accounts.FirstOrDefault(x => x.AccountId == message.AccountId);
+                acc.Balance -= (decimal)message.CustomerCost;
+                newBalance = acc.Balance;
+                _context.SaveChanges();
+
                 return message.MessageId;
             }
             catch (Exception ex)
             {
-                ErrorHandling eh = new ErrorHandling(_context);
+                ErrorHandling eh = new ErrorHandling();
                 eh.LogException("MessagesDA.InsertMessage", ex);
             }
             return 0;

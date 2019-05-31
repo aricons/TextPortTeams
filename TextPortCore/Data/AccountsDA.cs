@@ -18,10 +18,25 @@ namespace TextPortCore.Data
             }
             catch (Exception ex)
             {
-                ErrorHandling eh = new ErrorHandling(_context);
+                ErrorHandling eh = new ErrorHandling();
                 eh.LogException("AccountsDA.GetAccountById", ex);
             }
             return null;
+        }
+
+        public decimal GetAccountBalance(int accountId)
+        {
+            try
+            {
+                return _context.Accounts.FirstOrDefault(x => x.AccountId == accountId).Balance;
+            }
+            catch (Exception ex)
+            {
+                ErrorHandling eh = new ErrorHandling();
+                eh.LogException("AccountsDA.GetAccountBalance", ex);
+            }
+
+            return 0;
         }
 
         public bool ValidateLogin(string userNameOrEmail, string password, ref Account acc)
@@ -51,8 +66,8 @@ namespace TextPortCore.Data
             }
             catch (Exception ex)
             {
-                ErrorHandling eh = new ErrorHandling(_context);
-                eh.LogException("AccountsDA.GetAccountById", ex);
+                ErrorHandling eh = new ErrorHandling();
+                eh.LogException("AccountsDA.ValidateLogin", ex);
             }
 
             return false;
@@ -66,7 +81,7 @@ namespace TextPortCore.Data
             }
             catch (Exception ex)
             {
-                ErrorHandling eh = new ErrorHandling(_context);
+                ErrorHandling eh = new ErrorHandling();
                 eh.LogException("AccountDA.IsUsernameAvailable", ex);
             }
 
@@ -81,7 +96,7 @@ namespace TextPortCore.Data
             }
             catch (Exception ex)
             {
-                ErrorHandling eh = new ErrorHandling(_context);
+                ErrorHandling eh = new ErrorHandling();
                 eh.LogException("AccountDA.IsEmailAvailable", ex);
             }
 
@@ -100,7 +115,7 @@ namespace TextPortCore.Data
             }
             catch (Exception ex)
             {
-                ErrorHandling eh = new ErrorHandling(_context);
+                ErrorHandling eh = new ErrorHandling();
                 eh.LogException("AccountDA.GetTimeZoneOffsetHours", ex);
             }
 
@@ -128,7 +143,7 @@ namespace TextPortCore.Data
                         dbRecord.Email = account.Email;
 
                         _context.Accounts.Update(dbRecord);
-                        _context.SaveChanges();
+                        this.SaveChanges();
 
                         return true;
 
@@ -137,7 +152,7 @@ namespace TextPortCore.Data
             }
             catch (Exception ex)
             {
-                ErrorHandling eh = new ErrorHandling(_context);
+                ErrorHandling eh = new ErrorHandling();
                 eh.LogException("AccountsDA.UpdateAccount", ex);
             }
 
@@ -150,21 +165,22 @@ namespace TextPortCore.Data
             {
                 if (account != null)
                 {
-                    Account acc = new Account() { AccountId = account.AccountId };
-                    _context.Accounts.Attach(acc);
+                    //Account acc = new Account() { AccountId = account.AccountId };
+                    //_context.Accounts.Attach(acc);
 
-                    acc.LoginCount++;
-                    acc.LastLogin = DateTime.UtcNow.AddHours(GetTimeZoneOffsetHours(account.TimeZoneId));
+                    account.LoginCount++;
+                    account.LastLogin = DateTime.UtcNow.AddHours(GetTimeZoneOffsetHours(account.TimeZoneId));
 
-                    _context.Entry(acc).Property(x => x.LastLogin).IsModified = true;
-                    _context.Entry(acc).Property(x => x.LoginCount).IsModified = true;
+                    //_context.Entry(acc).Property(x => x.LastLogin).IsModified = true;
+                    //_context.Entry(acc).Property(x => x.LoginCount).IsModified = true;
 
+                    _context.Accounts.Update(account);
                     _context.SaveChanges();
                 }
             }
             catch (Exception ex)
             {
-                ErrorHandling eh = new ErrorHandling(_context);
+                ErrorHandling eh = new ErrorHandling();
                 eh.LogException("AccountDA.UpdateLastLoginAndLoginCount", ex);
             }
 
@@ -197,7 +213,7 @@ namespace TextPortCore.Data
             }
             catch (Exception ex)
             {
-                ErrorHandling eh = new ErrorHandling(_context);
+                ErrorHandling eh = new ErrorHandling();
                 eh.LogException("AccountDA.AddAccount", ex);
             }
 
@@ -239,7 +255,7 @@ namespace TextPortCore.Data
             }
             catch (Exception ex)
             {
-                ErrorHandling eh = new ErrorHandling(_context);
+                ErrorHandling eh = new ErrorHandling();
                 eh.LogException("AccountDA.AddAccount", ex);
             }
 
@@ -264,7 +280,7 @@ namespace TextPortCore.Data
             }
             catch (Exception ex)
             {
-                ErrorHandling eh = new ErrorHandling(_context);
+                ErrorHandling eh = new ErrorHandling();
                 eh.LogException("AccountDA.EnableTemporaryAccount", ex);
             }
 

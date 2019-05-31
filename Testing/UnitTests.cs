@@ -28,19 +28,19 @@ namespace Testing
         [TestMethod]
         public void ProcessOutboundMessage()
         {
-            int messageId = 10160214;
+            int messageId = 10160245;
 
-            var optionsBuilder = new DbContextOptionsBuilder<TextPortContext>();
-            optionsBuilder.UseSqlServer(ConfigurationManager.ConnectionStrings["TextPortContext"].ConnectionString);
-            TextPortContext context = new TextPortContext(optionsBuilder.Options);
+            //var optionsBuilder = new DbContextOptionsBuilder<TextPortContext>();
+            //optionsBuilder.UseSqlServer(ConfigurationManager.ConnectionStrings["TextPortContext"].ConnectionString);
+            //TextPortContext context = new TextPortContext(optionsBuilder.Options);
 
-            using (TextPortDA da = new TextPortDA(context))
+            using (TextPortDA da = new TextPortDA())
             {
                 Message message = da.GetMessageById(messageId);
 
                 if (message.MessageId > 0)
                 {
-                    Communications comms = new Communications(context);
+                    Communications comms = new Communications();
                     if (comms.GenerateAndSendMessage(message))
                     {
                         message.ProcessingMessage += " Comms OK. ";
@@ -76,13 +76,13 @@ namespace Testing
         [TestMethod]
         public void GetBandwidthNumbersForAreaCode()
         {
-            var optionsBuilder = new DbContextOptionsBuilder<TextPortContext>();
-            optionsBuilder.UseSqlServer(ConfigurationManager.ConnectionStrings["TextPortContext"].ConnectionString);
-            TextPortContext context = new TextPortContext(optionsBuilder.Options);
+            //var optionsBuilder = new DbContextOptionsBuilder<TextPortContext>();
+            //optionsBuilder.UseSqlServer(ConfigurationManager.ConnectionStrings["TextPortContext"].ConnectionString);
+            //TextPortContext context = new TextPortContext(optionsBuilder.Options);
 
             string areaCode = "949";
 
-            using (Bandwidth bw = new Bandwidth(context))
+            using (Bandwidth bw = new Bandwidth())
             {
                 List<string> numbers = bw.GetVirtualNumbersList(areaCode);
                 var foo = numbers;
@@ -92,9 +92,9 @@ namespace Testing
         [TestMethod]
         public void BandwidthPurchaseNumber()
         {
-            var optionsBuilder = new DbContextOptionsBuilder<TextPortContext>();
-            optionsBuilder.UseSqlServer(ConfigurationManager.ConnectionStrings["TextPortContext"].ConnectionString);
-            TextPortContext context = new TextPortContext(optionsBuilder.Options);
+            //var optionsBuilder = new DbContextOptionsBuilder<TextPortContext>();
+            //optionsBuilder.UseSqlServer(ConfigurationManager.ConnectionStrings["TextPortContext"].ConnectionString);
+            //TextPortContext context = new TextPortContext(optionsBuilder.Options);
 
             RegistrationData regData = new RegistrationData()
             {
@@ -106,7 +106,7 @@ namespace Testing
                 AccountId = 1
             };
 
-            using (Bandwidth bw = new Bandwidth(context))
+            using (Bandwidth bw = new Bandwidth())
             {
                 bool foo = bw.PurchaseVirtualNumber(regData);
                 bool bar = foo;
@@ -116,9 +116,9 @@ namespace Testing
         [TestMethod]
         public void BandwidthDisconnectNumber()
         {
-            var optionsBuilder = new DbContextOptionsBuilder<TextPortContext>();
-            optionsBuilder.UseSqlServer(ConfigurationManager.ConnectionStrings["TextPortContext"].ConnectionString);
-            TextPortContext context = new TextPortContext(optionsBuilder.Options);
+            //var optionsBuilder = new DbContextOptionsBuilder<TextPortContext>();
+            //optionsBuilder.UseSqlServer(ConfigurationManager.ConnectionStrings["TextPortContext"].ConnectionString);
+            //TextPortContext context = new TextPortContext(optionsBuilder.Options);
             string processingMessage = string.Empty;
 
             DedicatedVirtualNumber number = new DedicatedVirtualNumber()
@@ -127,7 +127,7 @@ namespace Testing
                 VirtualNumber = "19095052389"
             };
 
-            using (Bandwidth bw = new Bandwidth(context))
+            using (Bandwidth bw = new Bandwidth())
             {
                 bool foo = bw.DisconnectVirtualNumber(number, ref processingMessage);
                 bool bar = foo;
@@ -138,14 +138,14 @@ namespace Testing
         [TestMethod]
         public void BandwidthCheckOrderStatus()
         {
-            var optionsBuilder = new DbContextOptionsBuilder<TextPortContext>();
-            optionsBuilder.UseSqlServer(ConfigurationManager.ConnectionStrings["TextPortContext"].ConnectionString);
-            TextPortContext context = new TextPortContext(optionsBuilder.Options);
+            //var optionsBuilder = new DbContextOptionsBuilder<TextPortContext>();
+            //optionsBuilder.UseSqlServer(ConfigurationManager.ConnectionStrings["TextPortContext"].ConnectionString);
+            //TextPortContext context = new TextPortContext(optionsBuilder.Options);
 
             //string orderId = "f54817fd-6fb4-4573-9463-78e09d65b47a"; // Complete
             string orderId = "39bc2d9c-0d29-4dbe-996f-3123d5c10d85"; // Failed
 
-            using (Bandwidth bw = new Bandwidth(context))
+            using (Bandwidth bw = new Bandwidth())
             {
                 string errorMessage = string.Empty;
                 string foo = bw.CheckOrderStatus(orderId, ref errorMessage);
@@ -247,6 +247,33 @@ namespace Testing
 
             string foo = num.NumberDisplayFormat;
 
+            string bar = foo;
+        }
+
+        [TestMethod]
+        public void TestIsValidNumberRegEx()
+        {
+            //string number = "19492339386";
+            string number = "(949) 233-9386";
+
+            bool isValid = Utilities.IsValidNumber(number);
+
+            bool bar = isValid;
+        }
+
+        [TestMethod]
+        public void GetTimeZones()
+        {
+            foreach (TimeZoneInfo z in TimeZoneInfo.GetSystemTimeZones())
+                Console.WriteLine($"{z.Id}\t{z.BaseUtcOffset.Hours}\t{z.StandardName}\t{z.DisplayName}");
+        }
+
+        [TestMethod]
+        public void TestGetLocalTimeByTextPortTimeZoneId()
+        {
+            DateTime dt = TimeFunctions.GetUsersLocalTime(DateTime.UtcNow, 5);
+
+            string foo = dt.ToString();
             string bar = foo;
         }
     }

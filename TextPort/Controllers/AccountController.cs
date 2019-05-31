@@ -31,7 +31,6 @@ namespace TextPort.Controllers
 
             try
             {
-
                 using (TextPortDA da = new TextPortDA())
                 {
                     if (da.ValidateLogin(model.UserNameOrEmail, model.LoginPassword, ref account))
@@ -50,6 +49,8 @@ namespace TextPort.Controllers
                         var authManager = context.Authentication;
 
                         authManager.SignIn(new AuthenticationProperties { IsPersistent = true }, identity);
+
+                        Cookies.Write("balance", account.Balance.ToString(), 0);
 
                         if (account.ComplimentaryNumber)
                         {
@@ -212,11 +213,12 @@ namespace TextPort.Controllers
                                             regData.CompletionTitle = "Number Successfully Assigned";
                                             regData.CompletionMessage = $"The number {regData.NumberDisplayFormat} has been sucessfully assigned to your account.";
 
-                                            Account acc = _context.Accounts.FirstOrDefault(x => x.AccountId == regData.AccountId);
+                                            Account acc = da.GetAccountById(regData.AccountId);
                                             if (acc != null)
                                             {
                                                 acc.ComplimentaryNumber = false;
-                                                _context.SaveChanges();
+                                                da.SaveChanges();
+                                                //_context.SaveChanges();
                                             }
                                         }
                                     }
@@ -228,7 +230,7 @@ namespace TextPort.Controllers
                         case "VirtualNumberRenew":
                             if (!string.IsNullOrEmpty(regData.VirtualNumber))
                             {
-                                DedicatedVirtualNumber vn = _context.DedicatedVirtualNumbers.FirstOrDefault(x => x.VirtualNumberId == regData.VirtualNumberId);
+                                DedicatedVirtualNumber vn = da.GetVirtualNumberById(regData.VirtualNumberId);
                                 if (vn != null)
                                 {
                                     vn.ExpirationDate = vn.ExpirationDate.AddMonths(regData.LeasePeriod);
@@ -236,7 +238,8 @@ namespace TextPort.Controllers
                                     vn.Fee = regData.TotalCost;
                                     vn.SevenDayReminderSent = null;
                                     vn.TwoDayReminderSent = null;
-                                    _context.SaveChanges();
+                                    da.SaveChanges();
+                                    //_context.SaveChanges();
                                 }
                             }
 
@@ -251,11 +254,11 @@ namespace TextPort.Controllers
                                 string accountId = ClaimsPrincipal.Current.FindFirst("AccountId").Value;
                                 AccountView av = new AccountView(Convert.ToInt32(accountId));
 
-                                Account acc = _context.Accounts.FirstOrDefault(x => x.AccountId == Convert.ToInt32(accountId));
+                                Account acc = da.GetAccountById(Convert.ToInt32(accountId));
                                 if (acc != null)
                                 {
                                     acc.Credits += Convert.ToInt32(regData.CreditPurchaseAmount);
-                                    _context.SaveChanges();
+                                    da.SaveChanges();
                                 }
                             }
 
@@ -377,39 +380,39 @@ namespace TextPort.Controllers
         {
             request.Status = RequestStatus.Failed;
 
-            using (TextPortDA = new TextPortDA())
+            using (TextPortContext ctxt = new TextPortContext())
             {
-                Account acc = _context.Accounts.FirstOrDefault(x => x.Email == request.EmailAddress);
-            if (acc != null)
-            {
-                request.UserName = acc.UserName;
-                request.BrowserType = Request.Browser.Type;
-                request.IPAddress = Request.UserHostAddress;
-
-                string passwordResetToken = RandomString.GenerateRandomToken(30);
-                request.ResetUrl = $"http://textport.com/account/resetpassword/{passwordResetToken}";
-
-                acc.PasswordResetToken = passwordResetToken;
-                _context.SaveChanges();
-
-                string body = Rendering.RenderForgotPasswordEmailBody(request);
-                using (EmailMessage message = new EmailMessage(_context, request.EmailAddress, "TextPort Password Reset", body))
+                Account acc = ctxt.Accounts.FirstOrDefault(x => x.Email == request.EmailAddress);
+                if (acc != null)
                 {
-                    if (message.Send())
+                    request.UserName = acc.UserName;
+                    request.BrowserType = Request.Browser.Type;
+                    request.IPAddress = Request.UserHostAddress;
+
+                    string passwordResetToken = RandomString.GenerateRandomToken(30);
+                    request.ResetUrl = $"http://textport.com/account/resetpassword/{passwordResetToken}";
+
+                    acc.PasswordResetToken = passwordResetToken;
+                    ctxt.SaveChanges();
+
+                    string body = Rendering.RenderForgotPasswordEmailBody(request);
+                    using (EmailMessage message = new EmailMessage(request.EmailAddress, "TextPort Password Reset", body))
                     {
-                        request.Status = RequestStatus.Success;
-                        request.ConfirmationMessage = $"An email has been sent to {request.EmailAddress}. Please check your inbox for a link to reset your password.";
-                    }
-                    else
-                    {
-                        request.ConfirmationMessage = $"There was a problem trying to send a password reset notification to {request.EmailAddress}. The request wss not sent.";
+                        if (message.Send())
+                        {
+                            request.Status = RequestStatus.Success;
+                            request.ConfirmationMessage = $"An email has been sent to {request.EmailAddress}. Please check your inbox for a link to reset your password.";
+                        }
+                        else
+                        {
+                            request.ConfirmationMessage = $"There was a problem trying to send a password reset notification to {request.EmailAddress}. The request wss not sent.";
+                        }
                     }
                 }
-
-            }
-            else
-            {
-                request.ConfirmationMessage = $"The email address {request.EmailAddress} was not found.";
+                else
+                {
+                    request.ConfirmationMessage = $"The email address {request.EmailAddress} was not found.";
+                }
             }
             return View(request);
         }
@@ -423,16 +426,19 @@ namespace TextPort.Controllers
 
             if (!string.IsNullOrEmpty(id))
             {
-                Account acc = _context.Accounts.FirstOrDefault(x => x.PasswordResetToken == id);
-                if (acc != null)
+                using (TextPortContext ctxt = new TextPortContext())
                 {
-                    fpr.Status = RequestStatus.Pending;
-                    fpr.AccountId = acc.AccountId;
-                    fpr.UserName = acc.UserName;
-                }
-                else
-                {
-                    fpr.ConfirmationMessage = "Invalid reset token.";
+                    Account acc = ctxt.Accounts.FirstOrDefault(x => x.PasswordResetToken == id);
+                    if (acc != null)
+                    {
+                        fpr.Status = RequestStatus.Pending;
+                        fpr.AccountId = acc.AccountId;
+                        fpr.UserName = acc.UserName;
+                    }
+                    else
+                    {
+                        fpr.ConfirmationMessage = "Invalid reset token.";
+                    }
                 }
             }
             else
@@ -449,31 +455,34 @@ namespace TextPort.Controllers
             request.Status = RequestStatus.Failed;
             if (!string.IsNullOrEmpty(request.Password) && !string.IsNullOrEmpty(request.ConfirmPassword))
             {
-                Account acc = _context.Accounts.FirstOrDefault(x => x.AccountId == request.AccountId);
-                if (acc != null)
+                using (TextPortContext ctxt = new TextPortContext())
                 {
-                    try
+                    Account acc = ctxt.Accounts.FirstOrDefault(x => x.AccountId == request.AccountId);
+                    if (acc != null)
                     {
-                        acc.Password = AESEncryptDecrypt.Encrypt(request.Password, TextPortCore.Helpers.Constants.RC4Key);
-                        int changes = _context.SaveChanges();
-                        if (changes > 0)
+                        try
                         {
-                            request.Status = RequestStatus.Success;
-                            request.ConfirmationMessage = "Your password was successfully reset. ";
+                            acc.Password = AESEncryptDecrypt.Encrypt(request.Password, TextPortCore.Helpers.Constants.RC4Key);
+                            int changes = ctxt.SaveChanges();
+                            if (changes > 0)
+                            {
+                                request.Status = RequestStatus.Success;
+                                request.ConfirmationMessage = "Your password was successfully reset. ";
+                            }
+                            else
+                            {
+                                request.ConfirmationMessage = "An error occurred while resetting the password. The password reset failed.";
+                            }
                         }
-                        else
+                        catch (Exception)
                         {
                             request.ConfirmationMessage = "An error occurred while resetting the password. The password reset failed.";
                         }
                     }
-                    catch (Exception)
+                    else
                     {
-                        request.ConfirmationMessage = "An error occurred while resetting the password. The password reset failed.";
+                        request.ConfirmationMessage = "An account was not found. The password reset failed.";
                     }
-                }
-                else
-                {
-                    request.ConfirmationMessage = "An account was not found. The password reset failed.";
                 }
             }
             else
@@ -500,39 +509,42 @@ namespace TextPort.Controllers
             request.Status = RequestStatus.Failed;
             if (!string.IsNullOrEmpty(request.OldPassword) && !string.IsNullOrEmpty(request.NewPassword) && !string.IsNullOrEmpty(request.ConfirmPassword))
             {
-                Account acc = _context.Accounts.FirstOrDefault(x => x.AccountId == request.AccountId);
-                if (acc != null)
+                using (TextPortContext ctxt = new TextPortContext())
                 {
-                    try
+                    Account acc = ctxt.Accounts.FirstOrDefault(x => x.AccountId == request.AccountId);
+                    if (acc != null)
                     {
-                        string oldPasswordFromDB = AESEncryptDecrypt.Decrypt(acc.Password, TextPortCore.Helpers.Constants.RC4Key);
-                        if (oldPasswordFromDB == request.OldPassword)
+                        try
                         {
-                            acc.Password = AESEncryptDecrypt.Encrypt(request.NewPassword, TextPortCore.Helpers.Constants.RC4Key);
-                            int changes = _context.SaveChanges();
-                            if (changes > 0)
+                            string oldPasswordFromDB = AESEncryptDecrypt.Decrypt(acc.Password, TextPortCore.Helpers.Constants.RC4Key);
+                            if (oldPasswordFromDB == request.OldPassword)
                             {
-                                request.Status = RequestStatus.Success;
-                                request.ConfirmationMessage = "Your password was successfully changed. ";
+                                acc.Password = AESEncryptDecrypt.Encrypt(request.NewPassword, TextPortCore.Helpers.Constants.RC4Key);
+                                int changes = ctxt.SaveChanges();
+                                if (changes > 0)
+                                {
+                                    request.Status = RequestStatus.Success;
+                                    request.ConfirmationMessage = "Your password was successfully changed. ";
+                                }
+                                else
+                                {
+                                    request.ConfirmationMessage = "An error occurred while resetting the password. The password reset failed.";
+                                }
                             }
                             else
                             {
-                                request.ConfirmationMessage = "An error occurred while resetting the password. The password reset failed.";
+                                request.ConfirmationMessage = "The old password entered is incorrect. The password reset failed.";
                             }
                         }
-                        else
+                        catch (Exception)
                         {
-                            request.ConfirmationMessage = "The old password entered is incorrect. The password reset failed.";
+                            request.ConfirmationMessage = "An error occurred while resetting the password. The password reset failed.";
                         }
                     }
-                    catch (Exception)
+                    else
                     {
-                        request.ConfirmationMessage = "An error occurred while resetting the password. The password reset failed.";
+                        request.ConfirmationMessage = "An account was not found. The password reset failed.";
                     }
-                }
-                else
-                {
-                    request.ConfirmationMessage = "An account was not found. The password reset failed.";
                 }
             }
             else
@@ -541,8 +553,6 @@ namespace TextPort.Controllers
             }
             return View(request);
         }
-
-
 
         [HttpGet]
         [AllowAnonymous]

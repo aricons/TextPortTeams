@@ -10,12 +10,12 @@ namespace TextPortCore.Models
 {
     public class NumbersContainer
     {
-        private readonly TextPortContext _context;
+        //private readonly TextPortContext _context;
 
-        public NumbersContainer(TextPortContext context)
-        {
-            this._context = context;
-        }
+        //public NumbersContainer(TextPortContext context)
+        //{
+        //    this._context = context;
+        //}
 
         public int AccountId { get; set; }
         public bool ShowExpiredNumbers { get; set; }
@@ -29,13 +29,12 @@ namespace TextPortCore.Models
             this.Numbers = new List<DedicatedVirtualNumber>();
         }
 
-        public NumbersContainer(TextPortContext context, int accId, bool showExpiredNumbers)
+        public NumbersContainer(int accId, bool showExpiredNumbers)
         {
-            this._context = context;
             this.AccountId = accId;
             this.ShowExpiredNumbers = showExpiredNumbers;
 
-            using (TextPortDA da = new TextPortDA(_context))
+            using (TextPortDA da = new TextPortDA())
             {
                 this.Numbers = da.GetNumbersForAccount(accId, this.ShowExpiredNumbers);
             }

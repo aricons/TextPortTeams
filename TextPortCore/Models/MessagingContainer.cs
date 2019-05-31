@@ -10,12 +10,12 @@ namespace TextPortCore.Models
 {
     public class MessagingContainer
     {
-        private readonly TextPortContext _context;
+        //private readonly TextPortContext _context;
 
-        public MessagingContainer(TextPortContext context)
-        {
-            this._context = context;
-        }
+        //public MessagingContainer(TextPortContext context)
+        //{
+        //    this._context = context;
+        //}
 
         private Account account;
         private List<Message> messages;
@@ -84,12 +84,11 @@ namespace TextPortCore.Models
 
 
         // Constructors
-        public MessagingContainer(TextPortContext context, int accountId)
+        public MessagingContainer(int accountId)
         {
-            this._context = context;
             this.ActiveVirtualNumberId = 0;
 
-            using (TextPortDA da = new TextPortDA(_context))
+            using (TextPortDA da = new TextPortDA())
             {
                 this.Account = da.GetAccountById(accountId);
                 this.Numbers = da.GetNumbersForAccount(accountId, false);

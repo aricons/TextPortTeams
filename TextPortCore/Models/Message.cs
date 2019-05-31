@@ -1,7 +1,9 @@
 ﻿using System;
+using System.IO;
+using System.Net;
+using System.Linq;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 using TextPortCore.Helpers;
 using TextPortCore.Integrations.Bandwidth;
@@ -20,6 +22,8 @@ namespace TextPortCore.Models
 
         [Display(Name = "In/Out")]
         public byte Direction { get; set; }
+
+        public byte MessageType { get; set; }
 
         public string Ipaddress { get; set; }
 
@@ -56,7 +60,7 @@ namespace TextPortCore.Models
 
         public string MmsfileNames { get; set; }
 
-        public int? CreditCost { get; set; }
+        public decimal? CustomerCost { get; set; }
 
         public DateTime? Delivered { get; set; }
 
@@ -66,11 +70,11 @@ namespace TextPortCore.Models
 
         public DateTime? DeleteFlag { get; set; }
 
-        public string SourceType { get; set; }
-
         public string RoutingType { get; set; }
 
         public byte? QueueStatus { get; set; }
+
+        public Account Account { get; set; }
 
         public List<MMSFile> MMSFiles { get; set; } = new List<MMSFile>();
 
@@ -83,41 +87,82 @@ namespace TextPortCore.Models
         }
 
         // Constructors
+
+        // Outbound Messages
         public Message()
         {
+            // Default outbound message
+            this.MessageType = (byte)MessageTypes.Normal;
             this.Direction = (int)MessageDirection.Outbound;
-            this.VirtualNumber = string.Empty;
+            this.CarrierId = (int)Carriers.BandWidth;
+            this.QueueStatus = (byte)QueueStatuses.Queued;
+            this.Ipaddress = "0.0.0.0";
+            this.CustomerCost = 0;
             this.MobileNumber = string.Empty;
             this.GatewayMessageId = string.Empty;
             this.TimeStamp = DateTime.UtcNow;
             this.MessageText = string.Empty;
             this.IsMMS = false;
+            this.Account = null;
             this.MMSFiles = new List<MMSFile>();
         }
 
-        public Message(int accId, int virtualNumId, string msgText)
+        public Message(int accId, byte msgType, int virtualNumId, string msgText)
         {
+            // Outbound message for notifications
+            this.MessageType = msgType;
             this.AccountId = accId;
+            this.CarrierId = (int)Carriers.BandWidth;
+            this.QueueStatus = (byte)QueueStatuses.Queued;
+            this.CarrierId = (int)Carriers.BandWidth;
+            this.Ipaddress = Utilities.GetUserHostAddress();
             this.VirtualNumberId = virtualNumId;
             this.Direction = (int)MessageDirection.Outbound;
-            this.VirtualNumber = string.Empty;
+            this.CustomerCost = Constants.BaseSMSMessageCost;
             this.MobileNumber = string.Empty;
             this.GatewayMessageId = string.Empty;
             this.TimeStamp = DateTime.UtcNow;
             this.MessageText = msgText;
             this.IsMMS = false;
+            this.Account = null;
             this.MMSFiles = new List<MMSFile>();
         }
 
-        public Message(BandwidthInboundMessage bwMessage)
+        public Message(BulkMessageItem bulkMessage, int accountId, int sourceNumberId, string sourceNumber)
         {
-            this.Direction = (int)MessageDirection.Inbound;
-            this.VirtualNumber = bwMessage.to.Replace("+", "");
-            this.VirtualNumberId = 0;
-            this.TimeStamp = DateTime.UtcNow;
-            this.Ipaddress = "0.0.0.0";
+            // Bulk outbound message
+            this.AccountId = accountId;
+            this.MessageType = (byte)MessageTypes.Bulk;
+            this.Direction = (int)MessageDirection.Outbound;
+            this.QueueStatus = (byte)QueueStatuses.Queued;
             this.CarrierId = (int)Carriers.BandWidth;
-            this.CreditCost = 0;
+            this.CustomerCost = Constants.BaseSMSMessageCost;
+            this.Ipaddress = Utilities.GetUserHostAddress();
+            this.VirtualNumberId = sourceNumberId;
+            this.MobileNumber = Utilities.NumberToE164(bulkMessage.Number);
+            this.GatewayMessageId = string.Empty;
+            this.TimeStamp = DateTime.UtcNow;
+            this.MessageText = bulkMessage.MessageText;
+            this.IsMMS = false;
+            this.Account = null;
+            this.MMSFiles = new List<MMSFile>();
+        }
+
+        // Inbound messages
+        public Message(BandwidthInboundMessage bwMessage, int accountId, int virtualNumberId)
+        {
+            // Inbound from Bandwidth        
+            this.MessageType = (byte)MessageTypes.Normal;
+            this.CarrierId = (int)Carriers.BandWidth;
+            this.QueueStatus = (byte)QueueStatuses.Received;
+            this.Direction = (int)MessageDirection.Inbound;
+            this.CustomerCost = 0;
+            this.AccountId = accountId;
+            this.Ipaddress = Utilities.GetUserHostAddress();
+            this.VirtualNumber = string.Empty; // bwMessage.to.Replace("+", "");
+            this.VirtualNumberId = virtualNumberId;
+            this.TimeStamp = DateTime.UtcNow;
+            this.Account = null;
 
             if (bwMessage.message != null)
             {
@@ -126,38 +171,33 @@ namespace TextPortCore.Models
                 this.MessageText = bwMessage.message.text;
                 this.IsMMS = false;
                 this.MMSFiles = new List<MMSFile>();
+
                 if (bwMessage.message.media != null && bwMessage.message.media.Count > 0)
                 {
                     this.IsMMS = true;
                     foreach (string mediaItem in bwMessage.message.media)
                     {
-                        this.MMSFiles.Add(new MMSFile()
+                        if (!mediaItem.EndsWith(".smil", StringComparison.CurrentCultureIgnoreCase))
                         {
-                            FileName = mediaItem
-                        });
+                            string localFileName = WebFunctions.GetImageFromURL(mediaItem, this.AccountId);
+
+                            if (!string.IsNullOrEmpty(localFileName))
+                            {
+                                this.MMSFiles.Add(new MMSFile()
+                                {
+                                    FileName = localFileName
+                                });
+                            }
+                        }
                     }
                 }
             }
         }
 
-        public Message(BulkMessageItem bulkMessage, int sourceNumberId, string sourceNumber)
-        {
-            this.Direction = (int)MessageDirection.Outbound;
-            this.VirtualNumberId = sourceNumberId;
-            this.VirtualNumber = Utilities.NumberToE164(sourceNumber);
-            this.MobileNumber = Utilities.NumberToE164(bulkMessage.Number);
-            this.GatewayMessageId = string.Empty;
-            this.TimeStamp = DateTime.UtcNow;
-            this.MessageText = bulkMessage.MessageText;
-            this.IsMMS = false;
-            this.MMSFiles = new List<MMSFile>();
-        }
-
         public bool Send()
         {
-            MessageRouting.WriteSemaphoreFile(this);
-            // Do billing here.
-            return true;
+            return MessageRouting.WriteSemaphoreFile(this);
         }
+
     }
 }

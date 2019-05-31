@@ -9,7 +9,7 @@ namespace TextPortCore.Models
 {
     public class AccountView
     {
-        private readonly TextPortContext _context;
+        //private readonly TextPortContext _context;
 
         public Account Account { get; set; }
 
@@ -19,12 +19,12 @@ namespace TextPortCore.Models
 
         public string ConfirmationMessage { get; set; }
 
-        public AccountView(TextPortContext context)
-        {
-            this._context = context;
-            this.Status = RequestStatus.Pending;
-            this.ConfirmationMessage = string.Empty;
-        }
+        //public AccountView(TextPortContext context)
+        //{
+        //    this._context = context;
+        //    this.Status = RequestStatus.Pending;
+        //    this.ConfirmationMessage = string.Empty;
+        //}
 
         public AccountView()
         {
@@ -34,9 +34,9 @@ namespace TextPortCore.Models
             this.ConfirmationMessage = string.Empty;
         }
 
-        public AccountView(TextPortContext context, int accountId)
+        public AccountView(int accountId)
         {
-            this._context = context;
+            //this._context = context;
             this.ConfirmationMessage = string.Empty;
             this.Status = RequestStatus.Pending;
             using (TextPortDA da = new TextPortDA())
