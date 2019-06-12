@@ -2,7 +2,7 @@
 @model RegistrationData
 
 @{
-    ViewBag.Title = "Get Number";
+    ViewBag.Title = "Complimentary / Replacement Number";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -23,10 +23,28 @@
     <div class="col-md-9">
         <div class="card">
             <div class="card-header">
-                <h4>Get a new Number</h4>
+                <h4>@((Model.ShowAnnouncementBanner) ? "Complimentary" : "Replacement") Number</h4>
             </div>
             <div class="card-body">
                 <div class="row">
+                    @if (Model.ShowAnnouncementBanner)
+                    {
+                        <div class="form-group">
+                            <div class="alert alert-success" role="alert">
+                                <h4>Notice to Our Existing Account Holders</h4>
+                                <p>
+                                    All TextPort accounts now require a virtual number. The methods that allowed us to provide free texting are being phased out by mobile providers.
+                                </p>
+                                <p>
+                                    Because of this, TextPort is offering existing account holders a <b>free number for 30 days</b>, plus credit to send approximately <b>50 free messages.</b>
+                                </p>
+                                <p>
+                                    Use the section below to select the area code and number of your choice. You will <b>not be charged for the number</b>.
+                                    Your number will automatically expire in 30 days, or you have the option to renew it.
+                                </p>
+                            </div>
+                        </div>
+                    }
                     <div class="offset-1 col-11">
                         @using (Html.BeginForm("PostPurchase", "Account", FormMethod.Post, new { id = "form-signup" }))
                         {
@@ -41,13 +59,14 @@
                             @Html.HiddenFor(m => m.CompletionMessage)
                             @Html.HiddenFor(m => m.BaseNumberCost)
                             @Html.HiddenFor(m => m.BaseSMSCost)
+                            @Html.HiddenFor(m => m.LeasePeriod)
                             <input type="hidden" id="hidTotalCost" value="0" />
 
                             <div class="form-group">
                                 @Html.LabelFor(m => m.NumberCountryId, new { @class = "form-label" })
-                                @Html.DropDownListFor(m => m.NumberCountryId, new SelectList(Model.CountriesList, "Value", "Text"), new { @class = "col-6 form-control" })
+                                @Html.DropDownListFor(m => m.NumberCountryId, new SelectList(Model.CountriesList, "Value", "Text"), new { @class = "col-5 form-control" })
                                 @Html.ValidationMessageFor(m => m.NumberCountryId, null, new { @class = "text-danger" })
-                                <p class="subscript">* All number purchases include credit for 50 text messages.</p>
+                                <p class="subscript">* Number includes credit for 50 text messages.</p>
                             </div>
                             <div class="form-group" id="DivAreaCode">
                                 @Html.LabelFor(m => m.AreaCode, new { @class = "form-label" })
@@ -64,43 +83,13 @@
                                 </div>
                                 @Html.ValidationMessageFor(m => m.AreaCode, null, new { @class = "text-danger" })
                             </div>
-                            <div class="form-group" id="DivTollFreePrefix" style="display:none">
-                                @Html.LabelFor(m => m.TollFreePrefix, new { @class = "form-label" })
-                                <div class="row">
-                                    <div class="col-3">
-                                        @Html.DropDownListFor(m => m.TollFreePrefix, new SelectList(Model.TollFreeAreaCodesList, "Value", "Text"), new { @class = "form-control" })
-                                    </div>
-                                    <div id="spintiller2" class="spinner-border collapse" role="status">
-                                        <span class="sr-only">Loading...</span>
-                                    </div>
-                                </div>
-                                @Html.ValidationMessageFor(m => m.TollFreePrefix, null, new { @class = "text-danger" })
-                            </div>
                             <div class="form-group">
                                 @Html.LabelFor(m => m.VirtualNumber, new { @class = "form-label" })
                                 @Html.DropDownListFor(m => m.VirtualNumber, new SelectList(Model.NumbersList, "Value", "Text"), new { @class = "col-5 form-control" })
                                 @Html.ValidationMessageFor(m => m.VirtualNumber, null, new { @class = "text-danger" })
                             </div>
                             <div class="form-group">
-                                @Html.LabelFor(m => m.LeasePeriod, new { @class = "form-label" })
-                                @Html.DropDownListFor(m => m.LeasePeriod, new SelectList(Model.LeasePeriodsList, "Value", "Text"), new { @class = "col-5 form-control" })
-                                @Html.ValidationMessageFor(m => m.LeasePeriod, null, new { @class = "text-danger" })
-                            </div>
-                            <div class="row lower-label">
-                                <label>Number Cost</label>
-                                <label id="NumberCostTxt"></label>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Additional Credit (optional)</label>
-                                @Html.DropDownListFor(m => m.CreditPurchaseAmount, new SelectList(Model.CreditAmountsList, "Value", "Text"), new { @class = "col-4 form-control" })
-                                @Html.ValidationMessageFor(m => m.CreditPurchaseAmount, null, new { @class = "text-danger" })
-                            </div>
-                            <div class="row lower-label">
-                                <label>Total Charge</label>
-                                <label id="TotalCost"></label>
-                            </div>
-                            <div class="form-group">
-                                <button id="btnContinue" type="button" class="btn btn-primary">@(Model.PurchaseType == "ComplimentaryNumber" ? "Select Number" : "Continue to Payment")</button>
+                                <button id="btnContinue" type="button" class="btn btn-primary">Select Number</button>
                             </div>
                         }
                     </div>

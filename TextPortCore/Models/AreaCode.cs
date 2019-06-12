@@ -10,5 +10,6 @@ namespace TextPortCore.Models
         public int AreaCodeId { get; set; }
         public string AreaCodeNum { get; set; }
         public string GeographicArea { get; set; }
+        public bool TollFree { get; set; }
     }
 }

@@ -12,11 +12,11 @@ namespace TextPortCore.Data
     {
         #region "Select Methods"
 
-        public string GetAreaCodeName(string areaCode)
+        public string GetAreaCodeName(string areaCode, bool tollFree)
         {
             try
             {
-                return _context.AreaCodes.Where(x => x.AreaCodeNum.Equals(areaCode)).FirstOrDefault().GeographicArea;
+                return _context.AreaCodes.Where(x => x.AreaCodeNum.Equals(areaCode) && x.TollFree == tollFree).FirstOrDefault().GeographicArea;
             }
             catch (Exception ex)
             {
@@ -26,19 +26,30 @@ namespace TextPortCore.Data
             return string.Empty;
         }
 
-        public List<SelectListItem> GetNumberCountriesList()
+        public List<SelectListItem> GetNumberCountriesList(string purchaseType)
         {
             List<SelectListItem> countriesList = new List<SelectListItem>();
 
             try
             {
-                foreach (VirtualNumberCountry country in _context.VirtualNumberCountries.Where(x => x.Enabled == true).OrderBy(x => x.CountryName))
+                List<VirtualNumberCountry> vncs = new List<VirtualNumberCountry>();
+                if (purchaseType == "ComplimentaryNumber")
                 {
-                    countriesList.Add(new SelectListItem()
-                    {
-                        Text = string.Format("{0} - {1:C}/month", country.CountryName, country.MonthlyRate),
-                        Value = country.VirtualNumberCountryId.ToString()
-                    });
+                    vncs = _context.VirtualNumberCountries.Where(x => x.Enabled == true && x.VirtualNumberCountryId != 23).OrderBy(x => x.CountryName).ToList();
+                }
+                else
+                {
+                    vncs = _context.VirtualNumberCountries.Where(x => x.Enabled == true).OrderBy(x => x.CountryName).ToList();
+                }
+
+                foreach (VirtualNumberCountry country in vncs)
+                {
+                    SelectListItem listItem = new SelectListItem();
+
+                    listItem.Text = (purchaseType != "ComplimentaryNumber") ? $"{country.CountryName} - {country.MonthlyRate:C}/month" : $"{country.CountryName}";
+                    listItem.Value = country.VirtualNumberCountryId.ToString();
+
+                    countriesList.Add(listItem);
                 }
             }
             catch (Exception ex)
@@ -115,6 +126,8 @@ namespace TextPortCore.Data
                 _context.DedicatedVirtualNumbers.Add(number);
                 _context.SaveChanges();
 
+                rd.VirtualNumberId = number.VirtualNumberId;
+
                 return true;
             }
             catch (Exception ex)
@@ -125,6 +138,31 @@ namespace TextPortCore.Data
             return false;
         }
 
+        #endregion
+
+        #region "Delete methods"
+        public bool DeleteVirtualNumber(int virtualNumberId)
+        {
+            try
+            {
+                // Need to check if the number is part of the current context. If it is, detach it first before deleting.
+                DedicatedVirtualNumber localVn = _context.Set<DedicatedVirtualNumber>().Local.FirstOrDefault(x => x.VirtualNumberId.Equals(virtualNumberId));
+                if (localVn != null)
+                {
+                    _context.Entry(localVn).State = Microsoft.EntityFrameworkCore.EntityState.Detached;
+                }
+                _context.DedicatedVirtualNumbers.Remove(localVn);
+                _context.SaveChanges();
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                ErrorHandling eh = new ErrorHandling();
+                eh.LogException("NumbersDA.DeleteVirtualNumber", ex);
+            }
+            return false;
+        }
         #endregion
     }
 }

@@ -16,13 +16,6 @@ namespace TextPort.Controllers
 {
     public class AccountController : Controller
     {
-        //private TextPortContext _context;
-
-        //public AccountController(TextPortContext context)
-        //{
-        //    _context = context;
-        //}
-
         [HttpPost]
         public ActionResult ValidateLogin(LoginCredentials model)
         {
@@ -52,9 +45,9 @@ namespace TextPort.Controllers
 
                         Cookies.Write("balance", account.Balance.ToString(), 0);
 
-                        if (account.ComplimentaryNumber)
+                        if (account.ComplimentaryNumber == 1)
                         {
-                            result = new { success = "true", response = Url.Action("ComplimentaryNumber", "Numbers") };
+                            result = new { success = "true", response = Url.Action($"ComplimentaryNumber/{account.AccountId}", "Numbers") };
                         }
                         else
                         {
@@ -88,13 +81,6 @@ namespace TextPort.Controllers
             try
             {
                 RegistrationData rd = new RegistrationData("VirtualNumberSignUp", 0);
-
-                // For testing
-                rd.UserName = "regley1";
-                rd.Password = "Zealand!4";
-                rd.ConfirmPassword = "Zealand!4";
-                rd.EmailAddress = "richardtester@egleytest.com";
-
                 return View(rd);
             }
             catch (Exception ex)
@@ -112,13 +98,11 @@ namespace TextPort.Controllers
             {
                 using (TextPortDA da = new TextPortDA())
                 {
-                    //regData.PurchaseTitle += $"Cost {regData.TotalCost}";
                     switch (regData.PurchaseType)
                     {
                         case "VirtualNumberSignUp":
                             // Add a temporary account (Enabled flag set to 0).
                             regData.AccountId = da.AddTemporaryAccount(regData);
-                            //return PartialView("_Purchase", regData);
                             break;
                     }
                     return PartialView("_Purchase", regData);
@@ -127,7 +111,6 @@ namespace TextPort.Controllers
             catch (Exception ex)
             {
                 string bar = ex.Message;
-                //return null;
             }
 
             return PartialView("_PurchaseFailed", regData);
@@ -144,16 +127,19 @@ namespace TextPort.Controllers
                     switch (regData.PurchaseType)
                     {
                         case "VirtualNumberSignUp":
+                            regData.CompletionTitle = "Operation Failed";
+                            regData.CompletionMessage = "An error occurred while processing the request. We apologize fo any inconvenience. <a href=\"/home/support\">Please submit a support request to report this issue.</a>";
+
                             if (da.EnableTemporaryAccount(regData))
                             {
-                                if (da.AddNumberToAccount(regData))
+                                if (!string.IsNullOrEmpty(regData.VirtualNumber))
                                 {
                                     // Log the user in
                                     List<Claim> claims = new List<Claim> {
-                                    new Claim("AccountId", regData.AccountId.ToString(), ClaimValueTypes.Integer),
-                                    new Claim(ClaimTypes.Name, regData.UserName.ToString()),
-                                    new Claim(ClaimTypes.Email, regData.EmailAddress.ToString()),
-                                    new Claim(ClaimTypes.Role, "User") };
+                                            new Claim("AccountId", regData.AccountId.ToString(), ClaimValueTypes.Integer),
+                                            new Claim(ClaimTypes.Name, regData.UserName.ToString()),
+                                            new Claim(ClaimTypes.Email, regData.EmailAddress.ToString()),
+                                            new Claim(ClaimTypes.Role, "User") };
 
                                     ClaimsIdentity identity = new ClaimsIdentity(claims, "ApplicationCookie");
                                     ClaimsPrincipal principal = new ClaimsPrincipal(identity);
@@ -163,47 +149,64 @@ namespace TextPort.Controllers
 
                                     authManager.SignIn(new AuthenticationProperties { IsPersistent = false }, identity);
 
-                                    if (!string.IsNullOrEmpty(regData.VirtualNumber))
+                                    using (Bandwidth bw = new Bandwidth())
                                     {
-                                        using (Bandwidth bw = new Bandwidth())
+                                        if (bw.PurchaseVirtualNumber(regData))
                                         {
-                                            bw.PurchaseVirtualNumber(regData);
+                                            if (da.AddNumberToAccount(regData))
+                                            {
+                                                regData.CompletionTitle = "Registration Complete";
+                                                regData.CompletionMessage = "Your account and number were successfully registered.";
+
+                                                Account acc = da.GetAccountById(regData.AccountId);
+                                                if (acc != null)
+                                                {
+                                                    acc.Balance += (Constants.InitialBalanceAllocation + regData.CreditPurchaseAmount);
+                                                    da.SaveChanges();
+
+                                                    if (regData.CreditPurchaseAmount > 0)
+                                                    {
+                                                        regData.CompletionMessage += $" {regData.CreditPurchaseAmount:C} was applied to your account.";
+                                                    }
+
+                                                    Cookies.WriteBalance(acc.Balance);
+
+                                                    return PartialView("_RegistrationComplete", regData);
+                                                }
+                                            }
+                                            else
+                                            {
+                                                regData.CompletionMessage += " The number was unable to be assigned to your account.";
+                                            }
+                                        }
+                                        else
+                                        {
+                                            regData.CompletionTitle = "Registration Partially Complete";
+                                            regData.CompletionMessage = $"Your account was registered, but there was a problem assigning a number to your account. <a href=\"/numbers/complimentarynumber/{regData.AccountId}\">Click here to select a new number.</a> You will not be charged for the replacement number.";
+
+                                            da.SetComplimentaryNumberFlag(regData.AccountId, 2);
+
+                                            return PartialView("_RegistrationComplete", regData);
                                         }
                                     }
-
-                                    regData.CompletionTitle = "Registration Complete";
-                                    regData.CompletionMessage = "Your account and number were successfully registered.";
-
-                                    return PartialView("_RegistrationComplete", regData);
                                 }
+                                else
+                                {
+                                    regData.CompletionMessage += " No number was specified.";
+                                }
+                            }
+                            else
+                            {
+                                regData.CompletionMessage += " Account creation failed.";
                             }
                             break;
 
                         case "VirtualNumber":
                             if (!string.IsNullOrEmpty(regData.VirtualNumber))
                             {
-                                using (Bandwidth bw = new Bandwidth())
-                                {
-                                    if (bw.PurchaseVirtualNumber(regData))
-                                    {
-                                        if (da.AddNumberToAccount(regData))
-                                        {
-                                            regData.CompletionTitle = "Number Successfully Assigned";
-                                            regData.CompletionMessage = $"The number {regData.NumberDisplayFormat} has been sucessfully assigned to your account.";
-                                        }
-                                    }
-                                    else
-                                    {
-                                        string foo = regData.OrderingMessage;
-                                    }
-                                }
-                            }
+                                regData.CompletionTitle = "Number assignment failed.";
+                                regData.CompletionMessage = $"Your payment was processed, but there was a problem assigning a number to your account. <a href=\"/numbers/complimentarynumber/{regData.AccountId}\">Click here to select a new number.</a> You will not be charged for the replacement number.";
 
-                            return PartialView("_RegistrationComplete", regData);
-
-                        case "ComplimentaryNumber":
-                            if (!string.IsNullOrEmpty(regData.VirtualNumber))
-                            {
                                 using (Bandwidth bw = new Bandwidth())
                                 {
                                     if (bw.PurchaseVirtualNumber(regData))
@@ -216,16 +219,63 @@ namespace TextPort.Controllers
                                             Account acc = da.GetAccountById(regData.AccountId);
                                             if (acc != null)
                                             {
-                                                acc.ComplimentaryNumber = false;
+                                                acc.Balance += (Constants.InitialBalanceAllocation + regData.CreditPurchaseAmount);
                                                 da.SaveChanges();
-                                                //_context.SaveChanges();
+
+                                                if (regData.CreditPurchaseAmount > 0)
+                                                {
+                                                    regData.CompletionMessage += $" {regData.CreditPurchaseAmount:C} was applied to your account.";
+                                                }
+
+                                                Cookies.WriteBalance(acc.Balance);
                                             }
+                                        }
+                                        else
+                                        {
+                                            string foo = regData.OrderingMessage;
+                                            da.SetComplimentaryNumberFlag(regData.AccountId, 2);
                                         }
                                     }
                                 }
+                                return PartialView("_RegistrationComplete", regData);
                             }
+                            break;
 
-                            return PartialView("_RegistrationComplete", regData);
+                        case "ComplimentaryNumber":
+                            regData.CompletionTitle = "Number assignment failed";
+                            regData.CompletionMessage = $"An error occurred while assigning your number. <a href=\"/numbers/complimentarynumber/{regData.AccountId}\">Click here to select a new number.</a> You will not be charged for the replacement number. ";
+
+                            if (!string.IsNullOrEmpty(regData.VirtualNumber))
+                            {
+                                using (Bandwidth bw = new Bandwidth())
+                                {
+                                    if (bw.PurchaseVirtualNumber(regData))
+                                    {
+                                        if (da.AddNumberToAccount(regData))
+                                        {
+                                            regData.CompletionTitle = "Number Successfully Assigned";
+                                            regData.CompletionMessage = $"The number {regData.NumberDisplayFormat} has been sucessfully assigned to your account.";
+
+                                            da.SetComplimentaryNumberFlag(regData.AccountId, 0);
+
+                                            Account acc = da.GetAccountById(regData.AccountId);
+                                            if (acc != null)
+                                            {
+                                                acc.Balance += (Constants.InitialBalanceAllocation);
+                                                da.SaveChanges();
+                                                Cookies.WriteBalance(acc.Balance);
+                                            }
+
+                                            return PartialView("_RegistrationComplete", regData);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        da.SetComplimentaryNumberFlag(regData.AccountId, 2);
+                                    }
+                                }
+                            }
+                            break;
 
                         case "VirtualNumberRenew":
                             if (!string.IsNullOrEmpty(regData.VirtualNumber))
@@ -239,32 +289,53 @@ namespace TextPort.Controllers
                                     vn.SevenDayReminderSent = null;
                                     vn.TwoDayReminderSent = null;
                                     da.SaveChanges();
-                                    //_context.SaveChanges();
+
+                                    regData.CompletionTitle = "Number Renewal Complete";
+                                    regData.CompletionMessage = $"The number {regData.NumberDisplayFormat} has been sucessfully renewed for {regData.LeasePeriod} {regData.LeasePeriodWord}.";
+
+                                    if (regData.CreditPurchaseAmount > 0)
+                                    {
+                                        Account acc = da.GetAccountById(regData.AccountId);
+                                        if (acc != null)
+                                        {
+                                            acc.Balance += (regData.CreditPurchaseAmount);
+                                            da.SaveChanges();
+
+                                            if (regData.CreditPurchaseAmount > 0)
+                                            {
+                                                regData.CompletionMessage += $" {regData.CreditPurchaseAmount:C} was applied to your account.";
+                                            }
+
+                                            Cookies.WriteBalance(acc.Balance);
+                                        }
+                                    }
+                                    return PartialView("_RegistrationComplete", regData);
                                 }
                             }
+                            break;
 
-                            regData.CompletionTitle = "Number Renewal Complete";
-                            regData.CompletionMessage = $"The number {regData.NumberDisplayFormat} has been sucessfully renewed for {regData.LeasePeriod} {regData.LeasePeriodWord}.";
+                        case "Credit":
+                            regData.CompletionTitle = "Credit purchase failed";
+                            regData.CompletionMessage = "An error occurred while assigning credit to your account. If the credit is not reflected on your account, <a href=\"/home/support\">please submit a support request.</a>";
 
-                            return PartialView("_RegistrationComplete", regData);
-
-                        case "Credits":
                             if (regData != null)
                             {
-                                string accountId = ClaimsPrincipal.Current.FindFirst("AccountId").Value;
-                                AccountView av = new AccountView(Convert.ToInt32(accountId));
-
-                                Account acc = da.GetAccountById(Convert.ToInt32(accountId));
-                                if (acc != null)
+                                if (regData.AccountId > 0)
                                 {
-                                    acc.Credits += Convert.ToInt32(regData.CreditPurchaseAmount);
-                                    da.SaveChanges();
+                                    AccountView av = new AccountView(regData.AccountId);
+                                    Account acc = da.GetAccountById(regData.AccountId);
+                                    if (acc != null)
+                                    {
+                                        acc.Balance += Convert.ToDecimal(regData.CreditPurchaseAmount);
+                                        da.SaveChanges();
+
+                                        Cookies.WriteBalance(acc.Balance);
+                                    }
                                 }
+
+                                regData.CompletionTitle = "Credit PurchaseComplete";
+                                regData.CompletionMessage = $"{regData.CreditPurchaseAmount:C2} credit was sucessfully added to your account";
                             }
-
-                            regData.CompletionTitle = "Credit PurchaseComplete";
-                            regData.CompletionMessage = $"{regData.CreditPurchaseAmount:C2} credit was sucessfully added to your account";
-
                             return PartialView("_RegistrationComplete", regData);
                     }
                 }
@@ -318,7 +389,7 @@ namespace TextPort.Controllers
         public ActionResult Balance()
         {
             string accountId = ClaimsPrincipal.Current.FindFirst("AccountId").Value;
-            RegistrationData regData = new RegistrationData("Credits", Convert.ToInt32(accountId));
+            RegistrationData regData = new RegistrationData("Credit", Convert.ToInt32(accountId));
             if (regData != null)
             {
                 return View(regData);
@@ -346,20 +417,20 @@ namespace TextPort.Controllers
             {
                 if (!da.IsUsernameAvailable(username))
                 {
-                    return Json($"The username {username} is already taken.", JsonRequestBehavior.AllowGet);
+                    return Json($"The username {username} is already registered.", JsonRequestBehavior.AllowGet);
                 }
             }
             return Json(true, JsonRequestBehavior.AllowGet);
         }
 
         [AcceptVerbs("GET", "POST")]
-        public ActionResult VerifyEmail(string email)
+        public ActionResult VerifyEmail(string emailaddress)
         {
             using (TextPortDA da = new TextPortDA())
             {
-                if (!da.IsUsernameAvailable(email))
+                if (!da.IsEmailAvailable(emailaddress))
                 {
-                    return Json($"Email {email} is already registered to an account.", JsonRequestBehavior.AllowGet);
+                    return Json($"Email {emailaddress} is already registered to an account.", JsonRequestBehavior.AllowGet);
                 }
             }
             return Json(true, JsonRequestBehavior.AllowGet);
@@ -565,6 +636,13 @@ namespace TextPort.Controllers
             //    ConfirmationMessage = string.Empty,
 
             //}
+            return View();
+        }
+
+        [HttpGet]
+        [Authorize]
+        public ActionResult Test()
+        {
             return View();
         }
 

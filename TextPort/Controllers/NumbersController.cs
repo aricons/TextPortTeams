@@ -12,13 +12,6 @@ namespace TextPort.Controllers
 {
     public class NumbersController : Controller
     {
-        private readonly TextPortContext _context;
-
-        public NumbersController(TextPortContext context)
-        {
-            this._context = context;
-        }
-
         [AllowAnonymous]
         [HttpPost]
         public ActionResult ConfirmPurchase(RegistrationData regData)
@@ -36,24 +29,24 @@ namespace TextPort.Controllers
 
         [AllowAnonymous]
         [HttpGet]
-        public JsonResult GetAreaCodeName(string areaCode)
+        public JsonResult GetAreaCodeName(string areaCode, bool tollFree)
         {
             using (TextPortDA da = new TextPortDA())
             {
-                string description = da.GetAreaCodeName(areaCode);
+                string description = da.GetAreaCodeName(areaCode, tollFree);
                 return Json(description, JsonRequestBehavior.AllowGet);
             }
         }
 
         [AllowAnonymous]
         [HttpGet]
-        public JsonResult GetAvailableNumbers(string areaCode)
+        public JsonResult GetAvailableNumbers(string areaCode, bool tollFree)
         {
             List<SelectListItem> numbersItems = new List<SelectListItem>();
 
             using (Bandwidth bw = new Bandwidth())
             {
-                List<string> numbers = bw.GetVirtualNumbersList(areaCode);
+                List<string> numbers = bw.GetVirtualNumbersList(areaCode, tollFree);
                 if (numbers.Any())
                 {
                     foreach (string number in numbers)
@@ -102,11 +95,14 @@ namespace TextPort.Controllers
 
             RegistrationData regData = new RegistrationData("VirtualNumberRenew", accountId);
 
-            DedicatedVirtualNumber vn = _context.DedicatedVirtualNumbers.FirstOrDefault(x => x.VirtualNumberId == id);
-            if (vn != null)
+            using (TextPortDA da = new TextPortDA())
             {
-                regData.VirtualNumber = vn.VirtualNumber;
-                regData.VirtualNumberId = vn.VirtualNumberId;
+                DedicatedVirtualNumber vn = da.GetVirtualNumberById(id);
+                if (vn != null)
+                {
+                    regData.VirtualNumber = vn.VirtualNumber;
+                    regData.VirtualNumberId = vn.VirtualNumberId;
+                }
             }
 
             return View(regData);
@@ -114,21 +110,33 @@ namespace TextPort.Controllers
 
         [Authorize]
         [HttpGet]
-        public ActionResult ComplimentaryNumber()
+        public ActionResult ComplimentaryNumber(int id)
         {
             string accountIdStr = System.Security.Claims.ClaimsPrincipal.Current.FindFirst("AccountId").Value;
             int accountId = Convert.ToInt32(accountIdStr);
 
-            RegistrationData regData = new RegistrationData("ComplimentaryNumber", accountId);
+            if (id == accountId) // Compare the id passed against teh account id to check that there's not an attempt to wrongfully access the page.
+            {
+                using (TextPortDA da = new TextPortDA())
+                {
+                    Account acc = da.GetAccountById(accountId);
+                    if (acc.ComplimentaryNumber > 0)
+                    {
+                        RegistrationData regData = new RegistrationData("ComplimentaryNumber", accountId);
+                        regData.ShowAnnouncementBanner = (acc.ComplimentaryNumber == 1);
+                        return View("ComplimentaryNumber", regData);
+                    }
+                }
+            }
 
-            return View("GetNumber", regData);
+            return RedirectToAction("Profile", "Account");
         }
 
         [Authorize]
         [HttpGet]
         public ActionResult NumberHistory(int id)
         {
-            MessageHistory history = new MessageHistory(_context, id);
+            MessageHistory history = new MessageHistory(id);
 
             return PartialView("_NumberHistory", history);
         }

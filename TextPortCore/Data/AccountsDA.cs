@@ -92,7 +92,7 @@ namespace TextPortCore.Data
         {
             try
             {
-                return (_context.Accounts.FirstOrDefault(x => x.Email == email) == null) ? true : false;
+                return (_context.Accounts.FirstOrDefault(x => x.Email == email && x.Enabled == true) == null) ? true : false;
             }
             catch (Exception ex)
             {
@@ -165,14 +165,8 @@ namespace TextPortCore.Data
             {
                 if (account != null)
                 {
-                    //Account acc = new Account() { AccountId = account.AccountId };
-                    //_context.Accounts.Attach(acc);
-
                     account.LoginCount++;
                     account.LastLogin = DateTime.UtcNow.AddHours(GetTimeZoneOffsetHours(account.TimeZoneId));
-
-                    //_context.Entry(acc).Property(x => x.LastLogin).IsModified = true;
-                    //_context.Entry(acc).Property(x => x.LoginCount).IsModified = true;
 
                     _context.Accounts.Update(account);
                     _context.SaveChanges();
@@ -182,6 +176,28 @@ namespace TextPortCore.Data
             {
                 ErrorHandling eh = new ErrorHandling();
                 eh.LogException("AccountDA.UpdateLastLoginAndLoginCount", ex);
+            }
+
+            return false;
+        }
+
+        public bool SetComplimentaryNumberFlag(int accountId, byte flagValue)
+        {
+            try
+            {
+                Account acc = GetAccountById(accountId);
+                if (acc != null)
+                {
+                    acc.ComplimentaryNumber = flagValue;
+                    SaveChanges();
+
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorHandling eh = new ErrorHandling();
+                eh.LogException("AccountDA.SetComplimentaryNumberFlag", ex);
             }
 
             return false;
@@ -198,7 +214,7 @@ namespace TextPortCore.Data
                 Account newAccount = new Account();
 
                 newAccount.CreateDate = DateTime.UtcNow;
-                newAccount.Credits = 0;
+                newAccount.Balance = 0;
                 newAccount.Deleted = false;
                 newAccount.Email = rd.EmailAddress;
                 newAccount.LastLogin = null;
@@ -235,7 +251,7 @@ namespace TextPortCore.Data
                 Account temporaryAccount = new Account();
 
                 temporaryAccount.CreateDate = DateTime.UtcNow;
-                temporaryAccount.Credits = 0;
+                temporaryAccount.Balance = 0;
                 temporaryAccount.Enabled = false;
                 temporaryAccount.Deleted = false;
                 temporaryAccount.Email = rd.EmailAddress;

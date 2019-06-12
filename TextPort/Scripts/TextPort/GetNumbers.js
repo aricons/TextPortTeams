@@ -6,23 +6,49 @@
     $('#AreaCode').on("keyup", function (e) {
         var areaCode = $(this).val();
         if (areaCode.length === 3) {
-            getAreaCodeName(areaCode);
+            getAreaCodeName(areaCode, false);
         } else {
             $("#VirtualNumber").html('');
             $("#AreaCodeDescription").text('');
         }
     });
 
+    $('#TollFreePrefix').on("change", function (e) {
+        getAreaCodeName($(this).val(), true);
+    });
+
     $('#btnContinue').on("click", function (e) {
         if ($("#form-signup").valid()) {
+
+            generateProductDescription();
+
             var purchaseType = $('#PurchaseType').val();
             if (purchaseType === "ComplimentaryNumber") {
                 submitPurchase();
             }
             else {
-                showConfirmationModal("purchaseModalCont", "/Account/Purchase");
+                showConfirmationModal();
             }
         }
+    });
+
+    $("#NumberCountryId").on("change", function (e) {
+        $("#DivAreaCode").toggle();
+        $("#DivTollFreePrefix").toggle();
+        $("#AreaCodeDescription").text('');
+        $("#VirtualNumber").html('');
+
+        var optionId = $("#NumberCountryId").val();
+        if (optionId == 23) {
+            $("#TollFreePrefix").val('');
+            $("#BaseNumberCost").val(10);
+        }
+        else {
+            $("#AreaCode").val('');
+            $("#BaseNumberCost").val(6);
+        }
+
+        calculateCost();
     });
 
     $('#LeasePeriod').on("change", function (e) {
@@ -40,33 +66,41 @@
     calculateCost();
 });
 
-function getAreaCodeName(areaCode) {
+function getAreaCodeName(areaCode, tollFree) {
     var url = '/numbers/getareacodename';
     $.getJSON(url, {
-        areaCode: areaCode
+        areaCode: areaCode,
+        tollFree: tollFree
     }, function (response) {
         if (response !== "") {
             $("#AreaCodeDescription").text(response);
-            getAvailableNumbers(areaCode);
+            getAvailableNumbers(areaCode, tollFree);
         } else {
             $("#AreaCodeDescription").text("Invalid area code");
         }
     });
 }
 
-function getAvailableNumbers(areaCode) {
+function getAvailableNumbers(areaCode, tollFree) {
     var url = '/Numbers/GetAvailableNumbers';
     var numbers = "";
+    var spinId = "spintiller1";
+    if (tollFree) {
+        spinId = "spintiller2";
+    }
+
     $("#VirtualNumber").html("");
-    $("#spintiller1").show();
+    $("#" + spinId).show();
+
     $.getJSON(url, {
-        areaCode: areaCode
+        areaCode: areaCode,
+        tollFree: tollFree
     }, function (response) {
         $.each(response, function (index, item) {
             numbers += "<option value='" + item.Value + "'>" + item.Text + "</option>";
         });
         $("#VirtualNumber").html(numbers);
-        $("#spintiller1").hide();
+        $("#" + spinId).hide();
     });
 }
 
@@ -82,6 +116,7 @@ function showConfirmationModal() {
         NumberCountryId: $("#NumberCountryId").val(),
         AreaCode: $("#AreaCode").val(),
         VirtualNumber: $("#VirtualNumber").val(),
+        BaseNumberCost: $("#BaseNumberCost").val(),
         NumberCost: $("#NumberCost").val(),
         PayPalCustom: $('#PayPalCustom').val(),
         VirtualNumberId: $("#VirtualNumberId").val(),
@@ -114,28 +149,73 @@ function showConfirmationModal() {
 }
 
 function calculateCost() {
-    var cost = 0;
+    var numberCost = 0;
     var creditCost = 0;
-    var countryRate = 6;
+    var totalCost = 0;
     var leasePeriod = 0;
-    var purchaseType = $("#PurchaseType").val();
+    var baseNumberCost = 0;
+    var creditPurchaseAmount = $("#CreditPurchaseAmount");
 
-
-    if (purchaseType === "Credits") {
+    if (creditPurchaseAmount.length) {
         creditCost = parseFloat($("#CreditPurchaseAmount").val());
-
-        $("#TotalCost").text('$' + $("#CreditPurchaseAmount").val() + ".00");
-        $("#hidTotalCost").val(creditCost);
     }
-    else {
+
+    leasePeriod = parseFloat($("#LeasePeriod").val());
+    baseNumberCost = parseFloat($("#BaseNumberCost").val());
+    numberCost = leasePeriod * baseNumberCost;
+    totalCost = numberCost + creditCost;
+
+    if (totalCost < 0) { totalCost = 0; }
+
+    $("#NumberCostTxt").text("$" + numberCost + ".00");
+    $("#TotalCost").text("$" + totalCost + ".00");
+    $("#hidTotalCost").val(totalCost);
+    $("#NumberCost").val(numberCost);
+}
+
+function generateProductDescription() {
+    var purchaseType = $('#PurchaseType').val();
+    var productDesctiption = '';
+    var numberAmount = 0;
+    var creditAmount = 0;
+    var leasePeriod = 0;
+    var baseNumberCost = 0;
+    var number = numberToE164($("#VirtualNumber").val());
+    var numberType = 'TextPort number ';
+
+    var leasePer = $("#LeasePeriod");
+    if (leasePer.length) {
         leasePeriod = parseFloat($("#LeasePeriod").val());
-        if (purchaseType !== "ComplimentaryNumber") {
-            cost = leasePeriod * countryRate;
-        }
-
-        $("#TotalCost").text("$" + cost + ".00");
-        $("#hidTotalCost").val(cost);
+        baseNumberCost = parseFloat($("#BaseNumberCost").val());
+        numberAmount = leasePeriod * baseNumberCost;
     }
+
+    var creditPurchaseAmount = $("#CreditPurchaseAmount");
+    if (creditPurchaseAmount.length) {
+        creditAmount = parseFloat($("#CreditPurchaseAmount").val());
+    }
+
+    if (baseNumberCost === 10) {
+        numberType = 'TextPort toll-free number ';
+    }
+
+    if (purchaseType === "VirtualNumber" || purchaseType === "VirtualNumberSignUp") {
+        productDesctiption = numberType + number + " " + $("#LeasePeriod option:selected").val() + " month lease - " + "$" + numberAmount + ".00";
+        if (creditAmount > 0) {
+            productDesctiption = productDesctiption + ". Plus $" + creditAmount + ".00 TextPort credit";
+        }
+    }
+    else if (purchaseType === "VirtualNumberRenew") {
+        productDesctiption = numberType + number + " " + $("#LeasePeriod option:selected").val() + " month lease renewal - " + "$" + numberAmount + ".00";
+        if (creditAmount > 0) {
+            productDesctiption = productDesctiption + ". Plus $" + creditAmount + ".00 TextPort credit";
+        }
+    }
+    else if (purchaseType === "Credit") {
+        productDesctiption = "Add " + $("#TotalCost").text() + " TextPort credit";
+    }
+
+    $('#ProductDescription').val(productDesctiption);
 }
 
 function registration_complete(purchaseType) {
@@ -144,7 +224,7 @@ function registration_complete(purchaseType) {
     if (purchaseType === "VirtualNumber" || purchaseType === "VirtualNumberRenew" || purchaseType === "ComplimentaryNumber") {
         url = '/numbers/manage';
     }
-    else if (purchaseType === "Credits") {
+    else if (purchaseType === "Credit") {
         url = '/account/balance';
     }
 
@@ -152,20 +232,6 @@ function registration_complete(purchaseType) {
 }
 
 function renderPayPalButton() {
-
-    var purchaseType = $('#PurchaseType').val();
-    var productDesctiption = $('#ProductDescription').val();
-
-    if (purchaseType === "VirtualNumber") {
-        productDesctiption = "TextPort virtual number " + $("#VirtualNumber").val() + " " + $("#LeasePeriod option:selected").val() + " month lease."; // Cost: " + $("#TotalCost").text();
-    }
-    else if (purchaseType === "VirtualNumberRenew") {
-        productDesctiption = "TextPort virtual number " + $("#VirtualNumber").val() + " " + $("#LeasePeriod option:selected").val() + " month lease renewal."; // Cost: " + $("#TotalCost").text();
-    }
-    else if (purchaseType === "Credits") {
-        productDesctiption = "Add " + $("#TotalCost").text() + " TextPort credit.";
-    }
-
     paypal.Button.render({
         env: 'sandbox', // sandbox | production
         style: {
@@ -204,7 +270,7 @@ function renderPayPalButton() {
                                 total: $('#hidTotalCost').val(),
                                 currency: 'USD'
                             },
-                            description: productDesctiption,
+                            description: $('#ProductDescription').val(),
                             custom: $('#PayPalCustom').val()
                         }
                     ]
@@ -216,17 +282,19 @@ function renderPayPalButton() {
             return actions.payment.execute()
                 .then(function () {
                     var regData = {
-                        PurchaseType: purchaseType,
+                        PurchaseType: $('#PurchaseType').val(),
                         AccountId: $('#AccountId').val(),
                         UserName: $("#UserName").val(),
                         EmailAddress: $("#EmailAddress").val(),
                         Password: $("#Password").val(),
                         NumberCountryId: $("#NumberCountryId").val(),
                         AreaCode: $("#AreaCode").val(),
+                        TollFreePrefix: $("#TollFreePrefix").val(),
                         VirtualNumber: $("#VirtualNumber").val(),
                         VirtualNumberId: $("#VirtualNumberId").val(),
                         LeasePeriod: $("#LeasePeriod option:selected").val(),
                         NumberCost: $("#NumberCost").val(),
+                        BaseNumberCost: $("#BaseNumberCost").val(),
                         TotalCost: $('#hidTotalCost').val(),
                         PayPalCustom: $('#PayPalCustom').val(),
                         PurchaseTitle: $('#PurchaseTitle').val(),
@@ -235,13 +303,6 @@ function renderPayPalButton() {
                     };
 
                     var url = '/account/postpurchase';
-                    //if (purchaseType === "VirtualNumberSignUp") {
-                    //    url = '/account/postsignuppurchase?id=' + $('#AccountId').val();
-                    //} else if (purchaseType === "VirtualNumber") {
-                    //    url = '/account/postnumberpurchase';
-                    //}
-                    //var url = '@Url.Action("PostPurchase", "Account")' + '?id=' + $('#AccountId').val();
-                    //var url = '/account/postsignuppurchase?id=' + $('#AccountId').val();
                     $.post({
                         url: url,
                         data: JSON.stringify(regData),
@@ -266,20 +327,20 @@ function renderPayPalButton() {
 }
 
 function submitPurchase() {
-
-    var purchaseType = $('#PurchaseType').val();
     var regData = {
-        PurchaseType: purchaseType,
+        PurchaseType: $('#PurchaseType').val(),
         AccountId: $('#AccountId').val(),
         UserName: $("#UserName").val(),
         EmailAddress: $("#EmailAddress").val(),
         Password: $("#Password").val(),
         NumberCountryId: $("#NumberCountryId").val(),
         AreaCode: $("#AreaCode").val(),
+        TollFreePrefix: $("#TollFreePrefix").val(),
         VirtualNumber: $("#VirtualNumber").val(),
         VirtualNumberId: $("#VirtualNumberId").val(),
         LeasePeriod: $("#LeasePeriod option:selected").val(),
         NumberCost: $("#NumberCost").val(),
+        BaseNumberCost: $("#BaseNumberCost").val(),
         TotalCost: $('#hidTotalCost').val(),
         PayPalCustom: $('#PayPalCustom').val(),
         PurchaseTitle: $('#PurchaseTitle').val(),
@@ -297,7 +358,6 @@ function submitPurchase() {
             alert(textStatus + ": Couldn't load post-purchase. " + errorThrown);
         },
         success: function (newInputHTML) {
-            //$('#purchaseModalCont').modal('toggle');
             $('#postPurchaseModalCont').html('');
             var form = document.getElementById("postPurchaseModalCont");
             form.insertAdjacentHTML("beforeend", newInputHTML);

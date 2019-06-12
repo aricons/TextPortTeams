@@ -10,12 +10,12 @@ namespace TextPortCore.Models
 {
     public class MessageHistory
     {
-        private readonly TextPortContext _context;
+        //private readonly TextPortContext _context;
 
-        public MessageHistory(TextPortContext context)
-        {
-            this._context = context;
-        }
+        //public MessageHistory(TextPortContext context)
+        //{
+        //    this._context = context;
+        //}
 
         private string number;
         private List<Message> messages;
@@ -35,19 +35,21 @@ namespace TextPortCore.Models
         }
 
         // Constructors
-        public MessageHistory(TextPortContext context, int virtualNumberId)
+        public MessageHistory(int virtualNumberId)
         {
-            this._context = context;
-
-            DedicatedVirtualNumber vn = _context.DedicatedVirtualNumbers.FirstOrDefault(x => x.VirtualNumberId == virtualNumberId);
-            if (vn != null)
+            using (TextPortDA da = new TextPortDA())
             {
-                this.Number = vn.NumberDisplayFormat;
-                this.Messages = _context.Messages.Include(m => m.MMSFiles).Where(x => x.VirtualNumberId == vn.VirtualNumberId).OrderByDescending(x => x.MessageId).ToList();
-            }
-            else
-            {
-                this.Messages = new List<Message>();
+                DedicatedVirtualNumber vn = da.GetVirtualNumberById(virtualNumberId);
+                if (vn != null)
+                {
+                    this.Number = vn.NumberDisplayFormat;
+                    //this.Messages = _context.Messages.Include(m => m.MMSFiles).Where(x => x.VirtualNumberId == vn.VirtualNumberId).OrderByDescending(x => x.MessageId).ToList();
+                    this.Messages = da.GetMessagsForVirtualNumber(virtualNumberId);
+                }
+                else
+                {
+                    this.Messages = new List<Message>();
+                }
             }
         }
     }

@@ -18,38 +18,6 @@ namespace TextPort.Controllers
     //[ApiController]
     public class BandwidthController : ApiController
     {
-        //private readonly TextPortContext _context;
-
-        //public BandwidthController(TextPortContext context)
-        //{
-        //    this._context = context;
-        //}
-
-        //private readonly ICompositeViewEngine _viewEngine;
-        //private readonly IHubContext<InboundHub> _hubContext;
-
-        //public BandwidthController(TextPortContext context, ICompositeViewEngine viewEngine, IHubContext<InboundHub> hubContext)
-        //public BandwidthController(TextPortContext context, IHubContext<InboundHub> hubContext)
-        //public BandwidthController(TextPortContext context)
-        //{
-        //    //_context = context;
-        //    //_viewEngine = viewEngine;
-        //    //_hubContext = hubContext;
-        //}
-
-        //private readonly static Lazy<BandwidthController> _instance = new Lazy<BandwidthController>(() => new BandwidthController(GlobalHost.ConnectionManager.GetHubContext<InboundHub>()));
-
-        //private BandwidthController()
-        //{
-        //}
-
-        //private IHubContext _hubContext;
-
-        //private BandwidthController()
-        //{
-        //    _hubContext = GlobalHost.ConnectionManager.GetHubContext<InboundHub>();
-        //}
-
         [HttpGet]
         [ActionName("ping")]
         public string Ping()
@@ -86,12 +54,14 @@ namespace TextPort.Controllers
                                     Account account = da.GetAccountById(newMessage.AccountId);
                                     if (account != null)
                                     {
+                                        newMessage.Account = account;
                                         if (!String.IsNullOrEmpty(account.UserName))
                                         {
-                                            string messageHtml = Rendering.RenderMessageIn(newMessage);
+                                            MessageNotification notification = new MessageNotification(newMessage);
+
                                             using (HubFunctions hubFunctions = new HubFunctions())
                                             {
-                                                hubFunctions.SendInboundMessageNotification(account.UserName, newMessage.MobileNumber, newMessage.VirtualNumber, newMessage.MessageText, messageHtml);
+                                                hubFunctions.SendInboundMessageNotification(notification);
                                                 if (account.EnableMobileForwarding && !string.IsNullOrEmpty(account.ForwardVnmessagesTo))
                                                 {
                                                     decimal balance = account.Balance - Constants.BaseSMSMessageCost;

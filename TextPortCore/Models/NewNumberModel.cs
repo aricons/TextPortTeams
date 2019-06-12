@@ -162,7 +162,7 @@ namespace TextPortCore.Models
             // Initialize number countries drop-down
             using (TextPortDA da = new TextPortDA())
             {
-                this.CountriesList = da.GetNumberCountriesList();
+                this.CountriesList = da.GetNumberCountriesList(string.Empty);
                 this.LeasePeriodsList = da.GetLeasePeriods(false);
             }
         }

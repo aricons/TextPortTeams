@@ -38,6 +38,20 @@ namespace TextPortCore.Data
             return null;
         }
 
+        public List<Message> GetMessagsForVirtualNumber(int virtualNumberId)
+        {
+            try
+            {
+                return _context.Messages.Include(m => m.MMSFiles).Where(x => x.VirtualNumberId == virtualNumberId).OrderByDescending(x => x.MessageId).ToList();
+            }
+            catch (Exception ex)
+            {
+                ErrorHandling eh = new ErrorHandling();
+                eh.LogException("MessagesDA.GetMessagsForVirtualNumber", ex);
+            }
+            return null;
+        }
+
         public Message GetMessageByGatewayMessageId(string gatewayMessageId)
         {
             try

@@ -88,12 +88,16 @@
 }
 
 .inbox_chat {
-    height: 550px;
+    height: 540px;
     overflow-y: auto;
 }
 
-.active_chat {
-    background: #ebebeb;
+.active_number {
+    background: #cce5ff;
+}
+
+.new_message {
+    background: #d4edda;
 }
 
 .incoming_msg_img {
@@ -149,9 +153,9 @@
 }
 
 .msg_history {
-    height: 557px;
+    height: 570px;
     overflow-y: auto;
-    margin-bottom: 16px;
+    /*margin-bottom: 16px;*/
 }
 
 .sent_msg p {
@@ -182,7 +186,7 @@
     background: #FFFFFF none repeat scroll 0 0;
     border: medium none;
     color: #4c4c4c;
-    font-size: 20px;
+    font-size: 18px;
     min-height: 50px;
     width: 100%;
 }
@@ -206,7 +210,7 @@
 
 .type_num {
     border-top: 1px solid #c4c4c4;
-    padding: 10px 15px 10px 15px;
+    padding: 10px 0px 0px 15px;
 }
 
 .no_num_wrap {
@@ -276,4 +280,10 @@
 .new_msg_pad {
     padding-right: 0px;
     padding-left: 0px;
+}
+
+.msg_area_disabled {
+    padding: 25px 0 13px 0;
+    margin-bottom: 0px;
+    font-size: 18px;
 }

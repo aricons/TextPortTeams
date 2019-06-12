@@ -76,8 +76,6 @@ namespace TextPortCore.Data
 
                 entity.Property(e => e.CreateDate).HasColumnType("datetime");
 
-                entity.Property(e => e.Credits).HasDefaultValueSql("((0))");
-
                 entity.Property(e => e.Balance).HasDefaultValueSql("((0))");
 
                 entity.Property(e => e.Email)
@@ -122,7 +120,7 @@ namespace TextPortCore.Data
                     .HasMaxLength(10)
                     .IsUnicode(false);
 
-                //entity.Property(e => e.ComplimentaryNumber).HasColumnType("bit");
+                entity.Property(e => e.ComplimentaryNumber).HasColumnType("byte");
             });
 
             modelBuilder.Entity<AreaCode>(entity =>
@@ -143,6 +141,8 @@ namespace TextPortCore.Data
                     .IsRequired()
                     .HasMaxLength(60)
                     .IsUnicode(false);
+
+                entity.Property(e => e.TollFree).HasDefaultValueSql("((0))");
             });
 
             modelBuilder.Entity<Contact>(entity =>
@@ -328,17 +328,17 @@ namespace TextPortCore.Data
 
                 entity.Property(e => e.MessageType).HasDefaultValueSql("((0))");
 
-                entity.Property(e => e.FromEmail)
-                    .HasMaxLength(60)
-                    .IsUnicode(false);
+                //entity.Property(e => e.FromEmail)
+                //    .HasMaxLength(60)
+                //    .IsUnicode(false);
 
-                entity.Property(e => e.FromNumber)
-                   .HasMaxLength(30)
-                   .IsUnicode(false);
+                //entity.Property(e => e.FromNumber)
+                //   .HasMaxLength(30)
+                //   .IsUnicode(false);
 
-                entity.Property(e => e.GatewayEmail)
-                    .HasMaxLength(60)
-                    .IsUnicode(false);
+                //entity.Property(e => e.GatewayEmail)
+                //    .HasMaxLength(60)
+                //    .IsUnicode(false);
 
                 entity.Property(e => e.GatewayMessageId)
                     .HasColumnName("GatewayMessageID")
@@ -381,25 +381,25 @@ namespace TextPortCore.Data
                 //    .HasMaxLength(10)
                 //    .IsUnicode(false);
 
-                entity.Property(e => e.SmtphostName)
-                    .HasColumnName("SMTPHostName")
-                    .HasMaxLength(60)
-                    .IsUnicode(false);
+                //entity.Property(e => e.SmtphostName)
+                //    .HasColumnName("SMTPHostName")
+                //    .HasMaxLength(60)
+                //    .IsUnicode(false);
 
-                entity.Property(e => e.Subject)
-                    .HasMaxLength(60)
-                    .IsUnicode(false);
+                //entity.Property(e => e.Subject)
+                //    .HasMaxLength(60)
+                //    .IsUnicode(false);
 
                 entity.Property(e => e.TimeStamp).HasColumnType("datetime");
 
-                entity.Property(e => e.UniqueMessageId)
-                    .HasColumnName("UniqueMessageID")
-                    .HasMaxLength(10)
-                    .IsUnicode(false);
+                //entity.Property(e => e.UniqueMessageId)
+                //    .HasColumnName("UniqueMessageID")
+                //    .HasMaxLength(10)
+                //    .IsUnicode(false);
 
-                entity.Property(e => e.VirtualNumber)
-                    .HasMaxLength(18)
-                    .IsUnicode(false);
+                //entity.Property(e => e.VirtualNumber)
+                //    .HasMaxLength(18)
+                //    .IsUnicode(false);
 
                 //entity.Ignore(e => e.MMSFiles);
 

@@ -6,11 +6,19 @@ namespace TextPortCore.Helpers
 {
     public static class Constants
     {
+        public static decimal BaseNumberCost = 6.00M;
+
         public static decimal BaseSMSMessageCost = 0.015M;
 
         public static decimal BaseMMSMessageCost = 0.025M;
 
+        public static decimal InitialBalanceAllocation = 0.75M; // 50 messages @ $0.015 each.
+
+        public static decimal BaseSMSMessageCharge = 0.004M;
+
         public static string RC4Key = "tH33nCrYpT10nK3y";
+
+        public static int NumberOfNumbersToPullFromBandwidth = 20;
 
 
         public static class Bandwidth

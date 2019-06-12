@@ -51,12 +51,17 @@
                     @Html.HiddenFor(m => m.ProductDescription)
                     @Html.HiddenFor(m => m.CompletionTitle)
                     @Html.HiddenFor(m => m.CompletionMessage)
+                    @Html.HiddenFor(m => m.BaseNumberCost)
+                    @Html.HiddenFor(m => m.BaseSMSCost)
+                    @Html.HiddenFor(m => m.LeasePeriod)
+                    @Html.HiddenFor(m => m.VirtualNumber)
+
                     <input type="hidden" id="hidTotalCost" value="0" />
                     <div class="row">
                         <div class="offset-1 col-md-7">
                             <div class="form-group">
                                 @Html.LabelFor(m => m.CreditPurchaseAmount, new { @class = "form-label" })
-                                @Html.DropDownListFor(m => m.CreditPurchaseAmount, new SelectList(Model.CreditAmountsList, "Value", "Text"), new { @class = "form-control" })
+                                @Html.DropDownListFor(m => m.CreditPurchaseAmount, new SelectList(Model.CreditAmountsList, "Value", "Text"), new { @class = " col-8 form-control" })
                                 @Html.ValidationMessageFor(m => m.CreditPurchaseAmount, null, new { @class = "text-danger" })
                             </div>
                             <div class="form-group">

@@ -37,8 +37,8 @@ namespace TextPortCore.Models
         [Display(Name = "Login Count")]
         public int LoginCount { get; set; }
 
-        [Display(Name = "Credits")]
-        public int Credits { get; set; }
+        //[Display(Name = "Credits")]
+        //public int Credits { get; set; }
 
         [Display(Name = "Balance")]
         public decimal Balance { get; set; }
@@ -76,6 +76,6 @@ namespace TextPortCore.Models
 
         public bool Enabled { get; set; }
 
-        public bool ComplimentaryNumber { get; set; }
+        public byte ComplimentaryNumber { get; set; }
     }
 }

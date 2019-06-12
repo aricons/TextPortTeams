@@ -21,7 +21,6 @@ namespace TextPortCore.Integrations.Bandwidth
 {
     public class Bandwidth : IDisposable
     {
-        const decimal defaultPrice = (decimal)0.0075;
         const int orderCheckPollingCycles = 5; // number of times to check on an order
         const int orderCheckWaitTime = 1500; // milliseconds to wait between each order status check
 
@@ -38,7 +37,7 @@ namespace TextPortCore.Integrations.Bandwidth
             this._client.Authenticator = new HttpBasicAuthenticator(Constants.Bandwidth.ApiToken, Constants.Bandwidth.ApiSecret);
         }
 
-        public List<string> GetVirtualNumbersList(string areaCode)
+        public List<string> GetVirtualNumbersList(string areaCode, bool tollFree)
         {
             List<String> numbersOut = new List<String>();
 
@@ -47,7 +46,17 @@ namespace TextPortCore.Integrations.Bandwidth
                 _client.BaseUrl = new Uri(accountBaseUrl);
                 _client.Authenticator = new HttpBasicAuthenticator(Constants.Bandwidth.UserName, Constants.Bandwidth.Password);
 
-                RestRequest request = new RestRequest($"/availableNumbers?areaCode={areaCode}&quantity=20", Method.GET);
+                string requestString = string.Empty;
+                if (tollFree)
+                {
+                    requestString = $"/availableNumbers?tollFreeWildCardPattern={areaCode.Substring(0, 2)}*&quantity={Constants.NumberOfNumbersToPullFromBandwidth}";
+                }
+                else
+                {
+                    requestString = $"/availableNumbers?areaCode={areaCode}&quantity={Constants.NumberOfNumbersToPullFromBandwidth}";
+                }
+
+                RestRequest request = new RestRequest(requestString, Method.GET);
                 request.AddHeader("Content-Type", "application/xml; charset=utf-8");
 
                 SearchResult result = _client.Execute<SearchResult>(request).Data;
@@ -311,15 +320,6 @@ namespace TextPortCore.Integrations.Bandwidth
                             if (account.EnableEmailNotifications && !string.IsNullOrEmpty(account.NotificationsEmailAddress))
                             {
                                 result += $"Email forwarding enabled. Sending notification to {account.NotificationsEmailAddress}. ";
-
-                                // Send email notification
-                                //string body = $"Hello {account.UserName}:{nl}{nl}";
-                                //body += $"You received a text message on your TextPort number.{nl}{nl}";
-                                //body += $"From number: {Utilities.NumberToDisplayFormat(messageIn.MobileNumber, 22)}{nl}";
-                                //body += $"To your number: {Utilities.NumberToDisplayFormat(messageIn.VirtualNumber, 22)}{nl}";
-                                //body += $"Message: {messageIn.MessageText}{nl}{nl}";
-                                //body += $"TextPort.com";
-
                                 string body = Rendering.RenderMessageInEmail(messageIn);
 
                                 EmailMessage email = new EmailMessage(account.NotificationsEmailAddress, $"TextPort - New Message From {Utilities.NumberToDisplayFormat(messageIn.MobileNumber, 22)}", body);
@@ -463,7 +463,7 @@ namespace TextPortCore.Integrations.Bandwidth
                         message.ProcessingMessage += "Message delivered to Bandwidth gateway. ";
                         using (TextPortDA da = new TextPortDA())
                         {
-                            da.UpdateMessageWithGatewayMessageId(message.MessageId, response.id, defaultPrice, message.ProcessingMessage);
+                            da.UpdateMessageWithGatewayMessageId(message.MessageId, response.id, Constants.BaseSMSMessageCharge, message.ProcessingMessage);
                         };
 
                         return true;

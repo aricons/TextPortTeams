@@ -32,29 +32,29 @@ namespace TextPortCore.Models
         [Display(Name = "To")]
         public string MobileNumber { get; set; }
 
-        [Display(Name = "From")]
-        public string FromNumber { get; set; }
+        //[Display(Name = "From")]
+        //public string FromNumber { get; set; }
 
-        public string FromEmail { get; set; }
+        //public string FromEmail { get; set; }
 
         public int? CarrierId { get; set; }
 
-        public string GatewayEmail { get; set; }
+        //public string GatewayEmail { get; set; }
 
-        public string SmtphostName { get; set; }
+        //public string SmtphostName { get; set; }
 
-        public string Subject { get; set; }
+        //public string Subject { get; set; }
 
         [Display(Name = "Message")]
         public string MessageText { get; set; }
 
-        public byte? Result { get; set; }
+        //public byte? Result { get; set; }
 
         public string VirtualNumber { get; set; }
 
         public string UniqueMessageId { get; set; }
 
-        public bool? MobileDevice { get; set; }
+        //public bool? MobileDevice { get; set; }
 
         public string GatewayMessageId { get; set; }
 
@@ -70,7 +70,7 @@ namespace TextPortCore.Models
 
         public DateTime? DeleteFlag { get; set; }
 
-        public string RoutingType { get; set; }
+        //public string RoutingType { get; set; }
 
         public byte? QueueStatus { get; set; }
 
@@ -159,7 +159,7 @@ namespace TextPortCore.Models
             this.CustomerCost = 0;
             this.AccountId = accountId;
             this.Ipaddress = Utilities.GetUserHostAddress();
-            this.VirtualNumber = string.Empty; // bwMessage.to.Replace("+", "");
+            this.VirtualNumber = bwMessage.to.Replace("+", "");
             this.VirtualNumberId = virtualNumberId;
             this.TimeStamp = DateTime.UtcNow;
             this.Account = null;

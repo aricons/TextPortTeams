@@ -1,5 +1,8 @@
 ﻿using System;
 using Microsoft.AspNet.SignalR;
+using Newtonsoft.Json;
+
+using TextPortCore.Models;
 
 namespace TextPort.Hubs
 {
@@ -12,9 +15,9 @@ namespace TextPort.Hubs
             _hubContext = GlobalHost.ConnectionManager.GetHubContext<InboundHub>();
         }
 
-        public void SendInboundMessageNotification(string userName, string fromNumber, string toNumber, string messageText, string messageHtml)
+        public void SendInboundMessageNotification(MessageNotification notification)
         {
-            _hubContext.Clients.User(userName).messageNotification(fromNumber, toNumber, messageText, messageHtml);
+            _hubContext.Clients.User(notification.UserName).messageNotification(JsonConvert.SerializeObject(notification, Formatting.Indented));
         }
 
         public void SendDeliveryReceipt(string userName, string messageId, string messageHtml)

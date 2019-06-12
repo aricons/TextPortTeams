@@ -3,60 +3,27 @@
 <head>
     <title>@ViewData["Title"] - TextPort</title>
 
-    @*<environment include="Development">
-            <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
-            <link rel="stylesheet" href="~/css/site.css" />
-        </environment>
-        <environment exclude="Development">
-            <link rel="stylesheet" href="https://ajax.aspnetcdn.com/ajax/bootstrap/3.3.7/css/bootstrap.min.css"
-                  asp-fallback-href="~/lib/bootstrap/dist/css/bootstrap.min.css"
-                  asp-fallback-test-class="sr-only" asp-fallback-test-property="position" asp-fallback-test-value="absolute" />
-            <link rel="stylesheet" href="~/css/site.min.css" asp-append-version="true" />
-        </environment>*@
-
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
     <meta name="description" content="TextPort Texting Portal">
 
-    @*<environment include="Development">
-            <script src="~/lib/jquery/dist/jquery.js"></script>
-            <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
-            <script src="~/js/site.js" asp-append-version="true"></script>
-        </environment>
-        <environment exclude="Development">
-            <script src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-2.2.0.min.js"
-                    asp-fallback-src="~/lib/jquery/dist/jquery.min.js"
-                    asp-fallback-test="window.jQuery"
-                    crossorigin="anonymous"
-                    integrity="sha384-K+ctZQ+LL8q6tP7I94W+qzQsfRV2a+AfHIi9k8z8l9ggpc8X+Ytst4yBo/hH+8Fk">
-            </script>
-            <script src="https://ajax.aspnetcdn.com/ajax/bootstrap/3.3.7/bootstrap.min.js"
-                    asp-fallback-src="~/lib/bootstrap/dist/js/bootstrap.min.js"
-                    asp-fallback-test="window.jQuery && window.jQuery.fn && window.jQuery.fn.modal"
-                    crossorigin="anonymous"
-                    integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa">
-            </script>
-            <script src="~/js/site.min.js" asp-append-version="true"></script>
-        </environment>*@
-
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
-
-    @*<link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css?h=dff8616ec900bb80f6d69787bd86208a">*@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic,700italic">
-    @*<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.2/css/font-awesome.min.css">*@
     <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css">
-    <link rel="stylesheet" href="~/content/css/styles.css">
+    <link rel="stylesheet" type="text/css" href="~/content/css/styles.css">
+    <link rel="stylesheet" type="text/css" href="/content/css/jnoty.css">
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js"></script>
     <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.16.0/jquery.validate.min.js"></script>
     <script src="https://ajax.aspnetcdn.com/ajax/jquery.validation.unobtrusive/3.2.6/jquery.validate.unobtrusive.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.15/jquery.mask.min.js"></script>
+    <script type="text/javascript" src="~/scripts/jnoty/jnoty.min.js"></script>
 
     <script src="~/scripts/jquery.signalR-2.4.1.min.js"></script>
     <script src="~/signalr/hubs"></script>
+    <script src="~/scripts/TextPort/signalr-hub.js"></script>
 
     <script type="text/javascript">
         $(function () {
@@ -68,6 +35,12 @@
                 $('#form-login').validate();
                 $("#UserNameOrEmail").valid();
                 $("#LoginPassword").valid();
+
+                $("#UserNameOrEmail").focus();
+
+                $('#form-login').submit(function (event) {
+                    event.preventDefault();
+                });
 
                 $('#btnSubmitLogin').on("click", function (e) {
                     if ($("#form-login").valid()) {
@@ -92,7 +65,7 @@
                     form.insertAdjacentHTML("beforeend", newInputHTML);
                     $(form).removeData("validator")    // Added by jQuery Validate
                         .removeData("unobtrusiveValidation");   // Added by jQuery Unobtrusive Validation
-                    $.validator.unobtrusive.parse(form);
+                    //$.validator.unobtrusive.parse(form);
 
                     $('#' + containerName).modal({
                         keyboard: true

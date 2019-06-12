@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Linq;
 using System.Collections.Generic;
 using System.Web;
@@ -16,13 +15,6 @@ namespace TextPort.Controllers
 
     public class MessagesController : Controller
     {
-        //private readonly TextPortContext _context;
-
-        //public MessagesController(TextPortContext context)
-        //{
-        //    _context = context;
-        //}
-
         [Authorize]
         [HttpGet]
         public ActionResult Main()
@@ -32,6 +24,7 @@ namespace TextPort.Controllers
             if (accountId > 0)
             {
                 MessagingContainer mc = new MessagingContainer(accountId);
+                Cookies.WriteBalance(mc.Account.Balance); // Get the updated balance for safety.
                 return View(mc);
             }
             else
@@ -118,7 +111,7 @@ namespace TextPort.Controllers
                         decimal newBalance = 0;
                         if (da.InsertMessage(message, ref newBalance) > 0)
                         {
-                            Cookies.Write("balance", newBalance.ToString(), 0);
+                            Cookies.WriteBalance(newBalance);
 
                             MessageList messageList = new MessageList()
                             {

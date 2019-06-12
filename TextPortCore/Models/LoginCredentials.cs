@@ -8,7 +8,7 @@ namespace TextPortCore.Models
         private string userNameOrEmail;
         private string loginPassword;
 
-        [Required(ErrorMessage = "A user name is required")]
+        [Required(ErrorMessage = "A user name or email is required")]
         [Display(Name = "User Name or Email")]
         [StringLength(60, ErrorMessage = "Must be between 5 and 60 characters", MinimumLength = 5)]
         public String UserNameOrEmail
@@ -30,8 +30,8 @@ namespace TextPortCore.Models
         // Constructors
         public LoginCredentials()
         {
-            this.UserNameOrEmail = "regley";// string.Empty;
-            this.LoginPassword = "yowzer"; // string.Empty;
+            this.UserNameOrEmail = string.Empty;
+            this.LoginPassword = string.Empty;
         }
     }
 }

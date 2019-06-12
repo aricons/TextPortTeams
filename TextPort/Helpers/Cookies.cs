@@ -58,5 +58,15 @@ namespace TextPort.Helpers
                 HttpContext.Current.Response.Cookies.Add(cookie);
             }
         }
+
+        public static void WriteBalance(decimal balance)
+        {
+            Write("balance", balance.ToString(), 0);
+        }
+
+        public static string GetBalance()
+        {
+            return Read("balance");
+        }
     }
 }

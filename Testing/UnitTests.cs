@@ -80,11 +80,11 @@ namespace Testing
             //optionsBuilder.UseSqlServer(ConfigurationManager.ConnectionStrings["TextPortContext"].ConnectionString);
             //TextPortContext context = new TextPortContext(optionsBuilder.Options);
 
-            string areaCode = "949";
+            string areaCode = "877";
 
             using (Bandwidth bw = new Bandwidth())
             {
-                List<string> numbers = bw.GetVirtualNumbersList(areaCode);
+                List<string> numbers = bw.GetVirtualNumbersList(areaCode, true);
                 var foo = numbers;
             }
         }

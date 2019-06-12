@@ -255,6 +255,21 @@
     margin-bottom: 0.1rem;
 }
 
+.sm-lower-margin {
+    margin-bottom: 2px;
+}
+
+.lower-label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin: 2px 0 10px 0px;
+    padding-left: 6px;
+}
+
+    .lower-label label {
+        margin-right: 10px;
+    }
+
 .modal-content {
     width: 600px !important;
     margin: 30px auto !important;
@@ -272,4 +287,9 @@
 
 .msg_field {
     width: auto;
+}
+
+.subscript {
+    font-size: 12px;
+    margin-left: 5px;
 }

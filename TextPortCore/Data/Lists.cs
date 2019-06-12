@@ -65,7 +65,7 @@ namespace TextPortCore.Data
                         {3, "3 Months"},
                         {6, "6 Months"},
                         {12, "1 Year"},
-                        {24, "2 Years" }
+                        {24, "2 Years"}
                     };
                 }
 
@@ -100,7 +100,7 @@ namespace TextPortCore.Data
             return null;
         }
 
-        public IEnumerable<SelectListItem> GetCreditAmounts()
+        public IEnumerable<SelectListItem> GetCreditAmounts(string purchaseType)
         {
             try
             {
@@ -127,10 +127,19 @@ namespace TextPortCore.Data
                             Text = lp.Value
                         }).ToList();
 
+                string firstItemText = "--- select credit amount ---";
+                string firstitemValue = "-1";
+
+                if (purchaseType != "Credit")
+                {
+                    firstitemValue = "0";
+                    firstItemText = "No additional credit";
+                }
+
                 SelectListItem firstItem = new SelectListItem()
                 {
-                    Value = "0",
-                    Text = "--- select credit amount ---"
+                    Value = firstitemValue,
+                    Text = firstItemText
                 };
 
                 periods.Insert(0, firstItem);
@@ -141,6 +150,52 @@ namespace TextPortCore.Data
             {
                 ErrorHandling eh = new ErrorHandling();
                 eh.LogException("Lists.GetCreditAmountsList", ex);
+            }
+
+            return null;
+        }
+
+        public IEnumerable<SelectListItem> GetTollFreeAreaCodes()
+        {
+            try
+            {
+                Dictionary<string, string> areaCodesDict = new Dictionary<string, string>()
+                {
+                    {"800", "800"},
+                    //{"833", "833"},
+                    {"844", "844"},
+                    {"855", "855"},
+                    {"866", "866"},
+                    {"877", "877"},
+                    {"888", "888"},
+                };
+
+                List<SelectListItem> areaCodes = areaCodesDict
+                    .OrderBy(p => p.Key)
+                        .Select(lp =>
+                        new SelectListItem
+                        {
+                            Value = lp.Key,
+                            Text = lp.Value
+                        }).ToList();
+
+                string firstItemText = "--- select ---";
+
+
+                SelectListItem firstItem = new SelectListItem()
+                {
+                    Value = "",
+                    Text = firstItemText
+                };
+
+                areaCodes.Insert(0, firstItem);
+
+                return new SelectList(areaCodes, "Value", "Text");
+            }
+            catch (Exception ex)
+            {
+                ErrorHandling eh = new ErrorHandling();
+                eh.LogException("Lists.GetTollFreeAreaCodes", ex);
             }
 
             return null;
