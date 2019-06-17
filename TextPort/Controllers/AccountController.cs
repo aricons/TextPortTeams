@@ -17,6 +17,7 @@ namespace TextPort.Controllers
     public class AccountController : Controller
     {
         [HttpPost]
+        //[ValidateAntiForgeryToken]
         public ActionResult ValidateLogin(LoginCredentials model)
         {
             Account account = null;
@@ -92,6 +93,7 @@ namespace TextPort.Controllers
 
         [AllowAnonymous]
         [HttpPost]
+        //[ValidateAntiForgeryToken]
         public ActionResult PrePurchase(RegistrationData regData)
         {
             try
@@ -118,6 +120,7 @@ namespace TextPort.Controllers
 
         [AllowAnonymous]
         [HttpPost]
+        //[ValidateAntiForgeryToken]
         public ActionResult PostPurchase([System.Web.Http.FromBody] RegistrationData regData)
         {
             try
@@ -363,6 +366,7 @@ namespace TextPort.Controllers
 
         [Authorize]
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult Profile(AccountView av)
         {
             av.Status = RequestStatus.Failed;
@@ -446,7 +450,7 @@ namespace TextPort.Controllers
 
         [HttpPost]
         [AllowAnonymous]
-        //[ValidateAntiForgeryToken]
+        [ValidateAntiForgeryToken]
         public ActionResult ForgotPassword([System.Web.Http.FromBody] ForgotPasswordRequest request)
         {
             request.Status = RequestStatus.Failed;
@@ -521,6 +525,7 @@ namespace TextPort.Controllers
 
         [HttpPost]
         [AllowAnonymous]
+        [ValidateAntiForgeryToken]
         public ActionResult ResetPassword([System.Web.Http.FromBody] ForgotPasswordRequest request)
         {
             request.Status = RequestStatus.Failed;
@@ -575,6 +580,7 @@ namespace TextPort.Controllers
 
         [HttpPost]
         [Authorize]
+        [ValidateAntiForgeryToken]
         public ActionResult ChangePassword([System.Web.Http.FromBody] ChangePasswordRequest request)
         {
             request.Status = RequestStatus.Failed;

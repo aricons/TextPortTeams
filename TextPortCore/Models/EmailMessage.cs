@@ -68,14 +68,20 @@ namespace TextPortCore.Models
             this.Body = body;
         }
 
+
         // Public methods
         public bool Send()
+        {
+            return Send(true);
+        }
+
+        public bool Send(bool isBodyHtml)
         {
             MailMessage message = new MailMessage();
             message.From = new MailAddress(this.From, this.FromName);
             message.To.Add(this.To);
             message.Subject = this.Subject;
-            message.IsBodyHtml = true;
+            message.IsBodyHtml = isBodyHtml;
             message.Body = this.Body;
 
             SmtpClient smtpClient = new SmtpClient();

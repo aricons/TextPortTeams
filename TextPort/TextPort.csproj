@@ -274,6 +274,7 @@
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\MessagesController.cs" />
     <Compile Include="Controllers\NumbersController.cs" />
+    <Compile Include="Controllers\PayPalController.cs" />
     <Compile Include="DependencyInjection.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -315,6 +316,17 @@
     <Content Include="Content\images\emoji\IconsetSmiles_1x.png" />
     <Content Include="Content\images\emoji\IconsetW.png" />
     <Content Include="Content\images\emoji\IconsetW_1x.png" />
+    <Content Include="Content\images\messages_page.png" />
+    <Content Include="Content\images\messages_page_100.png" />
+    <Content Include="Content\images\messages_page_25.png" />
+    <Content Include="Content\images\messages_page_50.png" />
+    <Content Include="Content\images\messages_page_60.png" />
+    <Content Include="Content\images\messages_page_70.png" />
+    <Content Include="Content\images\messages_page_75.png" />
+    <Content Include="Content\images\messages_page_80.png" />
+    <Content Include="Content\images\messages_page_orig.png" />
+    <Content Include="Content\images\message_page_st.JPG" />
+    <Content Include="Content\images\message_page_st.PNG" />
     <Content Include="Content\images\tp_logo_240x54.png" />
     <Content Include="Content\images\user-profile.png" />
     <Content Include="Content\signalr\dist\browser\signalr.js" />
@@ -385,6 +397,7 @@
     <Content Include="Scripts\popper.js" />
     <Content Include="Scripts\popper.min.js" />
     <Content Include="Scripts\TextPort\GetNumbers.js" />
+    <Content Include="Scripts\TextPort\LandingCounter.js" />
     <Content Include="Scripts\TextPort\RequiredIfValidation.js" />
     <Content Include="Scripts\TextPort\signalr-hub.js" />
     <Content Include="Scripts\umd\popper-utils.js" />
@@ -453,6 +466,11 @@
     <Content Include="Views\Bulk\_ResultsList.cshtml" />
     <Content Include="Views\Account\Test.cshtml" />
     <Content Include="Views\Numbers\ComplimentaryNumber.cshtml" />
+    <Content Include="Views\Home\Terms.cshtml" />
+    <Content Include="Views\Home\Privacy.cshtml" />
+    <Content Include="Views\Home\Contact.cshtml" />
+    <Content Include="Views\Shared\_SideMenuBar.cshtml" />
+    <Content Include="Views\Home\Support.cshtml" />
     <None Include="Web.Production.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

@@ -8,17 +8,14 @@
 <script type="text/javascript" src="/Scripts/TextPort/GetNumbers.js"></script>
 <script src="https://www.paypalobjects.com/api/checkout.js"></script>
 
+<script type="text/javascript">
+    $(function () {
+        $('#menu_balance').addClass("active");
+    });
+</script>
+
 <div class="row">
-    <div class="col-md-3 ">
-        <div class="list-group ">
-            <a href="/Account/Profile" class="list-group-item list-group-item-action">Profile</a>
-            @Html.ActionLink("Balance", "Balance", "Account", null, htmlAttributes: new { @class = "list-group-item list-group-item-action active" })
-            @Html.ActionLink("Numbers", "Manage", "Numbers", null, htmlAttributes: new { @class = "list-group-item list-group-item-action" })
-            <a href="#" class="list-group-item list-group-item-action">Contacts</a>
-            @Html.ActionLink("Change Password", "ChangePassword", "Account", null, htmlAttributes: new { @class = "list-group-item list-group-item-action" })
-            <a href="#" class="list-group-item list-group-item-action">Delete Account</a>
-        </div>
-    </div>
+    @Html.Partial("_SideMenuBar")
     <div class="col-md-9">
         <div class="card">
             <div class="card-header">
@@ -42,6 +39,7 @@
             <div class="card-body">
                 @using (Html.BeginForm("PostPurchase", "Account", FormMethod.Post, new { id = "form-signup" }))
                 {
+                    @Html.AntiForgeryToken()
                     @Html.HiddenFor(m => m.NumberCost)
                     @Html.HiddenFor(m => m.AccountId)
                     @Html.HiddenFor(m => m.PurchaseType)

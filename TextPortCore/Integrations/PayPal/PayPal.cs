@@ -12,7 +12,7 @@ using TextPortCore.Models.PayPal;
 
 namespace TextPortCore.Integrations
 {
-    public static class PayPal
+    public static class PayPalAPI
     {
         // Sandbox
         private static string PayPalAPIUrl = "https://api.sandbox.paypal.com";

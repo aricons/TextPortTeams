@@ -23,6 +23,7 @@
         </div>
         @using (Html.BeginForm("SignUp", "Account", FormMethod.Post, new { id = "form-signup" }))
         {
+            @Html.AntiForgeryToken()
             @Html.HiddenFor(m => m.NumberCost)
             @Html.HiddenFor(m => m.PurchaseType)
             @Html.HiddenFor(m => m.PayPalCustom)

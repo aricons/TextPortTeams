@@ -516,8 +516,6 @@ namespace TextPortCore.Integrations.Bandwidth
         {
             StreamWriter xmlFile;
 
-            AppConfiguration config = new AppConfiguration();
-
             string baseFolder = ConfigurationManager.AppSettings["APILogFiles"];
             string fileName = $"{baseFolder}{filePrefix}_{DateTime.Now:yyyy-MM-ddThh-mm-ss}.txt";
 

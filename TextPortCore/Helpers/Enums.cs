@@ -60,4 +60,12 @@ namespace TextPortCore.Helpers
         [Description("Archive")]
         Archive = 3
     }
+
+    public enum SupportRequestType : byte
+    {
+        [Description("Contact")]
+        Contact = 0,
+        [Description("Support")]
+        Support = 1
+    }
 }

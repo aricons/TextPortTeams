@@ -10,6 +10,7 @@
         </div>
         @using (Html.BeginForm("Login", "Home", FormMethod.Post, new { id = "form-login" }))
         {
+            @Html.AntiForgeryToken()
             <div class="modal-body">
                 <div class="form-group">
                     @Html.LabelFor(m => m.UserNameOrEmail, new { @class = "form-label" })

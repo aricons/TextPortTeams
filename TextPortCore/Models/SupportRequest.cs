@@ -1,5 +1,4 @@
 ﻿using System;
-using System.ComponentModel.DataAnnotations;
 
 namespace TextPortCore.Models
 {
@@ -7,19 +6,40 @@ namespace TextPortCore.Models
     {
         public int SupportId { get; set; }
 
-        [Display(Name = "Request Date")]
         public DateTime TimeStamp { get; set; }
 
-        [Display(Name = "Transaction Date")]
+        public byte RequestType { get; set; }
+
         public string Category { get; set; }
 
-        [Display(Name = "Requestor's Email")]
+        public string RequestorName { get; set; }
+
         public string RequestorEmail { get; set; }
 
-        [Display(Name = "Requestor's IP")]
         public string Ipaddress { get; set; }
 
-        [Display(Name = "Message")]
+        public string SendingNumber { get; set; }
+
+        public string ReceivingNumber { get; set; }
+
         public string Message { get; set; }
+
+        public SupportRequest()
+        {
+        }
+
+        public SupportRequest(SupportRequestModel model)
+        {
+            this.SupportId = model.SupportId;
+            this.RequestType = (byte)model.RequestType;
+            this.TimeStamp = model.TimeStamp;
+            this.Category = model.Category;
+            this.RequestorName = model.RequestorName;
+            this.RequestorEmail = model.RequestorEmail;
+            this.Ipaddress = model.Ipaddress;
+            this.SendingNumber = model.SendingNumber;
+            this.ReceivingNumber = model.ReceivingNumber;
+            this.Message = model.Message;
+        }
     }
 }

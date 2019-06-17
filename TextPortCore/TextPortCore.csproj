@@ -46,6 +46,7 @@
     <Compile Include="Models\MessageNotification.cs" />
     <Compile Include="Models\NewNumberModel.cs" />
     <Compile Include="Models\NumbersContainer.cs" />
+    <Compile Include="Models\SupportRequestModel.cs" />
     <Compile Include="Models\TempImage.cs" />
     <Compile Include="Models\MessageList.cs" />
     <Compile Include="Models\MessagingContainer.cs" />

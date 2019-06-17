@@ -8,6 +8,7 @@
                 <span aria-hidden="true">×</span>
             </button>
         </div>
+        @Html.AntiForgeryToken()
         @Html.HiddenFor(m => m.AccountId)
         @Html.HiddenFor(m => m.PurchaseType)
         @Html.HiddenFor(m => m.PayPalCustom)

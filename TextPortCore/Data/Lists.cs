@@ -27,7 +27,7 @@ namespace TextPortCore.Data
                 SelectListItem firstItem = new SelectListItem()
                 {
                     Value = null,
-                    Text = "--- select time zone ---"
+                    Text = "--- select a category ---"
                 };
 
                 timeZones.Insert(0, firstItem);
@@ -196,6 +196,62 @@ namespace TextPortCore.Data
             {
                 ErrorHandling eh = new ErrorHandling();
                 eh.LogException("Lists.GetTollFreeAreaCodes", ex);
+            }
+
+            return null;
+        }
+
+        public IEnumerable<SelectListItem> GetSupportCategoriesList(SupportRequestType requestType)
+        {
+            try
+            {
+                Dictionary<string, string> supportTypesDict;
+                if (requestType == SupportRequestType.Contact)
+                {
+                    supportTypesDict = new Dictionary<string, string>()
+                    {
+                        {"General", "General question" },
+                        {"Feedback", "I want to provide feedback" },
+                        {"Abuse", "I want to report abuse" }
+                    };
+                }
+                else
+                {
+                    supportTypesDict = new Dictionary<string, string>()
+                    {
+                        {"General", "I have a general question" },
+                        {"Feedback", "I want to provide feedback" },
+                        {"NotDelivered", "My messages were not delivered" },
+                        {"Error", "I received an error" },
+                        {"Abuse", "I want to report abuse" }
+                    };
+                }
+
+                List<SelectListItem> items = supportTypesDict
+                        .Select(lp =>
+                        new SelectListItem
+                        {
+                            Value = lp.Key,
+                            Text = lp.Value
+                        }).ToList();
+
+                string firstItemText = "--- select a category ---";
+                string firstitemValue = "-1";
+
+                SelectListItem firstItem = new SelectListItem()
+                {
+                    Value = firstitemValue,
+                    Text = firstItemText
+                };
+
+                items.Insert(0, firstItem);
+
+                return new SelectList(items, "Value", "Text");
+            }
+            catch (Exception ex)
+            {
+                ErrorHandling eh = new ErrorHandling();
+                eh.LogException("Lists.GetSupportCategoriesList", ex);
             }
 
             return null;

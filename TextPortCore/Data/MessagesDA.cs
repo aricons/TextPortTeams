@@ -80,33 +80,12 @@ namespace TextPortCore.Data
         {
             try
             {
-                //var query = (
-                //from messages in _context.Messages
-                //from mmsfiles in _context.MMSFiles
-                //     .Where(mmsfile => mmsfile.MessageId == messages.MessageId)
-                //     .DefaultIfEmpty() // <== makes join left join
-                //where messages.AccountId.Equals(accountId) && messages.VirtualNumberId.Equals(virtualNumberId)
-                //select new
-                //{
-                //    messages.MessageId,
-                //    messages.MessageText,
-                //    m
-                //    messages.MMSFiles = new List<MMSFile>({ mmsfiles })
-                //}
-                //);
-
                 return _context.Messages.Include(m => m.MMSFiles)
                     .Where(m => m.AccountId == accountId
                         && m.VirtualNumberId == virtualNumberId
                         && m.MobileNumber == number
                         && m.MessageType != (byte)MessageTypes.Notification)
                     .ToList();
-
-                //from c in _context.MMSFiles
-                //join p in _context.Messages on c equals p.MessageId into ps
-                //from p in ps.DefaultIfEmpty()
-
-                //return _context.Messages.Where(x => x.AccountId == accountId && x.VirtualNumberId == virtualNumberId && x.MobileNumber == number).OrderBy(x => x.MessageId).ToList();
             }
             catch (Exception ex)
             {
@@ -219,7 +198,7 @@ namespace TextPortCore.Data
             catch (Exception ex)
             {
                 ErrorHandling eh = new ErrorHandling();
-                eh.LogException("AccountDA.ApplyGatewayMessageIdToMessage", ex);
+                eh.LogException("MessagesDA.UpdateMessageWithGatewayMessageId", ex);
             }
 
             return false;

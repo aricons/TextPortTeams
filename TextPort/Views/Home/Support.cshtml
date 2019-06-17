@@ -1,0 +1,78 @@
+﻿@model  TextPortCore.Models.SupportRequestModel
+@using TextPortCore.Helpers
+@{
+    ViewBag.Title = "Support";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="contact">
+    <div class="container">
+        <h1>Support</h1>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="well well-sm">
+                    @using (Html.BeginForm("Support", "Home", FormMethod.Post, new { id = "form-support" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.HiddenFor(m => m.SupportId)
+                        @Html.HiddenFor(m => m.RequestType)
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    @Html.LabelFor(m => m.Category, new { @class = "form-label" })
+                                    @Html.DropDownListFor(m => m.Category, new SelectList(Model.CategoriesList, "Value", "Text"), new { @class = "form-control" })
+                                    @Html.ValidationMessageFor(m => m.Category, null, new { @class = "text-danger" })
+                                </div>
+                                <div class="form-group">
+                                    @Html.LabelFor(m => m.RequestorName, new { @class = "form-label" })
+                                    @Html.TextBoxFor(m => m.RequestorName, new { @class = "form-control", placeholder = "Name" })
+                                    @Html.ValidationMessageFor(m => m.RequestorName, null, new { @class = "text-danger" })
+                                </div>
+                                <div class="form-group">
+                                    @Html.LabelFor(m => m.RequestorEmail, new { @class = "form-label" })
+                                    @Html.TextBoxFor(m => m.RequestorEmail, new { @class = "form-control", placeholder = "Email" })
+                                    @Html.ValidationMessageFor(m => m.RequestorEmail, null, new { @class = "text-danger" })
+                                </div>
+                                <div class="form-group">
+                                    @Html.LabelFor(m => m.SendingNumber, new { @class = "form-label" })<span class="sub-note pl-2">(if applicable)</span>
+                                    @Html.TextBoxFor(m => m.SendingNumber, new { @class = "form-control" })
+                                </div>
+                                <div class="form-group">
+                                    @Html.LabelFor(m => m.ReceivingNumber, new { @class = "form-label" })<span class="sub-note pl-1">(if applicable)</span>
+                                    @Html.TextBoxFor(m => m.ReceivingNumber, new { @class = "form-control" })
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    @Html.LabelFor(m => m.Message, new { @class = "form-label" })
+                                    @Html.TextAreaFor(m => m.Message, new { @class = "form-control", id = "ta_support", placeholder = "Description of the issue or request. Please provide as much supporting information as possible." })
+                                    @Html.ValidationMessageFor(m => m.Message, null, new { @class = "text-danger" })
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <button type="submit" class="btn btn-primary pull-right" id="btnRequestSupport">
+                                        Send Request
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        if (Model.SubmissionStatus != RequestStatus.Pending)
+                        {
+                            <div class="row">
+                                <div class="col-md-12 pt-4">
+                                    <div class="form-group">
+                                        <div class="alert @(Model.SubmissionStatus == RequestStatus.Success ? "alert-success" : "alert-danger")" role="alert">
+                                            @Html.Raw(Model.SubmissionMessage)
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

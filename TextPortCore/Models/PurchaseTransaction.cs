@@ -29,6 +29,6 @@ namespace TextPortCore.Models
         public decimal GrossAmount { get; set; }
 
         [Display(Name = "Fee")]
-        public string Fee { get; set; }
+        public decimal Fee { get; set; }
     }
 }

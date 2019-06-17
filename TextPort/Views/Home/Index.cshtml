@@ -2,7 +2,9 @@
     ViewBag.Title = "TextPort - Home";
 }
 
-<div class="jumbotron text-center">
+<script src="~/scripts/TextPort/LandingCounter.js"></script>
+
+<div class="jumbotron text-center bg-light">
     <img class="d-flex d-xl-flex align-items-center align-content-center m-auto align-items-xl-center" src="~/content/images/tp_logo_240x54.png" alt="TextPort Logo" width="300">
     <h1>Text Messaging Portal</h1>
     <p class="lead">Send and receive text messages using dedicated virtual numbers. Protect your privacy, send business texts, send bulk texts or receive confirmation codes.</p>
@@ -14,48 +16,121 @@
         <div class="row justify-content-center features">
             <div class="col-sm-6 col-md-5 col-lg-4 item">
                 <div class="box">
-                    <i class="fa fa-comments-o icon"></i>
-                    <h3 class="name">Full-featured</h3>
-                    <p class="description">Select your own number and send and receive messages, just like using a mobile device. Simple user interface.</p>
-                </div>
-            </div>
-            <div class="col-sm-6 col-md-5 col-lg-4 item">
-                <div class="box">
                     <i class="fa fa-mobile icon"></i>
                     <h3 class="name">Mobile Alternative</h3>
-                    <p class="description">An alternative to a regular mobile device. Send and receive texts via your own dedicated virtual number.</p>
-                    <p class="description"></p>
+                    <p class="description">Send and receive text messages without using your mobile device and revealing your personal number.</p>
                 </div>
             </div>
             <div class="col-sm-6 col-md-5 col-lg-4 item">
                 <div class="box">
-                    <i class="fa fa-send icon"></i>
-                    <h3 class="name">Message Forwarding</h3>
-                    <p class="description">Optionally forward inbound messages from your TextPort number to your personal mobile device.</p>
+                    <i class="fa fa-comments-o icon"></i>
+                    <h3 class="name">Business Messaging</h3>
+                    <p class="description">Send text message notifications and alerts to customers, groups, or individuals.</p>
+                </div>
+            </div>
+
+            <div class="col-sm-6 col-md-5 col-lg-4 item">
+                <div class="box">
+                    <i class="fa fa-phone icon"></i>
+                    <h3 class="name">Dedicated Virtual Numbers</h3>
+                    <p class="description">Select numbers by area code to create a local presence. Add as many numbers and area codes as you need.</p>
                 </div>
             </div>
             <div class="col-sm-6 col-md-5 col-lg-4 item">
                 <div class="box">
                     <i class="fa fa-eye-slash icon"></i>
                     <h3 class="name">Privacy</h3>
-                    <p class="description">Dedicated TextPort virtual numbers allow you to exchange text messages without revealing your personal mobile number.</p>
+                    <p class="description">Dedicated virtual numbers let you exchange text messages while keeping your personal number private.</p>
                 </div>
             </div>
             <div class="col-sm-6 col-md-5 col-lg-4 item">
                 <div class="box">
-                    <i class="fa fa-rocket icon"></i>
-                    <h3 class="name">Instant Delivery</h3>
-                    <p class="description">Real time delivery - just like a standard mobile device.</p>
+                    <i class="fa fa-check icon"></i>
+                    <h3 class="name">Full-Featured</h3>
+                    <p class="description">Support for standard phone-like features like picture messaging (MMS), delivery receipts and emojis.</p>
                 </div>
             </div>
             <div class="col-sm-6 col-md-5 col-lg-4 item">
                 <div class="box">
                     <i class="fa fa-dollar icon"></i>
                     <h3 class="name">Affordable</h3>
-                    <p class="description">Send messages for 2 cents. Free inbound messages. Lease virtual numbers for as little as $6 per month.</p>
+                    <p class="description">Pay for what you need and pay as you go. See pricing details below.</p>
                 </div>
             </div>
         </div>
-        <div class="row"></div>
     </div>
 </div>
+
+<div class="mt-5 pt-3"></div>
+<div class="row text-center">
+    <div class="col">
+        <div class="counter">
+            <i class="fa fa-comment fa-2x"></i>
+            <h2 class="timer count-title count-number" data-to="10160631" data-speed="1500"></h2>
+            <p class="count-text">Messages Sent</p>
+        </div>
+    </div>
+    <div class="col">
+        <div class="counter">
+            <i class="fa fa-user-plus fa-2x"></i>
+            <h2 class="timer count-title count-number" data-to="26149" data-speed="1500"></h2>
+            <p class="count-text">Accounts</p>
+        </div>
+    </div>
+    <div class="col">
+        <div class="counter">
+            <i class="fa fa-phone fa-2x"></i>
+            <h2 class="timer count-title count-number" data-to="28568" data-speed="1500"></h2>
+            <p class="count-text ">Virtual Numbers</p>
+        </div>
+    </div>
+    <div class="col">
+        <div class="counter">
+            <i class="fa fa-rocket fa-2x"></i>
+            <h2 class="timer count-title count-number-nosep" data-to="2012" data-speed="1500"></h2>
+            <p class="count-text">Year Started</p>
+        </div>
+    </div>
+</div>
+
+<div class="mt-5 pt-3"></div>
+<section class="feature-block">
+    <div class="item">
+        <div class="row">
+            <div class="col-12 text-center">
+                <h1 class="pt-2 pb-2">Simple Interface</h1>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12 text-center">
+                <img src="~/content/images/messages_page_100.png" alt="TextPort Sample Messages Page" />
+            </div>
+        </div>
+        @*<div class="row">
+            <div class="col-12 text-center"></div>
+            <p class="ml-4">Our simple, phone-like user interface is designed to mimic that of a mobile device.</p>
+            <p class="ml-4">Conversations for all virtual numbers and contacts are easily managed on a single page.</p>
+            <p class="ml-4">Easily add pictures or emojis to your messages.</p>
+
+        </div>*@
+    </div>
+</section>
+
+<div class="mt-5 pt-3"></div>
+<section class="feature-block">
+    <div class="row justify-content-md-center">
+        <div class="col-12">
+            <div class="item">
+                <h1 class="text-center">Pricing</h1>
+                <p>Pay as you go, and pay only for what you need. No minimums and no recurring charges.</p>
+                <div class="features">
+                    <h4><span class="feature">Numbers</span> : <span class="value">$6.00 / month</span></h4>
+                    <h4><span class="feature">Outbound Text Messages</span> : <span class="value">1.5&cent; per message</span></h4>
+                    <h4><span class="feature">Inbound Text Messages</span> : <span class="value">Free</span></h4>
+                    <h4><span class="feature">Outbound Picture Messages</span> : <span class="value">2.5&cent; per message</span></h4>
+                    <h4><span class="feature">Inbound Picture Messages</span> : <span class="value">Free</span></h4>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

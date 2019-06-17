@@ -436,7 +436,7 @@ namespace TextPortCore.Data
 
                 entity.Property(e => e.Fee)
                     .IsRequired()
-                    .HasColumnType("nchar(10)");
+                    .HasColumnType("money");
 
                 entity.Property(e => e.GrossAmount).HasColumnType("money");
 
@@ -487,6 +487,14 @@ namespace TextPortCore.Data
                     .HasMaxLength(16)
                     .IsUnicode(false);
 
+                entity.Property(e => e.SendingNumber)
+                    .HasMaxLength(30)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.ReceivingNumber)
+                    .HasMaxLength(30)
+                    .IsUnicode(false);
+
                 entity.Property(e => e.Message)
                     .HasMaxLength(4000)
                     .IsUnicode(false);
@@ -494,6 +502,12 @@ namespace TextPortCore.Data
                 entity.Property(e => e.RequestorEmail)
                     .HasMaxLength(60)
                     .IsUnicode(false);
+
+                entity.Property(e => e.RequestorName)
+                    .HasMaxLength(100)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.RequestType).HasColumnType("byte");
 
                 entity.Property(e => e.TimeStamp).HasColumnType("datetime");
             });
