@@ -17,8 +17,16 @@ namespace TextPortCore.Helpers
         Normal = 0,
         [Description("Bulk")]
         Bulk = 1,
+        [Description("Group")]
+        Group = 2,
         [Description("Notification")]
-        Notification = 2
+        Notification = 3,
+        [Description("API")]
+        API = 4,
+        [Description("SVC")]
+        SVC = 5,
+        [Description("ASMX")]
+        ASMX = 6
     }
 
     public enum Carriers : int
@@ -49,6 +57,18 @@ namespace TextPortCore.Helpers
         Failed = 2
     }
 
+    public enum ProcessingStates : int
+    {
+        [Description("Unprocessed")]
+        Unprocessed = 0,
+        [Description("Submitted")]
+        Submitted = 1,
+        [Description("ProcessedSuccessfully")]
+        ProcessedSuccessfully = 2,
+        [Description("Failed")]
+        Failed = 3
+    }
+
     public enum ImageStorageRepository : int
     {
         [Description("Unknown")]
@@ -67,5 +87,17 @@ namespace TextPortCore.Helpers
         Contact = 0,
         [Description("Support")]
         Support = 1
+    }
+
+    public enum ComplimentaryNumberStatus : byte
+    {
+        [Description("NotEligible")]
+        NotEligible = 0,
+        [Description("Eligible")]
+        Eligible = 1,
+        [Description("FailureEligible")]
+        FailureEligible = 2,
+        [Description("Claimed")]
+        Claimed = 3
     }
 }

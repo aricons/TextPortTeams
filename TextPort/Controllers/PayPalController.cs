@@ -32,7 +32,9 @@ namespace TextPort.Controllers
 
             try
             {
-                var verificationRequest = (HttpWebRequest)WebRequest.Create("https://www.sandbox.paypal.com/cgi-bin/webscr");
+                var verificationRequest = (HttpWebRequest)WebRequest.Create("https://www.paypal.com/cgi-bin/webscr");
+                // https://www.paypal.com/cgi-bin/webscr -- Production
+                // https://www.sandbox.paypal.com/cgi-bin/webscr - Development
 
                 //Set values for the verification request
                 verificationRequest.Method = "POST";

@@ -27,6 +27,7 @@
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
     <TypeScriptToolsVersion>3.1</TypeScriptToolsVersion>
+    <WcfConfigValidationEnabled>True</WcfConfigValidationEnabled>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -172,7 +173,9 @@
     <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.4.1, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.4.5.2\lib\netstandard2.0\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
     </Reference>
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Security" />
+    <Reference Include="System.ServiceModel" />
     <Reference Include="System.Web.DynamicData" />
     <Reference Include="System.Web.Entity" />
     <Reference Include="System.Web.ApplicationServices" />
@@ -271,6 +274,8 @@
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\BandwidthController.cs" />
     <Compile Include="Controllers\BulkController.cs" />
+    <Compile Include="Controllers\GroupController.cs" />
+    <Compile Include="Controllers\GroupsController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\MessagesController.cs" />
     <Compile Include="Controllers\NumbersController.cs" />
@@ -289,6 +294,17 @@
     <Compile Include="Models\ManageViewModels.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
+    <Compile Include="WebServices\ITextPortSMS.cs" />
+    <Compile Include="WebServices\TextPortSMS.asmx.cs">
+      <DependentUpon>TextPortSMS.asmx</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="WebServices\TextPortSMS.svc.cs">
+      <DependentUpon>TextPortSMS.svc</DependentUpon>
+    </Compile>
+    <Compile Include="WebServices\TextPortSMSMessage.cs" />
+    <Compile Include="WebServices\TextPortSMSResponses.cs" />
+    <Compile Include="WebServices\WebServicesCommon.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\bootstrap-grid.css" />
@@ -370,9 +386,12 @@
     <Content Include="Scripts\esm\popper-utils.min.js.map" />
     <Content Include="Scripts\esm\popper-utils.js.map" />
     <Content Include="Content\css\emoji.css.map" />
-    <None Include="Properties\PublishProfiles\LiveDeploymentProfile.pubxml" />
+    <Content Include="WebServices\TextPortSMS.asmx" />
+    <Content Include="WebServices\TextPortSMS.svc" />
+    <None Include="Properties\PublishProfiles\Beta.pubxml" />
     <Content Include="Scripts\emoji\emoji-picker.coffee" />
     <Content Include="Scripts\emoji\emoji-picker.js.map" />
+    <None Include="Properties\PublishProfiles\Production.pubxml" />
     <None Include="Scripts\jquery-3.4.1.intellisense.js" />
     <Content Include="Scripts\jnoty\jnoty.js" />
     <Content Include="Scripts\jnoty\jnoty.min.js" />
@@ -460,7 +479,7 @@
     <Content Include="Views\Account\ResetPassword.cshtml" />
     <Content Include="Views\Account\ChangePassword.cshtml" />
     <Content Include="Views\Numbers\_NumberHistory.cshtml" />
-    <Content Include="Views\Bulk\Main.cshtml" />
+    <Content Include="Views\Bulk\Index.cshtml" />
     <Content Include="Views\Bulk\_MessageList.cshtml" />
     <Content Include="Views\Bulk\EditorTemplates\BulkMessageItem.cshtml" />
     <Content Include="Views\Bulk\_ResultsList.cshtml" />
@@ -471,6 +490,13 @@
     <Content Include="Views\Home\Contact.cshtml" />
     <Content Include="Views\Shared\_SideMenuBar.cshtml" />
     <Content Include="Views\Home\Support.cshtml" />
+    <Content Include="Views\Groups\Index.cshtml" />
+    <Content Include="Views\Groups\_MembersList.cshtml" />
+    <Content Include="Views\Groups\_AddGroup.cshtml" />
+    <Content Include="Views\Groups\_AddMember.cshtml" />
+    <Content Include="Views\Group\Index.cshtml" />
+    <Content Include="Views\Group\_ResultsList.cshtml" />
+    <Content Include="Views\Group\_MemberList.cshtml" />
     <None Include="Web.Production.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -492,6 +518,9 @@
   </ItemGroup>
   <ItemGroup>
     <TypeScriptCompile Include="Scripts\index.d.ts" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Connected Services\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

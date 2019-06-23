@@ -21,9 +21,9 @@
         $('#menu_numbers').addClass("active");
     });
 
-    function showHistory(virtualNumberId) {
-        showModal("historyModalCont", "/numbers/numberhistory/" + virtualNumberId);
-    }
+    //function showHistory(virtualNumberId) {
+    //    showModal("historyModalCont", "/numbers/numberhistory/" + virtualNumberId);
+    //}
 </script>
 
 <div class="row">
@@ -36,7 +36,7 @@
                         <h4>My Numbers</h4>
                     </div>
                     <div class="col-md-5 text-right">
-                        @Html.ActionLink("Get a Number", "GetNumber", "Numbers", null, htmlAttributes: new { @class = "btn btn-primary" })
+                        @Html.ActionLink("Get a Number", "GetNumber", "Numbers", null, htmlAttributes: new { @class = "btn btn-success" })
                     </div>
                 </div>
             </div>
@@ -73,7 +73,7 @@
                             }
                             rowId++;
                             <tr class="@bgClass">
-                                <td><a href="#" onclick="showHistory(@vn.VirtualNumberId)">@vn.NumberDisplayFormat</a></td>
+                                <td><a href="#" class="modal-button" data-toggle="modal" data-target="#modal-cont" data-url="/numbers/numberhistory/@vn.VirtualNumberId">@vn.NumberDisplayFormat</a></td>
                                 <td>US</td>
                                 <td>@String.Format("{0:yyyy-MM-dd}", vn.CreateDate)</td>
                                 <td>@String.Format("{0:yyyy-MM-dd}", vn.ExpirationDate)</td>
@@ -88,5 +88,5 @@
     </div>
 </div>
 
-<div id="historyModalCont" class="modal hide fade in">
-</div>
+@*<div id="historyModalCont" class="modal hide fade in">
+    </div>*@

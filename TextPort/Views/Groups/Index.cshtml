@@ -1,0 +1,161 @@
+﻿@using TextPortCore.Models
+@model GroupsContainer
+@{
+    ViewBag.Title = "Manage Groups";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script type="text/javascript">
+    $(function () {
+        $('#menu_groups').addClass("active");
+
+        $('#btn-addmember').on('click', function () {
+            var url = '/groups/addmember/' + $("#CurrentGroupId option:selected").val();
+            var target = $(this).data('target');
+
+            $.get(url, function (data) {
+                $(target).html(data);
+                $(target + ' > .modal').modal({ keyboard: true }, 'show');
+            });
+            return false;
+        });
+
+        //$('.btn-del').on('click', function () {
+        //    alert("Delete?");
+        //    deleteGroupMember(this.id);
+        //});
+
+        $('#CurrentGroupId').on("change", function (e) {
+            getGroupMembers($("#CurrentGroupId option:selected").val());
+        });
+
+        $('#modal-cont').on('shown.bs.modal', function (e) {
+            $.validator.unobtrusive.parse("#form-add");
+        });
+
+        $('#modal-cont-member').on('shown.bs.modal', function (e) {
+
+            $('#form-addmember').submit(function (event) {
+                event.preventDefault();
+            });
+            $.validator.unobtrusive.parse("#form-addmember");
+
+            $('.num_input').mask('(000) 000-0000');
+
+            $('#btnAddMember').on("click", function (e) {
+                if ($("#form-addmember").valid()) {
+                    var memberData = {
+                        GroupId: 0,
+                        MobileNumber: $("#MobileNumber").val(),
+                        MemberName: $("#MemberName").val()
+                    };
+                    addGroupMember(memberData);
+                    $('#member-modal').modal('hide');
+                }
+            });
+        });
+    });
+
+    function getGroupMembers(groupId) {
+        var url = '/groups/getmembers/' + groupId;
+        $.get({
+            url: url,
+            dataType: "html",
+            cache: false,
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert(textStatus + ": Couldn't load form. " + errorThrown);
+            },
+            success: function (newInputHTML) {
+                $("#members-list").html('');
+                var msgList = document.getElementById("members-list");
+                msgList.insertAdjacentHTML("beforeend", newInputHTML);
+            }
+        })
+    }
+
+    function addGroupMember(memberData) {
+        var url = '/groups/addmember/';
+        memberData.GroupId = $("#CurrentGroupId option:selected").val();
+        $.post({
+            url: url,
+            data: JSON.stringify(memberData),
+            contentType: "application/json",
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert(textStatus + ": Error adding memeber. " + errorThrown);
+            },
+            success: function (newInputHTML) {
+                $("#members-list").html(newInputHTML);
+            }
+        })
+    }
+
+    function deleteMember(id) {
+
+        var requestData = {
+            GroupId: $("#CurrentGroupId option:selected").val(),
+            MemberId: id
+        };
+
+        $.post({
+            url: '/groups/deletemember/',
+            data: JSON.stringify(requestData),
+            contentType: "application/json",
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert(textStatus + ": Error deleting member. " + errorThrown);
+            },
+            success: function (newInputHTML) {
+                $("#members-list").html(newInputHTML);
+            }
+        })
+    }
+</script>
+
+<div class="row">
+    @Html.Partial("_SideMenuBar")
+    <div class="col-md-9">
+        <div class="card">
+            <div class="card-header">
+                <div class="row">
+                    <div class="col-md-7">
+                        <h4>Groups</h4>
+                    </div>
+                    <div class="col-md-5 text-right">
+                        <input type="button" class="btn btn-success modal-button" data-toggle="modal" data-target="#modal-cont" data-url="/groups/add" value="Add a Group" />
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="w-50">
+                        <div class="form-group">
+                            @Html.LabelFor(m => m.CurrentGroupId, new { @class = "form-label strong" })
+                            @Html.DropDownListFor(m => m.CurrentGroupId, new SelectList(Model.GroupsList, "Value", "Text", Model.CurrentGroupId), new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+                <div class="row pt-3 pb-1">
+                    <div class="col-6">Group Members</div>
+                </div>
+                <div class="row">
+                    <table class="table">
+                        <thead>
+                            <tr class="bg-primary">
+                                <th scope="col" class="text-white list-header">Name</th>
+                                <th scope="col" class="text-white list-header">Number</th>
+                                <th class="list-icon">
+                                    <button type="button" id="btn-addmember" class="btn" data-toggle="modal" data-target="#modal-cont-member" data-url="/groups/addmember">
+                                        <span class="fa fa-plus-square fa-2x list-icon" aria-hidden="true"></span>
+                                    </button>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody id="members-list">
+                            @Html.Partial("_MembersList", Model.CurrentGroup.Members)
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="modal-cont-member"></div>

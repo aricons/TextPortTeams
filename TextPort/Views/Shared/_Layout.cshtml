@@ -4,10 +4,18 @@
     <title>@ViewData["Title"] - TextPort</title>
 
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="TextPort Texting Portal">
+    <meta name="keywords" content="online texting service, virtual mobile number, bulk texting, group texting, business sms service" />
+    <meta name="robots" content="index, follow" />
+    <meta name="author" content="TextPort.com" />
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <meta http-equiv="Content-Script-Type" content="text/javascript" />
+    <meta http-equiv="cache-control" content="no-cache" />
+    <meta http-equiv="expires" content="3600" />
+    <meta property="fb:page_id" content="259179750811667" />
 
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" crossorigin="anonymous">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic,700italic">
     <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css">
     <link rel="stylesheet" type="text/css" href="~/content/css/styles.css">
@@ -15,7 +23,7 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
     <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.16.0/jquery.validate.min.js"></script>
     <script src="https://ajax.aspnetcdn.com/ajax/jquery.validation.unobtrusive/3.2.6/jquery.validate.unobtrusive.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.15/jquery.mask.min.js"></script>
@@ -26,21 +34,33 @@
     <script src="~/scripts/TextPort/signalr-hub.js"></script>
 
     <script type="text/javascript">
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-21685628-1']);
+        _gaq.push(['_trackPageview']);
+
         $(function () {
-            $('#btnLogin').on("click", function (e) {
-                showModal("loginModalCont", "/Home/Login");
+
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+
+            $('.modal-button').on('click', function () {
+                var url = $(this).data('url');
+                var target = $(this).data('target');
+
+                $.get(url, function (data) {
+                    $(target).html(data);
+                    $(target + ' > .modal').modal({ keyboard: true }, 'show');
+                });
+                return false;
             });
 
-            $('#loginModalCont').on('shown.bs.modal', function (e) {
-                $('#form-login').validate();
-                $("#UserNameOrEmail").valid();
-                $("#LoginPassword").valid();
-
+            $('#modal-cont-login').on('shown.bs.modal', function (e) {
                 $("#UserNameOrEmail").focus();
-
                 $('#form-login').submit(function (event) {
                     event.preventDefault();
                 });
+                $.validator.unobtrusive.parse("#form-login");
 
                 $('#btnSubmitLogin').on("click", function (e) {
                     if ($("#form-login").valid()) {
@@ -52,27 +72,27 @@
             getBalance();
         });
 
-        function showModal(containerName, formURL) {
-            $('#' + containerName).html('');
-            $.get({
-                url: formURL,
-                dataType: "html",
-                error: function (jqXHR, textStatus, errorThrown) {
-                    alert(textStatus + ": Couldn't load form. " + errorThrown);
-                },
-                success: function (newInputHTML) {
-                    var form = document.getElementById(containerName);
-                    form.insertAdjacentHTML("beforeend", newInputHTML);
-                    $(form).removeData("validator")    // Added by jQuery Validate
-                        .removeData("unobtrusiveValidation");   // Added by jQuery Unobtrusive Validation
-                    //$.validator.unobtrusive.parse(form);
+        //function showModal(containerName, formURL) {
+        //    $('#' + containerName).html('');
+        //    $.get({
+        //        url: formURL,
+        //        dataType: "html",
+        //        error: function (jqXHR, textStatus, errorThrown) {
+        //            alert(textStatus + ": Couldn't load form. " + errorThrown);
+        //        },
+        //        success: function (newInputHTML) {
+        //            var form = document.getElementById(containerName);
+        //            form.insertAdjacentHTML("beforeend", newInputHTML);
+        //            //$(form).removeData("validator")    // Added by jQuery Validate
+        //            //    .removeData("unobtrusiveValidation");   // Added by jQuery Unobtrusive Validation
+        //            //$.validator.unobtrusive.parse(form);
 
-                    $('#' + containerName).modal({
-                        keyboard: true
-                    }, 'show');
-                }
-            })
-        }
+        //            $('#' + containerName).modal({
+        //                keyboard: true
+        //            }, 'show');
+        //        }
+        //    })
+        //}
 
         function validateLogin() {
             var url = '/account/validatelogin/';
@@ -129,8 +149,12 @@
                     <li class="nav-item">
                         @Html.ActionLink("My Messages", "Main", "Messages", null, htmlAttributes: new { @class = "nav-link" })
                     </li>
-                    <li class="nav-item">
-                        @Html.ActionLink("Bulk Messaging", "Main", "Bulk", null, htmlAttributes: new { @class = "nav-link" })
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navBGLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Bulk / Group</a>
+                        <div class="dropdown-menu" aria-labelledby="navBGLink">
+                            @Html.ActionLink("Send Bulk Texts", "Index", "Bulk", null, htmlAttributes: new { @class = "dropdown-item" })
+                            @Html.ActionLink("Send Group Text", "Index", "Group", null, htmlAttributes: new { @class = "dropdown-item" })
+                        </div>
                     </li>
                     <li class="nav-item dropdown">
                         <a class="nav-link active dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">@User.Identity.Name</a>
@@ -138,7 +162,7 @@
                             @Html.ActionLink("Profile", "Profile", "Account", null, htmlAttributes: new { @class = "dropdown-item" })
                             @Html.ActionLink("Balance", "Balance", "Account", null, htmlAttributes: new { @class = "dropdown-item" })
                             @Html.ActionLink("Numbers", "Manage", "Numbers", null, htmlAttributes: new { @class = "dropdown-item" })
-
+                            @Html.ActionLink("Groups", "", "Groups", null, htmlAttributes: new { @class = "dropdown-item" })
                             <div class="dropdown-divider"></div>
                             @Html.ActionLink("Log Out", "LogOut", "Account", null, htmlAttributes: new { @class = "dropdown-item" })
                         </div>
@@ -147,7 +171,7 @@
                 else
                 {
                     <li class="nav-item">
-                        <a href='#' id="btnLogin" class="nav-link" data-toggle="modal" data-target="#logInModal">Log In</a>
+                        <a href='#' class="nav-link modal-button" data-toggle="modal" data-target="#modal-cont-login" data-url="/home/login">Log In</a>
                     </li>
                     <li class="nav-item">
                         @Html.ActionLink("Sign Up", "SignUp", "Account", null, htmlAttributes: new { @class = "nav-link active", id = "loginLink" })
@@ -167,14 +191,8 @@
                 }
             </div>
         </div>
-
         @RenderBody()
-
         <hr />
-        @*<footer>
-                <p>&copy; @DateTime.Now.Year.ToString() - TextPort</p>
-            </footer>*@
-
         <footer class="footer bg-white">
             <div class="container">
                 <div class="row">
@@ -219,9 +237,8 @@
 
     </div>
 
-    <div id="loginModalCont" class="modal hide fade in" data-url='@Url.Action("Login", "Home")'>
-        <div id="loginContainer"></div>
-    </div>
+    <div id="modal-cont"></div>
+    <div id="modal-cont-login"></div>
 
     @*@RenderSection("Scripts", required: false)*@
 

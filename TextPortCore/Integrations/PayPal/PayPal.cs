@@ -15,18 +15,18 @@ namespace TextPortCore.Integrations
     public static class PayPalAPI
     {
         // Sandbox
-        private static string PayPalAPIUrl = "https://api.sandbox.paypal.com";
-        private static string accountId = "richard-facilitator@arionconsulting.com";
-        private static string clientId = "Ac6TTAGnmNme-wJJSdgU6rm8SSyW5nSc757nHhsqNWDz3X7lOa8Yx3eE-96JK-Z2YbN3N54PE_oRRGbO";
-        private static string secret = "EAIJ2JnRuYFVTi1_3mP6U4CXf1oKV00RXYlVQ7X7VS5QYdCUpCPcJhkJBkj4M3DiI1B_PwSXFU_Jf_dM";
+        //private static string PayPalAPIUrl = "https://api.sandbox.paypal.com";
+        //private static string accountId = "richard-facilitator@arionconsulting.com";
+        //private static string clientId = "Ac6TTAGnmNme-wJJSdgU6rm8SSyW5nSc757nHhsqNWDz3X7lOa8Yx3eE-96JK-Z2YbN3N54PE_oRRGbO";
+        //private static string secret = "EAIJ2JnRuYFVTi1_3mP6U4CXf1oKV00RXYlVQ7X7VS5QYdCUpCPcJhkJBkj4M3DiI1B_PwSXFU_Jf_dM";
 
         // Production
-        //private static string PayPalAPIUrl = "https://api.paypal.com";
-        //private static string accountId = "richard@arionconsulting.com";
-        //private static string clientId = "AUjK3Zugk_dkKu2ScI-f1S-8Ibxu99MeiuS9MSzogMOiEyKUa8Q4kz5L-wHfMxqZhF3p7ZjIm_64Ju_q";
-        //private static string secret = "EK8w3u2PUstKzs2Du8ioX07ErTEP1ZGD5iLwIN5zcueeiiZLfMKky6rD5Or733S1dnKliJD5cErtv17_";
+        private static string PayPalAPIUrl = "https://api.paypal.com";
+        private static string accountId = "richard@arionconsulting.com";
+        private static string clientId = "AUjK3Zugk_dkKu2ScI-f1S-8Ibxu99MeiuS9MSzogMOiEyKUa8Q4kz5L-wHfMxqZhF3p7ZjIm_64Ju_q";
+        private static string secret = "EK8w3u2PUstKzs2Du8ioX07ErTEP1ZGD5iLwIN5zcueeiiZLfMKky6rD5Or733S1dnKliJD5cErtv17_";
 
-        
+
 
         public static string SubmitPurchase(PurchaseDetail purchase)
         {

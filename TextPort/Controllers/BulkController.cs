@@ -14,16 +14,9 @@ namespace TextPort.Controllers
 {
     public class BulkController : Controller
     {
-        private TextPortContext _context;
-
-        public BulkController(TextPortContext context)
-        {
-            _context = context;
-        }
-
         [Authorize]
         [HttpGet]
-        public ActionResult Main()
+        public ActionResult Index()
         {
             string accountIdStr = ClaimsPrincipal.Current.FindFirst("AccountId").Value;
             int accountId = Convert.ToInt32(accountIdStr);
@@ -39,7 +32,7 @@ namespace TextPort.Controllers
 
         [Authorize]
         [HttpPost]
-        public ActionResult Main(BulkMessages messageData)
+        public ActionResult Index(BulkMessages messageData)
         {
             string accountIdStr = ClaimsPrincipal.Current.FindFirst("AccountId").Value;
             int accountId = Convert.ToInt32(accountIdStr);
@@ -116,7 +109,7 @@ namespace TextPort.Controllers
             catch (Exception ex)
             {
                 ErrorHandling eh = new ErrorHandling();
-                eh.LogException("BulkController.Main_POST", ex);
+                eh.LogException("BulkController.Index_POST", ex);
             }
 
             return View(messageData);

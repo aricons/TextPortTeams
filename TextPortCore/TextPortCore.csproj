@@ -40,6 +40,8 @@
     <Compile Include="Models\ForgotPasswordRequest.cs" />
     <Compile Include="Models\Group.cs" />
     <Compile Include="Models\GroupMember.cs" />
+    <Compile Include="Models\GroupsContainer.cs" />
+    <Compile Include="Models\GroupText.cs" />
     <Compile Include="Models\LoginCredentials.cs" />
     <Compile Include="Models\Message.cs" />
     <Compile Include="Models\MessageHistory.cs" />

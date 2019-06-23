@@ -1,7 +1,7 @@
 ﻿@model BulkMessages
 @using TextPortCore.Models
 @{
-    ViewBag.Title = "Bulk Messaging";
+    ViewBag.Title = "Bulk Text Messaging";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -41,13 +41,8 @@
         getBalance();
     }
 </script>
-
 <br />
-
-
-
-<h2>Bulk Messaging</h2>
-
+<h2>Send Bulk Texts</h2>
 <hr />
 @using (Html.BeginForm("Main", "Bulk", FormMethod.Post, new { id = "form-bulk" }))
 {

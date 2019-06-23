@@ -1,0 +1,53 @@
+﻿@using TextPortCore.Models
+@model List<GroupMember>
+<div class="modal fade" role="dialog" id="history-modal">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="addContactLabel">Group Members</h2>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <table class="table table-striped table-sm">
+                    <thead>
+                        <tr class="bg-primary text-white">
+                            <th scope="col">Name</th>
+                            <th scope="col">Number</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.Count() > 0)
+                        {
+                            int rowId = 1;
+                            foreach (GroupMember member in Model)
+                            {
+                                string bgClass;
+                                if (rowId % 2 == 0)
+                                {
+                                    bgClass = "table-primary";
+                                }
+                                else
+                                {
+                                    bgClass = string.Empty;
+                                }
+                                rowId++;
+                                <tr class="@bgClass">
+                                    <td>@member.MemberName</td>
+                                    <td>@member.MobileNumber</td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="4" class="text-center">No members in this group</td>
+                            </tr>
+                        }
+                        </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

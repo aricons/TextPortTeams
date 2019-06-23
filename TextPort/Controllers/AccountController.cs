@@ -46,7 +46,7 @@ namespace TextPort.Controllers
 
                         Cookies.Write("balance", account.Balance.ToString(), 0);
 
-                        if (account.ComplimentaryNumber == 1)
+                        if (account.ComplimentaryNumber == (byte)ComplimentaryNumberStatus.Eligible)
                         {
                             result = new { success = "true", response = Url.Action($"ComplimentaryNumber/{account.AccountId}", "Numbers") };
                         }
@@ -187,7 +187,7 @@ namespace TextPort.Controllers
                                             regData.CompletionTitle = "Registration Partially Complete";
                                             regData.CompletionMessage = $"Your account was registered, but there was a problem assigning a number to your account. <a href=\"/numbers/complimentarynumber/{regData.AccountId}\">Click here to select a new number.</a> You will not be charged for the replacement number.";
 
-                                            da.SetComplimentaryNumberFlag(regData.AccountId, 2);
+                                            da.SetComplimentaryNumberFlag(regData.AccountId, ComplimentaryNumberStatus.FailureEligible);
 
                                             return PartialView("_RegistrationComplete", regData);
                                         }
@@ -236,7 +236,7 @@ namespace TextPort.Controllers
                                         else
                                         {
                                             string foo = regData.OrderingMessage;
-                                            da.SetComplimentaryNumberFlag(regData.AccountId, 2);
+                                            da.SetComplimentaryNumberFlag(regData.AccountId, ComplimentaryNumberStatus.FailureEligible);
                                         }
                                     }
                                 }
@@ -259,13 +259,17 @@ namespace TextPort.Controllers
                                             regData.CompletionTitle = "Number Successfully Assigned";
                                             regData.CompletionMessage = $"The number {regData.NumberDisplayFormat} has been sucessfully assigned to your account.";
 
-                                            da.SetComplimentaryNumberFlag(regData.AccountId, 0);
+                                            da.SetComplimentaryNumberFlag(regData.AccountId, ComplimentaryNumberStatus.Claimed);
 
                                             Account acc = da.GetAccountById(regData.AccountId);
                                             if (acc != null)
                                             {
                                                 acc.Balance += (Constants.InitialBalanceAllocation);
                                                 da.SaveChanges();
+
+                                                // For migration. Apply the new virtualnumber ID to all existing messages where the virtual number ID is 0.
+                                                da.ApplyVirtualNumberIdToAllMessages(acc.AccountId, regData.VirtualNumberId);
+
                                                 Cookies.WriteBalance(acc.Balance);
                                             }
 
@@ -274,7 +278,7 @@ namespace TextPort.Controllers
                                     }
                                     else
                                     {
-                                        da.SetComplimentaryNumberFlag(regData.AccountId, 2);
+                                        da.SetComplimentaryNumberFlag(regData.AccountId, ComplimentaryNumberStatus.FailureEligible);
                                     }
                                 }
                             }

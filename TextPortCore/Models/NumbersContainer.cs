@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 using TextPortCore.Data;
 
@@ -10,13 +7,6 @@ namespace TextPortCore.Models
 {
     public class NumbersContainer
     {
-        //private readonly TextPortContext _context;
-
-        //public NumbersContainer(TextPortContext context)
-        //{
-        //    this._context = context;
-        //}
-
         public int AccountId { get; set; }
         public bool ShowExpiredNumbers { get; set; }
         public List<DedicatedVirtualNumber> Numbers { get; set; }

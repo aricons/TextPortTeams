@@ -140,6 +140,28 @@ namespace TextPortCore.Data
 
         #endregion
 
+        #region "Update methods"
+
+        public bool ApplyVirtualNumberIdToAllMessages(int accountId, int virtualNumberId)
+        {
+            try
+            {
+                var messages = _context.Messages.Where(x => x.AccountId == accountId && x.VirtualNumberId == 0).ToList();
+                messages.ForEach(x => x.VirtualNumberId = virtualNumberId);
+                SaveChanges();
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                ErrorHandling eh = new ErrorHandling();
+                eh.LogException("NumbersDA.ApplyVirtualNumberIdToAllMessages", ex);
+            }
+            return false;
+        }
+
+        #endregion
+
         #region "Delete methods"
         public bool DeleteVirtualNumber(int virtualNumberId)
         {

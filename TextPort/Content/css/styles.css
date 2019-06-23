@@ -278,10 +278,10 @@ footer.footer {
         margin-right: 10px;
     }
 
-.modal-content {
+/*.modal-content {
     width: 600px !important;
     margin: 30px auto !important;
-}
+}*/
 
 .tp-bal {
     font-size: smaller;
@@ -428,3 +428,19 @@ footer.footer {
     .contact .sub-note {
         font-size: 11px;
     }
+
+
+thead .list-header {
+    vertical-align: middle;
+}
+
+thead .list-icon {
+    color: #ffffff;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+}
+
+td .list-icon {
+    color: #1485ee;
+}

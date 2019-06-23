@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Security.Claims;
 using System.Linq;
 using System.Web.Mvc;
 
@@ -68,8 +69,16 @@ namespace TextPort.Controllers
         public ActionResult Manage()
         {
             bool showExpiredNumbers = Request.QueryString["exp"] != null && Request.QueryString["exp"].Equals("1");
-            string accountIdStr = System.Security.Claims.ClaimsPrincipal.Current.FindFirst("AccountId").Value;
-            int accountId = Convert.ToInt32(accountIdStr);
+            int accountId = Utilities.GetAccountIdFromClaim(ClaimsPrincipal.Current);
+
+            using (TextPortDA da = new TextPortDA())
+            {
+                Account acc = da.GetAccountById(accountId);
+                if (acc.ComplimentaryNumber == (byte)ComplimentaryNumberStatus.Eligible)
+                {
+                    return RedirectToAction("ComplimentaryNumber", new { id = accountId.ToString() });
+                }
+            }
 
             NumbersContainer nc = new NumbersContainer(accountId, showExpiredNumbers);
             return View(nc);
@@ -79,8 +88,16 @@ namespace TextPort.Controllers
         [HttpGet]
         public ActionResult GetNumber()
         {
-            string accountIdStr = System.Security.Claims.ClaimsPrincipal.Current.FindFirst("AccountId").Value;
-            int accountId = Convert.ToInt32(accountIdStr);
+            int accountId = Utilities.GetAccountIdFromClaim(ClaimsPrincipal.Current);
+
+            using (TextPortDA da = new TextPortDA())
+            {
+                Account acc = da.GetAccountById(accountId);
+                if (acc.ComplimentaryNumber == (byte)ComplimentaryNumberStatus.Eligible)
+                {
+                    return RedirectToAction("ComplimentaryNumber", new { id = accountId.ToString() });
+                }
+            }
 
             RegistrationData regData = new RegistrationData("VirtualNumber", accountId);
             return View(regData);
@@ -90,8 +107,7 @@ namespace TextPort.Controllers
         [HttpGet]
         public ActionResult RenewNumber(int id)
         {
-            string accountIdStr = System.Security.Claims.ClaimsPrincipal.Current.FindFirst("AccountId").Value;
-            int accountId = Convert.ToInt32(accountIdStr);
+            int accountId = Utilities.GetAccountIdFromClaim(ClaimsPrincipal.Current);
 
             RegistrationData regData = new RegistrationData("VirtualNumberRenew", accountId);
 
@@ -112,8 +128,7 @@ namespace TextPort.Controllers
         [HttpGet]
         public ActionResult ComplimentaryNumber(int id)
         {
-            string accountIdStr = System.Security.Claims.ClaimsPrincipal.Current.FindFirst("AccountId").Value;
-            int accountId = Convert.ToInt32(accountIdStr);
+            int accountId = Utilities.GetAccountIdFromClaim(ClaimsPrincipal.Current);
 
             if (id == accountId) // Compare the id passed against teh account id to check that there's not an attempt to wrongfully access the page.
             {
@@ -128,7 +143,6 @@ namespace TextPort.Controllers
                     }
                 }
             }
-
             return RedirectToAction("Profile", "Account");
         }
 

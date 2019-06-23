@@ -1,0 +1,70 @@
+﻿@using TextPortCore.Models
+@using TextPortCore.Helpers
+@model GroupText
+@{
+    ViewBag.Title = "Send a Group Text";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script>
+    $(function () {
+        $('.modal-button-group').on('click', function () {
+            var url = '/group/getmemberlist/' + $("#GroupId option:selected").val();
+            var target = $(this).data('target');
+
+            $.get(url, function (data) {
+                $(target).html(data);
+                $(target + ' > .modal').modal({ keyboard: true }, 'show');
+            });
+            return false;
+        });
+    });
+</script>
+
+<div class="container">
+    <h2>Send a Group Text</h2>
+    <hr />
+    @using (Html.BeginForm("Index", "Group", FormMethod.Post, new { id = "form-bulk" }))
+    {
+        @Html.HiddenFor(m => m.AccountId)
+        <div class="form-group">
+            @Html.LabelFor(m => m.VirtualNumberId, new { @class = "form-label-md" })
+            @Html.DropDownListFor(x => Model.VirtualNumberId, new SelectList(Model.VirtualNumbers, "Value", "Text", Model.VirtualNumberId), new { @class = "form-control col-md-4" })
+            @Html.ValidationMessageFor(m => m.VirtualNumberId, null, new { @class = "text-danger" })
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(m => m.GroupId, new { @class = "form-label-md" })
+            <div class="form-row">
+                @Html.DropDownListFor(x => Model.GroupId, new SelectList(Model.GroupsList, "Value", "Text", Model.GroupId), new { @class = "form-control col-md-4 ml-1" })
+                &nbsp;<input type="button" class="btn btn-link modal-button-group" data-toggle="modal" data-target="#modal-cont" data-url="/group/getmemberslist" value="Show Group Members" />
+            </div>
+            @Html.ValidationMessageFor(m => m.GroupId, null, new { @class = "text-danger" })
+        </div>
+        if (!string.IsNullOrEmpty(Model.BalanceAlert))
+        {
+            <div>
+                <div class="form-group">
+                    <div class="alert alert-danger text-center">
+                        @Model.BalanceAlert&nbsp;<a href="/account/balance/">Top up here</a>
+                    </div>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="form-group">
+                @Html.LabelFor(m => m.Message, new { @class = "form-label-md" })
+                @Html.TextAreaFor(m => m.Message, new { @class = "form-control col-md-6", rows = "5" })
+                @Html.ValidationMessageFor(m => m.Message, null, new { @class = "text-danger" })
+            </div>
+            <div class="form-group mt-0">
+                <button type="submit" class="btn btn-primary">Send Group Text</button>
+            </div>
+        }
+
+        if (Model.ProcessingState == ProcessingStates.ProcessedSuccessfully)
+        {
+            @Html.Partial("_ResultsList", Model)
+        }
+    }
+</div>

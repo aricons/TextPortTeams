@@ -276,5 +276,43 @@ namespace Testing
             string foo = dt.ToString();
             string bar = foo;
         }
+
+        [TestMethod]
+        public void TestASMXPing()
+        {
+            TextPortASMX.SMSClientSoapClient client = new TextPortASMX.SMSClientSoapClient();
+            string foo = client.Ping();
+        }
+
+        [TestMethod]
+        public void TestSVCPing()
+        {
+            TextPortSVC.TextPortSMSClient client = new TextPortSVC.TextPortSMSClient();
+            string foo = client.Ping();
+        }
+
+        [TestMethod]
+        public void TestASMXSendMessage()
+        {
+            TextPortASMX.SMSClientSoapClient client = new TextPortASMX.SMSClientSoapClient();
+
+            TextPortASMX.TextPortSMSMessage message = new TextPortASMX.TextPortSMSMessage();
+            message.CountryCode = "US";
+            message.MessageText = "Test Messge";
+            message.MobileNumber = "9492339386";
+
+            List<TextPortASMX.TextPortSMSMessage> messageList = new List<TextPortASMX.TextPortSMSMessage>();
+            messageList.Add(message);
+
+            TextPortASMX.TextPortSMSMessages messages = new TextPortASMX.TextPortSMSMessages();
+            messages.UserName = "regley";
+            messages.Password = "re6744";
+            messages.Messages = messageList.ToArray();
+
+            TextPortASMX.TextPortSMSResponses responses = client.SendMessages(messages);
+
+            var foo = responses;
+        }
+
     }
 }

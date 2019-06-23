@@ -328,6 +328,8 @@ namespace TextPortCore.Data
 
                 entity.Property(e => e.MessageType).HasDefaultValueSql("((0))");
 
+                entity.Property(e => e.Segments).HasColumnType("smallint");
+
                 //entity.Property(e => e.FromEmail)
                 //    .HasMaxLength(60)
                 //    .IsUnicode(false);

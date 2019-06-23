@@ -7,12 +7,24 @@ using System.Globalization;
 using System.Text.RegularExpressions;
 using System.Diagnostics;
 using System.Net.Mail;
+using System.Security.Claims;
 using System.Web;
 
 namespace TextPortCore.Helpers
 {
     public static class Utilities
     {
+        public static int GetAccountIdFromClaim(ClaimsPrincipal claim)
+        {
+            if (claim != null)
+            {
+                string accountIdStr = claim.FindFirst("AccountId").Value;
+                return (!string.IsNullOrEmpty(accountIdStr)) ? Convert.ToInt32(accountIdStr) : 0;
+            }
+
+            return 0;
+        }
+
         public static bool IsValidEmail(string email)
         {
             if (string.IsNullOrWhiteSpace(email))

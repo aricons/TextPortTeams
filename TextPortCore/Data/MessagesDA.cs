@@ -42,7 +42,7 @@ namespace TextPortCore.Data
         {
             try
             {
-                return _context.Messages.Include(m => m.MMSFiles).Where(x => x.VirtualNumberId == virtualNumberId).OrderByDescending(x => x.MessageId).ToList();
+                return _context.Messages.Include(m => m.MMSFiles).Where(x => x.VirtualNumberId == virtualNumberId).OrderByDescending(x => x.TimeStamp).ToList();
             }
             catch (Exception ex)
             {
@@ -84,8 +84,7 @@ namespace TextPortCore.Data
                     .Where(m => m.AccountId == accountId
                         && m.VirtualNumberId == virtualNumberId
                         && m.MobileNumber == number
-                        && m.MessageType != (byte)MessageTypes.Notification)
-                    .ToList();
+                        && m.MessageType != (byte)MessageTypes.Notification).OrderBy(x => x.TimeStamp).ToList();
             }
             catch (Exception ex)
             {
@@ -112,7 +111,7 @@ namespace TextPortCore.Data
                                     TimeStamp = x.TimeStamp,
                                     Message = x.MessageText,
                                     IsActiveMessage = false
-                                }).OrderByDescending(x => x.MessageId).FirstOrDefault()
+                                }).OrderByDescending(x => x.TimeStamp).FirstOrDefault()
                             };
 
                 return query.OrderByDescending(x => x.Message.TimeStamp).Select(x => x.Message).ToList();
@@ -141,7 +140,7 @@ namespace TextPortCore.Data
                                     TimeStamp = x.TimeStamp,
                                     Message = x.MessageText,
                                     IsActiveMessage = false
-                                }).OrderByDescending(x => x.MessageId).FirstOrDefault()
+                                }).OrderByDescending(x => x.TimeStamp).FirstOrDefault()
                             };
 
                 return query.OrderByDescending(x => x.Message.TimeStamp).Select(x => x.Message).ToList();

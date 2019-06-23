@@ -302,6 +302,7 @@ namespace TextPortCore.Integrations.Bandwidth
                     result += "Gateway Message ID: " + messageIn.GatewayMessageId + "\r\n";
                     result += "Account Id: " + messageIn.AccountId.ToString() + "\r\n";
                     result += "Message: " + messageIn.MessageText + "\r\n";
+                    result += "Segments: " + messageIn.Segments + "\r\n";
                     result += "Data Received: " + jsonPayload + "\r\n";
 
                     decimal newBalance = 0;
@@ -335,7 +336,7 @@ namespace TextPortCore.Integrations.Bandwidth
                                 {
                                     result += $"SMS forwarding enabled. Sending notification to {account.ForwardVnmessagesTo}. ";
                                     // Check whether the user has a credit balance
-                                    if (account.Balance > 1)
+                                    if (account.Balance > 0.10M)
                                     {
                                         result += $"Balance is {account.Balance:C}. OK. ";
                                         // Send the message from the same virtual number on which it was received.

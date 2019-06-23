@@ -14,6 +14,9 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TextPort", "TextPort\TextPort.csproj", "{A260FBCC-3AC4-45E5-9924-3BC2AAC1175F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Testing", "Testing\Testing.csproj", "{AAD17C38-1C33-4B88-B7BB-9C0BE05BF75D}"
+	ProjectSection(ProjectDependencies) = postProject
+		{A260FBCC-3AC4-45E5-9924-3BC2AAC1175F} = {A260FBCC-3AC4-45E5-9924-3BC2AAC1175F}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

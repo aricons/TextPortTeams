@@ -233,7 +233,7 @@ function registration_complete(purchaseType) {
 
 function renderPayPalButton() {
     paypal.Button.render({
-        env: 'sandbox', // sandbox | production
+        env: 'production', // sandbox | production
         style: {
             layout: 'vertical',  // horizontal | vertical
             size: 'medium',    // medium | large | responsive
@@ -257,7 +257,7 @@ function renderPayPalButton() {
         commit: true,
 
         client: {
-            sandbox: 'Ac6TTAGnmNme-wJJSdgU6rm8SSyW5nSc757nHhsqNWDz3X7lOa8Yx3eE-96JK-Z2YbN3N54PE_oRRGbO',
+            //sandbox: 'Ac6TTAGnmNme-wJJSdgU6rm8SSyW5nSc757nHhsqNWDz3X7lOa8Yx3eE-96JK-Z2YbN3N54PE_oRRGbO',
             production: 'AUjK3Zugk_dkKu2ScI-f1S-8Ibxu99MeiuS9MSzogMOiEyKUa8Q4kz5L-wHfMxqZhF3p7ZjIm_64Ju_q'
         },
 

@@ -19,8 +19,7 @@ namespace TextPort.Controllers
         [HttpGet]
         public ActionResult Main()
         {
-            string accountIdStr = System.Security.Claims.ClaimsPrincipal.Current.FindFirst("AccountId").Value;
-            int accountId = Convert.ToInt32(accountIdStr);
+            int accountId = Utilities.GetAccountIdFromClaim(ClaimsPrincipal.Current);
             if (accountId > 0)
             {
                 MessagingContainer mc = new MessagingContainer(accountId);
@@ -87,8 +86,8 @@ namespace TextPort.Controllers
         {
             try
             {
-                string accountIdStr = ClaimsPrincipal.Current.FindFirst("AccountId").Value;
-                message.AccountId = Convert.ToInt32(accountIdStr);
+                int accountId = Utilities.GetAccountIdFromClaim(ClaimsPrincipal.Current);
+                message.AccountId = accountId;
                 message.TimeStamp = DateTime.UtcNow;
                 message.MessageType = (byte)MessageTypes.Normal;
                 message.Direction = (byte)MessageDirection.Outbound;
@@ -168,7 +167,7 @@ namespace TextPort.Controllers
         public ActionResult DeleteMMSFile([System.Web.Http.FromBody] FileNameParameter fileNameParam)
         {
             string responseMesssage = string.Empty;
-            string accountIdStr = System.Security.Claims.ClaimsPrincipal.Current.FindFirst("AccountId").Value;
+            string accountIdStr = ClaimsPrincipal.Current.FindFirst("AccountId").Value;
 
             try
             {

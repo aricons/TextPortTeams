@@ -181,14 +181,14 @@ namespace TextPortCore.Data
             return false;
         }
 
-        public bool SetComplimentaryNumberFlag(int accountId, byte flagValue)
+        public bool SetComplimentaryNumberFlag(int accountId, ComplimentaryNumberStatus flagValue)
         {
             try
             {
                 Account acc = GetAccountById(accountId);
                 if (acc != null)
                 {
-                    acc.ComplimentaryNumber = flagValue;
+                    acc.ComplimentaryNumber = (byte)flagValue;
                     SaveChanges();
 
                     return true;
