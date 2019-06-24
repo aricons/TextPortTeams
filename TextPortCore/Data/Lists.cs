@@ -155,6 +155,38 @@ namespace TextPortCore.Data
             return null;
         }
 
+        public IEnumerable<SelectListItem> GetPooledNumbersList()
+        {
+            try
+            {
+                List<SelectListItem> pooledNumbers = _context.PooledNumbers
+                .OrderBy(pn => pn.VirtualNumber)
+                    .Select(pn =>
+                    new SelectListItem
+                    {
+                        Value = pn.VirtualNumber,
+                        Text = Utilities.NumberToDisplayFormat(pn.VirtualNumber, 22)
+                    }).ToList();
+
+                SelectListItem firstItem = new SelectListItem()
+                {
+                    Value = null,
+                    Text = "--- select a number ---"
+                };
+
+                pooledNumbers.Insert(0, firstItem);
+
+                return new SelectList(pooledNumbers, "Value", "Text");
+            }
+            catch (Exception ex)
+            {
+                ErrorHandling eh = new ErrorHandling();
+                eh.LogException("Lists.GetPooledNumbers", ex);
+            }
+
+            return null;
+        }
+
         public IEnumerable<SelectListItem> GetTollFreeAreaCodes()
         {
             try

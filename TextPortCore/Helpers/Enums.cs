@@ -29,6 +29,22 @@ namespace TextPortCore.Helpers
         ASMX = 6
     }
 
+    public enum NumberTypes : byte
+    {
+        [Description("Regular")]
+        Regular = 1,
+        [Description("Pooled")]
+        Pooled = 2,
+        [Description("Reserved")]
+        Reserved = 3
+    }
+
+    public enum Countries : int
+    {
+        [Description("United States")]
+        UnitedStates = 22
+    }
+
     public enum Carriers : int
     {
         [Description("Bandwidth.com")]

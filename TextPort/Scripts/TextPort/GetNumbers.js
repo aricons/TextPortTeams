@@ -21,7 +21,6 @@
         if ($("#form-signup").valid()) {
 
             generateProductDescription();
-
             var purchaseType = $('#PurchaseType').val();
             if (purchaseType === "ComplimentaryNumber") {
                 submitPurchase();
@@ -345,7 +344,9 @@ function submitPurchase() {
         PayPalCustom: $('#PayPalCustom').val(),
         PurchaseTitle: $('#PurchaseTitle').val(),
         ProductDescription: $('#ProductDescription').val(),
-        CreditPurchaseAmount: $('#CreditPurchaseAmount').val()
+        CreditPurchaseAmount: $('#CreditPurchaseAmount').val(),
+        NumberType: $('#NumberType').val(),
+        FreeTrial: $('#FreeTrial').val()
     };
 
     var url = '/account/postpurchase';

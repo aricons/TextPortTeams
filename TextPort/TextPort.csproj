@@ -280,6 +280,7 @@
     <Compile Include="Controllers\MessagesController.cs" />
     <Compile Include="Controllers\NumbersController.cs" />
     <Compile Include="Controllers\PayPalController.cs" />
+    <Compile Include="Controllers\TrialController.cs" />
     <Compile Include="DependencyInjection.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -497,6 +498,8 @@
     <Content Include="Views\Group\Index.cshtml" />
     <Content Include="Views\Group\_ResultsList.cshtml" />
     <Content Include="Views\Group\_MemberList.cshtml" />
+    <Content Include="Views\Trial\Index.cshtml" />
+    <Content Include="Views\Account\RegistrationComplete.cshtml" />
     <None Include="Web.Production.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

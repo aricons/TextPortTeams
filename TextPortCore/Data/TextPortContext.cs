@@ -34,6 +34,7 @@ namespace TextPortCore.Data
         public virtual DbSet<PurchaseTransaction> PurchaseTransactions { get; set; }
         public virtual DbSet<SupportRequest> SupportRequests { get; set; }
         public virtual DbSet<VirtualNumberCountry> VirtualNumberCountries { get; set; }
+        public virtual DbSet<PooledNumber> PooledNumbers { get; set; }
         public virtual DbSet<Models.TimeZone> TimeZones { get; set; }
 
         //public static readonly LoggerFactory _loggerFactory = new LoggerFactory(new[] {
@@ -84,6 +85,8 @@ namespace TextPortCore.Data
                     .IsUnicode(false);
 
                 entity.Property(e => e.Enabled).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.RegisteredAsTrial).HasDefaultValueSql("((0))");
 
                 entity.Property(e => e.EnableEmailNotifications).HasDefaultValueSql("((0))");
 
@@ -194,6 +197,8 @@ namespace TextPortCore.Data
                     .IsRequired()
                     .HasMaxLength(4)
                     .IsUnicode(false);
+
+                entity.Property(e => e.NumberType).HasColumnType("tinyint").HasDefaultValueSql("((0))");
 
                 entity.Property(e => e.CreateDate).HasColumnType("datetime");
 
@@ -330,18 +335,6 @@ namespace TextPortCore.Data
 
                 entity.Property(e => e.Segments).HasColumnType("smallint");
 
-                //entity.Property(e => e.FromEmail)
-                //    .HasMaxLength(60)
-                //    .IsUnicode(false);
-
-                //entity.Property(e => e.FromNumber)
-                //   .HasMaxLength(30)
-                //   .IsUnicode(false);
-
-                //entity.Property(e => e.GatewayEmail)
-                //    .HasMaxLength(60)
-                //    .IsUnicode(false);
-
                 entity.Property(e => e.GatewayMessageId)
                     .HasColumnName("GatewayMessageID")
                     .HasMaxLength(40)
@@ -379,33 +372,7 @@ namespace TextPortCore.Data
                     .HasMaxLength(250)
                     .IsUnicode(false);
 
-                //entity.Property(e => e.RoutingType)
-                //    .HasMaxLength(10)
-                //    .IsUnicode(false);
-
-                //entity.Property(e => e.SmtphostName)
-                //    .HasColumnName("SMTPHostName")
-                //    .HasMaxLength(60)
-                //    .IsUnicode(false);
-
-                //entity.Property(e => e.Subject)
-                //    .HasMaxLength(60)
-                //    .IsUnicode(false);
-
                 entity.Property(e => e.TimeStamp).HasColumnType("datetime");
-
-                //entity.Property(e => e.UniqueMessageId)
-                //    .HasColumnName("UniqueMessageID")
-                //    .HasMaxLength(10)
-                //    .IsUnicode(false);
-
-                //entity.Property(e => e.VirtualNumber)
-                //    .HasMaxLength(18)
-                //    .IsUnicode(false);
-
-                //entity.Ignore(e => e.MMSFiles);
-
-                //this.HasRequired(t => t.V).WithMany(t => t.CustomerIntegrationTransactionReferences).HasForeignKey(d => d.CustomerIntegrationDetailID);
             });
 
             modelBuilder.Entity<MMSFile>(entity =>
@@ -512,6 +479,19 @@ namespace TextPortCore.Data
                 entity.Property(e => e.RequestType).HasColumnType("byte");
 
                 entity.Property(e => e.TimeStamp).HasColumnType("datetime");
+            });
+
+            modelBuilder.Entity<PooledNumber>(entity =>
+            {
+                entity.ToTable("PooledNumbers");
+
+                entity.HasKey(e => e.PooledNumberId);
+
+                entity.Property(e => e.CarrierId);
+
+                entity.Property(e => e.VirtualNumber).HasMaxLength(20);
+
+                entity.Property(e => e.Description).HasMaxLength(40);
             });
 
             modelBuilder.Entity<Models.TimeZone>(entity =>

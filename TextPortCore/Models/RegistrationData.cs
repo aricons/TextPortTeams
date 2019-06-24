@@ -36,6 +36,8 @@ namespace TextPortCore.Models
         private decimal baseNumberCost;
         private decimal baseSMSCost;
         private bool showAnnouncementBanner;
+        private bool freeTrial;
+        private NumberTypes numberType;
 
         public string PurchaseType
         {
@@ -114,6 +116,12 @@ namespace TextPortCore.Models
         {
             get { return this.virtualNumber; }
             set { this.virtualNumber = value; }
+        }
+
+        public NumberTypes NumberType
+        {
+            get { return this.numberType; }
+            set { this.numberType = value; }
         }
 
         public string NumberDisplayFormat
@@ -225,6 +233,9 @@ namespace TextPortCore.Models
                     case "VirtualNumberRenew":
                         return $"Renew Number {this.NumberDisplayFormat}";
 
+                    case "FreeTrial":
+                        return $"Free Trial";
+
                     case "Credit":
                         string cost = (this.TotalCost > 0) ? $" {this.TotalCost:C2}" : string.Empty;
                         return $"Add{cost} TextPort Credit.";
@@ -271,6 +282,12 @@ namespace TextPortCore.Models
             set { this.showAnnouncementBanner = value; }
         }
 
+        public bool FreeTrial
+        {
+            get { return this.freeTrial; }
+            set { this.freeTrial = value; }
+        }
+
         public IEnumerable<SelectListItem> CountriesList { get; set; }
 
         public IEnumerable<SelectListItem> NumbersList { get; set; }
@@ -307,6 +324,8 @@ namespace TextPortCore.Models
             this.BaseNumberCost = Constants.BaseNumberCost;
             this.BaseSMSCost = Constants.BaseSMSMessageCost;
             this.ShowAnnouncementBanner = false;
+            this.FreeTrial = false;
+            this.NumberType = NumberTypes.Regular;
 
             // Initialize the numbers drop-down.
             List<SelectListItem> numbers = new List<SelectListItem>();
@@ -337,18 +356,29 @@ namespace TextPortCore.Models
             this.BaseNumberCost = Constants.BaseNumberCost;
             this.BaseSMSCost = Constants.BaseSMSMessageCost;
             this.ShowAnnouncementBanner = false;
+            this.FreeTrial = false;
+            this.NumberType = NumberTypes.Regular;
 
             if (purcType == "ComplimentaryNumber")
             {
                 this.BaseNumberCost = 0;
                 this.LeasePeriod = 1;
             }
-
-            if (purcType == "Credit")
+            else if (purcType == "Credit")
             {
                 this.BaseNumberCost = 0;
                 this.LeasePeriod = 0;
                 this.BaseNumberCost = 0;
+            }
+            else if (purcType == "FreeTrial")
+            {
+                this.BaseNumberCost = 0;
+                this.LeasePeriod = 1;
+                this.BaseNumberCost = 0;
+                this.NumberType = NumberTypes.Pooled;
+                this.FreeTrial = true;
+                this.CreditPurchaseAmount = Constants.InitialFreeTrialBalanceAllocation;
+                this.BaseNumberCost = Constants.Free;
             }
 
             // Initialize the numbers drop-down.
@@ -376,6 +406,14 @@ namespace TextPortCore.Models
                     {
                         this.CreditCurrentBalance = acc.Balance;
                     }
+                }
+                else if (this.PurchaseType == "FreeTrial")
+                {
+                    this.BaseNumberCost = 0;
+                    this.LeasePeriod = 0;
+                    this.BaseNumberCost = 0;
+                    this.NumbersList = da.GetPooledNumbersList();
+                    this.NumberCountryId = (int)Countries.UnitedStates;
                 }
             }
         }

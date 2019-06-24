@@ -174,6 +174,40 @@ namespace TextPortCore.Data
             return null;
         }
 
+        public DedicatedVirtualNumber GetVirtualNumberByNumberAndOriginatingMobileNumber(string virtualNumber, string mobileNumber)
+        {
+            try
+            {
+                // This method is used to match pooled numbers to the accounts that messages originated from.
+                // A match is made by matching the virtual number of an inbound message to a virtual number from 
+                // the list of pooled numbers, then also finding an existing message that was previously sent that
+                // matches the senders number of an inbound message.
+                var query = from dvn in _context.DedicatedVirtualNumbers.AsQueryable()
+                            join msg in _context.Messages on dvn.VirtualNumberId equals msg.VirtualNumberId
+                            where dvn.NumberType == (byte)NumberTypes.Pooled &&
+                                dvn.VirtualNumber == virtualNumber && msg.MobileNumber == mobileNumber &&
+                                msg.Direction == (byte)MessageDirection.Outbound &&
+                                msg.MessageType != (byte)MessageTypes.Notification
+                            orderby
+                                msg.MessageId descending
+                            select new DedicatedVirtualNumber()
+                            {
+                                AccountId = dvn.AccountId,
+                                VirtualNumber = dvn.VirtualNumber,
+                                VirtualNumberId = dvn.VirtualNumberId,
+                                NumberType = dvn.NumberType
+                            };
+
+                return query.FirstOrDefault();
+            }
+            catch (Exception ex)
+            {
+                ErrorHandling eh = new ErrorHandling();
+                eh.LogException("MessagesDA.GetVirtualNumberByNumberAndOriginatingMobileNumber", ex);
+            }
+            return null;
+        }
+
         #endregion
 
         #region "Update Methods"

@@ -17,6 +17,8 @@ namespace TextPortCore.Models
 
         public string CountryCode { get; set; }
 
+        public byte NumberType { get; set; }
+
         [Required(ErrorMessage = "A number is required")]
         [Display(Name = "Number")]
         public string VirtualNumber { get; set; }

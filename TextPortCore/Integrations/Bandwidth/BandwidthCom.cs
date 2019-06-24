@@ -27,12 +27,10 @@ namespace TextPortCore.Integrations.Bandwidth
         private string accountBaseUrl = $"https://dashboard.bandwidth.com/api/accounts/{Constants.Bandwidth.AccountId}";
         private string messageBaseUrl = $"https://messaging.bandwidth.com/api/v2/users/{Constants.Bandwidth.AccountId}";
 
-        //private readonly TextPortContext _context;
         private readonly RestClient _client;
 
         public Bandwidth()
         {
-            //this._context = context;
             this._client = new RestClient();
             this._client.Authenticator = new HttpBasicAuthenticator(Constants.Bandwidth.ApiToken, Constants.Bandwidth.ApiSecret);
         }
@@ -284,12 +282,37 @@ namespace TextPortCore.Integrations.Bandwidth
                 {
                     int accountId = 0;
                     int virtualNumberId = 0;
+                    string pooledNumberSearchResult = string.Empty;
 
-                    DedicatedVirtualNumber dvn = da.GetVirtualNumberByNumber(bwMessage.to.Replace("+", ""), true);
+                    DedicatedVirtualNumber dvn = null;
+
+                    dvn = da.GetVirtualNumberByNumber(bwMessage.to.Replace("+", ""), true);
                     if (dvn != null)
                     {
-                        accountId = dvn.AccountId;
-                        virtualNumberId = dvn.VirtualNumberId;
+                        // First check whether this number is a free trial pool number. If so, perform and additional lookup for an outgoing 
+                        // message with a destination number that matches the sending number of the message being received.
+                        if (dvn.NumberType == (byte)NumberTypes.Pooled)
+                        {
+                            if (bwMessage.message != null)
+                            {
+                                dvn = da.GetVirtualNumberByNumberAndOriginatingMobileNumber(bwMessage.to.Replace("+", ""), bwMessage.message.from.Replace("+", ""));
+                                if (dvn != null)
+                                {
+                                    accountId = dvn.AccountId;
+                                    virtualNumberId = dvn.VirtualNumberId;
+                                    pooledNumberSearchResult = $"A pooled number match on virtual number {bwMessage.to.Replace("+", "")} and mobile number {bwMessage.message.from.Replace("+", "")} was made.";
+                                }
+                                else
+                                {
+                                    pooledNumberSearchResult = pooledNumberSearchResult = $"A pooled match search failed on virtual number {bwMessage.to.Replace("+", "")} and mobile number {bwMessage.message.from.Replace("+", "")}.";
+                                }
+                            }
+                        }
+                        else // Regular non-pooled number
+                        {
+                            accountId = dvn.AccountId;
+                            virtualNumberId = dvn.VirtualNumberId;
+                        }
                     }
 
                     Message messageIn = new Message(bwMessage, accountId, virtualNumberId);
@@ -303,6 +326,14 @@ namespace TextPortCore.Integrations.Bandwidth
                     result += "Account Id: " + messageIn.AccountId.ToString() + "\r\n";
                     result += "Message: " + messageIn.MessageText + "\r\n";
                     result += "Segments: " + messageIn.Segments + "\r\n";
+                    if (!string.IsNullOrEmpty(pooledNumberSearchResult))
+                    {
+                        result += "Pooled Number Status: " + pooledNumberSearchResult + "\r\n";
+                    }
+                    else
+                    {
+                        result += "Pooled Number Status: Message not sent to a pooled number.\r\n";
+                    }
                     result += "Data Received: " + jsonPayload + "\r\n";
 
                     decimal newBalance = 0;

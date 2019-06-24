@@ -14,7 +14,11 @@ namespace TextPortCore.Helpers
 
         public static decimal InitialBalanceAllocation = 0.75M; // 50 messages @ $0.015 each.
 
+        public static decimal InitialFreeTrialBalanceAllocation = 0.30M; // 20 messages @ $0.015 each.
+
         public static decimal BaseSMSMessageCharge = 0.004M;
+
+        public static decimal Free = 0M;
 
         public static string RC4Key = "tH33nCrYpT10nK3y";
 

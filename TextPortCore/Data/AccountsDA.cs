@@ -211,10 +211,17 @@ namespace TextPortCore.Data
         {
             try
             {
+                Account existingAccount = _context.Accounts.FirstOrDefault(x => x.UserName == rd.UserName && x.Enabled == false);
+                if (existingAccount != null)
+                {
+                    _context.Accounts.Remove(existingAccount);
+                }
+
                 Account newAccount = new Account();
 
                 newAccount.CreateDate = DateTime.UtcNow;
-                newAccount.Balance = 0;
+                newAccount.Balance = rd.CreditPurchaseAmount;
+                newAccount.Enabled = true;
                 newAccount.Deleted = false;
                 newAccount.Email = rd.EmailAddress;
                 newAccount.LastLogin = null;
@@ -224,8 +231,14 @@ namespace TextPortCore.Data
                 newAccount.Password = AESEncryptDecrypt.Encrypt(rd.Password, Constants.RC4Key);
                 newAccount.TimeZoneId = 5;
                 newAccount.UserName = rd.UserName;
+                newAccount.ComplimentaryNumber = 0;
+                newAccount.RegisteredAsTrial = rd.FreeTrial;
 
-                return 1234;
+                _context.Accounts.Add(newAccount);
+
+                _context.SaveChanges();
+
+                return newAccount.AccountId;
             }
             catch (Exception ex)
             {

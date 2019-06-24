@@ -1,0 +1,109 @@
+﻿@model TextPortCore.Models.RegistrationData
+@{
+    ViewBag.Title = "TextPort - Free Trial";
+}
+
+<script src="~/scripts/TextPort/GetNumbers.js"></script>
+
+<script type="text/javascript">
+    $(function () {
+        $("#UserName").focus();
+    });
+</script>
+
+<div class="card">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-12">
+                <h4>Free 15-Day Trial</h4>
+                <hr>
+            </div>
+        </div>
+        @using (Html.BeginForm("PostPurchase", "Account", FormMethod.Post, new { id = "form-signup" }))
+        {
+            @Html.AntiForgeryToken()
+            @Html.HiddenFor(m => m.NumberCost)
+            @Html.HiddenFor(m => m.PurchaseType)
+            @Html.HiddenFor(m => m.PayPalCustom)
+            @Html.HiddenFor(m => m.VirtualNumberId)
+            @Html.HiddenFor(m => m.PurchaseTitle)
+            @Html.HiddenFor(m => m.ProductDescription)
+            @Html.HiddenFor(m => m.CompletionTitle)
+            @Html.HiddenFor(m => m.CompletionMessage)
+            @Html.HiddenFor(m => m.BaseNumberCost)
+            @Html.HiddenFor(m => m.BaseSMSCost)
+            @Html.HiddenFor(m => m.NumberType)
+            @Html.HiddenFor(m => m.FreeTrial)
+            @Html.HiddenFor(m => m.NumberCountryId)
+            @Html.HiddenFor(m => m.LeasePeriod)
+            @Html.HiddenFor(m => m.CreditPurchaseAmount)
+
+            <input type="hidden" id="hidTotalCost" value="0" />
+
+            <div class="row">
+                <div class="offset-1 col-md-5">
+                    <div class="form-group">
+                        <p class="mb-1"><strong>Try TextPort with a 15-Day FREE trial</strong>.</p>
+                        <p>No credit card required. Access all TextPort features. Free credit provided.</p>
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.UserName, new { @class = "form-label" })
+                        @Html.TextBoxFor(m => m.UserName, new { @class = "form-control", placeholder = "User name" })
+                        @Html.ValidationMessageFor(m => m.UserName, null, new { @class = "text-danger" })
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.EmailAddress, new { @class = "form-label" })
+                        @Html.TextBoxFor(m => m.EmailAddress, new { @class = "form-control", placeholder = "Email address" })
+                        @Html.ValidationMessageFor(m => m.EmailAddress, null, new { @class = "text-danger" })
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.Password, new { @class = "form-label" })
+                        @Html.TextBoxFor(m => m.Password, new { @class = "form-control", placeholder = "Password", @type = "password" })
+                        @Html.ValidationMessageFor(m => m.Password, null, new { @class = "text-danger" })
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.ConfirmPassword, new { @class = "form-label" })
+                        @Html.TextBoxFor(m => m.ConfirmPassword, new { @class = "form-control", placeholder = "Confirm password", @type = "password" })
+                        @Html.ValidationMessageFor(m => m.ConfirmPassword, null, new { @class = "text-danger" })
+                    </div>
+                    <div class="form-group">
+                        &nbsp;
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12">
+                    <h5>Select a Number</h5>
+                    <hr>
+                </div>
+            </div>
+            <div class="row">
+                <div class="offset-1 col-md-5">
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.VirtualNumber, new { @class = "form-label" })
+                        @Html.DropDownListFor(m => m.VirtualNumber, new SelectList(Model.NumbersList, "Value", "Text"), new { @class = "form-control" })
+                        @Html.ValidationMessageFor(m => m.VirtualNumber, null, new { @class = "text-danger" })
+                        <div class="subscript">When opening a regular account you will have the option to choose a number from any area code. Trial numbers are allocated from a pool.</div>
+                    </div>
+                    <div class="form-group">
+                        <button id="btnFreeTrial" type="submit" class="btn btn-primary">Start my Trial</button>
+                    </div>
+                    <div class="form-group">
+                        <div class="subscript">
+                            By clicking the <i>Start my Trial</i> button, you agree to our <a href="/terms">Terms of Use</a> and <a href="/privacy">Privacy Policy</a>.
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="subscript">
+                            Trial numbers require that an initial message be sent to a target mobile number before inbound messages can be received from that number.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+<div id="purchaseModalCont" class="modal hide fade in">
+</div>
+<div id="postPurchaseModalCont" class="modal hide fade in">
+</div>

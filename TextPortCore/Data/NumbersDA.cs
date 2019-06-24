@@ -95,6 +95,20 @@ namespace TextPortCore.Data
             return new List<DedicatedVirtualNumber>();
         }
 
+        public List<PooledNumber> GetPooledNumbers()
+        {
+            try
+            {
+                return _context.PooledNumbers.Where(x => x.Enabled == true).OrderBy(x => x.VirtualNumber).ToList();
+            }
+            catch (Exception ex)
+            {
+                ErrorHandling eh = new ErrorHandling();
+                eh.LogException("NumbersDA.GetPooledNumbers", ex);
+            }
+            return new List<PooledNumber>();
+        }
+
         #endregion
 
         #region "Insert Methods"
@@ -103,14 +117,26 @@ namespace TextPortCore.Data
         {
             try
             {
+                DateTime expirationDate = DateTime.UtcNow.AddMonths(1);
+                if (rd.FreeTrial)
+                {
+                    expirationDate = DateTime.UtcNow.AddDays(15);
+                }
+                else
+                {
+                    expirationDate = (rd.LeasePeriod > 0) ? DateTime.UtcNow.AddMonths(rd.LeasePeriod) : DateTime.UtcNow.AddMonths(1);
+                }
+                expirationDate = expirationDate.AddHours(-12);
+
                 DedicatedVirtualNumber number = new DedicatedVirtualNumber()
                 {
                     AccountId = rd.AccountId,
                     CancellationFailureCount = 0,
                     Cancelled = false,
                     CountryCode = rd.NumberCountryId.ToString(),
+                    NumberType = (byte)rd.NumberType,
                     CreateDate = DateTime.Now,
-                    ExpirationDate = DateTime.Now.AddMonths(rd.LeasePeriod),
+                    ExpirationDate = expirationDate,
                     IsDefault = true,
                     Fee = rd.TotalCost,
                     Provider = rd.NumberProvider,

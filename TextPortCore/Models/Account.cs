@@ -31,14 +31,13 @@ namespace TextPortCore.Models
         [Display(Name = "Date Created")]
         public DateTime CreateDate { get; set; }
 
+        public bool RegisteredAsTrial { get; set; }
+
         [Display(Name = "Last Login")]
         public DateTime? LastLogin { get; set; }
 
         [Display(Name = "Login Count")]
         public int LoginCount { get; set; }
-
-        //[Display(Name = "Credits")]
-        //public int Credits { get; set; }
 
         [Display(Name = "Balance")]
         public decimal Balance { get; set; }

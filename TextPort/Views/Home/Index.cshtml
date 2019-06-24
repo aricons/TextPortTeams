@@ -8,7 +8,11 @@
     <img class="d-flex d-xl-flex align-items-center align-content-center m-auto align-items-xl-center" src="~/content/images/tp_logo_240x54.png" alt="TextPort Logo" width="300">
     <h1>Text Messaging Portal</h1>
     <p class="lead">A text messaging service for business, groups and individuals. Send and receive messages, notifications and alerts from virtual mobile numbers without using your personal mobile device.</p>
-    <p>@Html.ActionLink("Sign Up", "SignUp", "Account", null, htmlAttributes: new { @class = "btn btn-lg btn-success center-block", id = "sup_link" })</p>
+    <p>
+        @Html.ActionLink("Sign Up", "SignUp", "Account", null, htmlAttributes: new { @class = "btn btn-lg btn-success center-block", id = "sup_link" })
+        <span class="ml-4 mr-4">&nbsp;</span>
+        @Html.ActionLink("Free Trial", "Index", "Trial", null, htmlAttributes: new { @class = "btn btn-lg btn-warning center-block" })
+    </p>
 </div>
 
 <div class="features-boxed">

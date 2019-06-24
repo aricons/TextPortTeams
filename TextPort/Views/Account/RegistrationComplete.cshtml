@@ -1,0 +1,45 @@
+﻿@using TextPortCore.Models
+@model RegistrationData
+@{
+    ViewBag.Title = "Trial Registration Complete";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container">
+    <br />
+    <div class="card">
+        <div class="card-header">
+            <h4>@Model.CompletionTitle</h4>
+        </div>
+        <div class="card-body">
+            @if (@Model.Success)
+            {
+                <br />
+                <h5>
+                    Your free trial account <strong>@Model.UserName</strong> was successfully registered. Your number <strong>@Model.NumberDisplayFormat</strong> is ready for use.
+                    You have <strong>@String.Format("{0:C2}", Model.CreditPurchaseAmount)</strong> free credit, which is good for approximately 20 SMS messages.
+                </h5>
+                <br />
+                <p>
+                    A reminder that trial accounts require you to first send a message to a number before you can receive messages from that number.
+                    Otherwise, your trial account has all the same features as a regular account.
+                </p>
+
+                <br />
+                <h5 class="text-center font-weight-bold">
+                    <a href="/account/profile">Update Your Profile</a>&nbsp;&nbsp;or&nbsp;&nbsp;<a href="/messages/main">Start Sending Messages</a>
+                </h5>
+                <br />
+                <p>Thanks for trying TextPort</p>
+                <br />
+            }
+            else
+            {
+                <h5>There was a problem registering your account.</h5>
+                <br />
+                <p>@Model.CompletionMessage</p>
+            }
+
+        </div>
+    </div>
+</div>
