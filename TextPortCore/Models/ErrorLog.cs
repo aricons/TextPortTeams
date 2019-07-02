@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace TextPortCore.Models
 {
@@ -9,6 +8,7 @@ namespace TextPortCore.Models
         public DateTime ErrorDateTime { get; set; }
         public string ProgramName { get; set; }
         public string ErrorMessage { get; set; }
+        public string InnerException { get; set; }
         public string Details { get; set; }
     }
 }

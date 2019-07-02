@@ -16,14 +16,14 @@
 
 <div class="row">
     @Html.Partial("_SideMenuBar")
-    <div class="col-md-9">
+    <div class="col-12 col-md-9">
         <div class="card">
             <div class="card-header">
                 <h4>My Balance</h4>
             </div>
             <div class="card-body">
                 <div class="row">
-                    <div class="offset-1 col-md-7">
+                    <div class="offset-md-1 col-md-7">
                         <div class="form-group">
                             @Html.LabelFor(m => m.CreditCurrentBalance, new { @class = "form-label" })
                             <label id="VirtualNumberLabel" class="col-4 form-label font-weight-bold">@String.Format("{0:C3}", Model.CreditCurrentBalance)</label>
@@ -56,15 +56,15 @@
 
                     <input type="hidden" id="hidTotalCost" value="0" />
                     <div class="row">
-                        <div class="offset-1 col-md-7">
+                        <div class="offset-md-1 col-md-7">
                             <div class="form-group">
                                 @Html.LabelFor(m => m.CreditPurchaseAmount, new { @class = "form-label" })
-                                @Html.DropDownListFor(m => m.CreditPurchaseAmount, new SelectList(Model.CreditAmountsList, "Value", "Text"), new { @class = " col-8 form-control" })
+                                @Html.DropDownListFor(m => m.CreditPurchaseAmount, new SelectList(Model.CreditAmountsList, "Value", "Text"), new { @class = " col-12 col-lg-8 form-control" })
                                 @Html.ValidationMessageFor(m => m.CreditPurchaseAmount, null, new { @class = "text-danger" })
                             </div>
                             <div class="form-group">
                                 @Html.LabelFor(m => m.TotalCost, new { @class = "form-label" })
-                                <label id="TotalCost" class="col-7 form-label"></label>
+                                <label id="TotalCost" class="col-12 col-md-7 form-label"></label>
                             </div>
                             <div class="form-group">
                                 <button id="btnContinue" type="button" class="btn btn-primary">Continue to Payment</button>

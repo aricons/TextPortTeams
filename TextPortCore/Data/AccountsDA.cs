@@ -285,7 +285,7 @@ namespace TextPortCore.Data
             catch (Exception ex)
             {
                 ErrorHandling eh = new ErrorHandling();
-                eh.LogException("AccountDA.AddAccount", ex);
+                eh.LogException("AccountDA.AddTemporaryAccount", ex);
             }
 
             return 0;

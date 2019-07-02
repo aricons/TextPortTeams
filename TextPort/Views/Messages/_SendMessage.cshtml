@@ -1,0 +1,9 @@
+﻿@model  TextPortCore.Models.Message
+<div id="@Model.MessageId" class="msg_item outgoing_msg">
+    <div class="sent_msg">
+        <p>
+            @Model.MessageText
+        </p>
+        <span id="td_@Model.MessageId" class="time_date">@string.Format("{0:MMMM dd, yy | hh:mm tt}", Model.TimeStamp)</span>
+    </div>
+</div>

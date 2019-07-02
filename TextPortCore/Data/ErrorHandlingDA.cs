@@ -16,6 +16,7 @@ namespace TextPortCore.Data
                 {
                     Details = details,
                     ErrorDateTime = DateTime.UtcNow,
+                    InnerException = ex.InnerException.Message,
                     ErrorMessage = String.Format("Message: {0}. Stack Trace {1}", ex.Message, ex.StackTrace),
                     ProgramName = programName
                 };

@@ -24,7 +24,7 @@ namespace Testing
 
             ProductionASMX.TextPortSMSMessages messages = new ProductionASMX.TextPortSMSMessages();
             messages.UserName = "regley";
-            messages.Password = "re6744";
+            messages.Password = "Zealand!4";
             messages.Messages = messageList;
 
             ProductionASMX.TextPortSMSResponses responses = client.SendMessages(messages);
@@ -35,24 +35,31 @@ namespace Testing
         [TestMethod]
         public void TestProductionSVC()
         {
-            ProductionSVC.TextPortSMSClient client = new ProductionSVC.TextPortSMSClient();
+            try
+            {
+                ProductionSVC.TextPortSMSClient client = new ProductionSVC.TextPortSMSClient();
 
-            ProductionSVC.TextPortSMSMessage message = new ProductionSVC.TextPortSMSMessage();
-            message.CountryCode = "US";
-            message.MessageText = "Test Messge from SVC service";
-            message.MobileNumber = "9492339386";
+                ProductionSVC.TextPortSMSMessage message = new ProductionSVC.TextPortSMSMessage();
+                message.CountryCode = "US";
+                message.MessageText = "Test Messge from SVC service";
+                message.MobileNumber = "9492339386";
 
-            List<ProductionSVC.TextPortSMSMessage> messageList = new List<ProductionSVC.TextPortSMSMessage>();
-            messageList.Add(message);
+                List<ProductionSVC.TextPortSMSMessage> messageList = new List<ProductionSVC.TextPortSMSMessage>();
+                messageList.Add(message);
 
-            ProductionSVC.TextPortSMSMessages messages = new ProductionSVC.TextPortSMSMessages();
-            messages.UserName = "regley";
-            messages.Password = "re6744";
-            messages.Messages = messageList;
+                ProductionSVC.TextPortSMSMessages messages = new ProductionSVC.TextPortSMSMessages();
+                messages.UserName = "regley";
+                messages.Password = "Zealand!4";
+                messages.Messages = messageList;
 
-            ProductionSVC.TextPortSMSResponses responses = client.SendMessages(messages);
+                ProductionSVC.TextPortSMSResponses responses = client.SendMessages(messages);
 
-            var foo = responses;
+                var foo = responses;
+            }
+            catch (Exception ex)
+            {
+                string foo = ex.Message;
+            }
         }
     }
 }

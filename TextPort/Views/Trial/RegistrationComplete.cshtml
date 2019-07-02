@@ -27,7 +27,7 @@
 
                 <br />
                 <h5 class="text-center font-weight-bold">
-                    <a href="/account/profile">Update Your Profile</a>&nbsp;&nbsp;or&nbsp;&nbsp;<a href="/messages/main">Start Sending Messages</a>
+                    <a href="/account/profile">Update Your Profile</a>&nbsp;&nbsp;or&nbsp;&nbsp;<a href="/messages">Start Sending Messages</a>
                 </h5>
                 <br />
                 <p>Thanks for trying TextPort</p>
@@ -37,7 +37,7 @@
             {
                 <h5>There was a problem registering your account.</h5>
                 <br />
-                <p>@Model.CompletionMessage</p>
+                <p>@Html.Raw(Model.CompletionMessage)</p>
             }
 
         </div>

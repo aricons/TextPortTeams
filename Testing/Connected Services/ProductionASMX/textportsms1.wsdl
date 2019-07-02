@@ -219,10 +219,10 @@
   </wsdl:binding>
   <wsdl:service name="SMSClient">
     <wsdl:port name="SMSClientSoap" binding="tns:SMSClientSoap">
-      <soap:address location="http://v2.textport.com/webservices/textportsms.asmx" />
+      <soap:address location="https://textport.com/webservices/textportsms.asmx" />
     </wsdl:port>
     <wsdl:port name="SMSClientSoap12" binding="tns:SMSClientSoap12">
-      <soap12:address location="http://v2.textport.com/webservices/textportsms.asmx" />
+      <soap12:address location="https://textport.com/webservices/textportsms.asmx" />
     </wsdl:port>
   </wsdl:service>
 </wsdl:definitions>

@@ -1,0 +1,44 @@
+﻿@model TextPortCore.Models.MessagingContainer
+<div class="col-sm-3 pr-md-0">
+    @if (Model.VirtualNumberCount > 0)
+    {
+        <div class="heading_wrap">
+            <h4 class="num_title">Virtual Number</h4>
+            <select id="from_number" class="form-control">
+                @foreach (TextPortCore.Models.DedicatedVirtualNumber number in Model.Numbers)
+                {
+                    <option value="@number.VirtualNumberId">@number.NumberDisplayFormat</option>
+                }
+            </select>
+        </div>
+        <div class="heading_wrap">
+            <h4 class="heading_title">Recents</h4>
+        </div>
+            @Html.Partial("_RecentsListMobile", Model.Recents)
+        <div class="new_num_wrap">
+            <div class="type_numxx">
+                <div class="input_num_writexx">
+                    <input id="new_recipient_number" class="form-control" type="text" placeholder="New number" />
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="no_num_wrap">
+            <div class="center_vertically">
+                <div class="alert alert-primary text-center">
+                    <h3 class="alert-primary">No Active Numbers</h3>
+                    <p>
+                        You don't have any numbers assigned to your account. Click the link below to add a number.
+                    </p>
+                    <p>
+                        <h5>
+                            <a href="/numbers/getnumber/">Add a Number</a>
+                        </h5>
+                    </p>
+                </div>
+            </div>
+        </div>
+    }
+</div>

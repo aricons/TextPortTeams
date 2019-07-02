@@ -1,11 +1,16 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
-    <title>@ViewData["Title"] - TextPort</title>
-
+    <title>@ViewData["Title"]</title>
     <meta charset="utf-8">
+    <meta name="description" content="@ViewData["Description"]">
+    <meta property="og:title" content="@ViewData["Title"]">
+    <meta property="og:description" content="@ViewData["Description"]">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="@ViewData["Url"]">
+    <meta property="og:site_name" content="TextPort">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="TextPort Texting Portal">
     <meta name="keywords" content="online texting service, virtual mobile number, bulk texting, group texting, business sms service" />
     <meta name="robots" content="index, follow" />
     <meta name="author" content="TextPort.com" />
@@ -17,9 +22,9 @@
 
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" crossorigin="anonymous">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic,700italic">
-    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css">
-    <link rel="stylesheet" type="text/css" href="~/content/css/styles.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css">
     <link rel="stylesheet" type="text/css" href="/content/css/jnoty.css">
+    <link rel="stylesheet" type="text/css" href="~/content/css/styles.css">
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js"></script>
@@ -31,18 +36,36 @@
 
     <script src="~/scripts/jquery.signalR-2.4.1.min.js"></script>
     <script src="~/signalr/hubs"></script>
-    <script src="~/scripts/TextPort/signalr-hub.js"></script>
+    <script src="~/scripts/textport/signalr-hub.js"></script>
 
     <script type="text/javascript">
-        var _gaq = _gaq || [];
-        _gaq.push(['_setAccount', 'UA-21685628-1']);
-        _gaq.push(['_trackPageview']);
+        //var _gaq = _gaq || [];
+        //_gaq.push(['_setAccount', 'UA-21685628-1']);
+        //_gaq.push(['_trackPageview']);
 
         $(function () {
 
-            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+            // Analytics
+            (function (i, s, o, g, r, a, m) {
+                i['GoogleAnalyticsObject'] = r; i[r] = i[r] || function () {
+                    (i[r].q = i[r].q || []).push(arguments)
+                }, i[r].l = 1 * new Date(); a = s.createElement(o),
+                    m = s.getElementsByTagName(o)[0]; a.async = 1; a.src = g; m.parentNode.insertBefore(a, m)
+            })(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga');
+
+            ga('create', 'UA-21685628-1', 'auto');
+            ga('send', 'pageview');
+            // End analytics
+
+            //var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            //ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            //var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+
+            //isMobile = detectMobile();
+            //if (isMobile) {
+            //    $("#login-link").hide();
+            //    $("#login-link-mobile").show();
+            //}
 
             $('.modal-button').on('click', function () {
                 var url = $(this).data('url');
@@ -72,26 +95,12 @@
             getBalance();
         });
 
-        //function showModal(containerName, formURL) {
-        //    $('#' + containerName).html('');
-        //    $.get({
-        //        url: formURL,
-        //        dataType: "html",
-        //        error: function (jqXHR, textStatus, errorThrown) {
-        //            alert(textStatus + ": Couldn't load form. " + errorThrown);
-        //        },
-        //        success: function (newInputHTML) {
-        //            var form = document.getElementById(containerName);
-        //            form.insertAdjacentHTML("beforeend", newInputHTML);
-        //            //$(form).removeData("validator")    // Added by jQuery Validate
-        //            //    .removeData("unobtrusiveValidation");   // Added by jQuery Unobtrusive Validation
-        //            //$.validator.unobtrusive.parse(form);
-
-        //            $('#' + containerName).modal({
-        //                keyboard: true
-        //            }, 'show');
-        //        }
-        //    })
+        //function detectMobile() {
+        //    if (window.innerWidth <= 800 && window.innerHeight <= 600) {
+        //        return true;
+        //    } else {
+        //        return false;
+        //    }
         //}
 
         function validateLogin() {
@@ -135,68 +144,100 @@
         function getBalance() {
             $("#balance").html(readCookie("balance"));
         }
-
     </script>
 </head>
 <body>
     <br />
     <div class="container">
-        <nav>
-            <a class="navbar-brand nav-link" href="/"><img src="~/content/images/tp_logo_240x54.png?h=06d3a6bd33a5b974da6ee4b4c5b06da3" width="130" alt="TextPort"></a>
-            <ul class="nav nav-pills float-right">
-                @if (User.Identity.IsAuthenticated)
-                {
-                    <li class="nav-item">
-                        @Html.ActionLink("My Messages", "Main", "Messages", null, htmlAttributes: new { @class = "nav-link" })
-                    </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navBGLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Bulk / Group</a>
-                        <div class="dropdown-menu" aria-labelledby="navBGLink">
-                            @Html.ActionLink("Send Bulk Texts", "Index", "Bulk", null, htmlAttributes: new { @class = "dropdown-item" })
-                            @Html.ActionLink("Send Group Text", "Index", "Group", null, htmlAttributes: new { @class = "dropdown-item" })
-                        </div>
-                    </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link active dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">@User.Identity.Name</a>
-                        <div class="dropdown-menu">
-                            @Html.ActionLink("Profile", "Profile", "Account", null, htmlAttributes: new { @class = "dropdown-item" })
-                            @Html.ActionLink("Balance", "Balance", "Account", null, htmlAttributes: new { @class = "dropdown-item" })
-                            @Html.ActionLink("Numbers", "Manage", "Numbers", null, htmlAttributes: new { @class = "dropdown-item" })
-                            @Html.ActionLink("Groups", "", "Groups", null, htmlAttributes: new { @class = "dropdown-item" })
+        @if (User.Identity.IsAuthenticated)
+        {
+            <nav class="navbar navbar-expand-md bg-white">
+                <a class="navbar-brand nav-link" href="/"><img src="~/content/images/tp_logo_240x54.png?h=06d3a6bd33a5b974da6ee4b4c5b06da3" width="130" alt="TextPort"></a>
+                <button class="navbar-toggler navbar-light border-1" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse text-primary text-primary" id="navbarNavDropdown">
+                    <ul class="navbar-nav nav-pills ml-auto text-primary">
+                        <li class="nav-item">
+                            @Html.ActionLink("My Messages", "index", "messages", null, htmlAttributes: new { @class = "nav-link" })
+                        </li>
+                        <li class="nav-item dropdown d-none d-md-block">
+                            <a class="nav-link dropdown-toggle" href="#" id="navBGLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Bulk / Group</a>
+                            <div class="dropdown-menu" aria-labelledby="navBGLink">
+                                @Html.ActionLink("Bulk Texting", "Index", "Bulk", null, htmlAttributes: new { @class = "dropdown-item" })
+                                @Html.ActionLink("Group Texting", "Index", "Group", null, htmlAttributes: new { @class = "dropdown-item" })
+                            </div>
+                        </li>
+                        <li class="nav-item d-md-none">
+                            <a class="nav-link" href="/bulk/">Bulk Texting</a>
+                        </li>
+                        <li class="nav-item d-md-none">
+                            <a class="nav-link" href="/group/">Group Texting</a>
+                        </li>
+                        <li class="dropdown-divider d-md-none"></li>
+                        <li class="nav-item dropdown d-none d-md-block">
+                            <a class="nav-link active dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">@User.Identity.Name</a>
+                            <div class="dropdown-menu">
+                                @Html.ActionLink("Profile", "Profile", "Account", null, htmlAttributes: new { @class = "dropdown-item" })
+                                @Html.ActionLink("Balance", "Balance", "Account", null, htmlAttributes: new { @class = "dropdown-item" })
+                                @Html.ActionLink("Numbers", "Manage", "Numbers", null, htmlAttributes: new { @class = "dropdown-item" })
+                                @Html.ActionLink("Groups", "", "Groups", null, htmlAttributes: new { @class = "dropdown-item" })
+                                <div class="dropdown-divider"></div>
+                                @Html.ActionLink("Log Out", "LogOut", "Account", null, htmlAttributes: new { @class = "dropdown-item" })
+                            </div>
+                        </li>
+                        <li class="nav-item d-md-none">
+                            <a class="nav-link" href="/account/profile">Profile</a>
+                        </li>
+                        <li class="nav-item d-md-none">
+                            <a class="nav-link" href="/account/balance">Balance</a>
+                        </li>
+                        <li class="nav-item d-md-none">
+                            <a class="nav-link" href="/numbers/manage">Numbers</a>
+                        </li>
+                        <li class="nav-item d-md-none">
+                            <a class="nav-link" href="/groups/">Groups</a>
+                        </li>
+                        <li class="nav-item d-md-none">
+                            <a class="nav-link" href="/account/changepassword">Change Password</a>
+                        </li>
+                        <li class="nav-item d-md-none">
                             <div class="dropdown-divider"></div>
-                            @Html.ActionLink("Log Out", "LogOut", "Account", null, htmlAttributes: new { @class = "dropdown-item" })
-                        </div>
-                    </li>
-                }
-                else
-                {
+                        </li>
+                        <li class="nav-item d-md-none">
+                            <a class="nav-link" href="/account/logout">Log Out</a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+        }
+        else
+        {
+            <nav class="navbar">
+                <a class="navbar-brand nav-link" href="/"><img src="~/content/images/tp_logo_240x54.png?h=06d3a6bd33a5b974da6ee4b4c5b06da3" width="130" alt="TextPort"></a>
+                <ul class="nav nav-pills ml-auto">
                     <li class="nav-item">
-                        <a href='#' class="nav-link modal-button" data-toggle="modal" data-target="#modal-cont-login" data-url="/home/login">Log In</a>
+                        @if (Request.Browser.IsMobileDevice)
+                        {
+                            <a href='/home/loginm' class="nav-link">Log In</a>
+                        }
+                        else
+                        {
+                            <a href='#' id="login-link" class="nav-link modal-button" data-toggle="modal" data-target="#modal-cont-login" data-url="/home/login">Log In</a>
+                        }
                     </li>
-                    <li class="nav-item">
-                        @Html.ActionLink("Sign Up", "SignUp", "Account", null, htmlAttributes: new { @class = "nav-link active", id = "loginLink" })
+                    <li class="nav-item d-none d-md-block">
+                        <a href='/account/signup' id="login-link-mobile" class="nav-link active">Sign Up</a>
                     </li>
-                }
-            </ul>
-        </nav>
-        <div class="row">
-            <div class="col-sm-12">
-                @if (User.Identity.IsAuthenticated)
-                {
-                    <p class="mt-1 mb-2 mr-0 text-secondary tp-bal">Balance: $<span id="balance"></span></p>
-                }
-                else
-                {
-                    <p class="m-3"></p>
-                }
-            </div>
-        </div>
+                </ul>
+            </nav>
+        }
         @RenderBody()
         <hr />
         <footer class="footer bg-white">
             <div class="container">
                 <div class="row">
-                    <div class="col-lg-6 h-100 text-center text-lg-left my-auto">
+                    <div class="col-md-6 h-100 text-center text-md-left my-auto">
                         <ul class="list-inline mb-2">
                             <li class="list-inline-item">
                                 <a href="/support">Support</a>
@@ -214,9 +255,9 @@
                                 <a href="/privacy">Privacy Policy</a>
                             </li>
                         </ul>
-                        <p class="text-muted small mb-4 mb-lg-0">&copy; TextPort 2019. All Rights Reserved.</p>
+                        <p class="text-muted small mb-4 mb-md-0">&copy; TextPort 2019. All Rights Reserved.</p>
                     </div>
-                    <div class="col-lg-6 h-100 text-center text-lg-right my-auto">
+                    <div class="col-md-6 h-100 text-center text-md-right my-auto">
                         <ul class="list-inline mb-0">
                             <li class="list-inline-item mr-3">
                                 <a href="#">

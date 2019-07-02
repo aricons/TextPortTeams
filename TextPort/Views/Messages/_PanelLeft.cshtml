@@ -1,0 +1,78 @@
+﻿@model TextPortCore.Models.MessagingContainer
+@using TextPortCore.Helpers;
+
+<div class="col-md-5 p-md-0">
+    <nav class="navbar p-0 navbar-expand-md">
+        <button id="number-dropdown-toggle" class="btn text-primary d-md-none" type="button" data-toggle="collapse" data-target="#number-dropdown" aria-controls="number-dropdown" aria-expanded="false" aria-label="Toggle number">
+            <i id="vn-btn-icon" class="fa fa-chevron-down"></i><span class="h5">&nbsp;Virtual Number</span>
+        </button>
+        <div class="collapse navbar-collapse" id="number-dropdown">
+            <div class="container">
+                <div class="form-group row pt-2">
+                    <label class="col-md-5 col-form-label msg-h4 d-none d-md-block">Virtual Number</label>
+                    <div class="col-md-7 pl-0">
+                        <select id="from_number" class="form-control">
+                            @foreach (TextPortCore.Models.DedicatedVirtualNumber number in Model.Numbers)
+                            {
+                                <option value="@number.VirtualNumberId">@number.NumberDisplayFormat</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <nav class="navbar p-0 navbar-expand-md">
+        <button id="recipient-dropdown-toggle" class="btn text-primary d-md-none" type="button" data-toggle="collapse" data-target="#recipient-dropdown" aria-controls="recipient-dropdown" aria-expanded="false" aria-label="Toggle recipient">
+            <i id="recipient-btn-icon" class="fa fa-chevron-down"></i><span class="h5">&nbsp;New Recipient</span>
+        </button>
+        <div class="collapse navbar-collapse" id="recipient-dropdown">
+            <div class="container">
+                <div class="form-group row pt-2">
+                    <label class="col-md-5 col-form-label msg-h4 d-none d-md-block">New Recipient</label>
+                    <div class="col-md-7 pl-0">
+                        <input type="email" class="form-control w-100" id="new_recipient_number" placeholder="(000) 000-0000">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <hr class="d-none d-md-block p-0 m-0" />
+    <nav class="navbar p-0 navbar-expand-md">
+        <button id="recents-toggle" class="btn text-primary d-md-none" type="button" data-toggle="collapse" data-target="#recents-list" aria-controls="recents-list" aria-expanded="false" aria-label="Toggle recents">
+            <i id="recents-btn-icon" class="fa fa-chevron-down"></i><span class="h5">&nbsp;Recents</></span>
+        </button>
+        <div class="collapse navbar-collapse" id="recents-list">
+            <div class="p-0">
+                @if (Model.VirtualNumberCount > 0)
+                {
+                    <div class="heading_wrap_thin d-none d-md-block">
+                        <h4 class="heading_title">Recents</h4>
+                    </div>
+                    <div id="recents" class="inbox_chat pt-3 pt-md-0 pl-0">
+                        @Html.Partial("_RecentsList", Model.Recents)
+                    </div>
+                }
+                else
+                {
+                    <div class="no_num_wrap">
+                        <div class="center_vertically">
+                            <div class="alert alert-primary text-center">
+                                <h3 class="alert-primary">No Active Numbers</h3>
+                                <p>
+                                    You don't have any numbers assigned to your account. Click the link below to add a number.
+                                </p>
+                                <p>
+                                    <h5>
+                                        <a href="/numbers/getnumber/">Add a Number</a>
+                                    </h5>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </nav>
+</div>

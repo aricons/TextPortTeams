@@ -44,7 +44,7 @@
 <br />
 <h2>Send Bulk Texts</h2>
 <hr />
-@using (Html.BeginForm("Main", "Bulk", FormMethod.Post, new { id = "form-bulk" }))
+@using (Html.BeginForm("Index", "Bulk", FormMethod.Post, new { id = "form-bulk" }))
 {
     @Html.HiddenFor(m => m.AccountId)
     @Html.HiddenFor(m => m.SubmitOperation)

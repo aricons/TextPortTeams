@@ -44,6 +44,8 @@
 
                 var ml = $("#msg_list");
                 ml.animate({ scrollTop: ml.prop("scrollHeight") - ml.height() }, 50);
+
+                ga('send', 'pageview', '/messages/receive');
             }
         }
         else {
@@ -73,4 +75,16 @@
 
 function numberToE164(number) {
     return number.replace("\D", "");
+}
+
+function numberToDisplay(number) {
+    if (number.length >= 1) {
+        if (number.substr(0, 1) === "1") {
+            return '(' + number.substr(1, 3) + ') ' + number.substr(4, 3) + '-' + number.substr(7, 4);
+        }
+        else {
+            return '(' + number.substr(0, 3) + ') ' + number.substr(3, 3) + '-' + number.substr(6, 4);
+        }
+    }
+    return "";
 }

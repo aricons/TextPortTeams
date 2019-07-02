@@ -1,16 +1,15 @@
 ﻿@model TextPortCore.Models.RegistrationData
 @{
-    ViewBag.Title = "TextPort - Free Trial";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "TextPort: Free online texting service trial. ";
+    ViewData["Description"] = "Free trial for web-based SMS and MMS service. Virtual texting numbers and bulk texting.";
+    ViewData["Url"] = "https://textport.com/trial";
 }
-
-<script src="~/scripts/TextPort/GetNumbers.js"></script>
-
 <script type="text/javascript">
     $(function () {
         $("#UserName").focus();
     });
 </script>
-
 <div class="card">
     <div class="card-body">
         <div class="row">
@@ -19,7 +18,7 @@
                 <hr>
             </div>
         </div>
-        @using (Html.BeginForm("PostPurchase", "Account", FormMethod.Post, new { id = "form-signup" }))
+        @using (Html.BeginForm("Index", "Trial", FormMethod.Post))
         {
             @Html.AntiForgeryToken()
             @Html.HiddenFor(m => m.NumberCost)
@@ -41,14 +40,14 @@
             <input type="hidden" id="hidTotalCost" value="0" />
 
             <div class="row">
-                <div class="offset-1 col-md-5">
+                <div class="col-12 offset-lg-1 col-lg-5">
                     <div class="form-group">
                         <p class="mb-1"><strong>Try TextPort with a 15-Day FREE trial</strong>.</p>
                         <p>No credit card required. Access all TextPort features. Free credit provided.</p>
                     </div>
                     <div class="form-group">
                         @Html.LabelFor(m => m.UserName, new { @class = "form-label" })
-                        @Html.TextBoxFor(m => m.UserName, new { @class = "form-control", placeholder = "User name" })
+                        @Html.TextBoxFor(m => m.UserName, new { @class = "form-control", placeholder = "User name", maxlength = "20" })
                         @Html.ValidationMessageFor(m => m.UserName, null, new { @class = "text-danger" })
                     </div>
                     <div class="form-group">
@@ -58,12 +57,12 @@
                     </div>
                     <div class="form-group">
                         @Html.LabelFor(m => m.Password, new { @class = "form-label" })
-                        @Html.TextBoxFor(m => m.Password, new { @class = "form-control", placeholder = "Password", @type = "password" })
+                        @Html.TextBoxFor(m => m.Password, new { @class = "form-control", placeholder = "Password", @type = "password", maxlength = "60" })
                         @Html.ValidationMessageFor(m => m.Password, null, new { @class = "text-danger" })
                     </div>
                     <div class="form-group">
                         @Html.LabelFor(m => m.ConfirmPassword, new { @class = "form-label" })
-                        @Html.TextBoxFor(m => m.ConfirmPassword, new { @class = "form-control", placeholder = "Confirm password", @type = "password" })
+                        @Html.TextBoxFor(m => m.ConfirmPassword, new { @class = "form-control", placeholder = "Confirm password", @type = "password", maxlength = "60" })
                         @Html.ValidationMessageFor(m => m.ConfirmPassword, null, new { @class = "text-danger" })
                     </div>
                     <div class="form-group">
@@ -78,7 +77,7 @@
                 </div>
             </div>
             <div class="row">
-                <div class="offset-1 col-md-5">
+                <div class="col-12 offset-lg-1 col-lg-11">
                     <div class="form-group">
                         @Html.LabelFor(m => m.VirtualNumber, new { @class = "form-label" })
                         @Html.DropDownListFor(m => m.VirtualNumber, new SelectList(Model.NumbersList, "Value", "Text"), new { @class = "form-control" })
@@ -102,8 +101,4 @@
             </div>
         }
     </div>
-</div>
-<div id="purchaseModalCont" class="modal hide fade in">
-</div>
-<div id="postPurchaseModalCont" class="modal hide fade in">
 </div>

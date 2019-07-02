@@ -112,7 +112,7 @@
 
 <div class="row">
     @Html.Partial("_SideMenuBar")
-    <div class="col-md-9">
+    <div class="col-12 col-md-9">
         <div class="card">
             <div class="card-header">
                 <div class="row">
@@ -126,9 +126,9 @@
             </div>
             <div class="card-body">
                 <div class="row">
-                    <div class="w-50">
+                    <div>
                         <div class="form-group">
-                            @Html.LabelFor(m => m.CurrentGroupId, new { @class = "form-label strong" })
+                            @Html.LabelFor(m => m.CurrentGroupId, new { @class = "col-10 form-label strong" })
                             @Html.DropDownListFor(m => m.CurrentGroupId, new SelectList(Model.GroupsList, "Value", "Text", Model.CurrentGroupId), new { @class = "form-control" })
                         </div>
                     </div>

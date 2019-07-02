@@ -17,7 +17,7 @@ namespace TextPort.Controllers
     {
         [Authorize]
         [HttpGet]
-        public ActionResult Main()
+        public ActionResult Index()
         {
             int accountId = Utilities.GetAccountIdFromClaim(ClaimsPrincipal.Current);
             if (accountId > 0)
@@ -78,6 +78,21 @@ namespace TextPort.Controllers
                 string bar = ex.Message;
                 return null;
             }
+        }
+
+        // For Google Analytics tracking. Send() and Receive()
+        [Authorize]
+        [HttpGet]
+        public ActionResult Send()
+        {
+            return PartialView("_SendMessage", new Message() { MessageText = "TextPort sent message placeholder", TimeStamp = DateTime.UtcNow });
+        }
+
+        [Authorize]
+        [HttpGet]
+        public ActionResult Receive()
+        {
+            return PartialView("_ReceiveMessage", new Message() { MessageText = "TextPort received message placeholder", TimeStamp = DateTime.UtcNow });
         }
 
         [Authorize]

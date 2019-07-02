@@ -1,5 +1,8 @@
 ﻿@{
-    ViewBag.Title = "TextPort - Texting Service. Bulk and Group SMS";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "TextPort: Online texting for business and individuals.";
+    ViewData["Description"] = "Online texting service for businesses and individuals. Dedicated virtual numbers. Bulk SMS. Affordable SMS pricing with no obligations. Free trial.";
+    ViewData["Url"] = "https://textport.com";
 }
 
 <script src="~/scripts/TextPort/LandingCounter.js"></script>
@@ -9,9 +12,9 @@
     <h1>Text Messaging Portal</h1>
     <p class="lead">A text messaging service for business, groups and individuals. Send and receive messages, notifications and alerts from virtual mobile numbers without using your personal mobile device.</p>
     <p>
-        @Html.ActionLink("Sign Up", "SignUp", "Account", null, htmlAttributes: new { @class = "btn btn-lg btn-success center-block", id = "sup_link" })
+        @Html.ActionLink("Sign Up", "signup", "account", null, htmlAttributes: new { @class = "btn btn-lg btn-success center-block", id = "sup_link" })
         <span class="ml-4 mr-4">&nbsp;</span>
-        @Html.ActionLink("Free Trial", "Index", "Trial", null, htmlAttributes: new { @class = "btn btn-lg btn-warning center-block" })
+        @Html.ActionLink("Free Trial", "index", "trial", null, htmlAttributes: new { @class = "btn btn-lg btn-warning center-block" })
     </p>
 </div>
 
@@ -32,7 +35,6 @@
                     <p class="description">Send text message notifications and alerts to customers, groups, or individuals.</p>
                 </div>
             </div>
-
             <div class="col-sm-6 col-md-5 col-lg-4 item">
                 <div class="box">
                     <i class="fa fa-phone icon"></i>
@@ -70,7 +72,7 @@
     <div class="col">
         <div class="counter">
             <i class="fa fa-comment fa-2x"></i>
-            <h2 class="timer count-title count-number" data-to="10160631" data-speed="1500"></h2>
+            <h2 class="timer count-title count-number" data-to="10191803" data-speed="1500"></h2>
             <p class="count-text">Messages Sent</p>
         </div>
     </div>
@@ -110,13 +112,6 @@
                 <img src="~/content/images/messages_page_100.png" alt="TextPort Sample Messages Page" />
             </div>
         </div>
-        @*<div class="row">
-                <div class="col-12 text-center"></div>
-                <p class="ml-4">Our simple, phone-like user interface is designed to mimic that of a mobile device.</p>
-                <p class="ml-4">Conversations for all virtual numbers and contacts are easily managed on a single page.</p>
-                <p class="ml-4">Easily add pictures or emojis to your messages.</p>
-
-            </div>*@
     </div>
 </section>
 

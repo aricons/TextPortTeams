@@ -27,11 +27,15 @@ namespace TextPortCore.Models
             set { this.loginPassword = value; }
         }
 
+        public string Result { get; set; }
+
+
         // Constructors
         public LoginCredentials()
         {
             this.UserNameOrEmail = string.Empty;
             this.LoginPassword = string.Empty;
+            this.Result = string.Empty;
         }
     }
 }

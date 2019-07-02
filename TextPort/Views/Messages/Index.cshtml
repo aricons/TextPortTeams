@@ -1,7 +1,7 @@
 ﻿@model TextPortCore.Models.MessagingContainer
 @using TextPortCore.Helpers;
 @{
-    ViewData["Title"] = "Messages";
+    ViewData["Title"] = "My Messages";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -17,10 +17,13 @@
 
 <script type="text/javascript">
 
+    var scrWidth = 0;
     Dropzone.autoDiscover = false;
     var mmsFiles = [];
 
     $(function () {
+
+        scrWidth = window.screen.width;
 
         $('#from_number').on("change", function (e) {
             getRecentsForVirtualNumber(numberToE164($("#from_number option:selected").val()));
@@ -28,20 +31,21 @@
 
         $('#btn_send_message').on("click", function (e) {
             sendMessage();
-            //getBalance();
-            //checkBalance();
         });
 
         $('#new_recipient_number').on("focus", function (e) {
             $("#msg_list").html('');
+            $("#active_num_title").html('');
             $('.chl').removeClass("active_number");
             checkSendButtonEligibility();
         });
 
         $('#new_recipient_number').on("keyup", function (e) {
             var newNumber = $("#new_recipient_number").cleanVal();
+            $("#active_num_title").html(numberToDisplay(newNumber));
             if (newNumber.length >= 10) {
                 $("#hidActiveDestinationNumber").val(newNumber);
+                $("#active_num_title").html(numberToDisplay(newNumber));
             }
             else {
                 $("#hidActiveDestinationNumber").val('');
@@ -53,88 +57,6 @@
 
         setChangeDetect();
         checkBalance();
-
-        // SignalR - Need to declare inHub.client.messageNotification prior to calling $.connection.hub.start();
-        //var inHub = $.connection.inboundHub;
-        //// Create a function that the hub can call back to display messages.
-        //inHub.client.messageNotification = function (notifyJson) {
-        //    var notification = $.parseJSON(notifyJson);
-        //    //debugger;
-        //    // Look for hidActiveDestinationNumber to check whether on messages page. Only display the notification
-        //    // if the destination virtual number matches the ID of the virtual number currintly being viewed.
-        //    var activeDestNum = $("#hidActiveDestinationNumber");
-        //    if (activeDestNum.length && $("#hidActiveVirtualNumberId").val() == notification.VirtualNumberId) {
-        //        var activeDestinationNumber = activeDestNum.val()
-
-        //        // Update or add recents item
-        //        //var recentMessageItem = $('#recent_' + notification.MobileNumber);
-        //        //if (recentMessageItem.length) {
-        //        //    recentMessageItem.html(notification.Htmls.RecentHtml);
-        //        //    if (activeDestinationNumber != notification.MobileNumber) {
-        //        //        recentMessageItem.addClass("new_message");
-        //        //    }
-        //        //}
-        //        //else {
-        //        //    // No existing recent for this number. Add one.
-        //        //    var newRecent = "<div id='recent_" + notification.MobileNumber + "' class='chl chat_list new_message'>" + notification.Htmls.RecentHtml + "</div>";
-        //        //    var lastRecentItem = $('.chat_list:first').attr('id');
-        //        //    if (typeof lastRecentItem != 'undefined') {
-        //        //        $("#" + lastRecentItem).before(newRecent);
-        //        //        setChangeDetect();
-        //        //    }
-        //        //}
-
-        //        // Delete the existing recents item for this number, if it exists, and add a new one. This places the new one at the top.
-        //        var recentMessageItem = $('#recent_' + notification.MobileNumber);
-        //        if (recentMessageItem.length) {
-        //            recentMessageItem.remove();
-        //        }
-        //        var newRecent = "<div id='recent_" + notification.MobileNumber + "' class='chl chat_list new_message'>" + notification.Htmls.RecentHtml + "</div>";
-        //        var firstRecentItem = $('.chat_list:first').attr('id');
-        //        if (typeof firstRecentItem != 'undefined') {
-        //            $("#" + firstRecentItem).before(newRecent);
-        //            setChangeDetect();
-        //        }
-
-        //        // Add notification item (only if this is the active destination number)
-        //        if (notification.MobileNumber == activeDestinationNumber) {
-        //            var lastMessageItem = $('.msg_item:last').attr('id');
-        //            if (typeof lastMessageItem != 'undefined') {
-        //                $("#" + lastMessageItem).after(notification.Htmls.MessageHtml);
-        //            }
-        //            else {
-        //                $("#msg_list").html('');
-        //                var msgList = document.getElementById("msg_list");
-        //                msgList.insertAdjacentHTML("beforeend", notification.Htmls.MessageHtml);
-        //            }
-
-        //            var ml = $("#msg_list");
-        //            ml.animate({ scrollTop: ml.prop("scrollHeight") - ml.height() }, 50);
-        //        }
-        //    }
-        //    else {
-        //        // Not on messages page, or not the active virtual number. Pop up a note.
-        //        alert("Not on messages page. New message received: " + notification.MessageText);
-        //        $.jnoty(notification.MessageText, {
-        //            sticky: false,
-        //            header: 'Message received from ' + numberToE164(notification.MobileNumber) + ' to ' + numberToE164(notification.VirtualNumber),
-        //            theme: 'jnoty-info',
-        //            life: 6000
-        //        });
-        //    }
-        //}
-
-        //inHub.client.deliveryReceipt = function (messageId, messageHtml) {
-        //    var msgItem = document.getElementById("td_" + messageId);
-        //    msgItem.insertAdjacentHTML("beforeend", messageHtml);
-        //}
-
-        //inHub.client.balanceUpdate = function (balTxt) {
-        //    $("#balance").html(balTxt);
-        //}
-
-        //// Start the hub
-        //$.connection.hub.start();
 
         // Setup emoji picker
         window.emojiPicker = new EmojiPicker({
@@ -193,6 +115,41 @@
         // Check send button eligibility
         var emjpick = $('#emojipick_1');
         checkSendButtonEligibility();
+
+        $('#number-dropdown-toggle').click(function () {
+            if ($('#vn-btn-icon').hasClass('fa-chevron-down')) {
+                $('#vn-btn-icon').removeClass('fa-chevron-down');
+                $('#vn-btn-icon').addClass('fa-chevron-up');
+            }
+            else {
+                $('#vn-btn-icon').removeClass('fa-chevron-up');
+                $('#vn-btn-icon').addClass('fa-chevron-down');
+            }
+        });
+
+        $('#recipient-dropdown-toggle').click(function () {
+            if ($('#recipient-btn-icon').hasClass('fa-chevron-down')) {
+                $('#recipient-btn-icon').removeClass('fa-chevron-down');
+                $('#recipient-btn-icon').addClass('fa-chevron-up');
+            }
+            else {
+                $('#recipient-btn-icon').removeClass('fa-chevron-up');
+                $('#recipient-btn-icon').addClass('fa-chevron-down');
+            }
+        });
+
+        $('#recents-toggle').click(function () {
+            if ($('#recents-btn-icon').hasClass('fa-chevron-down')) {
+                $('#recents-btn-icon').removeClass('fa-chevron-down');
+                $('#recents-btn-icon').addClass('fa-chevron-up');
+            }
+            else {
+                $('#recents-btn-icon').removeClass('fa-chevron-up');
+                $('#recents-btn-icon').addClass('fa-chevron-down');
+            }
+        });
+
+        $("#active_num_title").html(numberToDisplay($("#hidActiveDestinationNumber").val()));
     });
 
     // This optional function html-encodes messages for display in the page.
@@ -208,13 +165,18 @@
             getMessagesForNumber(number);
             $("#hidActiveDestinationNumber").val(number);
             checkSendButtonEligibility();
+
+            $("#active_num_title").html(numberToDisplay(number));
+            $('.navbar-collapse').collapse('hide');
+            $('#recents-btn-icon').removeClass('fa-chevron-up');
+            $('#recents-btn-icon').addClass('fa-chevron-down');
         });
     }
 
     function checkSendButtonEligibility() {
         $('#btn_send_message').prop('disabled', true);
         if ($("#hidActiveDestinationNumber").val().length >= 10) {
-            $('#emojipick_1').attr('placeholder', 'Type message to ' + $("#hidActiveDestinationNumber").val());
+            $('#emojipick_1').attr('placeholder', 'Type message to ' + numberToDisplay($("#hidActiveDestinationNumber").val()));
             if ($('#emojipick_1').html().length >= 1 && $('#emojipick_1').html() != "<br>") {
                 var foo = $('#emojipick_1').html();
                 $('#btn_send_message').prop('disabled', false);
@@ -383,6 +345,9 @@
 
                             getBalance();
                             checkBalance();
+
+                            //_gaq.push(['_trackPageview', '/messages/send']);
+                            ga('send', 'pageview', '/messages/send');
                         }
                     });
                 }
@@ -422,89 +387,13 @@
 <input type="hidden" id="hidBalance" value="@Model.Account.Balance" />
 
 <div class="messages_container">
-    @*Left hand column*@
-    @if (Model.VirtualNumberCount > 0)
-    {
-        <div class="inbox_people">
-            <div class="heading_wrap">
-                <h4 class="num_title">Virtual Number</h4>
-                <select id="from_number" class="form-control num_dd">
-                    @foreach (TextPortCore.Models.DedicatedVirtualNumber number in Model.Numbers)
-                    {
-                        <option value="@number.VirtualNumberId">@number.NumberDisplayFormat</option>
-                    }
-                </select>
-            </div>
-            <div class="heading_wrap_thin">
-                <h4 class="heading_title">Recents</h4>
-            </div>
-            <div id="recents" class="inbox_chat">
-                @Html.Partial("_RecentsList", Model.Recents)
-            </div>
-            <div class="new_num_wrap">
-                <div class="type_num">
-                    <div class="input_num_write">
-                        <input id="new_recipient_number" type="text" placeholder="New number" />
-                    </div>
-                </div>
-            </div>
-        </div>
-    }
-    else
-    {
-        <div class="no_num_wrap">
-            <div class="center_vertically">
-                <div class="alert alert-primary text-center">
-                    <h3 class="alert-primary">No Active Numbers</h3>
-                    <p>
-                        You don't have any numbers assigned to your account. Click the link below to add a number.
-                    </p>
-                    <p>
-                        <h5>
-                            <a href="/numbers/getnumber/">Add a Number</a>
-                        </h5>
-                    </p>
-                </div>
-            </div>
-        </div>
-    }
-
-    @*Right hand column*@
-    <div class="message_wrap">
-        <div class="mesgs">
-            <div id="msg_list" class="msg_history">
-                @Html.Partial("_MessageList", Model)
-            </div>
-        </div>
-        <div id="msg_area" class="container no-gutters new_msg_pad">
-            <div class="row no-gutters">
-                <div class="col-sm-10 border-right"><textarea id="message_text" class="message_texarea" data-emojiable="true" data-emoji-ta-id="emojipick_1"></textarea></div>
-                <div class="col-sm-2 h-100 my-auto text-center send-btn-container">
-                    <div>
-                        <button id="btn_send_message" class="btn btn-primary">Send</button>
-                    </div>
-                </div>
-            </div>
-            <div class="row no-gutters border-top">
-                <div class="col-sm-4"></div>
-                <div class="dz-wrap col-sm1 h-100 my-auto text-center">
-                    <form action="/messages/UploadFile/" class="dropzone" id="mmsDropzone">
-                        <span class="dz-message"><i class="fa fa-image mms-icon msg_function_icon"></i></span>
-                    </form>
-                </div>
-                <div class="col-sm-2"></div>
-                <div class="col-sm-1 h-100 my-auto text-center">
-                    <i id="emoji-sel-button" class="fa fa-image fa-smile-o msg_function_icon"></i>
-                </div>
-                <div class="col-sm-4"></div>
-            </div>
-        </div>
-        <div id="msg_area_disabled" class="msg_area_disabled text-center alert alert-danger" style="display: none">
-            <p>Messages cannot be sent because your balance is exhausted</p>
-            <p><a href="/account/balance">Top up your account</a></p>
+    <div class="container">
+        <div class="row">
+            @Html.Partial("_PanelLeft", Model)
+            @Html.Partial("_PanelRight", Model)
         </div>
     </div>
 </div>
-
+<div id="modal-new"></div>
 <div class="clearfix"></div>
 

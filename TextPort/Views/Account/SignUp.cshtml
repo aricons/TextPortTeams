@@ -1,6 +1,10 @@
 ﻿@model TextPortCore.Models.RegistrationData
 @{
-    ViewBag.Title = "TextPort - Sign Up";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "TextPort: Sign up for online texting. Choose your virtual mobile number.";
+    ViewData["Description"] = "Sign up for TextPort's web-based online texting service. Send and receive texts from dedicated virtual numbers. Affordable pricing.";
+
+    ViewData["Url"] = "https://textport.com/account/signup";
 }
 
 <script src="~/scripts/TextPort/GetNumbers.js"></script>
@@ -9,7 +13,7 @@
 <script type="text/javascript">
     $(function () {
         $("#UserName").focus();
-        //$("#CreditPurchaseAmount").attr('data-val-range-min', '0');
+        $("#AreaCode").mask("000");
     });
 </script>
 
@@ -39,10 +43,10 @@
 
             <input type="hidden" id="hidTotalCost" value="0" />
             <div class="row">
-                <div class="offset-1 col-11">
+                <div class="col-12 offset-md-1 col-md-11">
                     <div class="form-group">
                         @Html.LabelFor(m => m.UserName, new { @class = "form-label" })
-                        @Html.TextBoxFor(m => m.UserName, new { @class = "col-md-5 form-control", placeholder = "User name" })
+                        @Html.TextBoxFor(m => m.UserName, new { @class = "col-md-5 form-control", placeholder = "User name", maxlength = "20" })
                         @Html.ValidationMessageFor(m => m.UserName, null, new { @class = "text-danger" })
                     </div>
                     <div class="form-group">
@@ -52,12 +56,12 @@
                     </div>
                     <div class="form-group">
                         @Html.LabelFor(m => m.Password, new { @class = "form-label" })
-                        @Html.TextBoxFor(m => m.Password, new { @class = "col-md-5 form-control", placeholder = "Password", @type = "password" })
+                        @Html.TextBoxFor(m => m.Password, new { @class = "col-md-5 form-control", placeholder = "Password", @type = "password", maxlength = "60" })
                         @Html.ValidationMessageFor(m => m.Password, null, new { @class = "text-danger" })
                     </div>
                     <div class="form-group">
                         @Html.LabelFor(m => m.ConfirmPassword, new { @class = "form-label" })
-                        @Html.TextBoxFor(m => m.ConfirmPassword, new { @class = "col-md-5 form-control", placeholder = "Confirm password", @type = "password" })
+                        @Html.TextBoxFor(m => m.ConfirmPassword, new { @class = "col-md-5 form-control", placeholder = "Confirm password", @type = "password", maxlength = "60" })
                         @Html.ValidationMessageFor(m => m.ConfirmPassword, null, new { @class = "text-danger" })
                     </div>
                     <div class="form-group">
@@ -72,7 +76,7 @@
                 </div>
             </div>
             <div class="row">
-                <div class="offset-1 col-11">
+                <div class="col-12 offset-md-1 col-md-11">
                     <div class="form-group">
                         @Html.LabelFor(m => m.NumberCountryId, new { @class = "form-label" })
                         @Html.DropDownListFor(m => m.NumberCountryId, new SelectList(Model.CountriesList, "Value", "Text"), new { @class = "col-md-5 form-control" })
@@ -83,7 +87,7 @@
                         <div class="form-group">
                             @Html.LabelFor(m => m.AreaCode, new { @class = "form-label" })
                             <div class="form-row m-1">
-                                @Html.TextBoxFor(m => m.AreaCode, new { @class = "col-md-1 form-control", placeholder = "000" })
+                                @Html.TextBoxFor(m => m.AreaCode, new { @class = "col-3 col-md-1 form-control", placeholder = "000" })
                                 <div id="spintiller1" class="spinner-border collapse ml-3" role="status">
                                     <span class="sr-only">Loading...</span>
                                 </div>

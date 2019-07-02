@@ -16,14 +16,18 @@ namespace TextPortCore.Data
         {
             try
             {
-                return _context.AreaCodes.Where(x => x.AreaCodeNum.Equals(areaCode) && x.TollFree == tollFree).FirstOrDefault().GeographicArea;
+                AreaCode ac = _context.AreaCodes.FirstOrDefault(x => x.AreaCodeNum.Equals(areaCode) && x.TollFree == tollFree);
+                if (ac != null)
+                {
+                    return ac.GeographicArea;
+                }
             }
             catch (Exception ex)
             {
                 ErrorHandling eh = new ErrorHandling();
                 eh.LogException("NumbersDA.GetAreaCodeName", ex);
             }
-            return string.Empty;
+            return "Invalid area code";
         }
 
         public List<SelectListItem> GetNumberCountriesList(string purchaseType)

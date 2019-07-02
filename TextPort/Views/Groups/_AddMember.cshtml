@@ -1,6 +1,12 @@
 ﻿@using TextPortCore.Models
 @model GroupMember
 
+<script type="text/javascript">
+    $(function () {
+        $("#MobileNumber").mask('(000) 000-0000');
+    });
+</script>
+
 <div class="modal fade" role="dialog" id="member-modal">
     <div class="modal-dialog" role="document">
         <div class="modal-content">

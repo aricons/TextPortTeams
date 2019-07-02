@@ -1,9 +1,14 @@
 ﻿using System;
 using System.Linq;
+using System.Collections.Generic;
+using System.Security.Claims;
+using System.Web;
 using System.Web.Mvc;
+using Microsoft.Owin.Security;
 
-using TextPortCore.Data;
+using TextPort.Helpers;
 using TextPortCore.Models;
+using TextPortCore.Data;
 using TextPortCore.Helpers;
 
 namespace TextPort.Controllers
@@ -36,6 +41,78 @@ namespace TextPort.Controllers
                 string bar = ex.Message;
                 return null;
             }
+        }
+
+        [AllowAnonymous]
+        [HttpGet]
+        public ActionResult Loginm()
+        {
+            try
+            {
+                LoginCredentials creds = new LoginCredentials();
+                return PartialView("Loginm", creds);
+            }
+            catch (Exception ex)
+            {
+                string bar = ex.Message;
+                return null;
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Loginm(LoginCredentials model)
+        {
+            Account account = null;
+            var result = new { success = "false", response = "Unable to validate credentials." };
+
+            try
+            {
+                using (TextPortDA da = new TextPortDA())
+                {
+                    if (da.ValidateLogin(model.UserNameOrEmail, model.LoginPassword, ref account))
+                    {
+                        List<Claim> claims = new List<Claim> {
+                        new Claim("AccountId", account.AccountId.ToString(), ClaimValueTypes.Integer),
+                        new Claim(ClaimTypes.Name, account.UserName.ToString()),
+                        new Claim(ClaimTypes.NameIdentifier, account.UserName.ToString()),
+                        new Claim(ClaimTypes.Email, account.Email.ToString()),
+                        new Claim(ClaimTypes.Role, "User") };
+
+                        ClaimsIdentity identity = new ClaimsIdentity(claims, "ApplicationCookie");
+                        ClaimsPrincipal principal = new ClaimsPrincipal(identity);
+
+                        var context = Request.GetOwinContext();
+                        var authManager = context.Authentication;
+
+                        authManager.SignIn(new AuthenticationProperties { IsPersistent = true }, identity);
+
+                        Cookies.Write("balance", account.Balance.ToString(), 0);
+
+                        if (account.ComplimentaryNumber == (byte)ComplimentaryNumberStatus.Eligible)
+                        {
+                            //result = new { success = "true", response = Url.Action($"ComplimentaryNumber/{account.AccountId}", "Numbers") };
+                            return RedirectToAction($"ComplimentaryNumber/{account.AccountId}", "Numbers");
+                        }
+                        else
+                        {
+                            //result = new { success = "true", response = Url.Action("index", "messages") };
+                            return RedirectToAction("index", "messages");
+                        }
+                    }
+                    else
+                    {
+                        ModelState.Clear();
+                        model.Result = "Invalid username, email or password";
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+            return View(model);
         }
 
         public ActionResult About()
@@ -71,7 +148,6 @@ namespace TextPort.Controllers
             return View(processContactOrSupportRequest(request));
         }
 
-        [Authorize]
         [HttpGet]
         public ActionResult Support()
         {
@@ -79,7 +155,6 @@ namespace TextPort.Controllers
             return View(supportRequestModel);
         }
 
-        [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Support(SupportRequestModel request)

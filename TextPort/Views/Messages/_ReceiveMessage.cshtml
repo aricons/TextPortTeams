@@ -1,0 +1,12 @@
+﻿@model  TextPortCore.Models.Message
+<div id="@Model.MessageId" class="msg_item incoming_msg">
+    <div class="incoming_msg_img"><img src="~/content/images/user-profile.png" /></div>
+    <div class="received_msg">
+        <div class="received_withd_msg">
+            <p>
+                @Model.MessageText
+            </p>
+            <span class="time_date">@string.Format("{0:MMMM dd, yy | hh:mm tt}", Model.TimeStamp)</span>
+        </div>
+    </div>
+</div>

@@ -9,101 +9,96 @@
 <script type="text/javascript" src="/Scripts/TextPort/GetNumbers.js"></script>
 <script src="https://www.paypalobjects.com/api/checkout.js"></script>
 
+<script type="text/javascript">
+    $(function () {
+        $('#menu_numbers').addClass("active");
+    });
+</script>
+
 <div class="row">
-    <div class="col-md-3 ">
-        <div class="list-group ">
-            <a href="/Account/Profile" class="list-group-item list-group-item-action">Profile</a>
-            <a href="/Account/Balance" class="list-group-item list-group-item-action">Balance</a>
-            <a href="/Numbers/Manage" class="list-group-item list-group-item-action active">Numbers</a>
-            <a href="#" class="list-group-item list-group-item-action">Contacts</a>
-            <a href="#" class="list-group-item list-group-item-action">Change Password</a>
-            <a href="#" class="list-group-item list-group-item-action">Delete Account</a>
-        </div>
-    </div>
-    <div class="col-md-9">
+    @Html.Partial("_SideMenuBar")
+    <div class="col-12 col-md-9">
         <div class="card">
             <div class="card-header">
                 <h4>Get a new Number</h4>
             </div>
             <div class="card-body">
-                <div class="row">
-                    <div class="offset-1 col-11">
-                        @using (Html.BeginForm("PostPurchase", "Account", FormMethod.Post, new { id = "form-signup" }))
-                        {
-                            @Html.HiddenFor(m => m.NumberCost)
-                            @Html.HiddenFor(m => m.AccountId)
-                            @Html.HiddenFor(m => m.PurchaseType)
-                            @Html.HiddenFor(m => m.PayPalCustom)
-                            @Html.HiddenFor(m => m.VirtualNumberId)
-                            @Html.HiddenFor(m => m.PurchaseTitle)
-                            @Html.HiddenFor(m => m.ProductDescription)
-                            @Html.HiddenFor(m => m.CompletionTitle)
-                            @Html.HiddenFor(m => m.CompletionMessage)
-                            @Html.HiddenFor(m => m.BaseNumberCost)
-                            @Html.HiddenFor(m => m.BaseSMSCost)
-                            <input type="hidden" id="hidTotalCost" value="0" />
+                <div class="offset-md-1 col-md-7 col-12">
+                    @using (Html.BeginForm("PostPurchase", "Account", FormMethod.Post, new { id = "form-signup" }))
+                    {
+                        @Html.HiddenFor(m => m.NumberCost)
+                        @Html.HiddenFor(m => m.AccountId)
+                        @Html.HiddenFor(m => m.PurchaseType)
+                        @Html.HiddenFor(m => m.PayPalCustom)
+                        @Html.HiddenFor(m => m.VirtualNumberId)
+                        @Html.HiddenFor(m => m.PurchaseTitle)
+                        @Html.HiddenFor(m => m.ProductDescription)
+                        @Html.HiddenFor(m => m.CompletionTitle)
+                        @Html.HiddenFor(m => m.CompletionMessage)
+                        @Html.HiddenFor(m => m.BaseNumberCost)
+                        @Html.HiddenFor(m => m.BaseSMSCost)
+                        <input type="hidden" id="hidTotalCost" value="0" />
 
+                        <div class="form-group">
+                            @Html.LabelFor(m => m.NumberCountryId, new { @class = "form-label" })
+                            @Html.DropDownListFor(m => m.NumberCountryId, new SelectList(Model.CountriesList, "Value", "Text"), new { @class = "form-control" })
+                            @Html.ValidationMessageFor(m => m.NumberCountryId, null, new { @class = "text-danger" })
+                            <p class="subscript">* All number purchases include credit for 50 text messages.</p>
+                        </div>
+                        <div id="DivAreaCode">
                             <div class="form-group">
-                                @Html.LabelFor(m => m.NumberCountryId, new { @class = "form-label" })
-                                @Html.DropDownListFor(m => m.NumberCountryId, new SelectList(Model.CountriesList, "Value", "Text"), new { @class = "col-6 form-control" })
-                                @Html.ValidationMessageFor(m => m.NumberCountryId, null, new { @class = "text-danger" })
-                                <p class="subscript">* All number purchases include credit for 50 text messages.</p>
-                            </div>
-                            <div class="form-group" id="DivAreaCode">
                                 @Html.LabelFor(m => m.AreaCode, new { @class = "form-label" })
-                                <div class="row">
-                                    <div class="col-2">
-                                        @Html.TextBoxFor(m => m.AreaCode, new { @class = "form-control", placeholder = "000" })
-                                    </div>
-                                    <div id="spintiller1" class="spinner-border collapse" role="status">
+                                <div class="form-row m-1">
+                                    @Html.TextBoxFor(m => m.AreaCode, new { @class = "col-3 col-md-2 form-control", placeholder = "000" })
+                                    <div id="spintiller1" class="spinner-border collapse ml-3" role="status">
                                         <span class="sr-only">Loading...</span>
                                     </div>
-                                    <div class="col">
+                                    <div class="ml-3">
                                         <label id="AreaCodeDescription" class="col-form-label"></label>
                                     </div>
                                 </div>
-                                @Html.ValidationMessageFor(m => m.AreaCode, null, new { @class = "text-danger" })
                             </div>
-                            <div class="form-group" id="DivTollFreePrefix" style="display:none">
-                                @Html.LabelFor(m => m.TollFreePrefix, new { @class = "form-label" })
-                                <div class="row">
-                                    <div class="col-3">
-                                        @Html.DropDownListFor(m => m.TollFreePrefix, new SelectList(Model.TollFreeAreaCodesList, "Value", "Text"), new { @class = "form-control" })
-                                    </div>
-                                    <div id="spintiller2" class="spinner-border collapse" role="status">
-                                        <span class="sr-only">Loading...</span>
-                                    </div>
+                            @Html.ValidationMessageFor(m => m.AreaCode, null, new { @class = "text-danger" })
+                        </div>
+                        <div class="form-group" id="DivTollFreePrefix" style="display:none">
+                            @Html.LabelFor(m => m.TollFreePrefix, new { @class = "form-label" })
+                            <div class="row">
+                                <div class="col-3">
+                                    @Html.DropDownListFor(m => m.TollFreePrefix, new SelectList(Model.TollFreeAreaCodesList, "Value", "Text"), new { @class = "form-control" })
                                 </div>
-                                @Html.ValidationMessageFor(m => m.TollFreePrefix, null, new { @class = "text-danger" })
+                                <div id="spintiller2" class="spinner-border collapse" role="status">
+                                    <span class="sr-only">Loading...</span>
+                                </div>
                             </div>
-                            <div class="form-group">
-                                @Html.LabelFor(m => m.VirtualNumber, new { @class = "form-label" })
-                                @Html.DropDownListFor(m => m.VirtualNumber, new SelectList(Model.NumbersList, "Value", "Text"), new { @class = "col-5 form-control" })
-                                @Html.ValidationMessageFor(m => m.VirtualNumber, null, new { @class = "text-danger" })
-                            </div>
-                            <div class="form-group">
-                                @Html.LabelFor(m => m.LeasePeriod, new { @class = "form-label" })
-                                @Html.DropDownListFor(m => m.LeasePeriod, new SelectList(Model.LeasePeriodsList, "Value", "Text"), new { @class = "col-5 form-control" })
-                                @Html.ValidationMessageFor(m => m.LeasePeriod, null, new { @class = "text-danger" })
-                            </div>
-                            <div class="row lower-label">
-                                <label>Number Cost</label>
-                                <label id="NumberCostTxt"></label>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Additional Credit (optional)</label>
-                                @Html.DropDownListFor(m => m.CreditPurchaseAmount, new SelectList(Model.CreditAmountsList, "Value", "Text"), new { @class = "col-4 form-control" })
-                                @Html.ValidationMessageFor(m => m.CreditPurchaseAmount, null, new { @class = "text-danger" })
-                            </div>
-                            <div class="row lower-label">
-                                <label>Total Charge</label>
-                                <label id="TotalCost"></label>
-                            </div>
-                            <div class="form-group">
-                                <button id="btnContinue" type="button" class="btn btn-primary">@(Model.PurchaseType == "ComplimentaryNumber" ? "Select Number" : "Continue to Payment")</button>
-                            </div>
-                        }
-                    </div>
+                            @Html.ValidationMessageFor(m => m.TollFreePrefix, null, new { @class = "text-danger" })
+                        </div>
+                        <div class="form-group">
+                            @Html.LabelFor(m => m.VirtualNumber, new { @class = "form-label" })
+                            @Html.DropDownListFor(m => m.VirtualNumber, new SelectList(Model.NumbersList, "Value", "Text"), new { @class = "form-control" })
+                            @Html.ValidationMessageFor(m => m.VirtualNumber, null, new { @class = "text-danger" })
+                        </div>
+                        <div class="form-group">
+                            @Html.LabelFor(m => m.LeasePeriod, new { @class = "form-label" })
+                            @Html.DropDownListFor(m => m.LeasePeriod, new SelectList(Model.LeasePeriodsList, "Value", "Text"), new { @class = "form-control" })
+                            @Html.ValidationMessageFor(m => m.LeasePeriod, null, new { @class = "text-danger" })
+                        </div>
+                        <div class="row lower-label">
+                            <label>Number Cost</label>
+                            <label id="NumberCostTxt"></label>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Additional Credit (optional)</label>
+                            @Html.DropDownListFor(m => m.CreditPurchaseAmount, new SelectList(Model.CreditAmountsList, "Value", "Text"), new { @class = "form-control" })
+                            @Html.ValidationMessageFor(m => m.CreditPurchaseAmount, null, new { @class = "text-danger" })
+                        </div>
+                        <div class="row lower-label">
+                            <label>Total Charge</label>
+                            <label id="TotalCost"></label>
+                        </div>
+                        <div class="form-group">
+                            <button id="btnContinue" type="button" class="btn btn-primary">@(Model.PurchaseType == "ComplimentaryNumber" ? "Select Number" : "Continue to Payment")</button>
+                        </div>
+                    }
                 </div>
             </div>
         </div>

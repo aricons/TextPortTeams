@@ -21,11 +21,11 @@
     <ServiceContractMappings />
   </ClientOptions>
   <MetadataSources>
-    <MetadataSource Address="http://v2.textport.com/webservices/textportsms.asmx" Protocol="http" SourceId="1" />
+    <MetadataSource Address="https://textport.com/webservices/textportsms.asmx" Protocol="http" SourceId="1" />
   </MetadataSources>
   <Metadata>
-    <MetadataFile FileName="textportsms.wsdl" MetadataType="Wsdl" ID="7a3700a5-f4d4-433a-8bcc-eef58745ad19" SourceId="1" SourceUrl="http://v2.textport.com/webservices/textportsms.asmx?wsdl" />
-    <MetadataFile FileName="textportsms.disco" MetadataType="Disco" ID="a3ba2286-73ca-49cc-a8b0-2ca5fc3d8cfe" SourceId="1" SourceUrl="http://v2.textport.com/webservices/textportsms.asmx?disco" />
+    <MetadataFile FileName="textportsms1.wsdl" MetadataType="Wsdl" ID="01180154-6b03-456a-a1bc-746120bfde85" SourceId="1" SourceUrl="https://textport.com/webservices/textportsms.asmx?wsdl" />
+    <MetadataFile FileName="textportsms1.disco" MetadataType="Disco" ID="046676cc-5cb0-47d9-8f37-7264abcf2242" SourceId="1" SourceUrl="https://textport.com/webservices/textportsms.asmx?disco" />
   </Metadata>
   <Extensions>
     <ExtensionFile FileName="configuration91.svcinfo" Name="configuration91.svcinfo" />

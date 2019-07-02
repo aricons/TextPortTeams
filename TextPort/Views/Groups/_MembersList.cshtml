@@ -1,4 +1,5 @@
 ﻿@using TextPortCore.Models
+@using TextPortCore.Helpers
 @model List<GroupMember>
 
 @if (Model.Count() > 0)
@@ -18,7 +19,7 @@
         rowId++;
         <tr class="@bgClass">
             <td>@member.MemberName</td>
-            <td>@member.MobileNumber</td>
+            <td>@Utilities.NumberToDisplayFormat(member.MobileNumber, 22)</td>
             <td align="center">
                 <button onclick="deleteMember(@member.GroupMemberId)" class="btn">
                     <span class="fa fa-trash fa-lg list-icon" aria-hidden="true"></span>

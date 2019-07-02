@@ -238,6 +238,11 @@ namespace TextPortCore.Data
                     .HasMaxLength(1024)
                     .IsUnicode(false);
 
+                entity.Property(e => e.InnerException)
+                   .IsRequired()
+                   .HasMaxLength(1024)
+                   .IsUnicode(false);
+
                 entity.Property(e => e.ProgramName)
                     .IsRequired()
                     .HasMaxLength(80)
