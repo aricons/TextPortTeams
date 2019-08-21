@@ -105,6 +105,39 @@ namespace TextPort.Controllers
                         }
                         return Ok();
 
+                    case "message-failed":
+                        using (Bandwidth bw = new Bandwidth())
+                        {
+                            Message newMessage = bw.ProcessInboundMessage(bwMessage);
+                            if (newMessage != null)
+                            {
+                                using (TextPortDA da = new TextPortDA())
+                                {
+                                    Account account = da.GetAccountById(newMessage.AccountId);
+                                    if (account != null)
+                                    {
+                                        newMessage.Account = account;
+                                        if (!String.IsNullOrEmpty(account.UserName))
+                                        {
+                                            MessageNotification notification = new MessageNotification(newMessage);
+
+                                            using (HubFunctions hubFunctions = new HubFunctions())
+                                            {
+                                                hubFunctions.SendInboundMessageNotification(notification);
+                                                if (account.EnableMobileForwarding && !string.IsNullOrEmpty(account.ForwardVnmessagesTo))
+                                                {
+                                                    decimal balance = account.Balance - Constants.BaseSMSMessageCost;
+                                                    hubFunctions.SendBalanceUpdate(account.UserName, balance.ToString());
+                                                }
+                                            }
+                                        }
+                                    }
+                                    return Ok();
+                                }
+                            }
+                        }
+                        break;
+
                     default: // Log anything else
                         using (Bandwidth bw = new Bandwidth())
                         {

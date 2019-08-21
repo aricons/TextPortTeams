@@ -17,16 +17,18 @@ namespace TextPortCore.Helpers
         Normal = 0,
         [Description("Bulk")]
         Bulk = 1,
-        [Description("Group")]
-        Group = 2,
+        [Description("BulkUpload")]
+        BulkUpload = 2,
         [Description("Notification")]
         Notification = 3,
+        [Description("Group")]
+        Group = 4,
         [Description("API")]
-        API = 4,
+        API = 5,
         [Description("SVC")]
-        SVC = 5,
+        SVC = 6,
         [Description("ASMX")]
-        ASMX = 6
+        ASMX = 7
     }
 
     public enum NumberTypes : byte

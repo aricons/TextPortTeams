@@ -1,0 +1,42 @@
+﻿@using TextPortCore.Models
+@using TextPortCore.Helpers
+@model ApiApplicationsContainer
+@if (!string.IsNullOrEmpty(Model.StatusMessage))
+{
+    <div id="status-block" class="form-row">
+        <div class="form-group col-10">
+            <div class="text-center alert @(Model.Status == RequestStatus.Success ? "alert-success" : "alert-danger")" role="alert">
+                @Model.StatusMessage
+            </div>
+        </div>
+    </div>
+}
+<form id="form-api-app">
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(m => m.AccountId)
+    <div class="form-row">
+        <div class="form-group col-10">
+            @Html.LabelFor(m => m.CurrentApplicationId, new { @class = "form-label mr-4" })
+            @Html.DropDownListFor(m => m.CurrentApplicationId, new SelectList(Model.ApplicationsList, "Value", "Text"), new { @class = "form-control", @onchange = "appChange()" })
+            @Html.ValidationMessageFor(m => m.CurrentApplicationId, null, new { @class = "text-danger" })
+        </div>
+    </div>
+    <div id="app-details">
+        @Html.Partial("_ApplicationDetails", Model.CurrentApplication)
+    </div>
+    <div class="form-row">
+        <div class="form-group col-12">
+            <div class="form-row ml-1">
+                <button id="btn-save" type="button" class="btn btn-primary col-3 form-control" onclick="saveApplication()">Save Application</button>
+                <div id="spintiller" class="spinner-border collapse ml-3" role="status">
+                    <span class="sr-only">Loading...</span>
+                </div>
+                <div class="col-7">
+                    <button onclick="deleteApplication(@Model.CurrentApplicationId); return false;" class="btn float-right">
+                        <span class="fa fa-trash fa-lg text-primary" aria-hidden="true"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ReferenceGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" ID="02b40406-ef6f-4341-9926-8b5c5d08baec" xmlns="urn:schemas-microsoft-com:xml-wcfservicemap">
+  <ClientOptions>
+    <GenerateAsynchronousMethods>false</GenerateAsynchronousMethods>
+    <GenerateTaskBasedAsynchronousMethod>true</GenerateTaskBasedAsynchronousMethod>
+    <EnableDataBinding>true</EnableDataBinding>
+    <ExcludedTypes />
+    <ImportXmlTypes>false</ImportXmlTypes>
+    <GenerateInternalTypes>false</GenerateInternalTypes>
+    <GenerateMessageContracts>false</GenerateMessageContracts>
+    <NamespaceMappings />
+    <CollectionMappings>
+      <CollectionMapping TypeName="System.Collections.Generic.List`1" Category="List" />
+    </CollectionMappings>
+    <GenerateSerializableTypes>true</GenerateSerializableTypes>
+    <Serializer>Auto</Serializer>
+    <UseSerializerForFaults>true</UseSerializerForFaults>
+    <ReferenceAllAssemblies>true</ReferenceAllAssemblies>
+    <ReferencedAssemblies />
+    <ReferencedDataContractTypes />
+    <ServiceContractMappings />
+  </ClientOptions>
+  <MetadataSources>
+    <MetadataSource Address="http://textport.com/WebServices/textportsms.svc" Protocol="http" SourceId="1" />
+  </MetadataSources>
+  <Metadata>
+    <MetadataFile FileName="TextPortSMS3.xsd" MetadataType="Schema" ID="e5568a19-f475-4969-b232-172031663065" SourceId="1" SourceUrl="http://textport.com/WebServices/TextPortSMS.svc?xsd=xsd1" />
+    <MetadataFile FileName="TextPortSMS31.xsd" MetadataType="Schema" ID="9ae8eb83-970a-4eba-9645-c099108199b6" SourceId="1" SourceUrl="http://textport.com/WebServices/TextPortSMS.svc?xsd=xsd0" />
+    <MetadataFile FileName="TextPortSMS1.wsdl" MetadataType="Wsdl" ID="cf95f03c-35c4-4621-a576-c2f927752099" SourceId="1" SourceUrl="http://textport.com/WebServices/TextPortSMS.svc?wsdl" />
+    <MetadataFile FileName="TextPortSMS1.disco" MetadataType="Disco" ID="31197345-4d4d-4022-bc4d-2005cc157acf" SourceId="1" SourceUrl="http://textport.com/WebServices/TextPortSMS.svc?disco" />
+    <MetadataFile FileName="TextPortSMS32.xsd" MetadataType="Schema" ID="5e2ae936-00d9-4de3-87d9-2f68b40f34d9" SourceId="1" SourceUrl="http://textport.com/WebServices/TextPortSMS.svc?xsd=xsd2" />
+  </Metadata>
+  <Extensions>
+    <ExtensionFile FileName="configuration91.svcinfo" Name="configuration91.svcinfo" />
+    <ExtensionFile FileName="configuration.svcinfo" Name="configuration.svcinfo" />
+  </Extensions>
+</ReferenceGroup>

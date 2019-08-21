@@ -42,7 +42,7 @@ namespace TextPortCore.Data
         {
             try
             {
-                return _context.Messages.Include(m => m.MMSFiles).Where(x => x.VirtualNumberId == virtualNumberId).OrderByDescending(x => x.TimeStamp).ToList();
+                return _context.Messages.Include(m => m.MMSFiles).Where(x => x.VirtualNumberId == virtualNumberId && x.DeleteFlag == null).OrderByDescending(x => x.TimeStamp).ToList();
             }
             catch (Exception ex)
             {
@@ -84,7 +84,8 @@ namespace TextPortCore.Data
                     .Where(m => m.AccountId == accountId
                         && m.VirtualNumberId == virtualNumberId
                         && m.MobileNumber == number
-                        && m.MessageType != (byte)MessageTypes.Notification).OrderBy(x => x.TimeStamp).ToList();
+                        && m.MessageType != (byte)MessageTypes.Notification
+                        && m.DeleteFlag == null).OrderBy(x => x.TimeStamp).ToList();
             }
             catch (Exception ex)
             {
@@ -100,7 +101,7 @@ namespace TextPortCore.Data
             {
                 var query = from dvn in _context.DedicatedVirtualNumbers
                             join msg in _context.Messages on dvn.VirtualNumberId equals msg.VirtualNumberId
-                            where dvn.AccountId == accountId && dvn.VirtualNumberId == virtualNumberId && msg.MessageType != (byte)MessageTypes.Notification
+                            where dvn.AccountId == accountId && dvn.VirtualNumberId == virtualNumberId && msg.DeleteFlag == null && msg.MessageType != (byte)MessageTypes.Notification
                             group msg by msg.MobileNumber into numGroup
                             select new
                             {
@@ -129,7 +130,7 @@ namespace TextPortCore.Data
             try
             {
                 var query = from m in _context.Messages
-                            where m.AccountId == accountId && m.VirtualNumberId == virtualNumberId && m.MessageType != (byte)MessageTypes.Notification
+                            where m.AccountId == accountId && m.VirtualNumberId == virtualNumberId && m.DeleteFlag == null && m.MessageType != (byte)MessageTypes.Notification
                             group m by m.MobileNumber into numGroup
                             select new
                             {
@@ -149,6 +150,54 @@ namespace TextPortCore.Data
             {
                 ErrorHandling eh = new ErrorHandling();
                 eh.LogException("MessagesDA.GetRecentMessagesForAccountAndVirtualNumber", ex);
+            }
+            return null;
+        }
+
+        public InboxContainer GetInboundMessagesForAccount(int accountId, int page, int pageSize, bool getPageCount)
+        {
+            try
+            {
+                InboxContainer inboxContainer = new InboxContainer();
+                inboxContainer.CurrentPage = page;
+                inboxContainer.PageSize = pageSize;
+
+                if (getPageCount)
+                {
+                    inboxContainer.MessageCount = (from msg in _context.Messages
+                        join vn in _context.DedicatedVirtualNumbers on msg.VirtualNumberId equals vn.VirtualNumberId
+                        where vn.AccountId == accountId && msg.Direction == 1 && msg.DeleteFlag == null && vn.Cancelled == false
+                        select msg.MessageId).Count();
+
+                    if (inboxContainer.MessageCount > 200)
+                    {
+                        inboxContainer.MessageCount = 200;
+                    }
+                };
+
+                inboxContainer.Messages = (from msg in _context.Messages
+                                           join vn in _context.DedicatedVirtualNumbers on msg.VirtualNumberId equals vn.VirtualNumberId
+                                           where vn.AccountId == accountId && msg.Direction == 1 && msg.DeleteFlag == null && vn.Cancelled == false
+                                           orderby msg.TimeStamp descending
+                                           select new InboxMessage()
+                                           {
+                                               VirtualNumber = vn.VirtualNumber,
+                                               MobileNumber = msg.MobileNumber,
+                                               TimeStamp = msg.TimeStamp,
+                                               MessageText = msg.MessageText
+                                           }).Take(200).Skip(page * pageSize).Take(pageSize).ToList();
+
+
+                if (inboxContainer.MessageCount > 0 && inboxContainer.PageSize > 0)
+                {
+                    inboxContainer.PageCount = inboxContainer.MessageCount / inboxContainer.PageSize;
+                }
+                return inboxContainer;
+            }
+            catch (Exception ex)
+            {
+                ErrorHandling eh = new ErrorHandling();
+                eh.LogException("MessagesDA.GetInboundMessagesForAccount", ex);
             }
             return null;
         }
@@ -208,6 +257,12 @@ namespace TextPortCore.Data
             return null;
         }
 
+        public bool NumberIsBlocked(string mobileNumber)
+        {
+            BlockedNumber bn = _context.BlockedNumbers.FirstOrDefault(x => x.MobileNumber == mobileNumber);
+            return (bn != null);
+        }
+
         #endregion
 
         #region "Update Methods"
@@ -246,17 +301,37 @@ namespace TextPortCore.Data
             newBalance = 0;
             try
             {
-                message.MobileNumber = Utilities.NumberToE164(message.MobileNumber);
-                _context.Messages.Add(message);
-                _context.SaveChanges();
-
-                // Update the account balance
                 Account acc = _context.Accounts.FirstOrDefault(x => x.AccountId == message.AccountId);
-                acc.Balance -= (decimal)message.CustomerCost;
-                newBalance = acc.Balance;
-                _context.SaveChanges();
+                message.MobileNumber = Utilities.NumberToE164(message.MobileNumber);
 
-                return message.MessageId;
+                // Check the balance
+                if (acc.Balance > 0)
+                {
+                    _context.Messages.Add(message);
+                    _context.SaveChanges();
+
+                    // Get the customer's messge cost and update the account balance
+                    if (message.MMSFiles.Count > 0)
+                    {
+                        message.CustomerCost = acc.MMSSegmentCost;
+                    }
+                    else
+                    {
+                        message.CustomerCost = acc.SMSSegmentCost;
+                    }
+
+                    acc.Balance -= (decimal)message.CustomerCost;
+                    newBalance = acc.Balance;
+                    _context.SaveChanges();
+
+                    return message.MessageId;
+                }
+                else
+                {
+                    acc.Balance = -0.0101M;
+                    newBalance = acc.Balance;
+                    _context.SaveChanges();
+                }
             }
             catch (Exception ex)
             {
@@ -264,6 +339,48 @@ namespace TextPortCore.Data
                 eh.LogException("MessagesDA.InsertMessage", ex);
             }
             return 0;
+        }
+
+        #endregion
+
+        #region "Delete Methods"
+
+        public int DeleteMessagesForVirtualNumber(int accountId, int virtualNumberId)
+        {
+            int messagesDeleted = 0;
+            try
+            {
+                List<Message> messagesToDelete = _context.Messages.Where(x => x.AccountId == accountId && x.VirtualNumberId == virtualNumberId && x.DeleteFlag == null).ToList();
+                messagesDeleted = messagesToDelete.Count();
+                messagesToDelete.ForEach(x => x.DeleteFlag = DateTime.Now);
+                SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                ErrorHandling eh = new ErrorHandling();
+                eh.LogException("MessagesDA.DeleteMessagesForVirtualNumber", ex);
+            }
+
+            return messagesDeleted;
+        }
+
+        public int DeleteMessagesForVirtualNumberAndMobileNumber(int accountId, int virtualNumberId, string mobileNumber)
+        {
+            int messagesDeleted = 0;
+            try
+            {
+                List<Message> messagesToDelete = _context.Messages.Where(x => x.AccountId == accountId && x.VirtualNumberId == virtualNumberId && x.MobileNumber == mobileNumber && x.DeleteFlag == null).ToList();
+                messagesDeleted = messagesToDelete.Count();
+                messagesToDelete.ForEach(x => x.DeleteFlag = DateTime.Now);
+                SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                ErrorHandling eh = new ErrorHandling();
+                eh.LogException("MessagesDA.DeleteMessagesForAccountAndMobileNumber", ex);
+            }
+
+            return messagesDeleted;
         }
 
         #endregion

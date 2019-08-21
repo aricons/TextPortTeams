@@ -1,0 +1,156 @@
+﻿@using TextPortCore.Models
+@using TextPortCore.Helpers
+@model  ApiApplicationsContainer
+
+@{
+    ViewBag.Title = "API Settings";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style type="text/css">
+    span.field-icon {
+        position: absolute;
+        display: inline-block;
+        cursor: pointer;
+        right: 0.8rem;
+        top: 2.2rem;
+        z-index: 2;
+    }
+</style>
+
+<script type="text/javascript">
+    $(function () {
+        $('#menu_apisettings').addClass("active");
+
+        $('#CurrentApplicationId').on('change', function () {
+            var applicationId = $(this).val();
+            if (applicationId == "0") {
+                getEmptyApplication();
+            }
+            else {
+                getApplicationDetails(applicationId);
+            }
+        });
+    });
+
+    function appChange() {
+        var applicationId = $("#CurrentApplicationId option:selected").val();
+        if (applicationId == "0") {
+            getEmptyApplication();
+        }
+        else {
+            getApplicationDetails(applicationId);
+        }
+    }
+
+    function saveApplication() {
+        $("#spintiller").show();
+        $.post({
+            cache: false,
+            url: '/apisettings/save',
+            data: $("#form-api-app").serialize(),
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert(textStatus + ": Error saving application. " + errorThrown);
+            },
+            success: function (data) {
+                $("#full-app").html(data);
+                $("#status-block").delay(2000).fadeOut(300);
+            }
+        });
+        return false;
+    }
+
+    function deleteApplication() {
+        if (confirm("Are you sure you want to delete this application? This operation cannot be undone.")) {
+            $.post({
+                cache: false,
+                url: '/apisettings/deleteapp',
+                data: $("#form-api-app").serialize(),
+                error: function (jqXHR, textStatus, errorThrown) {
+                    alert(textStatus + ": Error deleting application. " + errorThrown);
+                },
+                success: function (data) {
+                    $("#full-app").html(data);
+                    $("#status-block").delay(2000).fadeOut(300);
+                }
+            });
+            return false;
+        }
+        else {
+            return false;
+        }
+    }
+
+    function getEmptyApplication() {
+        $.get({
+            url: '/apisettings/add/' + $("#AccountId").val(),
+            cache: false,
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert(textStatus + ": Error loading new app details. " + errorThrown);
+            },
+            success: function (data) {
+                $("#app-details").html(data);
+            }
+        });
+    }
+
+    function getApplicationDetails(applicationId) {
+        $.post({
+            url: '/apisettings/getappdetails',
+            data: "{applicationId:" + applicationId + "}",
+            contentType: "application/json",
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert(textStatus + ": Error loading application details. " + errorThrown);
+            },
+            success: function (data) {
+                $("#app-details").html(data);
+            }
+        });
+    }
+
+    function generateNewSecret() {
+        var applicationid = $("#APIApplicationId").val();
+        $.get({
+            cache: false,
+            url: '/apisettings/generatenewsecret/' + applicationid,
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert(textStatus + ": Error generating new secret key. " + errorThrown);
+            },
+            success: function (data) {
+                $("#APISecret").val(data);
+            }
+        });
+        return false;
+    }
+
+    function togglePwVisibility() {
+        $(".toggle-password").toggleClass('fa-eye fa-eye-slash');
+        let input = $($(".toggle-password").attr('toggle'));
+        if (input.attr('type') == 'password') {
+            input.attr('type', 'text');
+        }
+        else {
+            input.attr('type', 'password');
+        }
+        return false;
+    }
+</script>
+
+<div class="row">
+    @Html.Partial("_SideMenuBar")
+    <div class="col-12 col-md-9">
+        <div class="card">
+            <div class="card-header">
+                <div class="row">
+                    <div class="col">
+                        <h4>API Settings</h4>
+                    </div>
+                </div>
+            </div>
+            <div id="full-app" class="card-body">
+                @Html.Partial("_FullApplication", Model)
+            </div>
+        </div>
+    </div>
+</div>
+

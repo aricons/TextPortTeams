@@ -20,7 +20,58 @@
             $("#SubmitOperation").val("SameMessage");
             AJAXPost();
         });
+
+        $('input[type="file"]').change(function (e) {
+            var fileName = e.target.files[0].name;
+            var ext = fileName.substring(fileName.lastIndexOf('.') + 1).toLowerCase();
+
+            if (ext != 'csv' && ext != "xls" && ext != "xlsx" && ext != "txt") {
+                alert('File must be .XLS, .XLSX, .CSV, or .TXT');
+                return false;
+            };
+
+            $('.custom-file-label').html(fileName);
+
+            //$('#SameMessageToAllNumbers').addClass('d-none');
+            //$("label[for=SameMessageToAllNumbers]").addClass('d-none');
+            //$('#MessageLimit').addClass('d-none');
+            //$("label[for=MessageLimit]").addClass('d-none');
+
+            $("#spintiller").show();
+            uploadFile();
+        });
     });
+
+    function uploadFile() {
+        $("#btn-send").removeAttr("disabled");
+
+        var fileInput = document.getElementById('fileInput');
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', '/bulk/upload');
+        xhr.setRequestHeader('Content-type', 'multipart/form-data');
+        xhr.setRequestHeader('X-File-Name', fileInput.files[0].name);
+        xhr.setRequestHeader('X-File-Type', fileInput.files[0].type);
+        xhr.setRequestHeader('X-File-Size', fileInput.files[0].size);
+        xhr.send(fileInput.files[0]);
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState == 4) {
+                if (xhr.status == 200) {
+                    $('#messageGrid').html(xhr.responseText);
+                    $('#SubmitType').val("UPLOAD");
+                    var hasErrors = $("#uploadErrors").val();
+                    if (hasErrors == "YES") {
+                        $("#btn-send").attr('disabled', 'disabled');
+                    }
+                    $("#spintiller").hide();
+                }
+                else {
+                    alert(xhr.responseText);
+                    $("#spintiller").hide();
+                }
+            }
+            return false;
+        }
+    };
 
     function AJAXPost() {
         var $form = $('#form-bulk');
@@ -48,6 +99,7 @@
 {
     @Html.HiddenFor(m => m.AccountId)
     @Html.HiddenFor(m => m.SubmitOperation)
+    @Html.HiddenFor(m => m.SubmitType)
 
     if (Model.ProcessingState.Equals("PROCESSED"))
     {
@@ -57,30 +109,64 @@
     {
         <div class="form-row">
             <div class="form-group col-md-3">
-                @Html.LabelFor(m => m.VirtualNumberId, new { @class = "form-label-md" })
+                @Html.LabelFor(m => m.VirtualNumberId, new { @class = "form-label" })
                 @Html.DropDownListFor(x => Model.VirtualNumberId, new SelectList(Model.VirtualNumbers, "Value", "Text", Model.VirtualNumberId), new { @class = "form-control" })
                 @Html.ValidationMessageFor(m => m.VirtualNumberId, null, new { @class = "text-danger" })
             </div>
-            <div class="form-group col-md-1"></div>
-            <div class="form-group col-md-2">
-                @Html.LabelFor(m => m.MessageLimit, new { @class = "form-label-md" })
-                @Html.DropDownListFor(x => Model.MessageLimit, new SelectList(Model.MessageCountOptions, "Value", "Text", Model.MessageCountOptions), new { @class = "form-control" })
-                @Html.ValidationMessageFor(m => m.MessageLimit, null, new { @class = "text-danger" })
-            </div>
-            <div class="form-group col-md-1"></div>
-            <div class="form-group col-md-3">
-                <label class="form-label-lg">&nbsp;</label>
-                <div class="form-check">
-                    @Html.CheckBoxFor(x => Model.SameMessageToAllNumbers, new { @class = "form-check-input" })
-                    @Html.LabelFor(m => m.SameMessageToAllNumbers, new { @class = "form-check-label" })
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <div class="col-form-label">Enter Data Using</div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" value="option1" data-toggle="collapse" data-target="#sectionUpload, #sectionManual" aria-expanded="false" aria-controls="sectionUpload" checked>
+                    <label class="form-check-label" for="inlineRadio1">Upload from File</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2" data-toggle="collapse" data-target="#sectionUpload, #sectionManual" aria-expanded="false" aria-controls="sectionManual">
+                    <label class="form-check-label" for="inlineRadio2">Enter Data in Grid Below</label>
                 </div>
             </div>
-            <div class="form-group col-md-1"></div>
-            <div class="form-group col-md-1">
-                <label class="form-label-md">&nbsp;</label>
-                <button type="submit" class="form-control btn btn-primary">Send</button>
+        </div>
+        <div class="collapse show multi-collapse" id="sectionUpload">
+            <div class="form-row">
+                <div class="form-group col-4">
+                    <div class="custom-file">
+                        <input id="fileInput" type="file" class="custom-file-input">
+                        <label class="custom-file-label" for="fileInput">Upload Excel or CSV file</label>
+                    </div>
+                </div>
+                <div class="form-group col-2">
+                    <a href="/bulk/uploadguidelines" class="btn btn-sm btn-link" role="button" aria-pressed="true" target="_blank">Upload File Guidelines</a>
+                </div>
+                <div id="spintiller" class="spinner-border collapse form-group">
+                    <span class="sr-only">Loading...</span>
+                </div>
             </div>
         </div>
+        <div class="collapse multi-collapse" id="sectionManual">
+            <div class="form-row">
+                <div class="form-group col-md-2">
+                    @Html.LabelFor(m => m.MessageLimit, new { @class = "form-label" })
+                    @Html.DropDownListFor(x => Model.MessageLimit, new SelectList(Model.MessageCountOptions, "Value", "Text", Model.MessageCountOptions), new { @class = "form-control" })
+                    @Html.ValidationMessageFor(m => m.MessageLimit, null, new { @class = "text-danger" })
+                </div>
+                <div class="form-group col-3">
+                    <label class="form-label">&nbsp;</label>
+                    <div class="form-check mt-2 ml-3">
+                        @Html.CheckBoxFor(x => Model.SameMessageToAllNumbers, new { @class = "form-check-input" })
+                        @Html.LabelFor(m => m.SameMessageToAllNumbers, new { @class = "form-check-label" })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-2">
+                <label class="form-label">&nbsp;</label>
+                <button type="submit" id="btn-send" class="form-control btn btn-primary">Send Messages</button>
+            </div>
+        </div>
+
         <br />
         if (!string.IsNullOrEmpty(Model.BalanceAlert))
         {

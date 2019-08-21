@@ -30,11 +30,12 @@ namespace TextPort.Controllers
                     if (da.ValidateLogin(model.UserNameOrEmail, model.LoginPassword, ref account))
                     {
                         List<Claim> claims = new List<Claim> {
-                        new Claim("AccountId", account.AccountId.ToString(), ClaimValueTypes.Integer),
-                        new Claim(ClaimTypes.Name, account.UserName.ToString()),
-                        new Claim(ClaimTypes.NameIdentifier, account.UserName.ToString()),
-                        new Claim(ClaimTypes.Email, account.Email.ToString()),
-                        new Claim(ClaimTypes.Role, "User") };
+                            new Claim("AccountId", account.AccountId.ToString(), ClaimValueTypes.Integer),
+                            new Claim(ClaimTypes.Name, account.UserName.ToString()),
+                            new Claim(ClaimTypes.NameIdentifier, account.UserName.ToString()),
+                            new Claim(ClaimTypes.Email, account.Email.ToString()),
+                            new Claim(ClaimTypes.Role, "User")
+                        };
 
                         ClaimsIdentity identity = new ClaimsIdentity(claims, "ApplicationCookie");
                         ClaimsPrincipal principal = new ClaimsPrincipal(identity);

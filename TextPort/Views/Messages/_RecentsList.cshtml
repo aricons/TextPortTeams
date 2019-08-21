@@ -17,10 +17,13 @@ else
             <div class="chat_people">
                 <div class="chat_img d-none d-lg-block"><img src="~/content/images/user-profile.png"></div>
                 <div class="chat_ib pl-0 pl-lg-3">
-                    <h5>&zwj;@recent.NumberDisplayFormat<span class="chat_date">@string.Format("{0:MMMM dd, yy | hh:mm tt}", recent.TimeStamp)</span></h5>
+                    <h5>
+                        &zwj;@recent.NumberDisplayFormat<span class="chat_date">@string.Format("{0:MMMM dd, yy | hh:mm tt}", recent.TimeStamp)</span>
+                    </h5>
                     <p>
                         @recent.Message
-                    </p>
+                        
+                    </p><a class="chat_del" href="#" onclick="delMsgsForNum(@recent.Number)"><i class="fa fa-trash fa-lg text-primary"></i></a>
                 </div>
             </div>
         </div>

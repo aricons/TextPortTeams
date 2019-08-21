@@ -1,0 +1,105 @@
+﻿@{
+    ViewBag.Title = "TextPort Text Messaging API Documentation";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script type="text/javascript" src="~/content/highlight.pack.js"></script>
+<link rel="stylesheet" href="~/content/highlight/styles/dracula.css">
+
+<script type="text/javascript">
+    $(function () {
+        $('#menu_samples').addClass("active");
+        //hljs.initHighlightingOnLoad();
+    });
+</script>
+
+<style>
+    .sb-head {
+        font-size: 15px;
+        font-weight: 600;
+        padding-bottom: 10px;
+    }
+
+    .thin {
+        padding-left: 15px;
+        padding-right: 0;
+        padding-top: 5px;
+        padding-bottom: 5px;
+    }
+
+    .gpbtn {
+        width: 45px;
+        height: 18px;
+        font-size: 14px;
+        background-color: #ff391a;
+        color: white;
+        text-align: center;
+        border-radius: 2px;
+        padding: 3px, 5px;
+        margin-right: 6px;
+        display: inline-table;
+    }
+
+        .gpbtn.get {
+            background-color: #00aa6c;
+        }
+
+    .no-divider {
+        border-bottom: none;
+    }
+</style>
+
+<div class="container">
+    <div class="row">
+        @Html.Partial("_SideMenuBar")
+        <div class="col-12 col-md-9">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Sample Code and Data</h4>
+                </div>
+                <br />
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col">
+                            <h2>Get Available Numbers for Area Code</h2>
+                            <br />
+                            <h3>Request</h3>
+                            <pre>
+                            <code class="html">
+GET /api/v1/numbers/getnumbers/949 HTTP/1.1
+Host: beta.textport.com
+Authorization: Basic MS13OFBHczdPY09KOkVnbkJDZnh5N2txMXdHVkpycFJn
+                                </code>
+                            </pre>
+                            <h3>Response</h3>
+                            <pre><code class="json">
+{
+    "AreaCode": "949",
+    "NumberCount": 10,
+    "Message": "10 numbers found.",
+    "Numbers": [
+        "19492451652",
+        "19492457631",
+        "19492595373",
+        "19492595915",
+        "19492595918",
+        "19492595964",
+        "19492596853",
+        "19492643591",
+        "19492643655"
+        ]
+}
+                            </code></pre>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>hljs.initHighlightingOnLoad()</script>
+
+
+

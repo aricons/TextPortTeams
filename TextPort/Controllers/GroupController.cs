@@ -47,10 +47,19 @@ namespace TextPort.Controllers
                                 MobileNumber = Utilities.NumberToE164(member.MobileNumber)
                             };
 
-                            decimal newBalance = 0;
-                            da.InsertMessage(message, ref newBalance);
+                            string result = string.Empty;
+                            if (da.NumberIsBlocked(message.MobileNumber))
+                            {
+                                message.MessageText = $"BLOCKED: The recipient at number {message.MobileNumber} has reported abuse from this account abuse and requested their number be blocked. TextPort does not condone the exchange of abusive, harrassing or defamatory messages.";
+                                result = "Failed";
+                            }
+                            else
+                            {
+                                decimal newBalance = 0;
+                                da.InsertMessage(message, ref newBalance);
 
-                            string result = (message.Send()) ? "Success" : "Failed";
+                                result = (message.Send()) ? "Success" : "Failed";
+                            }
                             results.Add(new GroupTextResult(member.MemberName, member.MobileNumber, result));
                         }
                     }

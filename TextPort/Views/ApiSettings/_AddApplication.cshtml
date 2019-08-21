@@ -1,0 +1,32 @@
+﻿
+@using TextPortCore.Models
+@model APIApplication
+
+<div class="modal fade" role="dialog" id="group-modal">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Add an Application</h2>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            @using (Html.BeginForm("Add", "ApiSettings", FormMethod.Post, new { id = "form-add" }))
+            {
+                @Html.AntiForgeryToken()
+                @Html.HiddenFor(m => m.AccountId)
+                <div class="modal-body">
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.ApplicationName, new { @class = "form-label" })
+                        @Html.TextBoxFor(m => m.ApplicationName, new { @class = "form-control", placeholder = "Group name" })
+                        @Html.ValidationMessageFor(m => m.ApplicationName, null, new { @class = "text-danger" })
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" id="btnAdd" class="btn btn-primary">Add Application</button>
+                </div>
+            }
+        </div>
+    </div>
+</div>

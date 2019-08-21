@@ -3,6 +3,7 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Web.Mvc;
 
+using TextPortCore.Models;
 using TextPortCore.Helpers;
 
 namespace TextPortCore.Data
@@ -165,7 +166,7 @@ namespace TextPortCore.Data
                     new SelectListItem
                     {
                         Value = pn.VirtualNumber,
-                        Text = Utilities.NumberToDisplayFormat(pn.VirtualNumber, 22)
+                        Text = $"{Utilities.NumberToDisplayFormat(pn.VirtualNumber, 22)} - {pn.Description}"
                     }).ToList();
 
                 SelectListItem firstItem = new SelectListItem()
@@ -186,6 +187,38 @@ namespace TextPortCore.Data
 
             return null;
         }
+
+        //public IEnumerable<SelectListItem> GetNumbersForAccount(int accountId)
+        //{
+        //    try
+        //    {
+        //        List<SelectListItem> virtualNumbers = _context.DedicatedVirtualNumbers.Where(x => x.AccountId == accountId && x.Cancelled == false)
+        //        .OrderByDescending(x => x.VirtualNumberId)
+        //            .Select(vn =>
+        //            new SelectListItem
+        //            {
+        //                Value = vn.VirtualNumberId.ToString(),
+        //                Text = $"{Utilities.NumberToDisplayFormat(vn.VirtualNumber, 22)}"
+        //            }).ToList();
+
+        //        SelectListItem firstItem = new SelectListItem()
+        //        {
+        //            Value = null,
+        //            Text = "--- select a number ---"
+        //        };
+
+        //        virtualNumbers.Insert(0, firstItem);
+
+        //        return new SelectList(virtualNumbers, "Value", "Text");
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        ErrorHandling eh = new ErrorHandling();
+        //        eh.LogException("Lists.GetNumbersForAccount", ex);
+        //    }
+
+        //    return null;
+        //}
 
         public IEnumerable<SelectListItem> GetTollFreeAreaCodes()
         {
@@ -228,6 +261,41 @@ namespace TextPortCore.Data
             {
                 ErrorHandling eh = new ErrorHandling();
                 eh.LogException("Lists.GetTollFreeAreaCodes", ex);
+            }
+
+            return null;
+        }
+
+        public IEnumerable<SelectListItem> GetAPIApplicationsList(int accountId)
+        {
+            try
+            {
+                List<SelectListItem> applicationsDDlist = new List<SelectListItem>();
+                List<APIApplication> appsList = _context.APIApplications.Where(x => x.AccountId == accountId).ToList();
+                foreach (APIApplication application in appsList)
+                {
+                    SelectListItem listItem = new SelectListItem();
+
+                    listItem.Value = application.APIApplicationId.ToString();
+                    listItem.Text = application.ApplicationName;
+
+                    applicationsDDlist.Add(listItem);
+                }
+
+                SelectListItem firstItem = new SelectListItem()
+                {
+                    Value = "0",
+                    Text = "--- add new application ---"
+                };
+
+                applicationsDDlist.Insert(0, firstItem);
+
+                return new SelectList(applicationsDDlist, "Value", "Text");
+            }
+            catch (Exception ex)
+            {
+                ErrorHandling eh = new ErrorHandling();
+                eh.LogException("Lists.GetAPIApplicationsList", ex);
             }
 
             return null;

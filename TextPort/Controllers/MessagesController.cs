@@ -12,7 +12,6 @@ using TextPortCore.Helpers;
 
 namespace TextPort.Controllers
 {
-
     public class MessagesController : Controller
     {
         [Authorize]
@@ -109,19 +108,21 @@ namespace TextPort.Controllers
                 message.CarrierId = (int)Carriers.BandWidth;
                 message.QueueStatus = (byte)QueueStatuses.Queued;
                 message.Ipaddress = Utilities.GetUserHostAddress();
-                if (message.MMSFiles.Count > 0)
-                {
-                    message.CustomerCost = Constants.BaseMMSMessageCost;
-                }
-                else
-                {
-                    message.CustomerCost = Constants.BaseSMSMessageCost;
-                }
 
                 if (message.AccountId > 0)
                 {
                     using (TextPortDA da = new TextPortDA())
                     {
+                        if (da.NumberIsBlocked(message.MobileNumber))
+                        {
+                            message.MessageText = $"BLOCKED: The recipient at number {message.MobileNumber} has reported abuse from this account. We have blocked the number at their request. TextPort does not condone the exchange of abusive, harrassing or defamatory messages.";
+                            MessageList messageList = new MessageList()
+                            {
+                                Messages = { message }
+                            };
+                            return PartialView("_MessageList", messageList);
+                        }
+
                         decimal newBalance = 0;
                         if (da.InsertMessage(message, ref newBalance) > 0)
                         {
@@ -208,6 +209,74 @@ namespace TextPort.Controllers
                 success = true,
                 response = responseMesssage
             });
+        }
+
+        [Authorize]
+        [HttpPost]
+        public ActionResult DeleteMessagesForNumber(DeleteMessageInfo deleteMessageInfo)
+        {
+            string responseMesssage = string.Empty;
+            int accountId = Utilities.GetAccountIdFromClaim(ClaimsPrincipal.Current);
+
+            try
+            {
+                if (accountId > 0)
+                {
+                    using (TextPortDA da = new TextPortDA())
+                    {
+                        int messagesDeleted = 0;
+                        switch (deleteMessageInfo.DeleteType)
+                        {
+                            case "VN":
+                                messagesDeleted = da.DeleteMessagesForVirtualNumber(accountId, deleteMessageInfo.VirtualNumberId);
+                                break;
+
+                            case "VNAndMobile":
+                                messagesDeleted = da.DeleteMessagesForVirtualNumberAndMobileNumber(accountId, deleteMessageInfo.VirtualNumberId, deleteMessageInfo.MobileNumber);
+                                break;
+                        }
+                        responseMesssage = $"{messagesDeleted} messaged deleted.";
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                responseMesssage = $"Delete failed. {ex.Message}";
+            }
+
+            return Json(new
+            {
+                success = true,
+                response = responseMesssage
+            });
+        }
+
+        [Authorize]
+        [HttpPost]
+        public ActionResult GetDeletePromptModal(DeleteMessageInfo deleteMessageInfo)
+        {
+            switch (deleteMessageInfo.DeleteType)
+            {
+                case "VN":
+                    deleteMessageInfo.Title = "Delete Messages?";
+                    deleteMessageInfo.Prompt = $"Delete ALL messages for virtual number<br/> {Utilities.NumberToDisplayFormat(deleteMessageInfo.VirtualNumber, 22)}?";
+                    deleteMessageInfo.SubPrompt = "Warning: This action is permanent. Deleted messages cannot be recovered.";
+                    break;
+
+                case "VNAndMobile":
+                    deleteMessageInfo.Title = "Delete Messages?";
+                    deleteMessageInfo.Prompt = $"Delete all messages for number {Utilities.NumberToDisplayFormat(deleteMessageInfo.MobileNumber, 22)}?";
+                    deleteMessageInfo.SubPrompt = string.Empty;
+                    break;
+
+                default: // Same as VNAndMobile
+                    deleteMessageInfo.Title = "Delete Messages?";
+                    deleteMessageInfo.Prompt = $"Delete all messages for number {Utilities.NumberToDisplayFormat(deleteMessageInfo.MobileNumber, 22)}?";
+                    deleteMessageInfo.SubPrompt = string.Empty;
+                    break;
+            }
+
+            return PartialView("_ConfirmDeleteMessages", deleteMessageInfo);
         }
 
         [Authorize]

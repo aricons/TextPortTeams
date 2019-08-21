@@ -13,7 +13,21 @@ namespace TextPortCore.Helpers
             try
             {
                 string fileName = $"semaphore-{message.MessageId}.sem";
-                string semaphoreFilesPath = ConfigurationManager.AppSettings["SemaphoreFilesPath"];
+                string semaphoreFilesPath = string.Empty;
+                string processingMessage = string.Empty;
+
+                switch (message.MessageType)
+                {
+                    case (int)MessageTypes.Bulk:
+                    case (int)MessageTypes.BulkUpload:
+                        semaphoreFilesPath = ConfigurationManager.AppSettings["BulkSemaphoreFilesPath"];
+                        processingMessage = "Bulk semaphore file created. ";
+                        break;
+                    default:
+                        semaphoreFilesPath = ConfigurationManager.AppSettings["SemaphoreFilesPath"];
+                        processingMessage = "Regular semaphore file created. ";
+                        break;
+                };
 
                 if (Directory.Exists(semaphoreFilesPath))
                 {
@@ -21,7 +35,8 @@ namespace TextPortCore.Helpers
                     writer.Write(message.MessageId.ToString());
                     writer.Close();
                     writer = null;
-                    message.ProcessingMessage += "Semaphore written OK. ";
+
+                    message.ProcessingMessage += processingMessage;
                     return true;
                 }
                 else

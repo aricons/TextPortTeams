@@ -1,0 +1,14 @@
+{
+  "EventType": "message-received",
+  "Time": "2019-08-19 10:12:30",
+  "MessageId": 123456,
+  "From": "19195551212",
+  "To": "15055551212",
+  "Cost": 0.015,
+  "Message": {
+    "From": "19195551212",
+    "To": "15055551212",
+    "MessageText": "This is a test message"
+  },
+  "Notifications": "New inbound message from TextPort"
+}

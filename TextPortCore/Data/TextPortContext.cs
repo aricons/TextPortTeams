@@ -23,7 +23,9 @@ namespace TextPortCore.Data
         }
 
         public virtual DbSet<Account> Accounts { get; set; }
+        public virtual DbSet<APIApplication> APIApplications { get; set; }
         public virtual DbSet<AreaCode> AreaCodes { get; set; }
+        public virtual DbSet<BlockedNumber> BlockedNumbers { get; set; }
         public virtual DbSet<Contact> Contacts { get; set; }
         public virtual DbSet<DedicatedVirtualNumber> DedicatedVirtualNumbers { get; set; }
         public virtual DbSet<ErrorLogItem> ErrorLog { get; set; }
@@ -79,6 +81,10 @@ namespace TextPortCore.Data
 
                 entity.Property(e => e.Balance).HasDefaultValueSql("((0))");
 
+                entity.Property(e => e.SMSSegmentCost).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.MMSSegmentCost).HasDefaultValueSql("((0))");
+
                 entity.Property(e => e.Email)
                     .IsRequired()
                     .HasMaxLength(60)
@@ -126,6 +132,29 @@ namespace TextPortCore.Data
                 entity.Property(e => e.ComplimentaryNumber).HasColumnType("byte");
             });
 
+            modelBuilder.Entity<APIApplication>(entity =>
+            {
+                entity.ToTable("APIApplications");
+
+                entity.HasKey(e => e.APIApplicationId);
+
+                entity.HasIndex(e => e.AccountId);
+
+                entity.Property(e => e.ApplicationName).IsRequired().HasMaxLength(80).IsUnicode(false);
+
+                entity.Property(e => e.APIToken).IsRequired().HasMaxLength(80).IsUnicode(false);
+
+                entity.Property(e => e.APISecret).IsRequired().HasMaxLength(80).IsUnicode(false);
+
+                entity.Property(e => e.CallbackURL).HasMaxLength(250).IsUnicode(false);
+
+                entity.Property(e => e.CallbackUserName).HasMaxLength(80).IsUnicode(false);
+
+                entity.Property(e => e.CallbackPassword).HasMaxLength(80).IsUnicode(false);
+
+                entity.Property(e => e.CallBackCredentialsRequired).IsRequired();
+            });
+
             modelBuilder.Entity<AreaCode>(entity =>
             {
                 entity.ToTable("AreaCodes");
@@ -146,6 +175,17 @@ namespace TextPortCore.Data
                     .IsUnicode(false);
 
                 entity.Property(e => e.TollFree).HasDefaultValueSql("((0))");
+            });
+
+            modelBuilder.Entity<BlockedNumber>(entity =>
+            {
+                entity.ToTable("BlockedNumbers");
+
+                entity.HasKey(e => e.BlockID);
+
+                entity.HasIndex(e => e.MobileNumber);
+
+                entity.Property(e => e.DateRequested).HasColumnType("datetime");
             });
 
             modelBuilder.Entity<Contact>(entity =>
@@ -203,6 +243,8 @@ namespace TextPortCore.Data
                 entity.Property(e => e.CreateDate).HasColumnType("datetime");
 
                 entity.Property(e => e.ExpirationDate).HasColumnType("datetime");
+
+                entity.Property(e => e.APIApplicationId);
 
                 entity.Property(e => e.Fee).HasColumnType("money");
 

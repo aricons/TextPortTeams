@@ -133,11 +133,21 @@ namespace TextPortCore.Integrations.PayPal
                                 using (TextPortDA da = new TextPortDA())
                                 {
                                     da.InsertPurchaseTransaction(purchaseTrans);
+
+                                    // If the payment type is eCheck, reverse any credit purchases.
+                                    // Can be applied manually later once the cCheck clears.
+                                    if (accountId > 0)
+                                    {
+                                        if (ipn.PaymentType.ToLower() == "echeck")
+                                        {
+                                            Account acc = da.GetAccountById(accountId);
+                                            acc.Balance -= ipn.GrossAmount;
+                                            da.SaveChanges();
+                                        }
+                                    }
                                 }
 
-
                                 // All processing below now handled by the real-time response fromthe PayPal button.
-
                                 //        switch (purchaseType)
                                 //        {
                                 //            case "CREDITS":

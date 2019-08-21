@@ -26,7 +26,6 @@
 
 .heading_wrap_b {
     padding: 10px 5px 10px 15px;
-    /*border-top: 1px solid #c4c4c4;*/
     border-bottom: 1px solid #c4c4c4;
     width: 100%;
 }
@@ -85,7 +84,6 @@
 
 .chat_ib {
     float: left;
-    /*padding: 0 0 0 15px;*/
     width: 88%;
 }
 
@@ -98,6 +96,16 @@
     border-bottom: 1px solid #c4c4c4;
     margin: 0;
     padding: 18px 16px 10px;
+}
+
+.chat_del {
+    float: right;
+    padding-left: 10px;
+}
+
+.vn-del {
+    margin-right: 12px;
+    /*text-align: right;*/
 }
 
 .inbox_chat {

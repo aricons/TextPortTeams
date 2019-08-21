@@ -1,0 +1,42 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<urlset
+      xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
+            http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+  <url>
+    <loc>https://textport.com/</loc>
+    <lastmod>2019-08-02T07:31:10+00:00</lastmod>
+    <priority>1.00</priority>
+  </url>
+  <url>
+    <loc>https://textport.com/account/signup</loc>
+    <lastmod>2019-08-02T07:31:10+00:00</lastmod>
+    <priority>0.80</priority>
+  </url>
+  <url>
+    <loc>https://textport.com/trial</loc>
+    <lastmod>2019-08-02T07:31:10+00:00</lastmod>
+    <priority>0.80</priority>
+  </url>
+  <url>
+    <loc>https://textport.com/support</loc>
+    <lastmod>2019-08-02T07:31:10+00:00</lastmod>
+    <priority>0.80</priority>
+  </url>
+  <url>
+    <loc>https://textport.com/contact</loc>
+    <lastmod>2019-08-02T07:31:10+00:00</lastmod>
+    <priority>0.80</priority>
+  </url>
+  <url>
+    <loc>https://textport.com/terms</loc>
+    <lastmod>2019-08-02T07:31:10+00:00</lastmod>
+    <priority>0.80</priority>
+  </url>
+  <url>
+    <loc>https://textport.com/privacy</loc>
+    <lastmod>2019-08-02T07:31:10+00:00</lastmod>
+    <priority>0.80</priority>
+  </url>
+</urlset>

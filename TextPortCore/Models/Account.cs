@@ -42,6 +42,10 @@ namespace TextPortCore.Models
         [Display(Name = "Balance")]
         public decimal Balance { get; set; }
 
+        public decimal SMSSegmentCost { get; set; }
+
+        public decimal MMSSegmentCost { get; set; }
+
         [Display(Name = "Forward Inbound Messages to Email")]
         public bool EnableEmailNotifications { get; set; }
 

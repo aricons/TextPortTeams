@@ -47,7 +47,7 @@ namespace TextPort.Controllers
 
             using (Bandwidth bw = new Bandwidth())
             {
-                List<string> numbers = bw.GetVirtualNumbersList(areaCode, tollFree);
+                List<string> numbers = bw.GetVirtualNumbersList(areaCode, Constants.NumberOfNumbersToPullFromBandwidth, tollFree);
                 if (numbers.Any())
                 {
                     foreach (string number in numbers)
@@ -66,7 +66,7 @@ namespace TextPort.Controllers
 
         [Authorize]
         [HttpGet]
-        public ActionResult Manage()
+        public ActionResult Index()
         {
             bool showExpiredNumbers = Request.QueryString["exp"] != null && Request.QueryString["exp"].Equals("1");
             int accountId = Utilities.GetAccountIdFromClaim(ClaimsPrincipal.Current);
@@ -153,6 +153,31 @@ namespace TextPort.Controllers
             MessageHistory history = new MessageHistory(id);
 
             return PartialView("_NumberHistory", history);
+        }
+
+        [Authorize]
+        [HttpGet]
+        public ActionResult ApplyApi(int id)
+        {
+            int accountId = Utilities.GetAccountIdFromClaim(ClaimsPrincipal.Current);
+
+            ApiApplicationsContainer apiApps = new ApiApplicationsContainer(accountId, 0);
+            apiApps.ApplicationsList = apiApps.ApplicationsList.Where(x => x.Value != "0"); // Remove the "-- Select --" item.
+            apiApps.VirtualNumberId = id;
+
+            return PartialView("_ApplyApi", apiApps);
+        }
+
+        [Authorize]
+        [HttpPost]
+        public ActionResult ApplyApi(ApiApplicationsContainer apiApps)
+        {
+            using (TextPortDA da = new TextPortDA())
+            {
+                da.AssignAPIApplicationToVirtualNumber(apiApps.CurrentApplicationId, apiApps.VirtualNumberId);
+            }
+            NumbersContainer nc = new NumbersContainer(apiApps.AccountId, false);
+            return View("Index", nc);
         }
     }
 }

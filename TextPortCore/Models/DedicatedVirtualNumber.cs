@@ -34,6 +34,8 @@ namespace TextPortCore.Models
         [Display(Name = "Expiration Date")]
         public DateTime ExpirationDate { get; set; }
 
+        public int? APIApplicationId { get; set; }
+
         public bool IsDefault { get; set; }
 
         public bool Cancelled { get; set; }

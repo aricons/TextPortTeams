@@ -61,17 +61,17 @@
       <HintPath>..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.1\lib\net45\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="Microsoft.EntityFrameworkCore, Version=2.2.4.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.EntityFrameworkCore.2.2.4\lib\netstandard2.0\Microsoft.EntityFrameworkCore.dll</HintPath>
+    <Reference Include="Microsoft.EntityFrameworkCore, Version=2.2.6.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.EntityFrameworkCore.2.2.6\lib\netstandard2.0\Microsoft.EntityFrameworkCore.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.EntityFrameworkCore.Abstractions, Version=2.2.4.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.EntityFrameworkCore.Abstractions.2.2.4\lib\netstandard2.0\Microsoft.EntityFrameworkCore.Abstractions.dll</HintPath>
+    <Reference Include="Microsoft.EntityFrameworkCore.Abstractions, Version=2.2.6.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.EntityFrameworkCore.Abstractions.2.2.6\lib\netstandard2.0\Microsoft.EntityFrameworkCore.Abstractions.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.EntityFrameworkCore.Relational, Version=2.2.4.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.EntityFrameworkCore.Relational.2.2.4\lib\netstandard2.0\Microsoft.EntityFrameworkCore.Relational.dll</HintPath>
+    <Reference Include="Microsoft.EntityFrameworkCore.Relational, Version=2.2.6.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.EntityFrameworkCore.Relational.2.2.6\lib\netstandard2.0\Microsoft.EntityFrameworkCore.Relational.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.EntityFrameworkCore.SqlServer, Version=2.2.4.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.EntityFrameworkCore.SqlServer.2.2.4\lib\netstandard2.0\Microsoft.EntityFrameworkCore.SqlServer.dll</HintPath>
+    <Reference Include="Microsoft.EntityFrameworkCore.SqlServer, Version=2.2.6.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.EntityFrameworkCore.SqlServer.2.2.6\lib\netstandard2.0\Microsoft.EntityFrameworkCore.SqlServer.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Extensions.Caching.Abstractions, Version=2.2.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Extensions.Caching.Abstractions.2.2.0\lib\netstandard2.0\Microsoft.Extensions.Caching.Abstractions.dll</HintPath>
@@ -239,9 +239,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>..\packages\Newtonsoft.Json.11.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
-    </Reference>
     <Reference Include="EntityFramework">
       <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.dll</HintPath>
     </Reference>
@@ -272,6 +269,7 @@
     <Compile Include="App_Start\Startup.Auth.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\AccountController.cs" />
+    <Compile Include="Controllers\ApiSettingsController.cs" />
     <Compile Include="Controllers\BandwidthController.cs" />
     <Compile Include="Controllers\BulkController.cs" />
     <Compile Include="Controllers\GroupController.cs" />
@@ -323,6 +321,9 @@
     <Content Include="Content\css\styles.min.css" />
     <Content Include="Content\EmailTemplates\InboundMessageNotification.html" />
     <Content Include="Content\EmailTemplates\ResetPassword.html" />
+    <Content Include="Content\images\bulk\CSVSampleQuoted.jpg" />
+    <Content Include="Content\images\bulk\CSVSampleUnQuoted.jpg" />
+    <Content Include="Content\images\bulk\ExcelSample1.jpg" />
     <Content Include="Content\images\emoji\blank.gif" />
     <Content Include="Content\images\emoji\emoji_spritesheet_0.png" />
     <Content Include="Content\images\emoji\emoji_spritesheet_1.png" />
@@ -352,6 +353,7 @@
     <Content Include="Global.asax" />
     <Content Include="Content\Site.css" />
     <Content Include="html\Test.html" />
+    <Content Include="Scripts\bootpag\jquery-bootpag.js" />
     <Content Include="Scripts\bootstrap.bundle.js" />
     <Content Include="Scripts\bootstrap.bundle.min.js" />
     <Content Include="Scripts\bootstrap.js" />
@@ -431,6 +433,7 @@
     <Content Include="SidebarMenu\sidebar\style3.css" />
     <Content Include="SidebarMenu\sidebar\style4.css" />
     <Content Include="SidebarMenu\sidebar\style5.css" />
+    <Content Include="sitemap.xml" />
     <Content Include="WebServices\TextPortSMS.asmx" />
     <Content Include="WebServices\TextPortSMS.svc" />
     <None Include="Properties\PublishProfiles\Beta.pubxml" />
@@ -476,6 +479,7 @@
     </Content>
     <Content Include="Web.Release.config">
       <DependentUpon>Web.config</DependentUpon>
+      <SubType>Designer</SubType>
     </Content>
     <Content Include="Views\Web.config" />
     <Content Include="Views\_ViewStart.cshtml" />
@@ -515,7 +519,7 @@
     <Content Include="Views\Bandwidth\_MessageList.cshtml" />
     <Content Include="Views\Messages\_TempImage.cshtml" />
     <Content Include="Views\Numbers\GetNumber.cshtml" />
-    <Content Include="Views\Numbers\Manage.cshtml" />
+    <Content Include="Views\Numbers\Index.cshtml" />
     <Content Include="Views\Shared\_ProfileHeader.cshtml" />
     <Content Include="Views\Numbers\RenewNumber.cshtml" />
     <Content Include="Views\Account\Balance.cshtml" />
@@ -553,6 +557,20 @@
     <Content Include="Views\Messages\_PanelRight.cshtml" />
     <Content Include="Views\Messages\_PanelRightMobile.cshtml" />
     <Content Include="SidebarMenu\sidebar.zip" />
+    <Content Include="Views\Bulk\Upload.cshtml" />
+    <Content Include="Views\Bulk\UploadGuidelines.cshtml" />
+    <Content Include="Views\ApiSettings\Index.cshtml" />
+    <Content Include="Views\ApiSettings\_ApplicationsList.cshtml" />
+    <Content Include="Views\Bulk\InBox.cshtml" />
+    <Content Include="Views\Bulk\_InboundMessages.cshtml" />
+    <Content Include="Views\ApiSettings\_AddApplication.cshtml" />
+    <Content Include="Views\ApiSettings\_ApplicationDetails.cshtml" />
+    <Content Include="Views\ApiSettings\_FullApplication.cshtml" />
+    <Content Include="Views\Numbers\_ApplyApi.cshtml" />
+    <Content Include="Views\Messages\_ConfirmDeleteMessages.cshtml" />
+    <None Include="Web.Beta.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </None>
     <None Include="Web.Production.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -583,6 +601,15 @@
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Production|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Beta|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>

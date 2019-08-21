@@ -1,0 +1,94 @@
+﻿@using TextPortCore.Models;
+@model  InboxContainer
+@{
+    ViewBag.Title = "TextPort: Inbox - Received Messages";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script type="text/javascript">
+    var currentPage = 0;
+    var pageCount = 0;
+
+    $(document).ready(function () {
+        pageCount = $("#PageCount").val();
+        $(".page-link").on('click', function () {
+            var pageId = 0;
+            var itemId = this.id;
+            var splitVals = itemId.split('-');
+            if (splitVals.length > 1) {
+                pageId = splitVals[1];
+            }
+            if (pageId == 0) {
+                currentPage--;
+            } else if (pageId == (parseInt(pageCount) + 1)) {
+                currentPage++;
+                if (currentPage >= pageCount) {
+                    currentPage = pageCount;
+                }
+            }
+            else {
+                currentPage = pageId;
+            }
+
+            $(".page-item").removeClass('active');
+            $("#pitem-" + currentPage).addClass('active');
+
+            if (currentPage == 1) {
+                $("#pitem-0").addClass('disabled');
+                $("#plink-0").addClass('disabled');
+            }
+            else {
+                $("#pitem-0").removeClass('disabled');
+                $("#plink-0").removeClass('disabled');
+            }
+            if (currentPage >= pageCount) {
+                var endTabId = parseInt(pageCount) + 1;;
+                $("#pitem-" + endTabId).addClass('disabled');
+                $("#plink-" + endTabId).addClass('disabled');
+            }
+            else {
+                var endTabId = parseInt(pageCount) + 1;;
+                $("#pitem-" + endTabId).removeClass('disabled');
+                $("#plink-" + endTabId).removeClass('disabled');
+            }
+            loadMessages(currentPage);
+        });
+    });
+
+    function loadMessages(page, pageSize) {
+        var url = '/bulk/getinboxpage?page=' + page
+        $.get({
+            url: url,
+            dataType: "html",
+            cache: false,
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert(textStatus + ": Message data load failed. " + errorThrown);
+            },
+            success: function (newInputHTML) {
+                $("#msg-list").html(newInputHTML);
+            }
+        })
+    }
+</script>
+
+<h2>In Box</h2>
+<br />
+@Html.HiddenFor(m => m.PageCount)
+<div id="msg-list">
+    @Html.Partial("_InboundMessages", Model.Messages)
+</div>
+<nav aria-label="Navigation">
+    <ul class="pagination justify-content-center">
+        <li id="pitem-0" class="page-item disabled">
+            <a id="plink-0" class="page-link disabled" href="#">Previous</a>
+        </li>
+        @for (int x = 0; x < Model.PageCount; x++)
+        {
+            <li id="pitem-@(x + 1)" class="page-item @(Model.CurrentPage == (x + 1) ? "active" : "")"><a class="page-link" id="plink-@(x + 1)" href="#">@(x + 1)</a></li>
+        }
+        <li id="pitem-@(Model.PageCount + 1)" class="page-item">
+            <a id="plink-@(Model.PageCount + 1)" class="page-link" href="#">Next</a>
+        </li>
+    </ul>
+</nav>
+

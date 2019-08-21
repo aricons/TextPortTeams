@@ -11,6 +11,7 @@ namespace TextPortCore.Helpers
     {
         //private readonly TextPortContext _context;
         private readonly string mmsFilePath = ConfigurationManager.AppSettings["MMSFilePath"];
+        private readonly string uploadsFilePath = ConfigurationManager.AppSettings["UploadFilesBasePath"];
 
         //public FileHandling(TextPortContext context)
         //{
@@ -113,6 +114,41 @@ namespace TextPortCore.Helpers
             }
 
             return mmsFiles;
+        }
+
+        public bool SaveUploadFile(Stream strm, int accountId, string fileName, ref string fullPathName)
+        {
+            try
+            {
+                fullPathName = string.Empty;
+                string basePath = this.uploadsFilePath;
+
+                basePath = $"{basePath}{accountId}\\";
+                if (!Directory.Exists($"{basePath}"))
+                {
+                    Directory.CreateDirectory(basePath);
+                }
+
+                if (strm != null && !string.IsNullOrEmpty(basePath) && !string.IsNullOrEmpty(fileName))
+                {
+                    string saveFileName = $"{basePath}{fileName}";
+
+                    using (var fileStream = File.Create(saveFileName))
+                    {
+                        strm.Seek(0, SeekOrigin.Begin);
+                        strm.CopyTo(fileStream);
+
+                        fullPathName = saveFileName;
+                        return (File.Exists(saveFileName)) ? true : false;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorHandling eh = new ErrorHandling();
+                eh.LogException("FileHandling.SaveUploadFile", ex);
+            }
+            return false;
         }
     }
 }

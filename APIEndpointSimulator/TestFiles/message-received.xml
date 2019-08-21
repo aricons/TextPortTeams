@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<MessageEvent>
+  <EventType>message-received</EventType>
+  <MessageId>123456</MessageId>
+  <Time>2019-08-19 10:12:30</Time>
+  <From>19195551212</From>
+  <To>15055551212</To>
+  <Cost>0.015</Cost>
+  <Message>
+    <From>19195551212</From>
+    <To>15055551212</To>
+    <MessageText>This is a test message</MessageText>
+  </Message>
+  <Notifications>New inbound message from TextPort</Notifications>
+</MessageEvent>

@@ -15,7 +15,7 @@ using Newtonsoft.Json;
 using TextPortCore.Data;
 using TextPortCore.Models;
 using TextPortCore.Helpers;
-using TextPortCore.AppConfig;
+using TextPortCore.Integrations.APICallback;
 
 namespace TextPortCore.Integrations.Bandwidth
 {
@@ -35,7 +35,7 @@ namespace TextPortCore.Integrations.Bandwidth
             this._client.Authenticator = new HttpBasicAuthenticator(Constants.Bandwidth.ApiToken, Constants.Bandwidth.ApiSecret);
         }
 
-        public List<string> GetVirtualNumbersList(string areaCode, bool tollFree)
+        public List<string> GetVirtualNumbersList(string areaCode, int numbersToReturn, bool tollFree)
         {
             List<String> numbersOut = new List<String>();
 
@@ -47,11 +47,11 @@ namespace TextPortCore.Integrations.Bandwidth
                 string requestString = string.Empty;
                 if (tollFree)
                 {
-                    requestString = $"/availableNumbers?tollFreeWildCardPattern={areaCode.Substring(0, 2)}*&quantity={Constants.NumberOfNumbersToPullFromBandwidth}";
+                    requestString = $"/availableNumbers?tollFreeWildCardPattern={areaCode.Substring(0, 2)}*&quantity={numbersToReturn}";
                 }
                 else
                 {
-                    requestString = $"/availableNumbers?areaCode={areaCode}&quantity={Constants.NumberOfNumbersToPullFromBandwidth}";
+                    requestString = $"/availableNumbers?areaCode={areaCode}&quantity={numbersToReturn}";
                 }
 
                 RestRequest request = new RestRequest(requestString, Method.GET);
@@ -65,7 +65,7 @@ namespace TextPortCore.Integrations.Bandwidth
             }
             catch (Exception ex)
             {
-                string foo = ex.Message;
+                EventLogging.WriteEventLogEntry("An error occurred in BandwidthCom.GetVirtualNumbersList(). Message: " + ex.ToString(), System.Diagnostics.EventLogEntryType.Error);
             }
             return numbersOut;
         }
@@ -271,12 +271,34 @@ namespace TextPortCore.Integrations.Bandwidth
 
         public Message ProcessInboundMessage(BandwidthInboundMessage bwMessage)
         {
+            string jsonPayload = string.Empty;
             try
             {
                 string resultMessage = String.Empty;
                 string forwardVNMessagesTo = String.Empty;
                 string userName = String.Empty;
-                string jsonPayload = JsonConvert.SerializeObject(bwMessage);
+                jsonPayload = JsonConvert.SerializeObject(bwMessage);
+
+                if (bwMessage.type == "message-failed")
+                {
+                    // Switch the from and to fields.
+                    string tempTo = bwMessage.to;
+                    bwMessage.to = bwMessage.message.from;
+                    bwMessage.message.from = tempTo;
+
+                    if (!string.IsNullOrEmpty(bwMessage.description))
+                    {
+                        switch (bwMessage.description)
+                        {
+                            case "rejected-spam-detected":
+                                bwMessage.message.text = $"DELIVERY FAILURE. Reason: {bwMessage.description}. The destination provider for number {tempTo.Replace("+", "")} detected this message as spam: {bwMessage.message.text}";
+                                break;
+                            default:
+                                bwMessage.message.text = $"DELIVERY FAILURE. Reason: {bwMessage.description}. Destination number: {tempTo.Replace("+", "")}. Message: {bwMessage.message.text}";
+                                break;
+                        }
+                    }
+                }
 
                 using (TextPortDA da = new TextPortDA())
                 {
@@ -390,6 +412,32 @@ namespace TextPortCore.Integrations.Bandwidth
                         }
                     }
 
+                    // Check for API forwarding
+                    if (dvn.APIApplicationId != null && dvn.APIApplicationId > 0)
+                    {
+                        result += $"An API application ID {dvn.APIApplicationId} was found for number {dvn.VirtualNumber}." + "\r\n";
+                        APIApplication apiApp = da.GetAPIApplicationById((int)dvn.APIApplicationId);
+                        if (apiApp != null)
+                        {
+                            result += $"API application name is {apiApp.ApplicationName}." + "\r\n";
+                            if (!string.IsNullOrEmpty(apiApp.CallbackURL))
+                            {
+                                string callbackProcessingMessage = string.Empty;
+
+                                result += $"A callback URL was found. URL: {apiApp.CallbackURL}. Processing API callback." + "\r\n";
+                                if (CallbackProcessor.ProcessAPICallback(apiApp, messageIn, ref callbackProcessingMessage))
+                                {
+                                    result += "API callback successful.";
+                                }
+                                else
+                                {
+                                    result += "API callback failed.";
+                                }
+
+                            }
+                        }
+                    }
+
                     writeXMLToDisk(result, "BandwidthInboundMessage");
 
                     return messageIn;
@@ -398,7 +446,7 @@ namespace TextPortCore.Integrations.Bandwidth
             catch (Exception ex)
             {
                 string resultErr = $"An error occurred in BandwidthCom.ProcessInboundMessage(). Message: {ex.ToString()}";
-                writeXMLToDisk(resultErr, "Error_InboundMessage");
+                writeXMLToDisk($"{resultErr}. Payload received: {jsonPayload}", "Error_InboundMessage");
 
                 EventLogging.WriteEventLogEntry(resultErr, System.Diagnostics.EventLogEntryType.Error);
             }

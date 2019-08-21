@@ -1,9 +1,10 @@
 ﻿using System;
+using System.IO;
 using System.Security.Claims;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
 using System.Web.Mvc;
+using System.Data;
 
 using TextPort.Helpers;
 using TextPortCore.Models;
@@ -14,6 +15,8 @@ namespace TextPort.Controllers
 {
     public class BulkController : Controller
     {
+        private int inboxPageSize = 10;
+
         [Authorize]
         [HttpGet]
         public ActionResult Index()
@@ -34,9 +37,9 @@ namespace TextPort.Controllers
         [HttpPost]
         public ActionResult Index(BulkMessages messageData)
         {
-            string accountIdStr = ClaimsPrincipal.Current.FindFirst("AccountId").Value;
-            int accountId = Convert.ToInt32(accountIdStr);
+            int accountId = Utilities.GetAccountIdFromClaim(ClaimsPrincipal.Current);
             decimal balance = 0;
+            MessageTypes messageType = (messageData.SubmitType == "UPLOAD") ? MessageTypes.BulkUpload : MessageTypes.Bulk;
 
             try
             {
@@ -59,27 +62,36 @@ namespace TextPort.Controllers
                                         {
                                             if (balance > 0M)
                                             {
-                                                Message bulkMessage = new Message(message, accountId, messageData.VirtualNumberId, string.Empty);
+                                                Message bulkMessage = new Message(message, messageType, accountId, messageData.VirtualNumberId, string.Empty);
 
-                                                if (da.InsertMessage(bulkMessage, ref balance) > 0)
+                                                if (!da.NumberIsBlocked(bulkMessage.MobileNumber))
                                                 {
-                                                    Cookies.Write("balance", balance.ToString(), 0);
-
-                                                    if (bulkMessage.Send())
+                                                    if (da.InsertMessage(bulkMessage, ref balance) > 0)
                                                     {
-                                                        message.ProcessingStatus = "OK";
-                                                        message.ProcessingResult = $"Messaage to {message.Number} queued successfully.";
+                                                        Cookies.Write("balance", balance.ToString(), 0);
+
+                                                        if (bulkMessage.Send())
+                                                        {
+                                                            message.ProcessingStatus = "OK";
+                                                            message.ProcessingResult = $"Messaage to {message.Number} queued successfully.";
+                                                        }
+                                                        else
+                                                        {
+                                                            message.ProcessingStatus = "FAIL";
+                                                            message.ProcessingResult = $"Error queuing message to {message.Number}.";
+                                                        }
                                                     }
                                                     else
                                                     {
                                                         message.ProcessingStatus = "FAIL";
-                                                        message.ProcessingResult = $"Error queuing message to {message.Number}.";
+                                                        message.ProcessingResult = $"Error saving message for {message.Number}.";
                                                     }
                                                 }
                                                 else
                                                 {
                                                     message.ProcessingStatus = "FAIL";
-                                                    message.ProcessingResult = $"Error saving message for {message.Number}.";
+                                                    message.ProcessingResult = $"BLOCKED: The recipient at number {bulkMessage.MobileNumber} has reported abuse from this account abuse and requested their number be blocked. TextPort does not condone the exchange of abusive, harrassing or defamatory messages.";
+                                                    message.MessageText = message.ProcessingResult;
                                                 }
                                             }
                                             else
@@ -113,6 +125,117 @@ namespace TextPort.Controllers
             }
 
             return View(messageData);
+        }
+
+        [Authorize]
+        [HttpGet]
+        public ActionResult Inbox()
+        {
+            int accountId = Utilities.GetAccountIdFromClaim(ClaimsPrincipal.Current);
+            InboxContainer inboxContainer = new InboxContainer();
+
+            if (accountId > 0)
+            {
+                using (TextPortDA da = new TextPortDA())
+                {
+                    inboxContainer = da.GetInboundMessagesForAccount(accountId, 1, inboxPageSize, true);
+                }
+            }
+
+            return View(inboxContainer);
+        }
+
+        [Authorize]
+        [HttpGet]
+        public ActionResult GetInboxPage(int page)
+        {
+            int accountId = Utilities.GetAccountIdFromClaim(ClaimsPrincipal.Current);
+            InboxContainer inboxContainer = new InboxContainer();
+
+            if (accountId > 0)
+            {
+                using (TextPortDA da = new TextPortDA())
+                {
+                    inboxContainer = da.GetInboundMessagesForAccount(accountId, page, inboxPageSize, false);
+                }
+            }
+
+            return PartialView("_InboundMessages", inboxContainer.Messages);
+        }
+
+        [Authorize]
+        [HttpPost]
+        public ActionResult Upload()
+        {
+            int accountId = Utilities.GetAccountIdFromClaim(ClaimsPrincipal.Current);
+
+            if (accountId > 0)
+            {
+                string fileName = Request.Headers["X-File-Name"];
+                //string fileType = Request.Headers["X-File-Type"];
+                //int fileSize = Convert.ToInt32(Request.Headers["X-File-Size"]);
+
+                Stream fileContent = Request.InputStream;
+
+                var fileHandler = new FileHandling();
+                DataTable dt = null;
+                string connString = string.Empty;
+                string fullPathName = string.Empty;
+
+                if (fileHandler.SaveUploadFile(fileContent, accountId, fileName, ref fullPathName))
+                {
+                    string extension = System.IO.Path.GetExtension(fullPathName).ToLower();
+                    if (extension == ".csv")
+                    {
+                        dt = UploadUtilities.ConvertCSVtoDataTable(fullPathName);
+                    }
+                    else if (extension.Trim() == ".xls")
+                    {
+                        //connString = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" + fullPathName + ";Extended Properties=\"Excel 8.0;HDR=No;IMEX=2\"";
+                        connString = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" + fullPathName + ";Extended Properties=\"Excel 8.0;HDR=No;IMEX=2\"";
+                        dt = UploadUtilities.ConvertXSLXtoDataTable(fullPathName, connString);
+                    }
+                    else if (extension.Trim() == ".xlsx")
+                    {
+                        connString = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" + fullPathName + ";Extended Properties=\"Excel 12.0;HDR=No;IMEX=2\"";
+                        dt = UploadUtilities.ConvertXSLXtoDataTable(fullPathName, connString);
+                    }
+
+                    if (dt != null)
+                    {
+                        BulkMessages bm = new BulkMessages(accountId, 0);
+                        bm.SubmitType = "UPLOAD";
+                        bm.ProcessingState = "PENDING";
+
+                        if (dt.Rows.Count > 0)
+                        {
+                            foreach (DataRow dr in dt.Rows)
+                            {
+                                string number = dr[0].ToString();
+                                string message = dr[1].ToString();
+
+                                BulkMessageItem messageItem = new BulkMessageItem()
+                                {
+                                    Number = Utilities.StripLeading1(Utilities.StripNumber(number)),
+                                    MessageText = message,
+                                };
+
+                                if (!messageItem.Validate())
+                                {
+                                    bm.ProcessingState = "UPLOAD FILE ERRORS";
+                                }
+
+                                bm.Messages.Add(messageItem);
+                            }
+
+                            Response.StatusCode = 200;
+                            return PartialView("_MessageList", bm);
+                        }
+                    }
+                }
+            }
+            Response.StatusCode = 404;
+            return Json("Upload failed. The file format was invalid, or the file could not be read.");
         }
 
         [Authorize]
@@ -166,6 +289,13 @@ namespace TextPort.Controllers
                 }
             }
             return PartialView("_MessageList", messageData);
+        }
+
+        [AllowAnonymous]
+        [HttpGet]
+        public ActionResult UploadGuidelines()
+        {
+            return View();
         }
     }
 }

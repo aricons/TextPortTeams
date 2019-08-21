@@ -84,7 +84,7 @@ namespace Testing
 
             using (Bandwidth bw = new Bandwidth())
             {
-                List<string> numbers = bw.GetVirtualNumbersList(areaCode, true);
+                List<string> numbers = bw.GetVirtualNumbersList(areaCode, 10, true);
                 var foo = numbers;
             }
         }

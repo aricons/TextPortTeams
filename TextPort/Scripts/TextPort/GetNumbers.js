@@ -221,7 +221,7 @@ function registration_complete(purchaseType) {
     var url = '/account/profile';
 
     if (purchaseType === "VirtualNumber" || purchaseType === "VirtualNumberRenew" || purchaseType === "ComplimentaryNumber") {
-        url = '/numbers/manage';
+        url = '/numbers/';
     }
     else if (purchaseType === "Credit") {
         url = '/account/balance';
@@ -273,7 +273,7 @@ function renderPayPalButton() {
                             custom: $('#PayPalCustom').val()
                         }
                     ]
-                },
+                }
             });
         },
 

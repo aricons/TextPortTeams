@@ -1,0 +1,197 @@
+﻿@{
+    ViewBag.Title = "List Numbers | TextPort Text Messaging API Documentation";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script type="text/javascript" src="~/content/highlight.pack.js"></script>
+<link rel="stylesheet" href="~/content/highlight/styles/dracula.css">
+
+<script type="text/javascript">
+    $(function () {
+        $('#menu_samples').addClass("active");
+        $('#lang-tab li:first-child a').tab('show')
+    });
+</script>
+
+<div class="container">
+    <div class="row">
+        @Html.Partial("_SideMenuBar")
+        <div class="col-12 col-md-9">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Get Available Numbers<span class="float-right">/api/v1/numbers/{areaCode}</span></h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col">
+                            <h5>Description</h5>
+                            <p>
+                                Gets a list of available numbers for a specified area code.
+                            </p>
+                            <div class="gpbtn-lg get">GET</div>
+                            <h5>Request</h5>
+                            <ul class="nav nav-tabs" id="lang-tab" role="tablist">
+                                <li class="nav-item">
+                                    <a class="nav-link active" id="html-tab" data-toggle="tab" href="#html" role="tab" aria-controls="html" aria-selected="true">HTML</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="csharp-tab" data-toggle="tab" href="#csharp" role="tab" aria-controls="csharp" aria-selected="false">C# (RestSharp)</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="php-tab" data-toggle="tab" href="#php" role="tab" aria-controls="php" aria-selected="false">PHP</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="curl-tab" data-toggle="tab" href="#curl" role="tab" aria-controls="curl" aria-selected="false">cURL</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="jquery-tab" data-toggle="tab" href="#jquery" role="tab" aria-controls="jquery" aria-selected="false">jQuery</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="python-tab" data-toggle="tab" href="#python" role="tab" aria-controls="pyton" aria-selected="false">Python</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="ruby-tab" data-toggle="tab" href="#ruby" role="tab" aria-controls="ruby" aria-selected="false">Ruby</a>
+                                </li>
+                            </ul>
+                            <div class="tab-content">
+                                <div class="tab-pane active" id="html" role="tabpanel" aria-labelledby="html-tab">
+                                    <pre><code class="html">GET /api/v1/numbers/213 HTTP/1.1
+Host: textport.com
+Authorization: Basic MS13OFBHczdPY09KOkVnbkJDZnh5N2txMXdHVkpycFJn</code></pre>
+                                </div>
+                                <div class="tab-pane" id="csharp" role="tabpanel" aria-labelledby="csharp-tab">
+                                    <pre><code class="csharp">var client = new RestClient("https://textport.com/api/v1/numbers/213");
+var request = new RestRequest(Method.GET);
+request.AddHeader("Authorization", "Basic MS13OFBHczdPY09KOkVnbkJDZnh5N2txMXdHVkpycFJn");
+IRestResponse response = client.Execute(request);</code></pre>
+                                </div>
+                                <div class="tab-pane" id="php" role="tabpanel" aria-labelledby="php-tab">
+                                    <pre><code class="js">$request = new HttpRequest();
+$request->setUrl('https://textport.com/api/v1/numbers/213');
+$request->setMethod(HTTP_METH_GET);
+
+$request->setHeaders(array(
+    'Authorization' => 'Basic MS13OFBHczdPY09KOkVnbkJDZnh5N2txMXdHVkpycFJn'
+));
+
+try {
+    $response = $request->send();
+
+    echo $response->getBody();
+} catch (HttpException $ex) {
+    echo $ex;
+}</code></pre>
+                                </div>
+                                <div class="tab-pane" id="curl" role="tabpanel" aria-labelledby="curl-tab">
+                                    <pre><code class="curl">curl -X GET \
+https://textport.com/api/v1/numbers/213 \
+-H 'Authorization: Basic MS13OFBHczdPY09KOkVnbkJDZnh5N2txMXdHVkpycFJn'</code></pre>
+                                </div>
+                                <div class="tab-pane" id="jquery" role="tabpanel" aria-labelledby="jquery-tab">
+                                    <pre><code class="jquery">var settings = {
+    "async": true,
+    "crossDomain": true,
+    "url": "https://textport.com/api/v1/numbers/213",
+    "method": "GET",
+    "headers": {
+        "Authorization": "Basic MS13OFBHczdPY09KOkVnbkJDZnh5N2txMXdHVkpycFJn"
+    }
+}
+
+$.ajax(settings).done(function (response) {
+    console.log(response);
+});</code></pre>
+                                </div>
+                                <div class="tab-pane" id="python" role="tabpanel" aria-labelledby="pyton-tab">
+                                    <pre><code class="python">import http.client
+
+conn = http.client.HTTPConnection("textport,com")
+
+payload = ""
+
+headers = {
+    'Authorization': "Basic MS13OFBHczdPY09KOkVnbkJDZnh5N2txMXdHVkpycFJn"
+}
+
+conn.request("GET", "api,v1,numbers,213", payload, headers)
+
+res = conn.getresponse()
+data = res.read()
+
+print(data.decode("utf-8"))</code></pre>
+                                </div>
+                                <div class="tab-pane" id="ruby" role="tabpanel" aria-labelledby="ruby-tab">
+                                    <pre><code class="ruby">require 'uri'
+require 'net/http'
+
+url = URI("https://textport.com/api/v1/numbers/213")
+
+http = Net::HTTP.new(url.host, url.port)
+
+request = Net::HTTP::Get.new(url)
+request["Authorization"] = 'Basic MS13OFBHczdPY09KOkVnbkJDZnh5N2txMXdHVkpycFJn'
+
+response = http.request(request)
+puts response.read_body
+</code></pre>
+                                </div>
+                            </div>
+                            <ul class="nav nav-tabs" id="response-tab" role="tablist">
+                                <li class="nav-item">
+                                    <a class="nav-link active" id="rjson-tab" data-toggle="tab" href="#rjson" role="tab" aria-controls="rjson" aria-selected="true">JSON</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="rxml-tab" data-toggle="tab" href="#rxml" role="tab" aria-controls="rxml" aria-selected="false">XML</a>
+                                </li>
+                            </ul>
+                            <div class="tab-content">
+                                <div class="tab-pane active" id="rjson" role="tabpanel" aria-labelledby="rjson-tab">
+                                    <pre><code class="json">{
+    "AreaCode": "213",
+    "NumberCount": 100,
+    "Message": "100 numbers found.",
+    "Numbers": [
+        "12135550615",
+        "12135550627",
+        "12135550638",
+        "12135550641",
+        "12135550647",
+        ...
+        "12135550648",
+        "12135550653",
+        "12135550656",
+        "12135550661",
+        "12135550678",
+        ]
+}</code></pre>
+                                </div>
+                                <div class="tab-pane" id="rxml" role="tabpanel" aria-labelledby="xml-tab">
+                                    <pre><code class="xml">&lt;NumbersResult xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; xmlns:xsd=&quot;http://www.w3.org/2001/XMLSchema&quot;&gt;
+&lt;AreaCode&gt;213&lt;/AreaCode&gt;
+&lt;NumberCount&gt;100&lt;/NumberCount&gt;
+&lt;Message&gt;100 numbers found.&lt;/Message&gt;
+&lt;Numbers&gt;
+    &lt;string&gt;12135551212&lt;/string&gt;
+    &lt;string&gt;12135551213&lt;/string&gt;
+    &lt;string&gt;12135551214&lt;/string&gt;
+    &lt;string&gt;12135551215&lt;/string&gt;
+    &lt;string&gt;12135551216&lt;/string&gt;
+    ...
+    &lt;string&gt;12135551217&lt;/string&gt;
+    &lt;string&gt;12135551218&lt;/string&gt;
+    &lt;string&gt;12135551219&lt;/string&gt;
+    &lt;string&gt;12135551220&lt;/string&gt;
+    &lt;string&gt;12135551221&lt;/string&gt;
+&lt;/Numbers&gt;
+&lt;/NumbersResult&gt;</code></pre>
+                                </div>
+                            </div>
+                            <p>Note: The default format for response content is JSON. Adding an HTTP header <i>Accept: application/xml</i> will set the response format to XML.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>hljs.initHighlightingOnLoad()</script>

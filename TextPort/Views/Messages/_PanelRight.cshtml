@@ -2,6 +2,9 @@
 <div class="col-md-7 message_wrap">
 
     <div class="row">
+        <div class="col-12 heading_wrap_thin mt-2 d-md-none"></div>
+    </div>
+    <div class="row">
         <div class="col-12 heading_wrap_b">
             <h4 id="active_num_title" class="num_title"></h4>
         </div>
@@ -27,16 +30,20 @@
                                 <span class="dz-message"><i class="fa fa-image mms-icon msg_function_icon"></i></span>
                             </form>
                         </div>
-                        <div class="col-4 col-md-12">
-                            <button id="btn_send_message" class="btn btn-primary center-block">Send</button>
-                        </div>
+                        @if (Model.VirtualNumberCount > 0)
+                        {
+                            <div class="col-4 col-md-12">
+                                <button id="btn_send_message" class="btn btn-primary center-block">Send</button>
+                            </div>
+                        }
                     </div>
                 </div>
             </div>
         </div>
     </div>
+    <div id="msg_area_disabled" class="msg_area_disabled text-center alert alert-danger" style="display: none">
+        <p>Messages cannot be sent because your balance is exhausted</p>
+        <p><a href="/account/balance">Top up your account</a></p>
+    </div>
 </div>
-<div id="msg_area_disabled" class="msg_area_disabled text-center alert alert-danger" style="display: none">
-    <p>Messages cannot be sent because your balance is exhausted</p>
-    <p><a href="/account/balance">Top up your account</a></p>
-</div>
+

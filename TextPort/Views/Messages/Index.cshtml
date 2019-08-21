@@ -150,6 +150,23 @@
         });
 
         $("#active_num_title").html(numberToDisplay($("#hidActiveDestinationNumber").val()));
+
+        $('#modal-del').on('shown.bs.modal', function (e) {
+            $('#form-delete-for-number').on("submit", function (e) {
+                e.preventDefault();
+                $.ajax({
+                    url: '/messages/deletemessagesfornumber',
+                    type: 'post',
+                    dataType: 'json',
+                    data: $('#form-delete-for-number').serialize(),
+                    success: function (data) {
+                        $('#modal-del > .modal').modal('hide');
+                        getRecentsForVirtualNumber(numberToE164($("#from_number option:selected").val()));
+                        return false;
+                    }
+                });
+            });
+        });
     });
 
     // This optional function html-encodes messages for display in the page.
@@ -380,6 +397,52 @@
             $('#msg_area_disabled').show();
         }
     }
+
+    function delMsgsForNum(number) {
+        var delData = {
+            DeleteType: "VNAndMobile",
+            AccountId: 0,
+            VirtualNumberId: $("#hidActiveVirtualNumberId").val(),
+            MobileNumber: number,
+        };
+
+        $.ajax({
+            type: 'POST',
+            cache: false,
+            url: '/messages/getdeletepromptmodal/0',
+            contentType: 'application/json; charset=utf-8',
+            data: JSON.stringify(delData),
+            success: function (result) {
+                $('#modal-del').html(result);
+                $('#modal-del > .modal').modal('show');
+            }
+        });
+
+        return false;
+    }
+
+    function delMsgsForVN() {
+        var delData = {
+            DeleteType: "VN",
+            AccountId: 0,
+            VirtualNumber: numberToE164($("#from_number option:selected").text()),
+            VirtualNumberId: $("#hidActiveVirtualNumberId").val()
+        };
+
+        $.ajax({
+            type: 'POST',
+            cache: false,
+            url: '/messages/getdeletepromptmodal/0',
+            contentType: 'application/json; charset=utf-8',
+            data: JSON.stringify(delData),
+            success: function (result) {
+                $('#modal-del').html(result);
+                $('#modal-del > .modal').modal('show');
+            }
+        });
+
+        return false;
+    }
 </script>
 
 <input type="hidden" id="hidActiveVirtualNumberId" value="@Model.ActiveVirtualNumberId" />
@@ -395,5 +458,6 @@
     </div>
 </div>
 <div id="modal-new"></div>
+<div id="modal-del"></div>
 <div class="clearfix"></div>
 

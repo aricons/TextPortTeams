@@ -1,0 +1,661 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.1\build\net46\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props" Condition="Exists('..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.1\build\net46\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props')" />
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.Default.props" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.Default.props')" />
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>
+    </ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{6FBAD56E-F0C1-4484-B3DC-883D8F2D8BCD}</ProjectGuid>
+    <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>TextPortAPI</RootNamespace>
+    <AssemblyName>TextPortAPI</AssemblyName>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <MvcBuildViews>false</MvcBuildViews>
+    <UseIISExpress>true</UseIISExpress>
+    <Use64BitIISExpress />
+    <IISExpressSSLPort />
+    <IISExpressAnonymousAuthentication />
+    <IISExpressWindowsAuthentication />
+    <IISExpressUseClassicPipelineMode />
+    <UseGlobalApplicationHostFile />
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+    <TypeScriptToolsVersion>3.1</TypeScriptToolsVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.AspNet.TelemetryCorrelation, Version=1.0.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.TelemetryCorrelation.1.0.5\lib\net45\Microsoft.AspNet.TelemetryCorrelation.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.CodeDom.Providers.DotNetCompilerPlatform, Version=2.0.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.1\lib\net45\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.12.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="RestSharp, Version=106.6.10.0, Culture=neutral, PublicKeyToken=598062e77f915f75, processorArchitecture=MSIL">
+      <HintPath>..\packages\RestSharp.106.6.10\lib\net452\RestSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="Swashbuckle.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=cd1bb07a5ac7c7bc, processorArchitecture=MSIL">
+      <HintPath>..\packages\Swashbuckle.Core.5.6.0\lib\net40\Swashbuckle.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.Annotations, Version=4.2.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.ComponentModel.Annotations.4.5.0\lib\net461\System.ComponentModel.Annotations.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Data.SqlClient, Version=4.5.0.1, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Data.SqlClient.4.6.1\lib\net461\System.Data.SqlClient.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Diagnostics.DiagnosticSource, Version=4.0.3.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Diagnostics.DiagnosticSource.4.5.1\lib\net46\System.Diagnostics.DiagnosticSource.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Net.Http.Formatting, Version=5.2.7.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.Client.5.2.7\lib\net45\System.Net.Http.Formatting.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Entity" />
+    <Reference Include="System.Web.ApplicationServices" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Web.Helpers, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.7\lib\net45\System.Web.Helpers.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Http, Version=5.2.7.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.Core.5.2.7\lib\net45\System.Web.Http.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Http.WebHost, Version=5.2.7.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.WebHost.5.2.7\lib\net45\System.Web.Http.WebHost.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Mvc, Version=5.2.7.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.Mvc.5.2.7\lib\net45\System.Web.Mvc.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Razor, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.Razor.3.2.7\lib\net45\System.Web.Razor.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.WebPages, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.7\lib\net45\System.Web.WebPages.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.WebPages.Deployment, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.7\lib\net45\System.Web.WebPages.Deployment.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.WebPages.Razor, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.7\lib\net45\System.Web.WebPages.Razor.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Abstractions" />
+    <Reference Include="System.Web.Routing" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="Microsoft.Web.Infrastructure, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.Web.Infrastructure.1.0.0.0\lib\net40\Microsoft.Web.Infrastructure.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Http">
+    </Reference>
+    <Reference Include="System.Net.Http.WebRequest">
+    </Reference>
+    <Reference Include="System.Web.Optimization">
+      <HintPath>..\packages\Microsoft.AspNet.Web.Optimization.1.1.3\lib\net40\System.Web.Optimization.dll</HintPath>
+    </Reference>
+    <Reference Include="WebActivatorEx, Version=2.0.0.0, Culture=neutral, PublicKeyToken=7b26dc2a43f6a0d4, processorArchitecture=MSIL">
+      <HintPath>..\packages\WebActivatorEx.2.2.0\lib\net40\WebActivatorEx.dll</HintPath>
+    </Reference>
+    <Reference Include="WebGrease">
+      <Private>True</Private>
+      <HintPath>..\packages\WebGrease.1.6.0\lib\WebGrease.dll</HintPath>
+    </Reference>
+    <Reference Include="Antlr3.Runtime">
+      <Private>True</Private>
+      <HintPath>..\packages\Antlr.3.5.0.2\lib\Antlr3.Runtime.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="App_Start\BundleConfig.cs" />
+    <Compile Include="App_Start\FilterConfig.cs" />
+    <Compile Include="App_Start\RouteConfig.cs" />
+    <Compile Include="App_Start\SwaggerConfig.cs" />
+    <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="Areas\HelpPage\ApiDescriptionExtensions.cs" />
+    <Compile Include="Areas\HelpPage\App_Start\HelpPageConfig.cs" />
+    <Compile Include="Areas\HelpPage\Controllers\HelpController.cs" />
+    <Compile Include="Areas\HelpPage\HelpPageAreaRegistration.cs" />
+    <Compile Include="Areas\HelpPage\HelpPageConfigurationExtensions.cs" />
+    <Compile Include="Areas\HelpPage\ModelDescriptions\CollectionModelDescription.cs" />
+    <Compile Include="Areas\HelpPage\ModelDescriptions\ComplexTypeModelDescription.cs" />
+    <Compile Include="Areas\HelpPage\ModelDescriptions\DictionaryModelDescription.cs" />
+    <Compile Include="Areas\HelpPage\ModelDescriptions\EnumTypeModelDescription.cs" />
+    <Compile Include="Areas\HelpPage\ModelDescriptions\EnumValueDescription.cs" />
+    <Compile Include="Areas\HelpPage\ModelDescriptions\IModelDocumentationProvider.cs" />
+    <Compile Include="Areas\HelpPage\ModelDescriptions\KeyValuePairModelDescription.cs" />
+    <Compile Include="Areas\HelpPage\ModelDescriptions\ModelDescription.cs" />
+    <Compile Include="Areas\HelpPage\ModelDescriptions\ModelDescriptionGenerator.cs" />
+    <Compile Include="Areas\HelpPage\ModelDescriptions\ModelNameAttribute.cs" />
+    <Compile Include="Areas\HelpPage\ModelDescriptions\ModelNameHelper.cs" />
+    <Compile Include="Areas\HelpPage\ModelDescriptions\ParameterAnnotation.cs" />
+    <Compile Include="Areas\HelpPage\ModelDescriptions\ParameterDescription.cs" />
+    <Compile Include="Areas\HelpPage\ModelDescriptions\SimpleTypeModelDescription.cs" />
+    <Compile Include="Areas\HelpPage\Models\HelpPageApiModel.cs" />
+    <Compile Include="Areas\HelpPage\SampleGeneration\HelpPageSampleGenerator.cs" />
+    <Compile Include="Areas\HelpPage\SampleGeneration\HelpPageSampleKey.cs" />
+    <Compile Include="Areas\HelpPage\SampleGeneration\ImageSample.cs" />
+    <Compile Include="Areas\HelpPage\SampleGeneration\InvalidSample.cs" />
+    <Compile Include="Areas\HelpPage\SampleGeneration\ObjectGenerator.cs" />
+    <Compile Include="Areas\HelpPage\SampleGeneration\SampleDirection.cs" />
+    <Compile Include="Areas\HelpPage\SampleGeneration\TextSample.cs" />
+    <Compile Include="Areas\HelpPage\XmlDocumentationProvider.cs" />
+    <Compile Include="Controllers\DocumentationController.cs" />
+    <Compile Include="Controllers\TestsController.cs" />
+    <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\MessagesController.cs" />
+    <Compile Include="Controllers\NumbersController.cs" />
+    <Compile Include="Global.asax.cs">
+      <DependentUpon>Global.asax</DependentUpon>
+    </Compile>
+    <Compile Include="Helpers\Authorization.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\HelpPage\HelpPage.css" />
+    <Content Include="Content\bootstrap-grid.css" />
+    <Content Include="Content\bootstrap-grid.min.css" />
+    <Content Include="Content\bootstrap-reboot.css" />
+    <Content Include="Content\bootstrap-reboot.min.css" />
+    <Content Include="Content\bootstrap.css" />
+    <Content Include="Content\bootstrap.min.css" />
+    <Content Include="Content\highlight.pack.js" />
+    <Content Include="Content\highlight\highlight\highlight.pack.js" />
+    <Content Include="Content\highlight\highlight\styles\a11y-dark.css" />
+    <Content Include="Content\highlight\highlight\styles\a11y-light.css" />
+    <Content Include="Content\highlight\highlight\styles\agate.css" />
+    <Content Include="Content\highlight\highlight\styles\an-old-hope.css" />
+    <Content Include="Content\highlight\highlight\styles\androidstudio.css" />
+    <Content Include="Content\highlight\highlight\styles\arduino-light.css" />
+    <Content Include="Content\highlight\highlight\styles\arta.css" />
+    <Content Include="Content\highlight\highlight\styles\ascetic.css" />
+    <Content Include="Content\highlight\highlight\styles\atelier-cave-dark.css" />
+    <Content Include="Content\highlight\highlight\styles\atelier-cave-light.css" />
+    <Content Include="Content\highlight\highlight\styles\atelier-dune-dark.css" />
+    <Content Include="Content\highlight\highlight\styles\atelier-dune-light.css" />
+    <Content Include="Content\highlight\highlight\styles\atelier-estuary-dark.css" />
+    <Content Include="Content\highlight\highlight\styles\atelier-estuary-light.css" />
+    <Content Include="Content\highlight\highlight\styles\atelier-forest-dark.css" />
+    <Content Include="Content\highlight\highlight\styles\atelier-forest-light.css" />
+    <Content Include="Content\highlight\highlight\styles\atelier-heath-dark.css" />
+    <Content Include="Content\highlight\highlight\styles\atelier-heath-light.css" />
+    <Content Include="Content\highlight\highlight\styles\atelier-lakeside-dark.css" />
+    <Content Include="Content\highlight\highlight\styles\atelier-lakeside-light.css" />
+    <Content Include="Content\highlight\highlight\styles\atelier-plateau-dark.css" />
+    <Content Include="Content\highlight\highlight\styles\atelier-plateau-light.css" />
+    <Content Include="Content\highlight\highlight\styles\atelier-savanna-dark.css" />
+    <Content Include="Content\highlight\highlight\styles\atelier-savanna-light.css" />
+    <Content Include="Content\highlight\highlight\styles\atelier-seaside-dark.css" />
+    <Content Include="Content\highlight\highlight\styles\atelier-seaside-light.css" />
+    <Content Include="Content\highlight\highlight\styles\atelier-sulphurpool-dark.css" />
+    <Content Include="Content\highlight\highlight\styles\atelier-sulphurpool-light.css" />
+    <Content Include="Content\highlight\highlight\styles\atom-one-dark-reasonable.css" />
+    <Content Include="Content\highlight\highlight\styles\atom-one-dark.css" />
+    <Content Include="Content\highlight\highlight\styles\atom-one-light.css" />
+    <Content Include="Content\highlight\highlight\styles\brown-paper.css" />
+    <Content Include="Content\highlight\highlight\styles\brown-papersq.png" />
+    <Content Include="Content\highlight\highlight\styles\codepen-embed.css" />
+    <Content Include="Content\highlight\highlight\styles\color-brewer.css" />
+    <Content Include="Content\highlight\highlight\styles\darcula.css" />
+    <Content Include="Content\highlight\highlight\styles\dark.css" />
+    <Content Include="Content\highlight\highlight\styles\darkula.css" />
+    <Content Include="Content\highlight\highlight\styles\default.css" />
+    <Content Include="Content\highlight\highlight\styles\docco.css" />
+    <Content Include="Content\highlight\highlight\styles\dracula.css" />
+    <Content Include="Content\highlight\highlight\styles\far.css" />
+    <Content Include="Content\highlight\highlight\styles\foundation.css" />
+    <Content Include="Content\highlight\highlight\styles\github-gist.css" />
+    <Content Include="Content\highlight\highlight\styles\github.css" />
+    <Content Include="Content\highlight\highlight\styles\gml.css" />
+    <Content Include="Content\highlight\highlight\styles\googlecode.css" />
+    <Content Include="Content\highlight\highlight\styles\grayscale.css" />
+    <Content Include="Content\highlight\highlight\styles\gruvbox-dark.css" />
+    <Content Include="Content\highlight\highlight\styles\gruvbox-light.css" />
+    <Content Include="Content\highlight\highlight\styles\hopscotch.css" />
+    <Content Include="Content\highlight\highlight\styles\hybrid.css" />
+    <Content Include="Content\highlight\highlight\styles\idea.css" />
+    <Content Include="Content\highlight\highlight\styles\ir-black.css" />
+    <Content Include="Content\highlight\highlight\styles\isbl-editor-dark.css" />
+    <Content Include="Content\highlight\highlight\styles\isbl-editor-light.css" />
+    <Content Include="Content\highlight\highlight\styles\kimbie.dark.css" />
+    <Content Include="Content\highlight\highlight\styles\kimbie.light.css" />
+    <Content Include="Content\highlight\highlight\styles\lightfair.css" />
+    <Content Include="Content\highlight\highlight\styles\magula.css" />
+    <Content Include="Content\highlight\highlight\styles\mono-blue.css" />
+    <Content Include="Content\highlight\highlight\styles\monokai-sublime.css" />
+    <Content Include="Content\highlight\highlight\styles\monokai.css" />
+    <Content Include="Content\highlight\highlight\styles\nord.css" />
+    <Content Include="Content\highlight\highlight\styles\obsidian.css" />
+    <Content Include="Content\highlight\highlight\styles\ocean.css" />
+    <Content Include="Content\highlight\highlight\styles\paraiso-dark.css" />
+    <Content Include="Content\highlight\highlight\styles\paraiso-light.css" />
+    <Content Include="Content\highlight\highlight\styles\pojoaque.css" />
+    <Content Include="Content\highlight\highlight\styles\pojoaque.jpg" />
+    <Content Include="Content\highlight\highlight\styles\purebasic.css" />
+    <Content Include="Content\highlight\highlight\styles\qtcreator_dark.css" />
+    <Content Include="Content\highlight\highlight\styles\qtcreator_light.css" />
+    <Content Include="Content\highlight\highlight\styles\railscasts.css" />
+    <Content Include="Content\highlight\highlight\styles\rainbow.css" />
+    <Content Include="Content\highlight\highlight\styles\routeros.css" />
+    <Content Include="Content\highlight\highlight\styles\school-book.css" />
+    <Content Include="Content\highlight\highlight\styles\school-book.png" />
+    <Content Include="Content\highlight\highlight\styles\shades-of-purple.css" />
+    <Content Include="Content\highlight\highlight\styles\solarized-dark.css" />
+    <Content Include="Content\highlight\highlight\styles\solarized-light.css" />
+    <Content Include="Content\highlight\highlight\styles\sunburst.css" />
+    <Content Include="Content\highlight\highlight\styles\tomorrow-night-blue.css" />
+    <Content Include="Content\highlight\highlight\styles\tomorrow-night-bright.css" />
+    <Content Include="Content\highlight\highlight\styles\tomorrow-night-eighties.css" />
+    <Content Include="Content\highlight\highlight\styles\tomorrow-night.css" />
+    <Content Include="Content\highlight\highlight\styles\tomorrow.css" />
+    <Content Include="Content\highlight\highlight\styles\vs.css" />
+    <Content Include="Content\highlight\highlight\styles\vs2015.css" />
+    <Content Include="Content\highlight\highlight\styles\xcode.css" />
+    <Content Include="Content\highlight\highlight\styles\xt256.css" />
+    <Content Include="Content\highlight\highlight\styles\zenburn.css" />
+    <Content Include="Content\highlight\styles\a11y-dark.css" />
+    <Content Include="Content\highlight\styles\a11y-light.css" />
+    <Content Include="Content\highlight\styles\agate.css" />
+    <Content Include="Content\highlight\styles\an-old-hope.css" />
+    <Content Include="Content\highlight\styles\androidstudio.css" />
+    <Content Include="Content\highlight\styles\arduino-light.css" />
+    <Content Include="Content\highlight\styles\arta.css" />
+    <Content Include="Content\highlight\styles\ascetic.css" />
+    <Content Include="Content\highlight\styles\atelier-cave-dark.css" />
+    <Content Include="Content\highlight\styles\atelier-cave-light.css" />
+    <Content Include="Content\highlight\styles\atelier-dune-dark.css" />
+    <Content Include="Content\highlight\styles\atelier-dune-light.css" />
+    <Content Include="Content\highlight\styles\atelier-estuary-dark.css" />
+    <Content Include="Content\highlight\styles\atelier-estuary-light.css" />
+    <Content Include="Content\highlight\styles\atelier-forest-dark.css" />
+    <Content Include="Content\highlight\styles\atelier-forest-light.css" />
+    <Content Include="Content\highlight\styles\atelier-heath-dark.css" />
+    <Content Include="Content\highlight\styles\atelier-heath-light.css" />
+    <Content Include="Content\highlight\styles\atelier-lakeside-dark.css" />
+    <Content Include="Content\highlight\styles\atelier-lakeside-light.css" />
+    <Content Include="Content\highlight\styles\atelier-plateau-dark.css" />
+    <Content Include="Content\highlight\styles\atelier-plateau-light.css" />
+    <Content Include="Content\highlight\styles\atelier-savanna-dark.css" />
+    <Content Include="Content\highlight\styles\atelier-savanna-light.css" />
+    <Content Include="Content\highlight\styles\atelier-seaside-dark.css" />
+    <Content Include="Content\highlight\styles\atelier-seaside-light.css" />
+    <Content Include="Content\highlight\styles\atelier-sulphurpool-dark.css" />
+    <Content Include="Content\highlight\styles\atelier-sulphurpool-light.css" />
+    <Content Include="Content\highlight\styles\atom-one-dark-reasonable.css" />
+    <Content Include="Content\highlight\styles\atom-one-dark.css" />
+    <Content Include="Content\highlight\styles\atom-one-light.css" />
+    <Content Include="Content\highlight\styles\brown-paper.css" />
+    <Content Include="Content\highlight\styles\brown-papersq.png" />
+    <Content Include="Content\highlight\styles\codepen-embed.css" />
+    <Content Include="Content\highlight\styles\color-brewer.css" />
+    <Content Include="Content\highlight\styles\darcula.css" />
+    <Content Include="Content\highlight\styles\dark.css" />
+    <Content Include="Content\highlight\styles\darkula.css" />
+    <Content Include="Content\highlight\styles\default.css" />
+    <Content Include="Content\highlight\styles\docco.css" />
+    <Content Include="Content\highlight\styles\dracula.css" />
+    <Content Include="Content\highlight\styles\far.css" />
+    <Content Include="Content\highlight\styles\foundation.css" />
+    <Content Include="Content\highlight\styles\github-gist.css" />
+    <Content Include="Content\highlight\styles\github.css" />
+    <Content Include="Content\highlight\styles\gml.css" />
+    <Content Include="Content\highlight\styles\googlecode.css" />
+    <Content Include="Content\highlight\styles\grayscale.css" />
+    <Content Include="Content\highlight\styles\gruvbox-dark.css" />
+    <Content Include="Content\highlight\styles\gruvbox-light.css" />
+    <Content Include="Content\highlight\styles\hopscotch.css" />
+    <Content Include="Content\highlight\styles\hybrid.css" />
+    <Content Include="Content\highlight\styles\idea.css" />
+    <Content Include="Content\highlight\styles\ir-black.css" />
+    <Content Include="Content\highlight\styles\isbl-editor-dark.css" />
+    <Content Include="Content\highlight\styles\isbl-editor-light.css" />
+    <Content Include="Content\highlight\styles\kimbie.dark.css" />
+    <Content Include="Content\highlight\styles\kimbie.light.css" />
+    <Content Include="Content\highlight\styles\lightfair.css" />
+    <Content Include="Content\highlight\styles\magula.css" />
+    <Content Include="Content\highlight\styles\mono-blue.css" />
+    <Content Include="Content\highlight\styles\monokai-sublime.css" />
+    <Content Include="Content\highlight\styles\monokai.css" />
+    <Content Include="Content\highlight\styles\nord.css" />
+    <Content Include="Content\highlight\styles\obsidian.css" />
+    <Content Include="Content\highlight\styles\ocean.css" />
+    <Content Include="Content\highlight\styles\paraiso-dark.css" />
+    <Content Include="Content\highlight\styles\paraiso-light.css" />
+    <Content Include="Content\highlight\styles\pojoaque.css" />
+    <Content Include="Content\highlight\styles\pojoaque.jpg" />
+    <Content Include="Content\highlight\styles\purebasic.css" />
+    <Content Include="Content\highlight\styles\qtcreator_dark.css" />
+    <Content Include="Content\highlight\styles\qtcreator_light.css" />
+    <Content Include="Content\highlight\styles\railscasts.css" />
+    <Content Include="Content\highlight\styles\rainbow.css" />
+    <Content Include="Content\highlight\styles\routeros.css" />
+    <Content Include="Content\highlight\styles\school-book.css" />
+    <Content Include="Content\highlight\styles\school-book.png" />
+    <Content Include="Content\highlight\styles\shades-of-purple.css" />
+    <Content Include="Content\highlight\styles\solarized-dark.css" />
+    <Content Include="Content\highlight\styles\solarized-light.css" />
+    <Content Include="Content\highlight\styles\sunburst.css" />
+    <Content Include="Content\highlight\styles\tomorrow-night-blue.css" />
+    <Content Include="Content\highlight\styles\tomorrow-night-bright.css" />
+    <Content Include="Content\highlight\styles\tomorrow-night-eighties.css" />
+    <Content Include="Content\highlight\styles\tomorrow-night.css" />
+    <Content Include="Content\highlight\styles\tomorrow.css" />
+    <Content Include="Content\highlight\styles\vs.css" />
+    <Content Include="Content\highlight\styles\vs2015.css" />
+    <Content Include="Content\highlight\styles\xcode.css" />
+    <Content Include="Content\highlight\styles\xt256.css" />
+    <Content Include="Content\highlight\styles\zenburn.css" />
+    <Content Include="Content\images\apisettingspage.jpg" />
+    <Content Include="Content\images\tp_logo_240x54.png" />
+    <Content Include="Content\styles\a11y-dark.css" />
+    <Content Include="Content\styles\a11y-light.css" />
+    <Content Include="Content\styles\agate.css" />
+    <Content Include="Content\styles\an-old-hope.css" />
+    <Content Include="Content\styles\androidstudio.css" />
+    <Content Include="Content\styles\arduino-light.css" />
+    <Content Include="Content\styles\arta.css" />
+    <Content Include="Content\styles\ascetic.css" />
+    <Content Include="Content\styles\atelier-cave-dark.css" />
+    <Content Include="Content\styles\atelier-cave-light.css" />
+    <Content Include="Content\styles\atelier-dune-dark.css" />
+    <Content Include="Content\styles\atelier-dune-light.css" />
+    <Content Include="Content\styles\atelier-estuary-dark.css" />
+    <Content Include="Content\styles\atelier-estuary-light.css" />
+    <Content Include="Content\styles\atelier-forest-dark.css" />
+    <Content Include="Content\styles\atelier-forest-light.css" />
+    <Content Include="Content\styles\atelier-heath-dark.css" />
+    <Content Include="Content\styles\atelier-heath-light.css" />
+    <Content Include="Content\styles\atelier-lakeside-dark.css" />
+    <Content Include="Content\styles\atelier-lakeside-light.css" />
+    <Content Include="Content\styles\atelier-plateau-dark.css" />
+    <Content Include="Content\styles\atelier-plateau-light.css" />
+    <Content Include="Content\styles\atelier-savanna-dark.css" />
+    <Content Include="Content\styles\atelier-savanna-light.css" />
+    <Content Include="Content\styles\atelier-seaside-dark.css" />
+    <Content Include="Content\styles\atelier-seaside-light.css" />
+    <Content Include="Content\styles\atelier-sulphurpool-dark.css" />
+    <Content Include="Content\styles\atelier-sulphurpool-light.css" />
+    <Content Include="Content\styles\atom-one-dark-reasonable.css" />
+    <Content Include="Content\styles\atom-one-dark.css" />
+    <Content Include="Content\styles\atom-one-light.css" />
+    <Content Include="Content\styles\brown-paper.css" />
+    <Content Include="Content\styles\brown-papersq.png" />
+    <Content Include="Content\styles\codepen-embed.css" />
+    <Content Include="Content\styles\color-brewer.css" />
+    <Content Include="Content\styles\darcula.css" />
+    <Content Include="Content\styles\dark.css" />
+    <Content Include="Content\styles\darkula.css" />
+    <Content Include="Content\styles\default.css" />
+    <Content Include="Content\styles\docco.css" />
+    <Content Include="Content\styles\dracula.css" />
+    <Content Include="Content\styles\far.css" />
+    <Content Include="Content\styles\foundation.css" />
+    <Content Include="Content\styles\github-gist.css" />
+    <Content Include="Content\styles\github.css" />
+    <Content Include="Content\styles\gml.css" />
+    <Content Include="Content\styles\googlecode.css" />
+    <Content Include="Content\styles\grayscale.css" />
+    <Content Include="Content\styles\gruvbox-dark.css" />
+    <Content Include="Content\styles\gruvbox-light.css" />
+    <Content Include="Content\styles\hopscotch.css" />
+    <Content Include="Content\styles\hybrid.css" />
+    <Content Include="Content\styles\idea.css" />
+    <Content Include="Content\styles\ir-black.css" />
+    <Content Include="Content\styles\isbl-editor-dark.css" />
+    <Content Include="Content\styles\isbl-editor-light.css" />
+    <Content Include="Content\styles\kimbie.dark.css" />
+    <Content Include="Content\styles\kimbie.light.css" />
+    <Content Include="Content\styles\lightfair.css" />
+    <Content Include="Content\styles\magula.css" />
+    <Content Include="Content\styles\mono-blue.css" />
+    <Content Include="Content\styles\monokai-sublime.css" />
+    <Content Include="Content\styles\monokai.css" />
+    <Content Include="Content\styles\nord.css" />
+    <Content Include="Content\styles\obsidian.css" />
+    <Content Include="Content\styles\ocean.css" />
+    <Content Include="Content\styles\paraiso-dark.css" />
+    <Content Include="Content\styles\paraiso-light.css" />
+    <Content Include="Content\styles\pojoaque.css" />
+    <Content Include="Content\styles\pojoaque.jpg" />
+    <Content Include="Content\styles\purebasic.css" />
+    <Content Include="Content\styles\qtcreator_dark.css" />
+    <Content Include="Content\styles\qtcreator_light.css" />
+    <Content Include="Content\styles\railscasts.css" />
+    <Content Include="Content\styles\rainbow.css" />
+    <Content Include="Content\styles\routeros.css" />
+    <Content Include="Content\styles\school-book.css" />
+    <Content Include="Content\styles\school-book.png" />
+    <Content Include="Content\styles\shades-of-purple.css" />
+    <Content Include="Content\styles\solarized-dark.css" />
+    <Content Include="Content\styles\solarized-light.css" />
+    <Content Include="Content\styles\sunburst.css" />
+    <Content Include="Content\styles\tomorrow-night-blue.css" />
+    <Content Include="Content\styles\tomorrow-night-bright.css" />
+    <Content Include="Content\styles\tomorrow-night-eighties.css" />
+    <Content Include="Content\styles\tomorrow-night.css" />
+    <Content Include="Content\styles\tomorrow.css" />
+    <Content Include="Content\styles\vs.css" />
+    <Content Include="Content\styles\vs2015.css" />
+    <Content Include="Content\styles\xcode.css" />
+    <Content Include="Content\styles\xt256.css" />
+    <Content Include="Content\styles\zenburn.css" />
+    <Content Include="favicon.ico" />
+    <Content Include="Global.asax" />
+    <Content Include="Content\bootstrap.min.css.map" />
+    <Content Include="Content\bootstrap.css.map" />
+    <Content Include="Content\bootstrap-reboot.min.css.map" />
+    <Content Include="Content\bootstrap-reboot.css.map" />
+    <Content Include="Content\bootstrap-grid.min.css.map" />
+    <Content Include="Content\bootstrap-grid.css.map" />
+    <Content Include="Areas\HelpPage\Views\Web.config" />
+    <Content Include="Areas\HelpPage\Views\Shared\_Layout.cshtml" />
+    <Content Include="Areas\HelpPage\Views\Help\ResourceModel.cshtml" />
+    <Content Include="Areas\HelpPage\Views\Help\Index.cshtml" />
+    <Content Include="Areas\HelpPage\Views\Help\DisplayTemplates\TextSample.cshtml" />
+    <Content Include="Areas\HelpPage\Views\Help\DisplayTemplates\SimpleTypeModelDescription.cshtml" />
+    <Content Include="Areas\HelpPage\Views\Help\DisplayTemplates\Samples.cshtml" />
+    <Content Include="Areas\HelpPage\Views\Help\DisplayTemplates\Parameters.cshtml" />
+    <Content Include="Areas\HelpPage\Views\Help\DisplayTemplates\ModelDescriptionLink.cshtml" />
+    <Content Include="Areas\HelpPage\Views\Help\DisplayTemplates\KeyValuePairModelDescription.cshtml" />
+    <Content Include="Areas\HelpPage\Views\Help\DisplayTemplates\InvalidSample.cshtml" />
+    <Content Include="Areas\HelpPage\Views\Help\DisplayTemplates\ImageSample.cshtml" />
+    <Content Include="Areas\HelpPage\Views\Help\DisplayTemplates\HelpPageApiModel.cshtml" />
+    <Content Include="Areas\HelpPage\Views\Help\DisplayTemplates\EnumTypeModelDescription.cshtml" />
+    <Content Include="Areas\HelpPage\Views\Help\DisplayTemplates\DictionaryModelDescription.cshtml" />
+    <Content Include="Areas\HelpPage\Views\Help\DisplayTemplates\ComplexTypeModelDescription.cshtml" />
+    <Content Include="Areas\HelpPage\Views\Help\DisplayTemplates\CollectionModelDescription.cshtml" />
+    <Content Include="Areas\HelpPage\Views\Help\DisplayTemplates\ApiGroup.cshtml" />
+    <Content Include="Areas\HelpPage\Views\Help\Api.cshtml" />
+    <Content Include="Content\highlight\highlight\CHANGES.md" />
+    <Content Include="Content\highlight\highlight\LICENSE" />
+    <Content Include="Content\highlight\highlight\README.md" />
+    <Content Include="Content\highlight\highlight\README.ru.md" />
+    <None Include="Properties\PublishProfiles\Beta.pubxml" />
+    <None Include="Properties\PublishProfiles\Production.pubxml" />
+    <Content Include="Scripts\bootstrap.bundle.js" />
+    <Content Include="Scripts\bootstrap.bundle.min.js" />
+    <Content Include="Scripts\bootstrap.js" />
+    <Content Include="Scripts\bootstrap.min.js" />
+    <Content Include="Scripts\bootstrap.min.js.map" />
+    <Content Include="Scripts\bootstrap.js.map" />
+    <Content Include="Scripts\bootstrap.bundle.min.js.map" />
+    <Content Include="Scripts\bootstrap.bundle.js.map" />
+    <Content Include="Scripts\esm\popper-utils.js" />
+    <Content Include="Scripts\esm\popper-utils.min.js" />
+    <Content Include="Scripts\esm\popper.js" />
+    <Content Include="Scripts\esm\popper.min.js" />
+    <Content Include="Scripts\esm\popper.min.js.map" />
+    <Content Include="Scripts\esm\popper.js.map" />
+    <Content Include="Scripts\esm\popper-utils.min.js.map" />
+    <Content Include="Scripts\esm\popper-utils.js.map" />
+    <None Include="Scripts\jquery-3.4.1.intellisense.js" />
+    <Content Include="Scripts\jquery-3.4.1.js" />
+    <Content Include="Scripts\jquery-3.4.1.min.js" />
+    <Content Include="Scripts\jquery-3.4.1.slim.js" />
+    <Content Include="Scripts\jquery-3.4.1.slim.min.js" />
+    <Content Include="Scripts\modernizr-2.8.3.js" />
+    <Content Include="Scripts\popper-utils.js" />
+    <Content Include="Scripts\popper-utils.min.js" />
+    <Content Include="Scripts\popper.js" />
+    <Content Include="Scripts\popper.min.js" />
+    <Content Include="Scripts\umd\popper-utils.js" />
+    <Content Include="Scripts\umd\popper-utils.min.js" />
+    <Content Include="Scripts\umd\popper.js" />
+    <Content Include="Scripts\umd\popper.min.js" />
+    <EmbeddedResource Include="SwaggerCustom\custom.css" />
+    <EmbeddedResource Include="SwaggerCustom\index.html" />
+    <Content Include="Web.config">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Web.Debug.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </Content>
+    <Content Include="Web.Release.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </Content>
+    <Content Include="Areas\HelpPage\Views\_ViewStart.cshtml" />
+    <Content Include="Content\Site.css" />
+    <Content Include="Views\Web.config" />
+    <Content Include="Views\_ViewStart.cshtml" />
+    <Content Include="Views\Home\Index.cshtml" />
+    <Content Include="Views\Shared\Error.cshtml" />
+    <Content Include="Views\Shared\_Layout.cshtml" />
+    <Content Include="Scripts\jquery-3.4.1.slim.min.map" />
+    <Content Include="Scripts\jquery-3.4.1.min.map" />
+    <Content Include="Scripts\umd\popper.min.js.map" />
+    <Content Include="Scripts\umd\popper.js.map" />
+    <Content Include="Scripts\umd\popper-utils.min.js.map" />
+    <Content Include="Scripts\umd\popper-utils.js.map" />
+    <Content Include="Scripts\README.md" />
+    <Content Include="Scripts\popper.min.js.map" />
+    <Content Include="Scripts\popper.js.map" />
+    <Content Include="Scripts\popper-utils.min.js.map" />
+    <Content Include="Scripts\popper-utils.js.map" />
+    <Content Include="Views\Shared\_SideMenuBar.cshtml" />
+    <Content Include="Views\Documentation\Index.cshtml" />
+    <Content Include="Views\Documentation\Samples.cshtml" />
+    <Content Include="Views\Documentation\InboundEvents.cshtml" />
+    <Content Include="Views\Documentation\Ping.cshtml" />
+    <Content Include="Views\Documentation\NumbersList.cshtml" />
+    <Content Include="Views\Documentation\GetNumber.cshtml" />
+    <Content Include="Views\Documentation\SendMessage.cshtml" />
+    <None Include="Web.Beta.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </None>
+    <None Include="Web.Production.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="App_Data\" />
+    <Folder Include="Models\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\TextPortCore\TextPortCore.csproj">
+      <Project>{38b04dec-d1a4-4163-8600-0a84d9009cb5}</Project>
+      <Name>TextPortCore</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />
+  </ItemGroup>
+  <ItemGroup>
+    <TypeScriptCompile Include="Scripts\index.d.ts" />
+  </ItemGroup>
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Production|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Beta|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets')" />
+  <Import Project="$(VSToolsPath)\WebApplications\Microsoft.WebApplication.targets" Condition="'$(VSToolsPath)' != ''" />
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" Condition="false" />
+  <Target Name="MvcBuildViews" AfterTargets="AfterBuild" Condition="'$(MvcBuildViews)'=='true'">
+    <AspNetCompiler VirtualPath="temp" PhysicalPath="$(WebProjectOutputDir)" />
+  </Target>
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
+        <WebProjectProperties>
+          <UseIIS>True</UseIIS>
+          <AutoAssignPort>True</AutoAssignPort>
+          <DevelopmentServerPort>37732</DevelopmentServerPort>
+          <DevelopmentServerVPath>/</DevelopmentServerVPath>
+          <IISUrl>http://localhost:37732/</IISUrl>
+          <NTLMAuthentication>False</NTLMAuthentication>
+          <UseCustomServer>False</UseCustomServer>
+          <CustomServerUrl>
+          </CustomServerUrl>
+          <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
+        </WebProjectProperties>
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\NETStandard.Library.2.0.3\build\netstandard2.0\NETStandard.Library.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\NETStandard.Library.2.0.3\build\netstandard2.0\NETStandard.Library.targets'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.1\build\net46\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.1\build\net46\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props'))" />
+  </Target>
+  <Import Project="..\packages\NETStandard.Library.2.0.3\build\netstandard2.0\NETStandard.Library.targets" Condition="Exists('..\packages\NETStandard.Library.2.0.3\build\netstandard2.0\NETStandard.Library.targets')" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target> -->
+</Project>

@@ -30,10 +30,13 @@ namespace TextPortServices.Processes
                 int loopCounter = 0;
                 int sleepIntervalMilliseconds = getSleepInterval();
                 int loopCountLimit = getLoopCountLimit();
-                string messagePath = ConfigurationManager.AppSettings["OutboundMessagePath"];
+                string messagePath = ConfigurationManager.AppSettings["SemaphoreFilesPath"];
+                string bulkMessagePath = ConfigurationManager.AppSettings["BulkSemaphoreFilesPath"];
+                int maxBulkMessagesToProcessPerLoop =  int.Parse(ConfigurationManager.AppSettings["MaxBulkMessagesToProcessPerLoop"]);
 
                 while (loopCounter <= loopCountLimit)
                 {
+                    // Check for regular messages
                     DirectoryInfo baseFolder = new DirectoryInfo(messagePath);
                     FileInfo[] semaphoreFiles = baseFolder.GetFiles("*.sem");
                     foreach (FileInfo semaphoreFile in semaphoreFiles)
@@ -41,25 +44,17 @@ namespace TextPortServices.Processes
                         processSemaphoreFile(semaphoreFile);
                     }
 
+                    // Check for bulk messages
+                    baseFolder = new DirectoryInfo(bulkMessagePath);
+                    semaphoreFiles = baseFolder.GetFiles("*.sem");
+                    foreach (FileInfo semaphoreFile in semaphoreFiles.Take(maxBulkMessagesToProcessPerLoop))
+                    {
+                        processSemaphoreFile(semaphoreFile);
+                    }
+
                     Thread.Sleep(sleepIntervalMilliseconds);
                     loopCounter++;
                 }
-                //FileSystemWatcher watcher = new FileSystemWatcher();
-                //watcher.Path = ConfigurationManager.AppSettings["OutboundMessagePath"];
-
-                //// Watch for changes in LastAccess and LastWrite times, and the renaming of files or directories.
-                //watcher.NotifyFilter = NotifyFilters.FileName;
-                //watcher.Filter = "*.sem";
-
-                //watcher.Created += new FileSystemEventHandler(processSemaphoreFile);
-
-                //watcher.EnableRaisingEvents = true;
-
-                //Thread.Sleep(System.Threading.Timeout.Infinite);
-                //// Thread.Sleep(3600000); // 1 Hour.
-
-                //watcher.EnableRaisingEvents = false;
-                //watcher = null;
             }
             catch (Exception ex)
             {

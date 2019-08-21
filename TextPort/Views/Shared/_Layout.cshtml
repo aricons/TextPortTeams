@@ -55,17 +55,6 @@
 
             ga('create', 'UA-21685628-1', 'auto');
             ga('send', 'pageview');
-            // End analytics
-
-            //var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-            //ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-            //var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-
-            //isMobile = detectMobile();
-            //if (isMobile) {
-            //    $("#login-link").hide();
-            //    $("#login-link-mobile").show();
-            //}
 
             $('.modal-button').on('click', function () {
                 var url = $(this).data('url');
@@ -94,14 +83,6 @@
 
             getBalance();
         });
-
-        //function detectMobile() {
-        //    if (window.innerWidth <= 800 && window.innerHeight <= 600) {
-        //        return true;
-        //    } else {
-        //        return false;
-        //    }
-        //}
 
         function validateLogin() {
             var url = '/account/validatelogin/';
@@ -164,12 +145,16 @@
                         <li class="nav-item dropdown d-none d-md-block">
                             <a class="nav-link dropdown-toggle" href="#" id="navBGLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Bulk / Group</a>
                             <div class="dropdown-menu" aria-labelledby="navBGLink">
-                                @Html.ActionLink("Bulk Texting", "Index", "Bulk", null, htmlAttributes: new { @class = "dropdown-item" })
-                                @Html.ActionLink("Group Texting", "Index", "Group", null, htmlAttributes: new { @class = "dropdown-item" })
+                                @Html.ActionLink("Bulk Texting", "index", "bulk", null, htmlAttributes: new { @class = "dropdown-item" })
+                                @Html.ActionLink("In Box", "inbox", "bulk", null, htmlAttributes: new { @class = "dropdown-item" })
+                                @Html.ActionLink("Group Texting", "index", "group", null, htmlAttributes: new { @class = "dropdown-item" })
                             </div>
                         </li>
                         <li class="nav-item d-md-none">
                             <a class="nav-link" href="/bulk/">Bulk Texting</a>
+                        </li>
+                        <li class="nav-item d-md-none">
+                            <a class="nav-link" href="/bulk/inbox">In Box</a>
                         </li>
                         <li class="nav-item d-md-none">
                             <a class="nav-link" href="/group/">Group Texting</a>
@@ -178,12 +163,13 @@
                         <li class="nav-item dropdown d-none d-md-block">
                             <a class="nav-link active dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">@User.Identity.Name</a>
                             <div class="dropdown-menu">
-                                @Html.ActionLink("Profile", "Profile", "Account", null, htmlAttributes: new { @class = "dropdown-item" })
-                                @Html.ActionLink("Balance", "Balance", "Account", null, htmlAttributes: new { @class = "dropdown-item" })
-                                @Html.ActionLink("Numbers", "Manage", "Numbers", null, htmlAttributes: new { @class = "dropdown-item" })
+                                @Html.ActionLink("Profile", "profile", "account", null, htmlAttributes: new { @class = "dropdown-item" })
+                                @Html.ActionLink("Balance", "balance", "account", null, htmlAttributes: new { @class = "dropdown-item" })
+                                @Html.ActionLink("Numbers", "", "numbers", null, htmlAttributes: new { @class = "dropdown-item" })
                                 @Html.ActionLink("Groups", "", "Groups", null, htmlAttributes: new { @class = "dropdown-item" })
+                                @*@Html.ActionLink("API Settings", "", "APISettings", null, htmlAttributes: new { @class = "dropdown-item" })*@
                                 <div class="dropdown-divider"></div>
-                                @Html.ActionLink("Log Out", "LogOut", "Account", null, htmlAttributes: new { @class = "dropdown-item" })
+                                @Html.ActionLink("Log Out", "logout", "account", null, htmlAttributes: new { @class = "dropdown-item" })
                             </div>
                         </li>
                         <li class="nav-item d-md-none">
@@ -193,11 +179,14 @@
                             <a class="nav-link" href="/account/balance">Balance</a>
                         </li>
                         <li class="nav-item d-md-none">
-                            <a class="nav-link" href="/numbers/manage">Numbers</a>
+                            <a class="nav-link" href="/numbers/">Numbers</a>
                         </li>
                         <li class="nav-item d-md-none">
                             <a class="nav-link" href="/groups/">Groups</a>
                         </li>
+                        @*<li class="nav-item d-md-none">
+                            <a class="nav-link" href="/apisettings/">API Settings</a>
+                        </li>*@
                         <li class="nav-item d-md-none">
                             <a class="nav-link" href="/account/changepassword">Change Password</a>
                         </li>
@@ -210,6 +199,11 @@
                     </ul>
                 </div>
             </nav>
+            <div class="row">
+                <div class="col-12">
+                    <p class="mt-1 mb-2 text-secondary tp-bal">Balance: $<span id="balance"></span></p>
+                </div>
+            </div>
         }
         else
         {

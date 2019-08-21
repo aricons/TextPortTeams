@@ -16,7 +16,7 @@ namespace TextPort
 
             config.Routes.MapHttpRoute(
                 name: "DefaultApi",
-                routeTemplate: "api/{controller}/{action}/{value}",
+                routeTemplate: "endpoints/{controller}/{action}/{value}",
                 defaults: new { value = RouteParameter.Optional }
             );
         }

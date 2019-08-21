@@ -14,7 +14,7 @@ namespace TextPortCore.Helpers
 
         public static decimal InitialBalanceAllocation = 0.75M; // 50 messages @ $0.015 each.
 
-        public static decimal InitialFreeTrialBalanceAllocation = 0.30M; // 20 messages @ $0.015 each.
+        public static decimal InitialFreeTrialBalanceAllocation = 0.15M; // 20 messages @ $0.015 each.
 
         public static decimal BaseSMSMessageCharge = 0.004M;
 
@@ -24,6 +24,7 @@ namespace TextPortCore.Helpers
 
         public static int NumberOfNumbersToPullFromBandwidth = 20;
 
+        public static int NumberOfNumbersToPullFromBandwidthForAPI = 100;
 
         public static class Bandwidth
         {

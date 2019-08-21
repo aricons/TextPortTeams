@@ -1,0 +1,31 @@
+﻿@{
+    ViewBag.Title = "TextPort Text Messaging API Documentation";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script type="text/javascript">
+    $(function () {
+        $('#menu_inbound').addClass("active");
+    });
+</script>
+
+<div class="container">
+    <div class="row">
+        @Html.Partial("_SideMenuBar")
+        <div class="col-12 col-md-9">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Inbound Events</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col">
+                            <p>Inbound Events for messages in and delivery receipts</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

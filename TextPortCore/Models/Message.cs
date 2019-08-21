@@ -7,6 +7,7 @@ using System.ComponentModel.DataAnnotations;
 
 using TextPortCore.Helpers;
 using TextPortCore.Integrations.Bandwidth;
+using API = TextPortCore.Models.API;
 
 namespace TextPortCore.Models
 {
@@ -115,11 +116,11 @@ namespace TextPortCore.Models
             this.MMSFiles = new List<MMSFile>();
         }
 
-        public Message(BulkMessageItem bulkMessage, int accountId, int sourceNumberId, string sourceNumber)
+        public Message(BulkMessageItem bulkMessage, MessageTypes msgType, int accountId, int sourceNumberId, string sourceNumber)
         {
             // Bulk outbound message
             this.AccountId = accountId;
-            this.MessageType = (byte)MessageTypes.Bulk;
+            this.MessageType = (byte)msgType;
             this.Direction = (int)MessageDirection.Outbound;
             this.QueueStatus = (byte)QueueStatuses.Queued;
             this.CarrierId = (int)Carriers.BandWidth;
@@ -130,6 +131,27 @@ namespace TextPortCore.Models
             this.GatewayMessageId = string.Empty;
             this.TimeStamp = DateTime.UtcNow;
             this.MessageText = bulkMessage.MessageText;
+            this.Segments = 0;
+            this.IsMMS = false;
+            this.Account = null;
+            this.MMSFiles = new List<MMSFile>();
+        }
+
+        public Message(API.Message apiMessage, int accountId, int virtualNumberId)
+        {
+            // API-originated outbound message
+            this.AccountId = accountId;
+            this.MessageType = (byte)MessageTypes.API;
+            this.Direction = (int)MessageDirection.Outbound;
+            this.QueueStatus = (byte)QueueStatuses.Queued;
+            this.CarrierId = (int)Carriers.BandWidth;
+            this.CustomerCost = Constants.BaseSMSMessageCost;
+            this.Ipaddress = Utilities.GetUserHostAddress();
+            this.VirtualNumberId = virtualNumberId;
+            this.MobileNumber = apiMessage.To;
+            this.GatewayMessageId = string.Empty;
+            this.TimeStamp = DateTime.UtcNow;
+            this.MessageText = apiMessage.MessageText;
             this.Segments = 0;
             this.IsMMS = false;
             this.Account = null;

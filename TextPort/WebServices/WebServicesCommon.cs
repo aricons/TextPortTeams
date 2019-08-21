@@ -72,25 +72,33 @@ namespace TextPort.WebServices
 
                                                     int messageId = 0;
                                                     decimal newBalance = 0;
-                                                    messageId = da.InsertMessage(message, ref newBalance);
-                                                    if (messageId > 0)
+                                                    if (!da.NumberIsBlocked(message.MobileNumber))
                                                     {
-                                                        if (message.Send())
+                                                        messageId = da.InsertMessage(message, ref newBalance);
+                                                        if (messageId > 0)
                                                         {
-                                                            responseItem.Result = "Success";
-                                                            responseItem.ProcessingMessage += "Message processed successfully.";
-                                                            responseItem.MessageID = message.MessageId;
+                                                            if (message.Send())
+                                                            {
+                                                                responseItem.Result = "Success";
+                                                                responseItem.ProcessingMessage += "Message processed successfully.";
+                                                                responseItem.MessageID = message.MessageId;
+                                                            }
+                                                            else
+                                                            {
+                                                                responseItem.Result = "Failed";
+                                                                responseItem.ProcessingMessage += "Message processing failed. " + message.ProcessingMessage;
+                                                            }
                                                         }
                                                         else
                                                         {
                                                             responseItem.Result = "Failed";
-                                                            responseItem.ProcessingMessage += "Message processing failed. " + message.ProcessingMessage;
+                                                            responseItem.ProcessingMessage += message.ProcessingMessage;
                                                         }
                                                     }
                                                     else
                                                     {
                                                         responseItem.Result = "Failed";
-                                                        responseItem.ProcessingMessage += message.ProcessingMessage;
+                                                        responseItem.ProcessingMessage += $"BLOCKED: The recipient at number {message.MobileNumber} has reported abuse from this account abuse and requested their number be blocked. TextPort does not condone the exchange of abusive, harrassing or defamatory messages.";
                                                     }
                                                 }
                                                 else

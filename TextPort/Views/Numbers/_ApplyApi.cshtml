@@ -1,0 +1,33 @@
+﻿
+@using TextPortCore.Models
+@model ApiApplicationsContainer
+
+<div class="modal fade" role="dialog" id="group-modal">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Assign API Application</h2>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            @using (Html.BeginForm("ApplyApi", "Numbers", FormMethod.Post, new { id = "form-add" }))
+            {
+                @Html.AntiForgeryToken()
+                @Html.HiddenFor(m => m.AccountId)
+                @Html.HiddenFor(m => m.VirtualNumberId)
+                <div class="modal-body">
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.CurrentApplicationId, new { @class = "form-label mr-4" })
+                        @Html.DropDownListFor(m => m.CurrentApplicationId, new SelectList(Model.ApplicationsList, "Value", "Text"), new { @class = "form-control" })
+                        @Html.ValidationMessageFor(m => m.CurrentApplicationId, null, new { @class = "text-danger" })
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" id="btnAdd" class="btn btn-primary">Assign Application</button>
+                </div>
+            }
+        </div>
+    </div>
+</div>

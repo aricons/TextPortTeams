@@ -21,7 +21,7 @@ namespace TextPortCore.Models
         [Display(Name = "Send From Number")]
         public int VirtualNumberId { get; set; }
 
-        [Display(Name = "Number of Rows")]
+        [Display(Name = "Message Count (approx)")]
         public int MessageLimit { get; set; }
 
         [Display(Name = "Same Message to All Numbers")]
@@ -32,6 +32,8 @@ namespace TextPortCore.Models
         public List<SelectListItem> MessageCountOptions { get; set; }
 
         public List<BulkMessageItem> Messages { get; set; }
+
+        public string SubmitType { get; set; }
 
         public string SubmitOperation { get; set; }
 
@@ -45,6 +47,7 @@ namespace TextPortCore.Models
             this.AccountId = 0;
             this.Balance = 0;
             this.MessageLimit = 0;
+            this.SubmitType = "MANUAL";
             this.Messages = new List<BulkMessageItem>();
             this.MessageCountOptions = new List<SelectListItem>();
             this.VirtualNumbers = new List<SelectListItem>();
@@ -56,6 +59,7 @@ namespace TextPortCore.Models
         {
             this.AccountId = accId;
             this.MessageLimit = gridRows;
+            this.SubmitType = "MANUAL";
             this.Messages = new List<BulkMessageItem>();
             this.MessageCountOptions = new List<SelectListItem>();
             this.VirtualNumbers = new List<SelectListItem>();
@@ -104,5 +108,33 @@ namespace TextPortCore.Models
         public string MessageText { get; set; }
         public string ProcessingStatus { get; set; }
         public string ProcessingResult { get; set; }
+
+        public bool Validate()
+        {
+            this.ProcessingStatus = "OK";
+            string message = string.Empty;
+
+            if (String.IsNullOrEmpty(this.Number))
+            {
+                message = "The number is missing";
+            }
+            else
+            {
+                if (!Utilities.IsValidNumber(this.Number))
+                {
+                    message = "The number is invalid";
+                }
+            }
+
+            if (String.IsNullOrEmpty(this.MessageText))
+            {
+                message = "The message is empty.";
+            }
+
+            this.ProcessingResult = message;
+            this.ProcessingStatus = (string.IsNullOrEmpty(message)) ? "OK" : "FAIL";
+
+            return (this.ProcessingStatus == "OK") ? true : false;
+        }
     }
 }

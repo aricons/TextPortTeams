@@ -47,11 +47,11 @@ namespace TextPortCore.Helpers
                     return match.Groups[1].Value + domainName;
                 }
             }
-            catch (RegexMatchTimeoutException e)
+            catch (RegexMatchTimeoutException)
             {
                 return false;
             }
-            catch (ArgumentException e)
+            catch (ArgumentException)
             {
                 return false;
             }
@@ -86,19 +86,34 @@ namespace TextPortCore.Helpers
             }
         }
 
-        public static string StripMobileNumber(string mobileNumber, ref string processingMessage, ref int status)
+        public static string StripNumber(string mobileNumber) //, ref string processingMessage, ref int status)
         {
             string strippedNumber = String.Empty;
 
             try
             {
                 strippedNumber = Regex.Replace(mobileNumber, @"\D", "");
-                processingMessage += "Sending to |" + strippedNumber + "|. ";
+                //processingMessage += "Sending to |" + strippedNumber + "|. ";
             }
             catch (Exception ex)
             {
-                processingMessage += "Exception in StripMobileNumber: " + ex.Message + ". ";
-                status = 1;
+                //processingMessage += "Exception in StripMobileNumber: " + ex.Message + ". ";
+                //status = 1;
+                strippedNumber = "Parsing Error";
+            }
+            return strippedNumber;
+        }
+
+        public static string StripLeading1(string number)
+        {
+            string strippedNumber = number;
+
+            if (!string.IsNullOrEmpty(number))
+            {
+                if (number.Length == 11 && number.Substring(0, 1) == "1")
+                {
+                    strippedNumber = number.Substring(1);
+                }
             }
             return strippedNumber;
         }

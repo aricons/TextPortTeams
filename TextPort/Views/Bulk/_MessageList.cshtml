@@ -7,6 +7,11 @@
                     <th class="text-center" scope="col">#</th>
                     <th scope="col">Number</th>
                     <th scope="col">Message</th>
+                    @if (Model.SubmitType == "UPLOAD")
+                    {
+                        <th scope="col">Status</th>
+                        <th scope="col">Validation Result</th>
+                    }
                 </tr>
             </thead>
             <tbody>
@@ -16,10 +21,16 @@
                         <td class="text-center"><label class="form-label font-weight-bold">@((i + 1).ToString())</label></td>
                         <td class="num_field">@Html.TextBoxFor(m => m.Messages[i].Number, new { @class = "num_input form-control" })</td>
                         <td class="msg_field">@Html.TextBoxFor(m => m.Messages[i].MessageText, new { @class = "form-control" })</td>
+                        @if (Model.SubmitType == "UPLOAD")
+                        {
+                            <td class="msg_field"><label class="form-label text-@(Model.Messages[i].ProcessingStatus == "OK" ? "success" : "danger")">@Model.Messages[i].ProcessingStatus</label></td>
+                            <td class="msg_field"><label class="form-label">@Model.Messages[i].ProcessingResult</label></td>
+                        }
                     </tr>
                 }
             </tbody>
         </table>
+        <input type="hidden" id="uploadErrors" value="@((Model.ProcessingState == "UPLOAD FILE ERRORS") ? "YES" : "")" />
     </div>
 </div>
 <script type="text/javascript">
