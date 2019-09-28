@@ -1,67 +1,11 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
-<NumbersResult>
-  <AreaCode>949</AreaCode>
-  <NumberCount>20</NumberCount>
-  <NumbersList>
-    <NumberItem>
-      <Number>19492649742</Number>
-    </NumberItem>
-    <NumberItem>
-      <Number>19492721142</Number>
-    </NumberItem>
-    <NumberItem>
-      <Number>19492728503</Number>
-    </NumberItem>
-    <NumberItem>
-      <Number>19492986403</Number>
-    </NumberItem>
-    <NumberItem>
-      <Number>19493174273</Number>
-    </NumberItem>
-    <NumberItem>
-      <Number>19493267605</Number>
-    </NumberItem>
-    <NumberItem>
-      <Number>19493267613</Number>
-    </NumberItem>
-    <NumberItem>
-      <Number>19493267692</Number>
-    </NumberItem>
-    <NumberItem>
-      <Number>19493267941</Number>
-    </NumberItem>
-    <NumberItem>
-      <Number>19493281040</Number>
-    </NumberItem>
-    <NumberItem>
-      <Number>19493281219</Number>
-    </NumberItem>
-    <NumberItem>
-      <Number>19493284724</Number>
-    </NumberItem>
-    <NumberItem>
-      <Number>19493286056</Number>
-    </NumberItem>
-    <NumberItem>
-      <Number>19493286806</Number>
-    </NumberItem>
-    <NumberItem>
-      <Number>19493287623</Number>
-    </NumberItem>
-    <NumberItem>
-      <Number>19493287660</Number>
-    </NumberItem>
-    <NumberItem>
-      <Number>19493292134</Number>
-    </NumberItem>
-    <NumberItem>
-      <Number>19493292957</Number>
-    </NumberItem>
-    <NumberItem>
-      <Number>19493293108</Number>
-    </NumberItem>
-    <NumberItem>
-      <Number>19493293197</Number>
-    </NumberItem>
-  </NumbersList>
-</NumbersResult>
+﻿<ArrayOfMessageResult>
+  <MessageResult>
+    <From>12135551212</From>
+    <To>130355553234</To>
+    <MessageText>Sample message from TextPort SMS API</MessageText>
+    <Status>OK</Status>
+    <ErrorMessage />
+    <MessageId>10168571</MessageId>
+    <Balance>49.9100</Balance>
+  </MessageResult>
+</ArrayOfMessageResult>

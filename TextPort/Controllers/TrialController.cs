@@ -39,6 +39,8 @@ namespace TextPort.Controllers
                 regData.Success = false;
                 regData.CompletionTitle = "Registration Failed";
                 regData.CompletionMessage = "An error occurred while processing the request. We apologize fo any inconvenience. <a href=\"/home/support\">Please submit a support request to report this issue.</a>";
+                regData.BrowserType = Request.Browser.Type;
+                regData.IPAddress = Request.UserHostAddress;
 
                 using (TextPortDA da = new TextPortDA())
                 {
@@ -47,31 +49,47 @@ namespace TextPort.Controllers
                     {
                         if (!string.IsNullOrEmpty(regData.VirtualNumber))
                         {
-                            // Log the user in
-                            List<Claim> claims = new List<Claim> {
-                                            new Claim("AccountId", regData.AccountId.ToString(), ClaimValueTypes.Integer),
-                                            new Claim(ClaimTypes.Name, regData.UserName.ToString()),
-                                            new Claim(ClaimTypes.Email, regData.EmailAddress.ToString()),
-                                            new Claim(ClaimTypes.Role, "User") };
-
-                            ClaimsIdentity identity = new ClaimsIdentity(claims, "ApplicationCookie");
-                            ClaimsPrincipal principal = new ClaimsPrincipal(identity);
-
-                            var context = Request.GetOwinContext();
-                            var authManager = context.Authentication;
-
-                            authManager.SignIn(new AuthenticationProperties { IsPersistent = false }, identity);
-
-                            if (da.AddNumberToAccount(regData))
+                            string body = Rendering.RenderActivateAccountEmailBody(regData);
+                            using (EmailMessage message = new EmailMessage(regData.EmailAddress, "Activate your TextPort Account", body))
                             {
-                                Cookies.WriteBalance(regData.CreditPurchaseAmount);
-                                regData.CompletionTitle = "Registration Complete";
-                                regData.Success = true;
+                                if (message.Send())
+                                {
+                                    regData.Success = true;
+                                    regData.CompletionTitle = "Account Registration Successful";
+                                    regData.CompletionMessage = "Your trial account was registered successfully.";
+                                    regData.BrowserType = Request.Browser.Type;
+                                }
+                                else
+                                {
+                                    regData.Success = false;
+                                }
                             }
-                            else
-                            {
-                                regData.CompletionMessage += " The number was unable to be assigned to your account.";
-                            }
+
+                            //// Log the user in
+                            //List<Claim> claims = new List<Claim> {
+                            //                new Claim("AccountId", regData.AccountId.ToString(), ClaimValueTypes.Integer),
+                            //                new Claim(ClaimTypes.Name, regData.UserName.ToString()),
+                            //                new Claim(ClaimTypes.Email, regData.EmailAddress.ToString()),
+                            //                new Claim(ClaimTypes.Role, "User") };
+
+                            //ClaimsIdentity identity = new ClaimsIdentity(claims, "ApplicationCookie");
+                            //ClaimsPrincipal principal = new ClaimsPrincipal(identity);
+
+                            //var context = Request.GetOwinContext();
+                            //var authManager = context.Authentication;
+
+                            //authManager.SignIn(new AuthenticationProperties { IsPersistent = false }, identity);
+
+                            //if (da.AddNumberToAccount(regData))
+                            //{
+                            //    Cookies.WriteBalance(regData.CreditPurchaseAmount);
+                            //    regData.CompletionTitle = "Registration Complete";
+                            //    regData.Success = true;
+                            //}
+                            //else
+                            //{
+                            //    regData.CompletionMessage += " The number was unable to be assigned to your account.";
+                            //}
                         }
                         else
                         {

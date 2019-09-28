@@ -24,6 +24,20 @@ namespace TextPortCore.Data
             return null;
         }
 
+        public Account GetAccountByAccountValidationKey(string accountValidationKey)
+        {
+            try
+            {
+                return _context.Accounts.FirstOrDefault(x => x.AccountValidationKey == accountValidationKey);
+            }
+            catch (Exception ex)
+            {
+                ErrorHandling eh = new ErrorHandling();
+                eh.LogException("AccountsDA.GetAccountByAccountValidationKey", ex);
+            }
+            return null;
+        }
+
         public decimal GetAccountBalance(int accountId)
         {
             try
@@ -106,6 +120,32 @@ namespace TextPortCore.Data
             }
 
             return false;
+        }
+
+        public string DoesEmailContainBadDomain(string email)
+        {
+            try
+            {
+                if (email.IndexOf('@') > 0)
+                {
+                    string domainPart = email.Substring(email.IndexOf('@') + 1);
+                    if (!string.IsNullOrEmpty(domainPart))
+                    {
+                        BadEmailDomain domainMatch = _context.BadEmailDomains.FirstOrDefault(x => x.DomainName.Equals(domainPart) && x.Blocked);
+                        if (domainMatch != null)
+                        {
+                            return domainPart;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorHandling eh = new ErrorHandling();
+                eh.LogException("AccountDA.DoesEmailContainBadDomain", ex);
+            }
+
+            return string.Empty;
         }
 
         public int GetTimeZoneOffsetHours(int timeZoneId)
@@ -207,6 +247,29 @@ namespace TextPortCore.Data
             return false;
         }
 
+        public bool SetAccountActivationAndEnabledFlags(int accountId, bool flagValue)
+        {
+            try
+            {
+                Account acc = GetAccountById(accountId);
+                if (acc != null)
+                {
+                    acc.Enabled = flagValue;
+                    acc.AccountValidated = flagValue;
+                    SaveChanges();
+
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorHandling eh = new ErrorHandling();
+                eh.LogException("AccountDA.SetAccountActivationAndEnabledFlags", ex);
+            }
+
+            return false;
+        }
+
         #endregion
 
         #region "Insert Methods"
@@ -224,10 +287,11 @@ namespace TextPortCore.Data
                 Account newAccount = new Account();
 
                 newAccount.CreateDate = DateTime.UtcNow;
+                newAccount.Enabled = rd.AccountEnabled;
+                newAccount.AccountValidationKey = rd.AccountValidationKey;
                 newAccount.Balance = rd.CreditPurchaseAmount;
                 newAccount.SMSSegmentCost = Constants.BaseSMSMessageCost;
                 newAccount.MMSSegmentCost = Constants.BaseMMSMessageCost;
-                newAccount.Enabled = true;
                 newAccount.Deleted = false;
                 newAccount.Email = rd.EmailAddress;
                 newAccount.LastLogin = null;
@@ -239,6 +303,7 @@ namespace TextPortCore.Data
                 newAccount.UserName = rd.UserName;
                 newAccount.ComplimentaryNumber = 0;
                 newAccount.RegisteredAsTrial = rd.FreeTrial;
+                newAccount.RegistrationVirtualNumber = rd.VirtualNumber;
 
                 _context.Accounts.Add(newAccount);
 

@@ -75,6 +75,8 @@ namespace TextPortCore.Models
 
         public bool AccountValidated { get; set; }
 
+        public string RegistrationVirtualNumber { get; set; }
+
         public bool Deleted { get; set; }
 
         public bool Enabled { get; set; }

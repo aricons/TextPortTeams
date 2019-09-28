@@ -36,7 +36,11 @@ namespace TextPortCore.Models
         private decimal baseNumberCost;
         private decimal baseSMSCost;
         private bool showAnnouncementBanner;
+        private string accountValidationKey;
+        private string ipAddress;
+        private string browserType;
         private bool freeTrial;
+        private bool accountEnabled;
         private NumberTypes numberType;
 
         public string PurchaseType
@@ -48,6 +52,7 @@ namespace TextPortCore.Models
         [Required(ErrorMessage = "A user name is required")]
         [Display(Name = "User Name")]
         [StringLength(16, ErrorMessage = "Must be between 5 and 16 characters", MinimumLength = 5)]
+        [RegularExpression(@"^\S*$", ErrorMessage = "The username cannot contain spaces")]
         [Remote(action: "VerifyUsername", controller: "Account")]
         public String UserName
         {
@@ -282,10 +287,34 @@ namespace TextPortCore.Models
             set { this.showAnnouncementBanner = value; }
         }
 
+        public string AccountValidationKey
+        {
+            get { return this.accountValidationKey; }
+            set { this.accountValidationKey = value; }
+        }
+
+        public string IPAddress
+        {
+            get { return this.ipAddress; }
+            set { this.ipAddress = value; }
+        }
+
+        public string BrowserType
+        {
+            get { return this.browserType; }
+            set { this.browserType = value; }
+        }
+
         public bool FreeTrial
         {
             get { return this.freeTrial; }
             set { this.freeTrial = value; }
+        }
+
+        public bool AccountEnabled
+        {
+            get { return this.accountEnabled; }
+            set { this.accountEnabled = value; }
         }
 
         public IEnumerable<SelectListItem> CountriesList { get; set; }
@@ -325,6 +354,10 @@ namespace TextPortCore.Models
             this.BaseSMSCost = Constants.BaseSMSMessageCost;
             this.ShowAnnouncementBanner = false;
             this.FreeTrial = false;
+            this.AccountEnabled = false;
+            this.AccountValidationKey = string.Empty;
+            this.IPAddress = string.Empty;
+            this.BrowserType = string.Empty;
             this.NumberType = NumberTypes.Regular;
 
             // Initialize the numbers drop-down.
@@ -357,6 +390,10 @@ namespace TextPortCore.Models
             this.BaseSMSCost = Constants.BaseSMSMessageCost;
             this.ShowAnnouncementBanner = false;
             this.FreeTrial = false;
+            this.AccountEnabled = false;
+            this.AccountValidationKey = string.Empty;
+            this.IPAddress = string.Empty;
+            this.BrowserType = string.Empty;
             this.NumberType = NumberTypes.Regular;
 
             if (purcType == "ComplimentaryNumber")
@@ -379,6 +416,7 @@ namespace TextPortCore.Models
                 this.FreeTrial = true;
                 this.CreditPurchaseAmount = Constants.InitialFreeTrialBalanceAllocation;
                 this.BaseNumberCost = Constants.Free;
+                this.AccountValidationKey = RandomString.GenerateRandomToken(30);
             }
 
             // Initialize the numbers drop-down.

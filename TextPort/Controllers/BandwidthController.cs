@@ -6,7 +6,6 @@ using Microsoft.AspNet.SignalR;
 using System.Web.Http.Results;
 
 using TextPort.Hubs;
-using TextPort.Helpers;
 using TextPortCore.Data;
 using TextPortCore.Models;
 using TextPortCore.Helpers;
@@ -144,7 +143,6 @@ namespace TextPort.Controllers
                             bw.ProcessDeliveryReceipt(bwMessage);
                         }
                         return Ok();
-
                 }
             }
             return NotFound();

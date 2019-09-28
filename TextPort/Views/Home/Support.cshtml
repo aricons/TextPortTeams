@@ -1,9 +1,14 @@
 ﻿@model  TextPortCore.Models.SupportRequestModel
 @using TextPortCore.Helpers
 @{
-    ViewBag.Title = "Support";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "TextPort: Online texting portal. Contact our Support Team. ";
+    ViewData["Description"] = "TextPort: Contact the TextPort team. We're here to help.";
+    ViewData["Url"] = "https://textport.com/support";
 }
+
+<script src='https://www.google.com/recaptcha/api.js'></script>
+
 <div class="contact">
     <div class="container">
         <h1>Support</h1>
@@ -46,6 +51,15 @@
                                     @Html.LabelFor(m => m.Message, new { @class = "form-label" })
                                     @Html.TextAreaFor(m => m.Message, new { @class = "form-control", id = "ta_support", placeholder = "Description of the issue or request. Please provide as much supporting information as possible." })
                                     @Html.ValidationMessageFor(m => m.Message, null, new { @class = "text-danger" })
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <div class="g-recaptcha pull-right mb-2 pb-2 mb-1" data-sitekey="6Ldl-rQUAAAAALacF1sl4vM1WHQL5OhAYRFdLlnQ"></div>
                                 </div>
                             </div>
                         </div>

@@ -137,6 +137,28 @@ namespace TextPortCore.Models
             this.MMSFiles = new List<MMSFile>();
         }
 
+        public Message(EmailToSMSMessage emailToSMSMessage, string destinationNumber)
+        {
+            // EmailToSMS gateway outbound message
+            this.AccountId = emailToSMSMessage.AccountId;
+            this.MessageType = (byte)MessageTypes.EmailToSMS;
+            this.Direction = (int)MessageDirection.Outbound;
+            this.QueueStatus = (byte)QueueStatuses.Queued;
+            this.CarrierId = (int)Carriers.BandWidth;
+            this.CustomerCost = Constants.BaseSMSMessageCost;
+            this.Ipaddress = Utilities.GetUserHostAddress();
+            this.VirtualNumberId = emailToSMSMessage.VirtualNumberId;
+            this.MobileNumber = destinationNumber;
+            this.GatewayMessageId = string.Empty;
+            this.TimeStamp = DateTime.UtcNow;
+            this.MessageText = emailToSMSMessage.MessageText;
+            this.Segments = 0;
+            this.IsMMS = false;
+            this.Account = null;
+            this.MMSFiles = new List<MMSFile>();
+        }
+
+
         public Message(API.Message apiMessage, int accountId, int virtualNumberId)
         {
             // API-originated outbound message
@@ -188,7 +210,7 @@ namespace TextPortCore.Models
                     this.IsMMS = true;
                     foreach (string mediaItem in bwMessage.message.media)
                     {
-                        if (!mediaItem.EndsWith(".smil", StringComparison.CurrentCultureIgnoreCase))
+                        if (!mediaItem.EndsWith(".smil", StringComparison.CurrentCultureIgnoreCase) && !mediaItem.EndsWith("smil.xml", StringComparison.CurrentCultureIgnoreCase))
                         {
                             string localFileName = WebFunctions.GetImageFromURL(mediaItem, this.AccountId);
 

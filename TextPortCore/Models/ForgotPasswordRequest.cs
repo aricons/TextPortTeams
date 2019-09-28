@@ -11,9 +11,6 @@ namespace TextPortCore.Models
 {
     public class ForgotPasswordRequest
     {
-        //private readonly TextPortContext _context;
-
-        
         private string emailAddress;
         private string userName;
         private string confirmationMessage;
@@ -114,11 +111,5 @@ namespace TextPortCore.Models
             this.Status = RequestStatus.Pending;
         }
 
-        //public ForgotPasswordRequest(TextPortContext context)
-        //{
-        //    this._context = context;
-
-        //    this.EmailAddress = string.Empty;
-        //}
     }
 }

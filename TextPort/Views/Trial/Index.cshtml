@@ -18,7 +18,7 @@
                 <hr>
             </div>
         </div>
-        @using (Html.BeginForm("Index", "Trial", FormMethod.Post))
+        @using (Html.BeginForm("", "trial", FormMethod.Post))
         {
             @Html.AntiForgeryToken()
             @Html.HiddenFor(m => m.NumberCost)
@@ -36,6 +36,8 @@
             @Html.HiddenFor(m => m.NumberCountryId)
             @Html.HiddenFor(m => m.LeasePeriod)
             @Html.HiddenFor(m => m.CreditPurchaseAmount)
+            @Html.HiddenFor(m => m.AccountEnabled)
+            @Html.HiddenFor(m => m.AccountValidationKey)
 
             <input type="hidden" id="hidTotalCost" value="0" />
 

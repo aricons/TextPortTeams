@@ -25,28 +25,17 @@ namespace APIEndpointSimulator.Controllers
 
             if (message != null)
             {
-                switch (message.EventType)
-                {
-                    case "message-received":
-                        logText += $"Processing API event {message.EventType}\r\n";
-                        logText += $"Message ID: {message.MessageId}\r\n";
-                        logText += $"From: {message.Message.From}\r\n";
-                        logText += $"To: {message.Message.To}\r\n";
-                        logText += $"Message: {message.Message.MessageText}\r\n";
-                        logText += $"Notifications: {message.Notifications}\r\n";
-                        Utilities.WriteLogTextToDisk(logText);
-                        return Ok();
+                logText += $"Processing API event: {message.EventType}\r\n";
+                logText += $"Message ID: {message.MessageId}\r\n";
+                logText += $"From: {message.Message.From}\r\n";
+                logText += $"To: {message.Message.To}\r\n";
+                logText += $"Message: {message.Message.MessageText}\r\n";
+                logText += $"Cost: {message.Cost}\r\n";
+                logText += $"Notifications: {message.Notifications}\r\n";
 
-                    case "message-delivered":
-                        logText += $"Processing API event {message.EventType}\r\n";
-                        logText += $"Message ID: {message.MessageId}\r\n";
-                        logText += $"From: {message.Message.From}\r\n";
-                        logText += $"To: {message.Message.To}\r\n";
-                        logText += $"Message: {message.Message.MessageText}\r\n";
-                        logText += $"Notifications: {message.Notifications}\r\n";
-                        Utilities.WriteLogTextToDisk(logText);
-                        return Ok();
-                }
+                Utilities.WriteLogTextToDisk(logText);
+
+                return Ok();
             }
             return NotFound();
         }

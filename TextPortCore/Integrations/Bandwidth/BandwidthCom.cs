@@ -16,6 +16,7 @@ using TextPortCore.Data;
 using TextPortCore.Models;
 using TextPortCore.Helpers;
 using TextPortCore.Integrations.APICallback;
+using API = TextPortCore.Models.API;
 
 namespace TextPortCore.Integrations.Bandwidth
 {
@@ -413,27 +414,32 @@ namespace TextPortCore.Integrations.Bandwidth
                     }
 
                     // Check for API forwarding
-                    if (dvn.APIApplicationId != null && dvn.APIApplicationId > 0)
+                    if (dvn != null)
                     {
-                        result += $"An API application ID {dvn.APIApplicationId} was found for number {dvn.VirtualNumber}." + "\r\n";
-                        APIApplication apiApp = da.GetAPIApplicationById((int)dvn.APIApplicationId);
-                        if (apiApp != null)
+                        if (dvn.APIApplicationId != null && dvn.APIApplicationId > 0)
                         {
-                            result += $"API application name is {apiApp.ApplicationName}." + "\r\n";
-                            if (!string.IsNullOrEmpty(apiApp.CallbackURL))
+                            result += $"An API application ID {dvn.APIApplicationId} was found for number {dvn.VirtualNumber}." + "\r\n";
+                            APIApplication apiApp = da.GetAPIApplicationById((int)dvn.APIApplicationId);
+                            if (apiApp != null)
                             {
-                                string callbackProcessingMessage = string.Empty;
-
-                                result += $"A callback URL was found. URL: {apiApp.CallbackURL}. Processing API callback." + "\r\n";
-                                if (CallbackProcessor.ProcessAPICallback(apiApp, messageIn, ref callbackProcessingMessage))
+                                result += $"API application name is {apiApp.ApplicationName}." + "\r\n";
+                                if (!string.IsNullOrEmpty(apiApp.CallbackURL))
                                 {
-                                    result += "API callback successful.";
-                                }
-                                else
-                                {
-                                    result += "API callback failed.";
-                                }
+                                    string callbackProcessingMessage = string.Empty;
 
+                                    result += $"A callback URL was found. URL: {apiApp.CallbackURL}. Processing API callback." + "\r\n";
+
+                                    API.MessageEvent msgEvent = new API.MessageEvent(messageIn, bwMessage.type);
+
+                                    if (CallbackProcessor.ProcessAPICallback(apiApp, msgEvent, ref callbackProcessingMessage))
+                                    {
+                                        result += "API callback successful.";
+                                    }
+                                    else
+                                    {
+                                        result += "API callback failed.";
+                                    }
+                                }
                             }
                         }
                     }
@@ -467,6 +473,7 @@ namespace TextPortCore.Integrations.Bandwidth
                         resultDev += "Notification Type: " + receipt.type + "\r\n";
                         resultDev += "To virtual number: " + receipt.to + "\r\n";
                         resultDev += "Data Received: " + jsonPayload + "\r\n";
+                        resultDev += checkForAPICallback(receipt);
                         writeXMLToDisk(resultDev, "BandwidthDeliveryReceipt");
                         break;
 
@@ -504,6 +511,7 @@ namespace TextPortCore.Integrations.Bandwidth
                 resultDev += "Notification Type: " + receipt.type + "\r\n";
                 resultDev += "To virtual number: " + receipt.to + "\r\n";
                 resultDev += "Data Received: " + jsonPayload + "\r\n";
+                resultDev += checkForAPICallback(receipt);
                 writeXMLToDisk(resultDev, "BandwidthDeliveryFailure");
 
                 return true;
@@ -566,30 +574,73 @@ namespace TextPortCore.Integrations.Bandwidth
             return false;
         }
 
-        private string getMessageIdFromResponse(IRestResponse response)
+        private string checkForAPICallback(BandwidthInboundMessage bwMessage)
         {
-            string messageId = string.Empty;
+            string result = string.Empty;
+            DedicatedVirtualNumber dvn = null;
 
             try
             {
-                if (response.StatusCode == HttpStatusCode.Created || response.StatusCode == HttpStatusCode.OK) // Created = HTTP 201. OK = HTTP 200
+                using (TextPortDA da = new TextPortDA())
                 {
-                    if (response.Headers.Any(h => h.Name == "Location"))
+                    dvn = da.GetVirtualNumberByNumber(bwMessage.message.from.Replace("+", ""), true);
+                    if (dvn != null)
                     {
-                        string locationUrl = response.Headers.FirstOrDefault(h => h.Name == "Location").Value.ToString();
-                        if (!string.IsNullOrEmpty(locationUrl))
+                        // Check for a pooled number
+                        if (dvn.NumberType == (byte)NumberTypes.Pooled)
                         {
-                            messageId = locationUrl.Substring(locationUrl.LastIndexOf("/") + 1);
+                            if (bwMessage.message != null)
+                            {
+                                dvn = da.GetVirtualNumberByNumberAndOriginatingMobileNumber(bwMessage.message.from.Replace("+", ""), bwMessage.to.Replace("+", ""));
+                                if (dvn != null)
+                                {
+                                    result += $"A pooled number match on virtual number {bwMessage.message.from.Replace("+", "")} and mobile number {bwMessage.to.Replace("+", "")} was made.";
+                                }
+                                else
+                                {
+                                    result += $"A pooled match search failed on virtual number {bwMessage.message.from.Replace("+", "")} and mobile number {bwMessage.to.Replace("+", "")}.";
+                                }
+                            }
+                        }
+
+                        if (dvn != null)
+                        {
+                            if (dvn.APIApplicationId != null && dvn.APIApplicationId > 0)
+                            {
+                                result += $"An API application ID {dvn.APIApplicationId} was found for number {dvn.VirtualNumber}." + "\r\n";
+                                APIApplication apiApp = da.GetAPIApplicationById((int)dvn.APIApplicationId);
+                                if (apiApp != null)
+                                {
+                                    result += $"API application name is {apiApp.ApplicationName}." + "\r\n";
+                                    if (!string.IsNullOrEmpty(apiApp.CallbackURL))
+                                    {
+                                        string callbackProcessingMessage = string.Empty;
+
+                                        result += $"A callback URL was found. URL: {apiApp.CallbackURL}. Processing API callback." + "\r\n";
+
+                                        API.MessageEvent msgEvent = new API.MessageEvent(bwMessage);
+
+                                        if (CallbackProcessor.ProcessAPICallback(apiApp, msgEvent, ref callbackProcessingMessage))
+                                        {
+                                            result += "API callback successful.";
+                                        }
+                                        else
+                                        {
+                                            result += "API callback failed.";
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
             }
             catch (Exception ex)
             {
-                EventLogging.WriteEventLogEntry("An error occurred in  TextPortCore.Integrations.Bandwidth.getMessageIdFromResponse. Message: " + ex.Message, System.Diagnostics.EventLogEntryType.Error);
+                result += $"Exception in Bandwidth.checkForAPICallback(). Message: {ex.Message}";
+                EventLogging.WriteEventLogEntry(ex.ToString(), System.Diagnostics.EventLogEntryType.Error);
             }
-
-            return messageId;
+            return result;
         }
 
         private void writeXMLToDisk(string xmlData, string filePrefix)

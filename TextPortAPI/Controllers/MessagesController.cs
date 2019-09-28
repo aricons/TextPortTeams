@@ -10,18 +10,46 @@ using TextPortCore.Helpers;
 using TextPortCore.Data;
 using Core = TextPortCore.Models;
 
+using Swashbuckle.Swagger.Annotations;
+
 namespace TextPortAPI.Controllers
 {
+    /// <summary>
+    /// Handles send message requests for the TextPort SMS API.
+    /// </summary>
     [RoutePrefix("v1/messages")]
     public class MessagesController : ApiController
     {
+        /// <summary>
+        /// Sends one or more messages.
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     POST /send
+        ///     [
+        ///         {
+        ///            "From": "19195551212",
+        ///            "To": "15055551212",
+        ///            "MessageText": "Sample text message from TextPort SMS API"
+        ///         }
+        ///     ]
+        ///
+        /// </remarks>
+        /// <param name="messages"></param>
+        /// <returns>A message result object</returns>
+        /// <response code="200">A MessageResult object</response>
+        /// <response code="400">A MessageResult objecet with details in the ErrorMessage field</response>     
         [HttpPost]
         [Authorize]
         [Route("send")]
-        public HttpResponseMessage Send([FromBody]List<Message> messages)
+        [SwaggerResponse(HttpStatusCode.OK, "Message confirmation object", typeof(IEnumerable<MessageResult>))]
+        [SwaggerResponse(HttpStatusCode.BadRequest, "Message confirmation object", typeof(IEnumerable<MessageResult>))]
+        public IHttpActionResult Send([FromBody]List<Message> messages)
         {
-            // IHttpActionResult
-            List<MessagesResult> results = new List<MessagesResult>();
+            List<MessageResult> results = new List<MessageResult>();
+            int failureCount = 0;
+            decimal newBalance = 0;
 
             try
             {
@@ -31,6 +59,8 @@ namespace TextPortAPI.Controllers
                     using (TextPortDA da = new TextPortDA())
                     {
                         string validationMessage = string.Empty;
+                        newBalance = da.GetAccountBalance(accountId);
+
                         foreach (Message message in messages)
                         {
                             validationMessage = string.Empty;
@@ -42,28 +72,40 @@ namespace TextPortAPI.Controllers
                                     if (!virtualNumber.Cancelled)
                                     {
                                         Core.Message msg = new Core.Message(message, accountId, virtualNumber.VirtualNumberId);
-                                        if (msg.Send())
+                                        if (da.InsertMessage(msg, ref newBalance) > 0)
                                         {
-                                            results.Add(new MessagesResult(message, "OK", msg.MessageId, string.Empty));
+                                            if (msg.Send())
+                                            {
+                                                results.Add(new MessageResult(message, "OK", msg.MessageId, string.Empty, newBalance));
+                                            }
+                                            else
+                                            {
+                                                results.Add(new MessageResult(message, "FAIL", 0, msg.ProcessingMessage, newBalance));
+                                                failureCount++;
+                                            }
                                         }
                                         else
                                         {
-                                            results.Add(new MessagesResult(message, "FAIL", 0, msg.ProcessingMessage));
+                                            results.Add(new MessageResult(message, "FAIL", 0, msg.ProcessingMessage, newBalance));
+                                            failureCount++;
                                         }
                                     }
                                     else
                                     {
-                                        results.Add(new MessagesResult(message, "FAIL", 0, $"The number {message.From} is cancelled."));
+                                        results.Add(new MessageResult(message, "FAIL", 0, $"The number {message.From} is cancelled.", newBalance));
+                                        failureCount++;
                                     }
                                 }
                                 else
                                 {
-                                    results.Add(new MessagesResult(message, "FAIL", 0, $"The number {message.From} is invalid or is not associated with this application ID."));
+                                    results.Add(new MessageResult(message, "FAIL", 0, $"The number {message.From} is invalid or is not associated with this application ID.", newBalance));
+                                    failureCount++;
                                 }
                             }
                             else
                             {
-                                results.Add(new MessagesResult(message, "FAIL", 0, validationMessage));
+                                results.Add(new MessageResult(message, "FAIL", 0, validationMessage, newBalance));
+                                failureCount++;
                             }
                         }
                     }
@@ -75,7 +117,14 @@ namespace TextPortAPI.Controllers
                 EventLogging.WriteEventLogEntry("An error occurred in API.NumbersController.Send(). Message: " + ex.ToString(), System.Diagnostics.EventLogEntryType.Error);
             }
 
-            return Request.CreateResponse(HttpStatusCode.OK, results);
+            if (failureCount > 0)
+            {
+                return ResponseMessage(Request.CreateResponse(HttpStatusCode.BadRequest, results));
+            }
+            else
+            {
+                return Ok(results);
+            }
         }
 
         private bool validateMessage(Message msg, ref string validationMessage)
@@ -106,7 +155,7 @@ namespace TextPortAPI.Controllers
             }
             else
             {
-                msg.From = Utilities.NumberToE164(msg.To);
+                msg.To = Utilities.NumberToE164(msg.To);
                 if (msg.To.Length != 11)
                 {
                     validationMessage = "The To number is invalid.";

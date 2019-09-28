@@ -25,9 +25,11 @@ namespace TextPortCore.Data
         public virtual DbSet<Account> Accounts { get; set; }
         public virtual DbSet<APIApplication> APIApplications { get; set; }
         public virtual DbSet<AreaCode> AreaCodes { get; set; }
+        public virtual DbSet<BadEmailDomain> BadEmailDomains { get; set; }
         public virtual DbSet<BlockedNumber> BlockedNumbers { get; set; }
         public virtual DbSet<Contact> Contacts { get; set; }
         public virtual DbSet<DedicatedVirtualNumber> DedicatedVirtualNumbers { get; set; }
+        public virtual DbSet<EmailToSMSAddress> EmailToSMSAddresses { get; set; }
         public virtual DbSet<ErrorLogItem> ErrorLog { get; set; }
         public virtual DbSet<Group> Groups { get; set; }
         public virtual DbSet<GroupMember> GroupMembers { get; set; }
@@ -177,6 +179,13 @@ namespace TextPortCore.Data
                 entity.Property(e => e.TollFree).HasDefaultValueSql("((0))");
             });
 
+            modelBuilder.Entity<BadEmailDomain>(entity =>
+            {
+                entity.ToTable("BadEmailDomains");
+
+                entity.HasKey(e => e.DomainId);
+            });
+
             modelBuilder.Entity<BlockedNumber>(entity =>
             {
                 entity.ToTable("BlockedNumbers");
@@ -261,6 +270,17 @@ namespace TextPortCore.Data
                     .IsRequired()
                     .HasMaxLength(20)
                     .IsUnicode(false);
+            });
+
+            modelBuilder.Entity<EmailToSMSAddress>(entity =>
+            {
+                entity.ToTable("EmailToSMSAddresses");
+
+                entity.HasKey(e => e.AddressId);
+
+                entity.HasIndex(e => e.AccountId);
+
+                entity.HasIndex(e => e.EmailAddress);
             });
 
             modelBuilder.Entity<ErrorLogItem>(entity =>

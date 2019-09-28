@@ -128,104 +128,190 @@
     </script>
 </head>
 <body>
-    <br />
     <div class="container">
-        @if (User.Identity.IsAuthenticated)
-        {
-            <nav class="navbar navbar-expand-md bg-white">
-                <a class="navbar-brand nav-link" href="/"><img src="~/content/images/tp_logo_240x54.png?h=06d3a6bd33a5b974da6ee4b4c5b06da3" width="130" alt="TextPort"></a>
-                <button class="navbar-toggler navbar-light border-1" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <nav class="navbar navbar-expand-lg navbar-light bg-light static-top">
+            <div class="container">
+                <a class="navbar-brand" href="/">
+                    <img src="~/Content/images/tp_logo_240x54.png" width="140" alt="TextPort">
+                </a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="collapse navbar-collapse text-primary text-primary" id="navbarNavDropdown">
-                    <ul class="navbar-nav nav-pills ml-auto text-primary">
-                        <li class="nav-item">
-                            @Html.ActionLink("My Messages", "index", "messages", null, htmlAttributes: new { @class = "nav-link" })
-                        </li>
-                        <li class="nav-item dropdown d-none d-md-block">
-                            <a class="nav-link dropdown-toggle" href="#" id="navBGLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Bulk / Group</a>
-                            <div class="dropdown-menu" aria-labelledby="navBGLink">
-                                @Html.ActionLink("Bulk Texting", "index", "bulk", null, htmlAttributes: new { @class = "dropdown-item" })
-                                @Html.ActionLink("In Box", "inbox", "bulk", null, htmlAttributes: new { @class = "dropdown-item" })
-                                @Html.ActionLink("Group Texting", "index", "group", null, htmlAttributes: new { @class = "dropdown-item" })
-                            </div>
-                        </li>
-                        <li class="nav-item d-md-none">
-                            <a class="nav-link" href="/bulk/">Bulk Texting</a>
-                        </li>
-                        <li class="nav-item d-md-none">
-                            <a class="nav-link" href="/bulk/inbox">In Box</a>
-                        </li>
-                        <li class="nav-item d-md-none">
-                            <a class="nav-link" href="/group/">Group Texting</a>
-                        </li>
-                        <li class="dropdown-divider d-md-none"></li>
-                        <li class="nav-item dropdown d-none d-md-block">
-                            <a class="nav-link active dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">@User.Identity.Name</a>
-                            <div class="dropdown-menu">
-                                @Html.ActionLink("Profile", "profile", "account", null, htmlAttributes: new { @class = "dropdown-item" })
-                                @Html.ActionLink("Balance", "balance", "account", null, htmlAttributes: new { @class = "dropdown-item" })
-                                @Html.ActionLink("Numbers", "", "numbers", null, htmlAttributes: new { @class = "dropdown-item" })
-                                @Html.ActionLink("Groups", "", "Groups", null, htmlAttributes: new { @class = "dropdown-item" })
-                                @*@Html.ActionLink("API Settings", "", "APISettings", null, htmlAttributes: new { @class = "dropdown-item" })*@
-                                <div class="dropdown-divider"></div>
-                                @Html.ActionLink("Log Out", "logout", "account", null, htmlAttributes: new { @class = "dropdown-item" })
-                            </div>
-                        </li>
-                        <li class="nav-item d-md-none">
-                            <a class="nav-link" href="/account/profile">Profile</a>
-                        </li>
-                        <li class="nav-item d-md-none">
-                            <a class="nav-link" href="/account/balance">Balance</a>
-                        </li>
-                        <li class="nav-item d-md-none">
-                            <a class="nav-link" href="/numbers/">Numbers</a>
-                        </li>
-                        <li class="nav-item d-md-none">
-                            <a class="nav-link" href="/groups/">Groups</a>
-                        </li>
-                        @*<li class="nav-item d-md-none">
-                            <a class="nav-link" href="/apisettings/">API Settings</a>
-                        </li>*@
-                        <li class="nav-item d-md-none">
-                            <a class="nav-link" href="/account/changepassword">Change Password</a>
-                        </li>
-                        <li class="nav-item d-md-none">
-                            <div class="dropdown-divider"></div>
-                        </li>
-                        <li class="nav-item d-md-none">
-                            <a class="nav-link" href="/account/logout">Log Out</a>
-                        </li>
-                    </ul>
-                </div>
-            </nav>
-            <div class="row">
-                <div class="col-12">
-                    <p class="mt-1 mb-2 text-secondary tp-bal">Balance: $<span id="balance"></span></p>
-                </div>
-            </div>
-        }
-        else
-        {
-            <nav class="navbar">
-                <a class="navbar-brand nav-link" href="/"><img src="~/content/images/tp_logo_240x54.png?h=06d3a6bd33a5b974da6ee4b4c5b06da3" width="130" alt="TextPort"></a>
-                <ul class="nav nav-pills ml-auto">
-                    <li class="nav-item">
-                        @if (Request.Browser.IsMobileDevice)
+                <div class="collapse navbar-collapse" id="navbarResponsive">
+                    <ul class="navbar-nav ml-auto">
+                        @if (User.Identity.IsAuthenticated)
                         {
-                            <a href='/home/loginm' class="nav-link">Log In</a>
+                            <li class="nav-item active">
+                                <a class="nav-link" href="/messages">
+                                    My Messages
+                                    @*<span class="sr-only">(current)</span>*@
+                                </a>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Bulk / Group</a>
+                                <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                                    <a class="dropdown-item" href="/bulk">Bulk Texting</a>
+                                    <a class="dropdown-item" href="/bulk/inbox">In Box</a>
+                                    <a class="dropdown-item" href="/group">Group Texting</a>
+                                </div>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/email-to-sms-gateway">Email to SMS</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#">Virtual Numbers</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#">API</a>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">@User.Identity.Name</a>
+                                <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                                    <a class="dropdown-item" href="/account/profile">Profile</a>
+                                    <a class="dropdown-item" href="/account/balance">Balance</a>
+                                    <a class="dropdown-item" href="/numbers">Numbers</a>
+                                    <a class="dropdown-item" href="/groups">Groups</a>
+                                    <a class="dropdown-item" href="/apisettings">API Settings</a>
+                                    <div class="dropdown-divider"></div>
+                                    <a class="dropdown-item" href="/account/logout">Log Out</a>
+                                </div>
+                            </li>
                         }
                         else
                         {
-                            <a href='#' id="login-link" class="nav-link modal-button" data-toggle="modal" data-target="#modal-cont-login" data-url="/home/login">Log In</a>
+                            <li class="nav-item active">
+                                <a class="nav-link" href="/">
+                                    Home
+                                    <span class="sr-only">(current)</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/email-to-sms-gateway">Email to SMS</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/virtual-mobile-numbers">Virtual Numbers</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/api">API</a>
+                            </li>
+                            <li class="nav-item">
+                                @if (Request.Browser.IsMobileDevice)
+                                {
+                                    <a href='/loginm' class="nav-link">Log In</a>
+                                }
+                                else
+                                {
+                                    <a href='#' id="login-link" class="nav-link modal-button" data-toggle="modal" data-target="#modal-cont-login" data-url="/login">Log In</a>
+                                }
+                            </li>
+                            <li>
+                                <a href="/account/signup"><button class="btn btn-primary ml-auto mr-2">Sign Up</button></a>
+                            </li>
                         }
-                    </li>
-                    <li class="nav-item d-none d-md-block">
-                        <a href='/account/signup' id="login-link-mobile" class="nav-link active">Sign Up</a>
-                    </li>
-                </ul>
-            </nav>
-        }
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        @*@if (User.Identity.IsAuthenticated)
+            {
+                <nav class="navbar navbar-expand-md bg-white">
+                    <a class="navbar-brand nav-link" href="/"><img src="~/content/images/tp_logo_240x54.png?h=06d3a6bd33a5b974da6ee4b4c5b06da3" width="130" alt="TextPort"></a>
+                    <button class="navbar-toggler navbar-light border-1" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse text-primary text-primary" id="navbarNavDropdown">
+                        <ul class="navbar-nav nav-pills ml-auto text-primary">
+                            <li class="nav-item">
+                                @Html.ActionLink("My Messages", "index", "messages", null, htmlAttributes: new { @class = "nav-link" })
+                            </li>
+                            <li class="nav-item dropdown d-none d-md-block">
+                                <a class="nav-link dropdown-toggle" href="#" id="navBGLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Bulk / Group</a>
+                                <div class="dropdown-menu" aria-labelledby="navBGLink">
+                                    @Html.ActionLink("Bulk Texting", "index", "bulk", null, htmlAttributes: new { @class = "dropdown-item" })
+                                    @Html.ActionLink("In Box", "inbox", "bulk", null, htmlAttributes: new { @class = "dropdown-item" })
+                                    @Html.ActionLink("Group Texting", "index", "group", null, htmlAttributes: new { @class = "dropdown-item" })
+                                </div>
+                            </li>
+                            <li class="nav-item d-md-none">
+                                <a class="nav-link" href="/bulk/">Bulk Texting</a>
+                            </li>
+                            <li class="nav-item d-md-none">
+                                <a class="nav-link" href="/bulk/inbox">In Box</a>
+                            </li>
+                            <li class="nav-item d-md-none">
+                                <a class="nav-link" href="/group/">Group Texting</a>
+                            </li>
+                            <li class="dropdown-divider d-md-none"></li>
+                            <li class="nav-item dropdown d-none d-md-block">
+                                <a class="nav-link active dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">@User.Identity.Name</a>
+                                <div class="dropdown-menu">
+                                    @Html.ActionLink("Profile", "profile", "account", null, htmlAttributes: new { @class = "dropdown-item" })
+                                    @Html.ActionLink("Balance", "balance", "account", null, htmlAttributes: new { @class = "dropdown-item" })
+                                    @Html.ActionLink("Numbers", "", "numbers", null, htmlAttributes: new { @class = "dropdown-item" })
+                                    @Html.ActionLink("Groups", "", "Groups", null, htmlAttributes: new { @class = "dropdown-item" })
+                                    @Html.ActionLink("API Settings", "", "APISettings", null, htmlAttributes: new { @class = "dropdown-item" })
+                                    <div class="dropdown-divider"></div>
+                                    @Html.ActionLink("Log Out", "logout", "account", null, htmlAttributes: new { @class = "dropdown-item" })
+                                </div>
+                            </li>
+                            <li class="nav-item d-md-none">
+                                <a class="nav-link" href="/account/profile">Profile</a>
+                            </li>
+                            <li class="nav-item d-md-none">
+                                <a class="nav-link" href="/account/balance">Balance</a>
+                            </li>
+                            <li class="nav-item d-md-none">
+                                <a class="nav-link" href="/numbers/">Numbers</a>
+                            </li>
+                            <li class="nav-item d-md-none">
+                                <a class="nav-link" href="/groups/">Groups</a>
+                            </li>
+                            <li class="nav-item d-md-none">
+                                <a class="nav-link" href="/apisettings/">API Settings</a>
+                            </li>
+                            <li class="nav-item d-md-none">
+                                <a class="nav-link" href="/account/changepassword">Change Password</a>
+                            </li>
+                            <li class="nav-item d-md-none">
+                                <div class="dropdown-divider"></div>
+                            </li>
+                            <li class="nav-item d-md-none">
+                                <a class="nav-link" href="/account/logout">Log Out</a>
+                            </li>
+                        </ul>
+                    </div>
+                </nav>
+                <div class="row">
+                    <div class="col-12">
+                        <p class="mt-1 mb-2 text-secondary tp-bal">Balance: $<span id="balance"></span></p>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <nav class="navbar">
+                    <a class="navbar-brand nav-link" href="/"><img src="~/content/images/tp_logo_240x54.png?h=06d3a6bd33a5b974da6ee4b4c5b06da3" width="130" alt="TextPort"></a>
+                    <ul class="nav nav-pills ml-auto">
+                        <li class="nav-item">
+                            <a href='/api' class="nav-link">SMS API</a>
+                        </li>
+                        <li class="nav-item">
+                            @if (Request.Browser.IsMobileDevice)
+                            {
+                                <a href='/home/loginm' class="nav-link">Log In</a>
+                            }
+                            else
+                            {
+                                <a href='#' id="login-link" class="nav-link modal-button" data-toggle="modal" data-target="#modal-cont-login" data-url="/home/login">Log In</a>
+                            }
+                        </li>
+                        <li class="nav-item d-none d-md-block">
+                            <a href='/account/signup' id="login-link-mobile" class="nav-link active">Sign Up</a>
+                        </li>
+                    </ul>
+                </nav>
+            }*@
         @RenderBody()
         <hr />
         <footer class="footer bg-white">
@@ -248,6 +334,10 @@
                             <li class="list-inline-item">
                                 <a href="/privacy">Privacy Policy</a>
                             </li>
+                            <li class="list-inline-item">&sdot;</li>
+                            <li class="list-inline-item">
+                                <a href="/api">SMS API</a>
+                            </li>
                         </ul>
                         <p class="text-muted small mb-4 mb-md-0">&copy; TextPort 2019. All Rights Reserved.</p>
                     </div>
@@ -263,19 +353,15 @@
                                     <i class="fa fa-twitter-square fa-2x fa-fw"></i>
                                 </a>
                             </li>
-
                         </ul>
                     </div>
                 </div>
             </div>
         </footer>
-
     </div>
 
     <div id="modal-cont"></div>
     <div id="modal-cont-login"></div>
-
-    @*@RenderSection("Scripts", required: false)*@
 
 </body>
 </html>

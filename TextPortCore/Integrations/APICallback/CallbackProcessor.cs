@@ -14,7 +14,7 @@ namespace TextPortCore.Integrations.APICallback
 {
     public static class CallbackProcessor
     {
-        public static bool ProcessAPICallback(APIApplication apiApp, Message messageIn, ref string callbackProcessingMessage)
+        public static bool ProcessAPICallback(APIApplication apiApp, API.MessageEvent msgEvent, ref string callbackProcessingMessage)
         {
             callbackProcessingMessage = string.Empty;
 
@@ -30,9 +30,7 @@ namespace TextPortCore.Integrations.APICallback
             var request = new RestRequest(apiApp.CallbackURL, Method.POST);
             request.RequestFormat = DataFormat.Json;
 
-            API.Message messageOut = new API.Message(messageIn);
-
-            request.AddJsonBody(messageOut);
+            request.AddJsonBody(msgEvent);
 
             IRestResponse response = client.Execute(request);
 

@@ -28,7 +28,9 @@ namespace TextPortCore.Helpers
         [Description("SVC")]
         SVC = 6,
         [Description("ASMX")]
-        ASMX = 7
+        ASMX = 7,
+        [Description("EmailToSMS")]
+        EmailToSMS = 8
     }
 
     public enum NumberTypes : byte
@@ -72,7 +74,9 @@ namespace TextPortCore.Helpers
         [Description("Success")]
         Success = 1,
         [Description("Failed")]
-        Failed = 2
+        Failed = 2,
+        [Description("CaptchaFailed")]
+        CaptchaFailed = 3
     }
 
     public enum ProcessingStates : int

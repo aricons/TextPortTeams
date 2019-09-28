@@ -51,5 +51,17 @@ namespace TextPortCore.Helpers
 
             return template;
         }
+
+        public static string RenderActivateAccountEmailBody(RegistrationData regData)
+        {
+            string template = File.ReadAllText($"{ConfigurationManager.AppSettings["EmailTemplatesFolder"]}ActivateAccount.html");
+            string activationUrl = $"https://textport.com/account/activate/{regData.AccountValidationKey}";
+            template = template.Replace("{{name}}", regData.UserName);
+            template = template.Replace("{{action_url}}", activationUrl);
+            template = template.Replace("{{ip_address}}", regData.IPAddress);
+            template = template.Replace("{{browser_type}}", regData.BrowserType);
+
+            return template;
+        }
     }
 }

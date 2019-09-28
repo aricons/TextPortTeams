@@ -266,7 +266,7 @@ namespace TextPortCore.Data
             return null;
         }
 
-        public IEnumerable<SelectListItem> GetAPIApplicationsList(int accountId)
+        public IEnumerable<SelectListItem> GetAPIApplicationsList(int accountId, int virtualumberId)
         {
             try
             {
@@ -285,7 +285,7 @@ namespace TextPortCore.Data
                 SelectListItem firstItem = new SelectListItem()
                 {
                     Value = "0",
-                    Text = "--- add new application ---"
+                    Text = (virtualumberId > 0) ? "Unassign Application" : "--- add new application ---"
                 };
 
                 applicationsDDlist.Insert(0, firstItem);

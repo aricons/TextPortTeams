@@ -489,8 +489,86 @@ namespace TextPort.Controllers
                 {
                     return Json($"Email {emailaddress} is already registered to an account.", JsonRequestBehavior.AllowGet);
                 }
+
+                // Check to see if the user is attempting to use a temporary email domain to get a free account to send spam texts.
+                string emailDomain = da.DoesEmailContainBadDomain(emailaddress);
+                if (!string.IsNullOrEmpty(emailDomain))
+                {
+                    return Json($"The email domain {emailDomain} cannot be accepted for trial registrations.", JsonRequestBehavior.AllowGet);
+                }
             }
             return Json(true, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet]
+        [AllowAnonymous]
+        public ActionResult Activate(string id)
+        {
+            ActivateAccountRequest actReq = new ActivateAccountRequest(id);
+            actReq.Success = false;
+            actReq.CompletionTitle = "Account Activation Failed";
+
+            if (!string.IsNullOrEmpty(actReq.ActivationKey))
+            {
+                using (TextPortDA da = new TextPortDA())
+                {
+                    Account acc = da.GetAccountByAccountValidationKey(actReq.ActivationKey);
+                    if (acc != null)
+                    {
+                        if (!acc.Enabled && !acc.AccountValidated)
+                        {
+                            actReq.AccountId = acc.AccountId;
+                            actReq.UserName = acc.UserName;
+                            actReq.EmailAddress = acc.Email;
+                            actReq.VirtualNumber = acc.RegistrationVirtualNumber;
+
+                            if (da.SetAccountActivationAndEnabledFlags(acc.AccountId, true))
+                            {
+                                // Log the user in
+                                List<Claim> claims = new List<Claim> {
+                                        new Claim("AccountId", actReq.AccountId.ToString(), ClaimValueTypes.Integer),
+                                        new Claim(ClaimTypes.Name, actReq.UserName.ToString()),
+                                        new Claim(ClaimTypes.Email, actReq.EmailAddress.ToString()),
+                                        new Claim(ClaimTypes.Role, "User") };
+
+                                ClaimsIdentity identity = new ClaimsIdentity(claims, "ApplicationCookie");
+                                ClaimsPrincipal principal = new ClaimsPrincipal(identity);
+
+                                var context = Request.GetOwinContext();
+                                var authManager = context.Authentication;
+
+                                authManager.SignIn(new AuthenticationProperties { IsPersistent = false }, identity);
+
+                                if (da.AddTrialNumberToAccount(actReq))
+                                {
+                                    actReq.Success = true;
+                                    actReq.CompletionTitle = "Account Successfully Activated!";
+                                    actReq.CreditAmount = Constants.InitialFreeTrialBalanceAllocation;
+                                    Cookies.WriteBalance(actReq.CreditAmount);
+                                }
+                                else
+                                {
+                                    actReq.CompletionMessage += " The number was unable to be assigned to your account.";
+                                }
+                            }
+                        }
+                        else
+                        {
+                            actReq.CompletionTitle = "Account Already Activated";
+                            actReq.CompletionMessage = $"The activation key {actReq.ActivationKey} has already been used to activate an account with username {acc.UserName}. It is not necessary to re-activate the account.";
+                        }
+                    }
+                    else
+                    {
+                        actReq.CompletionMessage = "Invalid reset token.";
+                    }
+                }
+            }
+            else
+            {
+                actReq.CompletionMessage = "Missing reset token.";
+            }
+            return View(actReq);
         }
 
         [HttpGet]

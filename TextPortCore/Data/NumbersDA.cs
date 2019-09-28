@@ -168,6 +168,49 @@ namespace TextPortCore.Data
             return false;
         }
 
+        public bool AddTrialNumberToAccount(ActivateAccountRequest actReq)
+        {
+            try
+            {
+                DateTime expirationDate = DateTime.UtcNow.AddDays(15);
+                expirationDate = expirationDate.AddHours(-12);
+
+                DedicatedVirtualNumber number = new DedicatedVirtualNumber()
+                {
+                    AccountId = actReq.AccountId,
+                    CancellationFailureCount = 0,
+                    Cancelled = false,
+                    CountryCode = "22",
+                    NumberType = (byte)NumberTypes.Pooled,
+                    CreateDate = DateTime.Now,
+                    ExpirationDate = expirationDate,
+                    IsDefault = true,
+                    Fee = 0,
+                    Provider = "Bandwidth",
+                    ReminderFailureCount = 0,
+                    RenewalCount = 0,
+                    SevenDayReminderSent = null,
+                    TwoDayReminderSent = null,
+                    VirtualNumber = actReq.VirtualNumber,
+                    VirtualNumberCountryId = 22,
+                    VirtualNumberId = 0
+                };
+
+                _context.DedicatedVirtualNumbers.Add(number);
+                _context.SaveChanges();
+
+                actReq.VirtualNumberId = number.VirtualNumberId;
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                ErrorHandling eh = new ErrorHandling();
+                eh.LogException("NumbersDA.AddTrialNumberToAccount", ex);
+            }
+            return false;
+        }
+
         #endregion
 
         #region "Update methods"

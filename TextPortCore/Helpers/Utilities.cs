@@ -253,6 +253,36 @@ namespace TextPortCore.Helpers
             return "0.0.0.0";
         }
 
+        public static bool SplitEmailAddress(string address, ref string namePart, ref string domainPart)
+        {
+            namePart = String.Empty;
+            domainPart = String.Empty;
+
+            try
+            {
+                if (address.IndexOf("@") > 0)
+                {
+                    char[] atSign = new char[] { '@' };
+                    string[] addressSegments = address.Split(atSign);
+                    if (addressSegments.Length >= 2)
+                    {
+                        namePart = addressSegments[0].Trim();
+                        domainPart = addressSegments[1].Trim();
+                    }
+                    return true;
+                }
+                else
+                {
+                    namePart = address;
+                    return false;
+                }
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
         //public static void DeleteEventLogFromSystem(string sourceName)
         //{
         //    string logName;

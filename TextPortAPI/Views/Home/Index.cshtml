@@ -1,204 +1,386 @@
-﻿<div class="jumbotron">
-    <h1>Text Messaging API</h1>
-    <p class="lead">A simple-to-use REST-based API for text messaging. Easily integrate SMS and MMS into your apps.</p>
-    <p><a href="~/documentation/" class="btn btn-primary btn-lg">View API Documentation &raquo;</a></p>
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "TextPort Test Messaging API. Integrate SMS into your web or mobile applications.";
+    ViewData["Description"] = "REST-based text messaging API. Easily integrate SMS messaging into your apps. SMS Gateway.";
+    ViewData["Url"] = "https://textport.com/api";
+}
+
+<script type="text/javascript" src="~/content/highlight.pack.js"></script>
+<link rel="stylesheet" href="~/content/highlight/styles/dracula.css">
+
+<div class="row align-items-center my-5 main-banner">
+    <div class="col-lg-5">
+        <img class="img-fluid rounded mb-4 mb-lg-0" style="margin-left: 90px" src="~/Content/images/api.png" alt="TextPort SMS API">
+    </div>
+    <div class="col-lg-7">
+        <h1 class="font-weight-light">TextPort SMS API</h1>
+        <p>
+            A REST-based text messaging API. Easily integrate SMS messaging into your apps.
+        </p>
+        <a class="btn btn-primary" href="/documentation">View documentation...</a>
+    </div>
 </div>
-<div class="row">
-    <div class="col-md-4">
-        <h2>Getting started</h2>
-        <p>Send SMS with low latency and high delivery rates. Out pay-as-you-go plan lets you pay for only what you need.</p>
-        <p><a class="btn btn-default" href="#features">Learn more &raquo;</a></p>
-    </div>
-    <div class="col-md-4">
-        <h2>Setup Your Application</h2>
-        <p>Get your API token and key. Specify an endpoint to receive message on and you're up and running.</p>
-        <p><a class="btn btn-default" href="#setup">Learn more &raquo;</a></p>
-    </div>
-    <div class="col-md-4">
-        <h2>Documentation</h2>
-        <p>Click below for our Swagger-based API documentation. Each method is detailed applications.</p>
-        <p><a class="btn btn-default" href="/swagger">Learn more &raquo;</a></p>
+<div class="card text-white bg-secondary my-5 py-4 text-center sub-banner">
+    <div class="card-body">
+        <h2>SMS API for Developers</h2>
+        <p class="text-white m-0">
+            Send bulk SMS, customer alerts, notifications or announcements directly from your application. Start sending messages within minutes using TextPort's REST API. Works with any Inbound messages are free. Affordable, pay-as-you-go pricing.
+        </p>
     </div>
 </div>
-<hr />
-<br />
-<a name="features" />
-<div>
-    <section class="feature-block">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-12 col-sm-12 ">
-                    <div class="text-center">
-                        <h1>Features</h1>
-                        @*<p>Key features of the TextPort SMS API</p>*@
-                    </div>
+<div class="row landing-cards">
+    <div class="col-md-4 mb-5">
+        <div class="card h-100">
+            <div class="card-body">
+                <h1 class="card-title">Easy Integration</h1>
+                <h2 class="card-text">A simple, industry-standard RESTful API. Support for all development languages and platforms.</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-5">
+        <div class="card h-100">
+            <div class="card-body">
+                <h1 class="card-title">Competitive Pricing</h1>
+                <h2 class="card-text">Pay-as-you-go pricing. Pay for only what you need. No monthly minimums or recurring charges.</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-5">
+        <div class="card h-100">
+            <div class="card-body">
+                <h1 class="card-title">Choose Your Number</h1>
+                <h2 class="card-text">Select an area code, then choose your own dedicated virtual number. Use multiple numbers if you require a localized presence.</h2>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="background-lt-gray">
+    <a name="pricing"></a>
+    <div class="px-3 py-3 pt-md-4 pb-md-4 mx-auto text-center">
+        <h1>Pricing</h1>
+        <h2 class="lead">
+            Pay as you go. Only pay for what you need. No minimums, and no recurring charges.
+        </h2>
+    </div>
+    <div class="container">
+        <div class="card-deck mb-3 text-center">
+            <div class="card mb-3 box-shadow">
+                <div class="card-body d-flex flex-column">
+                    <h1 class="card-title text-primary">$0.015</h1>
+                    <p class="lead">
+                        Outbound Text Message
+                        <sup>
+                            <button class="btn" style="padding: 2px" data-toggle="popover" title="Cost Per Message Segment" data-content="" data-html="true">
+                                <i class="fa fa-info-circle text-primary"></i>
+                            </button>
+                        </sup>
+                    </p>
                 </div>
             </div>
-            <br />
-            <div class="row">
-                <div class="col-md-4 col-sm-4 text-center">
-                    <div class="feature-box">
-                        <i class="fa fa-gear fa-2x text-primary"></i>
-                        <h4>Easy Integration</h4>
-                        <p>A simple, industry-standard RESTful API. No downloads, installs or packages necessary. Support for all development languages and platforms. </p>
-                    </div>
-                </div>
-                <div class="col-md-4 col-sm-4 text-center">
-                    <div class="feature-box">
-                        <i class="fa fa-gear fa-2x text-primary"></i>
-                        <h4>Affordable Pricing</h4>
-                        <p>Pay-as-you-go pricing. Pay for only what you need. No monthly minimums or recurring charges.</p>
-                    </div>
-                </div>
-                <div class="col-md-4 col-sm-4 text-center">
-                    <div class="feature-box">
-                        <i class="fa fa-gear fa-2x text-primary"></i>
-                        <h4>Choose Your Number</h4>
-                        <p>Selet an area code, then choose your own dedicated virtual number. Use multiple numbers if you require a localized presence.</p>
-                    </div>
+            <div class="card mb-3 box-shadow">
+                <div class="card-body d-flex flex-column">
+                    <h1 class="card-title text-primary">FREE</h1>
+                    <p class="lead">
+                        Inbound Text and MMS Message
+                    </p>
                 </div>
             </div>
-            <div class="clearfix"></div>
-            <div class="row">
-                <div class="col-md-4 col-sm-4 text-center">
-                    <div class="feature-box">
-                        <i class="fa fa-gear fa-2x text-primary"></i>
-                        <h4>Multi-Format</h4>
-                        <p>Submit requests in either JSON or XML format. Minimal request format creates lightweight request payloads.</p>
-                    </div>
+            <div class="card mb-3 box-shadow">
+                <div class="card-body d-flex flex-column">
+                    <h1 class="card-title text-primary">$0.025</h1>
+                    <p class="lead">
+                        Outbound MMS (Picture) Message
+                    </p>
                 </div>
-                <div class="col-md-4 col-sm-4 text-center">
-                    <div class="feature-box">
-                        <i class="fa fa-gear fa-2x text-primary"></i>
-                        <h4>Inbound Message Handling</h4>
-                        <p>TextPort will forward delivery receipts and inbound messages to an endpoint on your network.</p>
-                    </div>
-                </div>
-                <div class="col-md-4 col-sm-4 text-center">
-                    <div class="feature-box">
-                        <i class="fa fa-gear fa-2x text-primary"></i>
-                        <h4>Multi-Message Support</h4>
-                        <p>Package multiple messages into a single payload to reduce network overhead.</p>
-                    </div>
+            </div>
+            <div class="card mb-3 box-shadow">
+                <div class="card-body d-flex flex-column">
+                    <h1 class="card-title text-primary">$6.00</h1>
+                    <p class="lead">
+                        Virtual Number 1 Month Lease
+                    </p>
                 </div>
             </div>
         </div>
-    </section>
+    </div>
 </div>
-<hr />
+<br />
 <br />
 <div class="container">
     <div class="row">
         <div class="col-md-12 col-sm-12 ">
             <div class="text-center">
-                <h1>Pricing</h1>
+                <h1>Sample Code</h1>
             </div>
         </div>
     </div>
     <br />
-    <div class="card-deck">
-        <div class="col col-sm-4">
-            <div class="card">
-                <div class="card-body">
-                    <h4 class="card-title">Pay as You Go Pricing</h4>
-                    <p class="card-text">Purchase a number, then purchase only the messaging credit you need.</p>
-                </div>
-            </div>
+    <div class="row">
+        <div class="col">
+            <h2 class="text-primary">Send a Message</h2>
         </div>
-        <div class="col col-sm-4">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">No minimums or expirations</h5>
-                    <p class="card-text">Purchase as little as $1.00. Messaging credit never expires</p>
-                </div>
-            </div>
-        </div>
-        <div class="col col-sm-4">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">No recurring fees</h5>
-                    <p class="card-text">No auto-bill, monthly minimums, or recurring fees</p>
-                </div>
-            </div>
+        <div class="col">
+            <a href="/api/documentation" class="float-right btn btn-primary btn-fill" role="button">View Full Documentation &raquo;</a>
         </div>
     </div>
     <br />
-    <div class="card-deck">
-        <div class="col col-sm-4">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Virtual Numbers</h5>
-                    <p class="card-text">$6.00 per month</p>
+    <div class="row">
+        <div class="col">
+            <h5>Sample Request Objects</h5>
+            <ul class="nav nav-tabs" id="payload-tab" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" id="json-tab" data-toggle="tab" href="#json" role="tab" aria-controls="json" aria-selected="true">JSON</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="xml-tab" data-toggle="tab" href="#xml" role="tab" aria-controls="xml" aria-selected="false">XML</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="json2-tab" data-toggle="tab" href="#json2" role="tab" aria-controls="json2" aria-selected="true">JSON (Multiple Messages)</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="xml2-tab" data-toggle="tab" href="#xml2" role="tab" aria-controls="xml2" aria-selected="false">XML (Multiple Messages)</a>
+                </li>
+            </ul>
+            <div class="tab-content">
+                <div class="tab-pane active" id="json" role="tabpanel" aria-labelledby="json-tab">
+                    <pre><code class="json">[
+    {
+        "From": "12135551212",
+        "To": "13035555323",
+        "MessageText": "Sample message from TextPort SMS API"
+    }
+]</code></pre>
+                </div>
+                <div class="tab-pane" id="xml" role="tabpanel" aria-labelledby="xml-tab">
+                    <pre><code class="xml">&lt;ArrayOfMessage&gt;
+    &lt;Message&gt;
+        &lt;From&gt;12135551212&lt;/From&gt;
+        &lt;To&gt;13035555323&lt;/To&gt;
+        &lt;MessageText&gt;Sample message from TextPort SMS API&lt;/MessageText&gt;
+    &lt;/Message&gt;
+&lt;/ArrayOfMessage&gt;</code></pre>
+                </div>
+                <div class="tab-pane" id="json2" role="tabpanel" aria-labelledby="json2-tab">
+                    <pre><code class="json">[
+    {
+        "From": "12135551212",
+        "To": "13035555323",
+        "MessageText": "FIRST message from TextPort SMS API"
+    },
+    {
+        "From": "12135551212",
+        "To": "13035555323",
+        "MessageText": "SECOND message"
+    },
+    {
+        "From": "12135551212",
+        "To": "13035555323",
+        "MessageText": "THIRD message"
+    }
+]</code></pre>
+                </div>
+                <div class="tab-pane" id="xml2" role="tabpanel" aria-labelledby="xml2-tab">
+                    <pre><code class="xml">&lt;ArrayOfMessage&gt;
+    &lt;Message&gt;
+        &lt;From&gt;12135551212&lt;/From&gt;
+        &lt;To&gt;13035555323&lt;/To&gt;
+        &lt;MessageText&gt;FIRST message from TextPort SMS API&lt;/MessageText&gt;
+    &lt;/Message&gt;
+    &lt;Message&gt;
+        &lt;From&gt;12135551212&lt;/From&gt;
+        &lt;To&gt;13035555323&lt;/To&gt;
+        &lt;MessageText&gt;SECOND message&lt;/MessageText&gt;
+    &lt;/Message&gt;
+    &lt;Message&gt;
+        &lt;From&gt;12135551212&lt;/From&gt;
+        &lt;To&gt;13035555323&lt;/To&gt;
+        &lt;MessageText&gt;THIRD message&lt;/MessageText&gt;
+    &lt;/Message&gt;
+&lt;/ArrayOfMessage&gt;</code></pre>
                 </div>
             </div>
-        </div>
-        <div class="col col-sm-4">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Outbound SMS</h5>
-                    <p class="card-text">Starting at <strong>$0.0011</strong> per message</p>
+            <h5>Code Examples (using JSON payload)</h5>
+            <ul class="nav nav-tabs" id="lang-tab" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" id="html-tab" data-toggle="tab" href="#html" role="tab" aria-controls="html" aria-selected="true">HTML</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="csharp-tab" data-toggle="tab" href="#csharp" role="tab" aria-controls="csharp" aria-selected="false">C# (RestSharp)</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="php-tab" data-toggle="tab" href="#php" role="tab" aria-controls="php" aria-selected="false">PHP</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="curl-tab" data-toggle="tab" href="#curl" role="tab" aria-controls="curl" aria-selected="false">cURL</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="jquery-tab" data-toggle="tab" href="#jquery" role="tab" aria-controls="jquery" aria-selected="false">jQuery</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="python-tab" data-toggle="tab" href="#python" role="tab" aria-controls="python" aria-selected="false">Python</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="ruby-tab" data-toggle="tab" href="#ruby" role="tab" aria-controls="ruby" aria-selected="false">Ruby</a>
+                </li>
+            </ul>
+            <div class="tab-content">
+                <div class="tab-pane active" id="html" role="tabpanel" aria-labelledby="html-tab">
+                    <pre><code class="html">POST /v1/messages/send HTTP/1.1
+Host: api.textport.com
+Content-Type: application/json
+Authorization: Basic MS1vcVk0OUNFRzhzOldqTk1ya2t6ZnFLbnQwV2c1bVdk
+[
+    {
+        "From": "12135551212",
+        "To": "13035555323",
+        "MessageText": "Sample text message from TextPort SMS API"
+    }
+]</code></pre>
+                </div>
+                <div class="tab-pane" id="csharp" role="tabpanel" aria-labelledby="csharp-tab">
+                    <pre><code class="csharp">var client = new RestClient("https://api.textport.com/v1/messages/send");
+var request = new RestRequest(Method.POST);
+
+request.AddHeader("Authorization", "Basic MS1vcVk0OUNFRzhzOldqTk1ya2t6ZnFLbnQwV2c1bVdk");
+request.AddHeader("Content-Type", "application/json");
+
+request.AddParameter("undefined", "[\n    {\n        \"From\": \"12135551212\",\n        \"To\": \"13035555323\",\n        \"MessageText\": \"Sample text message from TextPort SMS API\"\n    }\n]", ParameterType.RequestBody);
+
+IRestResponse response = client.Execute(request);</code></pre>
+                </div>
+                <div class="tab-pane" id="php" role="tabpanel" aria-labelledby="php-tab">
+                    <pre><code class="js"><?php
+$request = new HttpRequest();
+$request->setUrl('https://api.textport.com/v1/messages/send');
+$request->setMethod(HTTP_METH_POST);
+
+$request->setHeaders(array(
+    'Authorization' => 'Basic MS1vcVk0OUNFRzhzOldqTk1ya2t6ZnFLbnQwV2c1bVdk',
+    'Content-Type' => 'application/json'
+));
+
+$request->setBody('[
+    {
+        "From": "12135551212",
+        "To": "13035555323",
+        "MessageText": "Sample text message from TextPort SMS API"
+    }
+]');
+
+try {
+    $response = $request->send();
+
+    echo $response->getBody();
+} catch (HttpException $ex) {
+    echo $ex;
+}</code></pre>
+                </div>
+                <div class="tab-pane" id="curl" role="tabpanel" aria-labelledby="curl-tab">
+                    <pre><code class="curl">curl -X POST \
+https://api.textport.com/v1/messages/send \
+-H 'Authorization: Basic MS1vcVk0OUNFRzhzOldqTk1ya2t6ZnFLbnQwV2c1bVdk' \
+-H 'Content-Type: application/json' \
+-d '[
+        {
+            "From": "12135551212",
+            "To": "13035555323",
+            "MessageText": "Sample text message from TextPort SMS API"
+        }
+]'</code></pre>
+                </div>
+                <div class="tab-pane" id="jquery" role="tabpanel" aria-labelledby="jquery-tab">
+                    <pre><code class="jquery">var settings = {
+    "async": true,
+    "crossDomain": true,
+    "url": "https://api.textport.com/v1/messages/send",
+    "method": "POST",
+    "headers": {
+    "Content-Type": "application/json",
+    "Authorization": "Basic MS1vcVk0OUNFRzhzOldqTk1ya2t6ZnFLbnQwV2c1bVdk"
+    },
+    "processData": false,
+    "data": "[\n    {\n        \"From\": \"12135551212\",\n        \"To\": \"13035555323\",\n        \"MessageText\": \"Sample text message from TextPort SMS API\"\n    }\n]"
+}
+
+$.ajax(settings).done(function (response) {
+    console.log(response);
+});</code></pre>
+                </div>
+                <div class="tab-pane" id="python" role="tabpanel" aria-labelledby="python-tab">
+                    <pre><code class="python">import http.client
+
+conn = http.client.HTTPConnection("api,textport,com")
+
+payload = "[\n    {\n        \"From\": \"12135551212\",\n        \"To\": \"13035555323\",\n        \"MessageText\": \"Sample text message from TextPort SMS API\"\n    }\n]"
+
+headers = {
+'Content-Type': "application/json",
+'Authorization': "Basic MS1vcVk0OUNFRzhzOldqTk1ya2t6ZnFLbnQwV2c1bVdk"
+}
+
+conn.request("POST", "v1,messages,send", payload, headers)
+
+res = conn.getresponse()
+data = res.read()
+
+print(data.decode("utf-8"))</code></pre>
+                </div>
+                <div class="tab-pane" id="ruby" role="tabpanel" aria-labelledby="ruby-tab">
+                    <pre><code class="ruby">require 'uri'
+require 'net/http'
+
+url = URI("https://api.textport.com/v1/messages/send")
+
+http = Net::HTTP.new(url.host, url.port)
+
+request = Net::HTTP::Post.new(url)
+request["Content-Type"] = 'application/json'
+request["Authorization"] = 'Basic MS1vcVk0OUNFRzhzOldqTk1ya2t6ZnFLbnQwV2c1bVdk'
+request.body = "[\n    {\n        \"From\": \"12135551212\",\n        \"To\": \"13035555323\",\n        \"MessageText\": \"Sample text message from TextPort SMS API\"\n    }\n]"
+
+response = http.request(request)
+puts response.read_body</code></pre>
                 </div>
             </div>
-        </div>
-        <div class="col col-sm-4">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Inbound SMS</h5>
-                    <p class="card-text"><strong>FREE</strong></p>
+            <h5>Confirmation/Response</h5>
+            <ul class="nav nav-tabs" id="response-tab" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" id="rjson-tab" data-toggle="tab" href="#rjson" role="tab" aria-controls="rjson" aria-selected="true">JSON</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="rxml-tab" data-toggle="tab" href="#rxml" role="tab" aria-controls="rxml" aria-selected="false">XML</a>
+                </li>
+            </ul>
+            <div class="tab-content">
+                <div class="tab-pane active" id="rjson" role="tabpanel" aria-labelledby="rjson-tab">
+                    <pre><code class="json">[
+    {
+        "From": "12135551212",
+        "To": "13035555323",
+        "MessageText": "Sample text message from TextPort SMS API",
+        "Status": "OK",
+        "ErrorMessage": "",
+        "MessageId": 1190269079,
+        "Balance": 9.53
+    }
+]</code></pre>
+                </div>
+                <div class="tab-pane" id="rxml" role="tabpanel" aria-labelledby="xml-tab">
+                    <pre><code class="xml">&lt;ArrayOfMessagesResult&gt;
+    &lt;MessagesResult&gt;
+        &lt;From&gt;12135551212&lt;/From&gt;
+        &lt;To&gt;13035555323&lt;/To&gt;
+        &lt;MessageText&gt;Sample message from TextPort SMS API&lt;/MessageText&gt;
+        &lt;Status&gt;OK&lt;/Status&gt;
+        &lt;ErrorMessage /&gt;
+        &lt;MessageId&gt;10269080&lt;/MessageId&gt;
+        &lt;Balance&gt;9.5150&lt;/Balance&gt;
+    &lt;/MessagesResult&gt;
+&lt;/ArrayOfMessagesResult&gt;</code></pre>
                 </div>
             </div>
+            <p>Note: The default format for response content is JSON. Adding an HTTP header <i>Accept: application/xml</i> will set the response format to XML.</p>
         </div>
     </div>
-    <br />
-    <div class="card-deck">
-        <div class="col col-sm-4">
-            &nbsp;
-        </div>
-        <div class="col col-sm-4">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Outbound MMS</h5>
-                    <p class="card-text">Start at <strong>$.0.025</strong> per message</p>
-                </div>
-            </div>
-        </div>
-        <div class="col col-sm-4">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Inbound MMS</h5>
-                    <p class="card-text"><strong>FREE</strong></p>
-                </div>
-            </div>
-        </div>
-    </div>
-    <br />
 </div>
-<hr />
-<a name="setup" />
-<div class="container">
-    <section class="feature-block">
-        <div class="col-12">
-            <h1 class="text-center">Setup</h1>
-            <p>Log into you TextPort account. If you don't have an account yet, click <a href="https://textport.com/account/signup">here</a> to sign up. You can also try the API for free using our <a href="https://textport.com/trial">free trial</a>.</p>
-            <div class="row">
-                <div class="col-md-6 col-12">
-                    <p>
-                        Click your username in the top-right corner of any TextPort page. Select API Settings to display the page shown at right.
-                    </p>
-                    <p>
-                        Enter the name of your application. The API Token and API Secret will be generated automatically. These are your API username and password. The secret key can be changed at any time by clicking the "generate new secret" link.
-                    </p>
-                    <p>
-                        (Optional) If you intend to have TextPort forward inbound messages to your site/app, enter the URL of the endpoint or web-hook that will receive messages.
-                    </p>
-                    <p>
-                        (Optional) If you implement security on your API endpoint, enter the username and password for that endpoint. TextPort will use basic authentication in the header to authenticate against your URL.
-                    </p>
-                </div>
-                <div class="col-md-6 col-12">
-                    <img src="~/Content/images/apisettingspage.jpg" alt="API settings page" class="w-100" />
-                </div>
-            </div>
-        </div>
-    </section>
-</div>
+<script>hljs.initHighlightingOnLoad()</script>

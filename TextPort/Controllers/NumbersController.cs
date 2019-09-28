@@ -41,13 +41,13 @@ namespace TextPort.Controllers
 
         [AllowAnonymous]
         [HttpGet]
-        public JsonResult GetAvailableNumbers(string areaCode, bool tollFree)
+        public JsonResult GetAvailableNumbers(string areaCode, bool tollFree, int count)
         {
             List<SelectListItem> numbersItems = new List<SelectListItem>();
 
             using (Bandwidth bw = new Bandwidth())
             {
-                List<string> numbers = bw.GetVirtualNumbersList(areaCode, Constants.NumberOfNumbersToPullFromBandwidth, tollFree);
+                List<string> numbers = bw.GetVirtualNumbersList(areaCode, count, tollFree);
                 if (numbers.Any())
                 {
                     foreach (string number in numbers)
@@ -161,9 +161,7 @@ namespace TextPort.Controllers
         {
             int accountId = Utilities.GetAccountIdFromClaim(ClaimsPrincipal.Current);
 
-            ApiApplicationsContainer apiApps = new ApiApplicationsContainer(accountId, 0);
-            apiApps.ApplicationsList = apiApps.ApplicationsList.Where(x => x.Value != "0"); // Remove the "-- Select --" item.
-            apiApps.VirtualNumberId = id;
+            ApiApplicationsContainer apiApps = new ApiApplicationsContainer(accountId, 0, id);
 
             return PartialView("_ApplyApi", apiApps);
         }
@@ -174,7 +172,14 @@ namespace TextPort.Controllers
         {
             using (TextPortDA da = new TextPortDA())
             {
-                da.AssignAPIApplicationToVirtualNumber(apiApps.CurrentApplicationId, apiApps.VirtualNumberId);
+                if (apiApps.CurrentApplicationId == 0)
+                {
+                    da.UnAssignAPIApplicationFromVirtualNumber(apiApps.VirtualNumberId);
+                }
+                else
+                {
+                    da.AssignAPIApplicationToVirtualNumber(apiApps.CurrentApplicationId, apiApps.VirtualNumberId);
+                }
             }
             NumbersContainer nc = new NumbersContainer(apiApps.AccountId, false);
             return View("Index", nc);

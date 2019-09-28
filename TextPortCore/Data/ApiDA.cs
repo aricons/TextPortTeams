@@ -144,6 +144,28 @@ namespace TextPortCore.Data
             return false;
         }
 
+        public bool UnAssignAPIApplicationFromVirtualNumber(int virtualNumberId)
+        {
+            try
+            {
+                if (virtualNumberId > 0)
+                {
+                    DedicatedVirtualNumber dvn = _context.DedicatedVirtualNumbers.FirstOrDefault(x => x.VirtualNumberId == virtualNumberId);
+                    if (dvn != null)
+                    {
+                        dvn.APIApplicationId = null;
+                        SaveChanges();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorHandling eh = new ErrorHandling();
+                eh.LogException("ApiDA.UnAssignAPIApplicationFromVirtualNumber", ex);
+            }
+            return false;
+        }
+
         #endregion
 
         #region "Delete Methods"

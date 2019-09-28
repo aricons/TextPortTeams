@@ -18,6 +18,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TextPortAPI", "TextPortAPI\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "APIEndpointSimulator", "APIEndpointSimulator\APIEndpointSimulator.csproj", "{0C1BA7A0-95AC-464C-BFCC-556BC601F529}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmailToSMSGateway", "EmailToSMSGateway\EmailToSMSGateway.csproj", "{783E5E6B-357C-4A57-8C12-C5994508CE0C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Beta|Any CPU = Beta|Any CPU
@@ -74,6 +76,14 @@ Global
 		{0C1BA7A0-95AC-464C-BFCC-556BC601F529}.Production|Any CPU.Build.0 = Production|Any CPU
 		{0C1BA7A0-95AC-464C-BFCC-556BC601F529}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0C1BA7A0-95AC-464C-BFCC-556BC601F529}.Release|Any CPU.Build.0 = Release|Any CPU
+		{783E5E6B-357C-4A57-8C12-C5994508CE0C}.Beta|Any CPU.ActiveCfg = Release|Any CPU
+		{783E5E6B-357C-4A57-8C12-C5994508CE0C}.Beta|Any CPU.Build.0 = Release|Any CPU
+		{783E5E6B-357C-4A57-8C12-C5994508CE0C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{783E5E6B-357C-4A57-8C12-C5994508CE0C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{783E5E6B-357C-4A57-8C12-C5994508CE0C}.Production|Any CPU.ActiveCfg = Release|Any CPU
+		{783E5E6B-357C-4A57-8C12-C5994508CE0C}.Production|Any CPU.Build.0 = Release|Any CPU
+		{783E5E6B-357C-4A57-8C12-C5994508CE0C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{783E5E6B-357C-4A57-8C12-C5994508CE0C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

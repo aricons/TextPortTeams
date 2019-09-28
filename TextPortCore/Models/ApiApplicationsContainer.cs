@@ -39,18 +39,18 @@ namespace TextPortCore.Models
             this.VirtualNumberId = 0;
         }
 
-        public ApiApplicationsContainer(int accountId, int currentAppId)
+        public ApiApplicationsContainer(int accountId, int currentAppId, int virtualNumberId)
         {
             this.AccountId = accountId;
             this.CurrentApplicationId = 0;
             this.CurrentApplication = new APIApplication();
             this.StatusMessage = string.Empty;
             this.Status = RequestStatus.Pending;
-            this.VirtualNumberId = 0;
+            this.VirtualNumberId = virtualNumberId;
 
             using (TextPortDA da = new TextPortDA())
             {
-                this.ApplicationsList = da.GetAPIApplicationsList(accountId);
+                this.ApplicationsList = da.GetAPIApplicationsList(accountId, virtualNumberId);
 
                 if (currentAppId > 0)
                 {

@@ -13,6 +13,7 @@ using TextPortCore.Models;
 using TextPortCore.Helpers;
 using TextPortCore.Integrations.Bandwidth;
 using TextPortServices.Processes;
+using EmailToSMSGateway;
 
 
 namespace Testing
@@ -53,6 +54,13 @@ namespace Testing
                     }
                 }
             }
+        }
+
+        [TestMethod]
+        public void ParseEmailToSMSGatewayMessage()
+        {
+            string fileName = "md50000274792.msg";
+            MessageParser.ParseMessage(@"C:\Junk\TextPort\EmailToSMSGateway\" + fileName);
         }
 
         [TestMethod]

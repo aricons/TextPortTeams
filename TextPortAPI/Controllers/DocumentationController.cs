@@ -1,57 +1,79 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.Web.Mvc;
+﻿using System.Web.Mvc;
 
 namespace TextPortAPI.Controllers
 {
     public class DocumentationController : Controller
     {
-        // GET: Documentation
         public ActionResult Index()
         {
             return View();
         }
 
-        // GET: Setup
         public ActionResult Setup()
         {
             return View();
         }
 
-        // GET: Samples
+        [ActionName("assign-number")]
+        public ActionResult AssignNumber()
+        {
+            return View();
+        }
+
         public ActionResult Samples()
         {
             return View();
         }
 
-        // GET: InboundEvents
+        [ActionName("inbound-events")]
         public ActionResult InboundEvents()
         {
             return View();
         }
 
-        // GET: Ping
         public ActionResult Ping()
         {
             return View();
         }
 
-        // GET: NumbersList
-        public ActionResult NumbersList()
+        [ActionName("search-numbers")]
+        public ActionResult SearchNumbers()
         {
             return View();
         }
 
-        // GET: GetNumber
+        [ActionName("get-number")]
         public ActionResult GetNumber()
         {
             return View();
         }
 
-        // GET: Send Message
+        [ActionName("send-message")]
         public ActionResult SendMessage()
+        {
+            return View();
+        }
+
+        [ActionName("message-received")]
+        public ActionResult MessageReceived()
+        {
+            return View();
+        }
+
+        [ActionName("delivery-receipt")]
+        public ActionResult DeliveryReceipt()
+        {
+            return View();
+        }
+
+        [ActionName("account-balance")]
+        public ActionResult AccountBalance()
+        {
+            return View();
+        }
+
+        [ActionName("active-numbers")]
+        public ActionResult ActiveNumbers()
         {
             return View();
         }

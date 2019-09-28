@@ -261,6 +261,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\EmailToSMSGateway\EmailToSMSGateway.csproj">
+      <Project>{783e5e6b-357c-4a57-8c12-c5994508ce0c}</Project>
+      <Name>EmailToSMSGateway</Name>
+    </ProjectReference>
     <ProjectReference Include="..\TextPortCore\TextPortCore.csproj">
       <Project>{38b04dec-d1a4-4163-8600-0a84d9009cb5}</Project>
       <Name>TextPortCore</Name>

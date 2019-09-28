@@ -19,7 +19,7 @@ namespace TextPort.Controllers
         {
             int accountId = Utilities.GetAccountIdFromClaim(ClaimsPrincipal.Current);
 
-            ApiApplicationsContainer ac = new ApiApplicationsContainer(accountId, 0);
+            ApiApplicationsContainer ac = new ApiApplicationsContainer(accountId, 0, 0);
 
             return View(ac);
         }
@@ -55,7 +55,7 @@ namespace TextPort.Controllers
                     newAppId = da.SaveAPIApplication(newApplication);
                 }
 
-                return View("Index", new ApiApplicationsContainer(newApplication.AccountId, newAppId));
+                return View("Index", new ApiApplicationsContainer(newApplication.AccountId, newAppId, 0));
             }
             catch (Exception ex)
             {
@@ -103,7 +103,7 @@ namespace TextPort.Controllers
                 // Add slight delay for spintiller effect
                 System.Threading.Thread.Sleep(500);
 
-                return PartialView("_FullApplication", new ApiApplicationsContainer(apiApp.AccountId, savedAppId));
+                return PartialView("_FullApplication", new ApiApplicationsContainer(apiApp.AccountId, savedAppId, 0));
             }
             catch (Exception ex)
             {
@@ -125,7 +125,7 @@ namespace TextPort.Controllers
                 }
                 ModelState.Clear();
 
-                return PartialView("_FullApplication", new ApiApplicationsContainer(apiApp.AccountId, -1));
+                return PartialView("_FullApplication", new ApiApplicationsContainer(apiApp.AccountId, -1, 0));
             }
             catch (Exception ex)
             {

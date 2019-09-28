@@ -73,15 +73,15 @@ function getAreaCodeName(areaCode, tollFree) {
     }, function (response) {
         if (response !== "") {
             $("#AreaCodeDescription").text(response);
-            getAvailableNumbers(areaCode, tollFree);
+            getAvailableNumbers(areaCode, tollFree, 20);
         } else {
             $("#AreaCodeDescription").text("Invalid area code");
         }
     });
 }
 
-function getAvailableNumbers(areaCode, tollFree) {
-    var url = '/Numbers/GetAvailableNumbers';
+function getAvailableNumbers(areaCode, tollFree, count) {
+    var url = '/numbers/getavailableNumbers';
     var numbers = "";
     var spinId = "spintiller1";
     if (tollFree) {
@@ -93,7 +93,8 @@ function getAvailableNumbers(areaCode, tollFree) {
 
     $.getJSON(url, {
         areaCode: areaCode,
-        tollFree: tollFree
+        tollFree: tollFree,
+        count: count
     }, function (response) {
         $.each(response, function (index, item) {
             numbers += "<option value='" + item.Value + "'>" + item.Text + "</option>";

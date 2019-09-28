@@ -5,6 +5,7 @@ using System.Security.Claims;
 using System.Web;
 using System.Web.Mvc;
 using Microsoft.Owin.Security;
+using Newtonsoft.Json;
 
 using TextPort.Helpers;
 using TextPortCore.Models;
@@ -117,7 +118,6 @@ namespace TextPort.Controllers
 
         public ActionResult About()
         {
-
             try
             {
                 Account acct = _context.Accounts.FirstOrDefault(x => x.AccountId == 1);
@@ -129,6 +129,19 @@ namespace TextPort.Controllers
             }
             ViewBag.Message = "Your application description page.";
 
+            return View();
+        }
+
+        [ActionName("virtual-mobile-numbers")]
+        public ActionResult DedicatedVirtualNumbers()
+        {
+            RegistrationData rd = new RegistrationData("VirtualNumberSignUp", 0);
+            return View(rd);
+        }
+
+        [ActionName("email-to-sms-gateway")]
+        public ActionResult EmailToSMSGateway()
+        {
             return View();
         }
 
@@ -145,7 +158,8 @@ namespace TextPort.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Contact(SupportRequestModel request)
         {
-            return View(processContactOrSupportRequest(request));
+            CaptchaResponse captchaResponse = ValidateCaptcha(Request["g-recaptcha-response"]);
+            return View(processContactOrSupportRequest(request, captchaResponse));
         }
 
         [HttpGet]
@@ -159,7 +173,8 @@ namespace TextPort.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Support(SupportRequestModel request)
         {
-            return View(processContactOrSupportRequest(request));
+            CaptchaResponse captchaResponse = ValidateCaptcha(Request["g-recaptcha-response"]);
+            return View(processContactOrSupportRequest(request, captchaResponse));
         }
 
         [AllowAnonymous]
@@ -176,7 +191,7 @@ namespace TextPort.Controllers
             return View();
         }
 
-        private SupportRequestModel processContactOrSupportRequest(SupportRequestModel request)
+        private SupportRequestModel processContactOrSupportRequest(SupportRequestModel request, CaptchaResponse captchaResponse)
         {
             SupportRequestModel response = new SupportRequestModel()
             {
@@ -185,35 +200,43 @@ namespace TextPort.Controllers
                 SubmissionMessage = "There was a problem processing the request. Please try again."
             };
 
-            using (TextPortDA da = new TextPortDA())
+            if (captchaResponse.Success)
             {
-                int supportId = da.AddSupportRequest(request);
-
-                if (supportId > 0)
+                using (TextPortDA da = new TextPortDA())
                 {
-                    string emailBody = $"Request Category: {request.Category}{Environment.NewLine}{Environment.NewLine}";
-                    emailBody += (!string.IsNullOrEmpty(request.SendingNumber) ? $"Sending Number: {request.SendingNumber}{Environment.NewLine}" : string.Empty);
-                    emailBody += (!string.IsNullOrEmpty(request.ReceivingNumber) ? $"Receiving Number: {request.ReceivingNumber}{Environment.NewLine}" : string.Empty);
-                    emailBody += $"Message: {request.Message}{Environment.NewLine}";
+                    int supportId = da.AddSupportRequest(request);
 
-                    EmailMessage email = new EmailMessage()
+                    if (supportId > 0)
                     {
-                        From = request.RequestorEmail,
-                        FromName = request.RequestorName,
-                        To = "support@textport.com",
-                        Subject = $"TextPort {request.RequestType} Request # {supportId}",
-                        Body = emailBody
-                    };
+                        string emailBody = $"Request Category: {request.Category}{Environment.NewLine}{Environment.NewLine}";
+                        emailBody += (!string.IsNullOrEmpty(request.SendingNumber) ? $"Sending Number: {request.SendingNumber}{Environment.NewLine}" : string.Empty);
+                        emailBody += (!string.IsNullOrEmpty(request.ReceivingNumber) ? $"Receiving Number: {request.ReceivingNumber}{Environment.NewLine}" : string.Empty);
+                        emailBody += $"Message: {request.Message}{Environment.NewLine}";
 
-                    if (email.Send(false))
-                    {
-                        ModelState.Clear(); // Reset the request fields.
-                        response.SupportId = supportId;
-                        response.SubmissionStatus = RequestStatus.Success;
-                        response.SubmissionMessage = getContactSupportResponseText(request.Category, supportId);
+                        EmailMessage email = new EmailMessage()
+                        {
+                            From = request.RequestorEmail,
+                            FromName = request.RequestorName,
+                            To = "support@textport.com",
+                            Subject = $"TextPort {request.RequestType} Request # {supportId}",
+                            Body = emailBody
+                        };
+
+                        if (email.Send(false))
+                        {
+                            ModelState.Clear(); // Reset the request fields.
+                            response.SupportId = supportId;
+                            response.SubmissionStatus = RequestStatus.Success;
+                            response.SubmissionMessage = getContactSupportResponseText(request.Category, supportId);
+                        }
                     }
+                    response.CategoriesList = da.GetSupportCategoriesList(request.RequestType);
                 }
-                response.CategoriesList = da.GetSupportCategoriesList(request.RequestType);
+            }
+            else
+            {
+                ModelState.Clear();
+                response.SubmissionMessage = "Request failed. The Captcha was not validated.";
             }
 
             return response;
@@ -245,6 +268,14 @@ namespace TextPort.Controllers
             message += $" Your request reference ID is <b>{supportId}</b>.";
 
             return message;
+        }
+
+        public static CaptchaResponse ValidateCaptcha(string response)
+        {
+            string secret = System.Web.Configuration.WebConfigurationManager.AppSettings["RecaptchaPrivateKey"];
+            var client = new System.Net.WebClient();
+            var jsonResult = client.DownloadString(string.Format("https://www.google.com/recaptcha/api/siteverify?secret={0}&response={1}", secret, response));
+            return JsonConvert.DeserializeObject<CaptchaResponse>(jsonResult.ToString());
         }
     }
 }

@@ -36,6 +36,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\TextPortAPI.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -171,6 +172,7 @@
     <Compile Include="Areas\HelpPage\SampleGeneration\SampleDirection.cs" />
     <Compile Include="Areas\HelpPage\SampleGeneration\TextSample.cs" />
     <Compile Include="Areas\HelpPage\XmlDocumentationProvider.cs" />
+    <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\DocumentationController.cs" />
     <Compile Include="Controllers\TestsController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
@@ -184,6 +186,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Areas\HelpPage\HelpPage.css" />
+    <Content Include="bin\TextPortAPI.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Content\bootstrap-grid.css" />
     <Content Include="Content\bootstrap-grid.min.css" />
     <Content Include="Content\bootstrap-reboot.css" />
@@ -376,8 +381,14 @@
     <Content Include="Content\highlight\styles\xcode.css" />
     <Content Include="Content\highlight\styles\xt256.css" />
     <Content Include="Content\highlight\styles\zenburn.css" />
-    <Content Include="Content\images\apisettingspage.jpg" />
+    <Content Include="Content\images\api.png" />
+    <Content Include="Content\images\apisettingspage.png" />
+    <Content Include="Content\images\assignapiapplication.png" />
+    <Content Include="Content\images\assignapiapplication2.png" />
+    <Content Include="Content\images\numberslist.png" />
+    <Content Include="Content\images\numberwithappassigned.png" />
     <Content Include="Content\images\tp_logo_240x54.png" />
+    <Content Include="Content\styles.css" />
     <Content Include="Content\styles\a11y-dark.css" />
     <Content Include="Content\styles\a11y-light.css" />
     <Content Include="Content\styles\agate.css" />
@@ -535,6 +546,7 @@
     <Content Include="Scripts\umd\popper.min.js" />
     <EmbeddedResource Include="SwaggerCustom\custom.css" />
     <EmbeddedResource Include="SwaggerCustom\index.html" />
+    <Content Include="TextPortAPI.xml" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>
@@ -545,7 +557,7 @@
       <DependentUpon>Web.config</DependentUpon>
     </Content>
     <Content Include="Areas\HelpPage\Views\_ViewStart.cshtml" />
-    <Content Include="Content\Site.css" />
+    <Content Include="Content\api.css" />
     <Content Include="Views\Web.config" />
     <Content Include="Views\_ViewStart.cshtml" />
     <Content Include="Views\Home\Index.cshtml" />
@@ -564,12 +576,15 @@
     <Content Include="Scripts\popper-utils.js.map" />
     <Content Include="Views\Shared\_SideMenuBar.cshtml" />
     <Content Include="Views\Documentation\Index.cshtml" />
-    <Content Include="Views\Documentation\Samples.cshtml" />
-    <Content Include="Views\Documentation\InboundEvents.cshtml" />
-    <Content Include="Views\Documentation\Ping.cshtml" />
-    <Content Include="Views\Documentation\NumbersList.cshtml" />
-    <Content Include="Views\Documentation\GetNumber.cshtml" />
-    <Content Include="Views\Documentation\SendMessage.cshtml" />
+    <Content Include="Views\Documentation\ping.cshtml" />
+    <Content Include="Views\Documentation\search-numbers.cshtml" />
+    <Content Include="Views\Documentation\get-number.cshtml" />
+    <Content Include="Views\Documentation\send-message.cshtml" />
+    <Content Include="Views\Documentation\assign-number.cshtml" />
+    <Content Include="Views\Documentation\message-received.cshtml" />
+    <Content Include="Views\Documentation\delivery-receipt.cshtml" />
+    <Content Include="Views\Documentation\active-numbers.cshtml" />
+    <Content Include="Views\Documentation\account-balance.cshtml" />
     <None Include="Web.Beta.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -580,6 +595,7 @@
   <ItemGroup>
     <Folder Include="App_Data\" />
     <Folder Include="Models\" />
+    <Folder Include="Views\Account\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

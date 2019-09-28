@@ -10,6 +10,11 @@
     <priority>1.00</priority>
   </url>
   <url>
+    <loc>https://textport.com/api</loc>
+    <lastmod>2019-08-25T01:00:00+00:00</lastmod>
+    <priority>0.90</priority>
+  </url>
+  <url>
     <loc>https://textport.com/account/signup</loc>
     <lastmod>2019-08-02T07:31:10+00:00</lastmod>
     <priority>0.80</priority>

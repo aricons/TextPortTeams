@@ -6,6 +6,9 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
     ViewData["Url"] = "https://textport.com/contact";
 }
+
+<script src='https://www.google.com/recaptcha/api.js'></script>
+
 <div class="contact">
     <div class="container">
         <h1>Contact Us</h1>
@@ -44,6 +47,15 @@
                             </div>
                         </div>
                         <div class="row">
+                            <div class="col-md-6">
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <div class="g-recaptcha pull-right pb-2 mb-1" data-sitekey="6Ldl-rQUAAAAALacF1sl4vM1WHQL5OhAYRFdLlnQ"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
                             <div class="col-md-12">
                                 <div class="form-group">
                                     <button type="submit" class="btn btn-primary pull-right" id="btnContactUs">
@@ -73,7 +85,7 @@
                 </div>
                 <div class="email">
                     <span class="fa fa-envelope mt-2 mr-2"></span>
-                    <a href="mailto:support@textport.com">support@textport.com</a>
+                    <a href="mailto:support@textport.com">support[at]textport.com</a>
                 </div>
             </div>
         </div>

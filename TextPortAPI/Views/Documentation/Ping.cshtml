@@ -1,6 +1,8 @@
 ﻿@{
-    ViewBag.Title = "Ping Method | TextPort Text Messaging API Documentation";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "TextPort API: Ping Test";
+    ViewData["Description"] = "TextPort text messaging API documentation. Ping test method.";
+    ViewData["Url"] = "https://textport.com/api";
 }
 
 <script type="text/javascript" src="~/content/highlight.pack.js"></script>
@@ -19,7 +21,7 @@
         <div class="col-12 col-md-9">
             <div class="card">
                 <div class="card-header">
-                    <h4>Ping<span class="float-right">/api/v1/ping</span></h4>
+                    <h4>Ping<span class="float-right">/v1/ping</span></h4>
                 </div>
                 <div class="card-body">
                     <div class="row">
@@ -29,7 +31,9 @@
                                 Simple test method used to confirm connectivity with the TextPort API.
                                 A successful GET will return a response like: <i>TextPort API alive at 2019-07-18 01:04:40 UTC</i>
                             </p>
-                            <div class="gpbtn-lg get">GET</div>
+                            <div class="gpbtn-lg get mb-4">GET</div>
+                            <h5>Endpoint</h5>
+                            <p class="pb-3">https://api.textport.com/v1/ping</p>
                             <h5>Request</h5>
                             <ul class="nav nav-tabs" id="lang-tab" role="tablist">
                                 <li class="nav-item">
@@ -56,17 +60,17 @@
                             </ul>
                             <div class="tab-content">
                                 <div class="tab-pane active" id="html" role="tabpanel" aria-labelledby="html-tab">
-                                    <pre><code class="html">GET /api/v1/ping HTTP/1.1
-Host: textport.com</code></pre>
+                                    <pre><code class="html">GET /v1/ping HTTP/1.1
+Host: api.textport.com</code></pre>
                                 </div>
                                 <div class="tab-pane" id="csharp" role="tabpanel" aria-labelledby="csharp-tab">
-                                    <pre><code class="csharp">var client = new RestClient("http://beta.textport.com/api/v1/ping");
+                                    <pre><code class="csharp">var client = new RestClient("http://api.textport.com/v1/ping");
 var request = new RestRequest(Method.GET);
 IRestResponse response = client.Execute(request);</code></pre>
                                 </div>
                                 <div class="tab-pane" id="php" role="tabpanel" aria-labelledby="php-tab">
                                     <pre><code class="js">$request = new HttpRequest();
-$request->setUrl('https://textport.com/api/v1/ping');
+$request->setUrl('https://api.textport.com/v1/ping');
 $request->setMethod(HTTP_METH_GET);
 try {
     $response = $request->send();
@@ -77,13 +81,13 @@ try {
                                 </div>
                                 <div class="tab-pane" id="curl" role="tabpanel" aria-labelledby="curl-tab">
                                     <pre><code class="curl">curl -X GET \
-https://textport.com/api/v1/ping </code></pre>
+https://api.textport.com/v1/ping </code></pre>
                                 </div>
                                 <div class="tab-pane" id="jquery" role="tabpanel" aria-labelledby="jquery-tab">
                                     <pre><code class="jquery">var settings = {
     "async": true,
     "crossDomain": true,
-    "url": "https://textport.com/api/v1/ping",
+    "url": "https://api.textport.com/v1/ping",
     "method": "GET"
 }
 
@@ -94,7 +98,7 @@ $.ajax(settings).done(function (response) {
                                 <div class="tab-pane" id="python" role="tabpanel" aria-labelledby="pyton-tab">
                                     <pre><code class="python">import http.client
 
-conn = http.client.HTTPConnection("textport,com")
+conn = http.client.HTTPConnection("api,textport,com")
 
 payload = ""
 
@@ -102,7 +106,7 @@ headers = {
 'cache-control': "no-cache"
 }
 
-conn.request("GET", "api,v1,ping", payload, headers)
+conn.request("GET", "v1,ping", payload, headers)
 
 res = conn.getresponse()
 data = res.read()
@@ -113,7 +117,7 @@ print(data.decode("utf-8"))</code></pre>
                                     <pre><code class="ruby">require 'uri'
 require 'net/http'
 
-url = URI("https://textport.com/api/v1/ping")
+url = URI("https://api.textport.com/v1/ping")
 
 http = Net::HTTP.new(url.host, url.port)
 

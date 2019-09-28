@@ -258,6 +258,15 @@ footer.footer {
 
 
 /* Custom styles */
+
+.background-lt-gray {
+    background-color: #f7f7f7;
+}
+
+.h1-sml {
+    font-size: 1.6rem;
+}
+
 .form-label {
     font-size: 0.9rem;
     margin-bottom: 0.1rem;
@@ -302,14 +311,50 @@ footer.footer {
     margin-left: 5px;
 }
 
+.main-banner h2 {
+    margin-bottom: 1rem;
+    font-weight: 400;
+    font-size: 1rem;
+    line-height: 1.5rem;
+}
+
+.sub-banner h3 {
+    font-weight: 400;
+    font-size: 1rem;
+    line-height: 1.5rem;
+}
+
+.landing-cards .card-body h1 {
+    font-size: 2rem;
+}
+
+.landing-cards .card-body h2 {
+    font-size: 1rem;
+    line-height: 1.5rem;
+    font-weight: 400;
+}
+
+.ac-input {
+    width: 150px !important;
+    text-align: center;
+    font-weight: 600
+}
+
+.vn-result {
+    border: 1px solid #4285f4;
+    border-radius: 5px;
+    font-size: 1.2rem;
+    padding: 15px 20px 15px 15px;
+    margin: 6px;
+}
+
 .feature-block {
     background-color: #eee;
 }
 
     .feature-block .item {
         background-color: #ffffff;
-        box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
-        border-top: 3px solid #5ea4f3;
+        box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.2);
         padding: 30px;
         overflow: hidden;
         position: relative;
@@ -319,6 +364,7 @@ footer.footer {
         margin-bottom: 30px;
     }
 
+    .feature-block .item h2,
     .feature-block .item p {
         text-align: center;
         font-size: 20px;
@@ -348,7 +394,7 @@ footer.footer {
         color: #2288f9;
     }
 
-.counter {
+/*.counter {
     background-color: #eef4f7;
     padding: 20px 0;
     border-radius: 5px;
@@ -368,7 +414,7 @@ footer.footer {
     margin-top: 10px;
     margin-bottom: 0;
     text-align: center;
-}
+}*/
 
 .fa-2x {
     margin: 0 auto;
@@ -443,4 +489,8 @@ thead .list-icon {
 
 td .list-icon {
     color: #1485ee;
+}
+
+.large-num {
+    font-size: 3.5rem;
 }

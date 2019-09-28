@@ -279,6 +279,27 @@ namespace TextPort.Controllers
             return PartialView("_ConfirmDeleteMessages", deleteMessageInfo);
         }
 
+        [HttpPost]
+        public ActionResult WriteEmailToMMSSemaphore([System.Web.Http.FromBody] Message message)
+        {
+            if (message.Send())
+            {
+                return Json(new
+                {
+                    success = true,
+                    response = message.ProcessingMessage
+                });
+            }
+            else
+            {
+                return Json(new
+                {
+                    success = false,
+                    response = message.ProcessingMessage
+                });
+            }
+        }
+
         [Authorize]
         [HttpGet]
         public ActionResult SignalRTest()
