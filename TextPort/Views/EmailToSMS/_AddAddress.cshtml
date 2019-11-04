@@ -1,0 +1,37 @@
+﻿
+@using TextPortCore.Models
+@model EmailToSMSContainer
+
+<div class="modal fade" role="dialog" id="email-to-sms-modal">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Register an Address</h2>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            @using (Html.BeginForm("AddAddress", "EmailToSms", FormMethod.Post, new { id = "form-add" }))
+            {
+                @Html.AntiForgeryToken()
+                @Html.HiddenFor(m => m.NewAddress.AccountId)
+                <div class="modal-body">
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.NewAddress.EmailAddress, new { @class = "form-label" })
+                        @Html.TextBoxFor(m => m.NewAddress.EmailAddress, new { @class = "form-control", placeholder = "Group name" })
+                        @Html.ValidationMessageFor(m => m.NewAddress.EmailAddress, null, new { @class = "text-danger" })
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.NewAddress.VirtualNumberId, new { @class = "form-label" })
+                        @Html.DropDownListFor(m => m.NewAddress.VirtualNumberId, new SelectList(Model.VirtualNumbersList, "Value", "Text", Model.NewAddress.VirtualNumberId), new { @class = "form-control form-control-sm" })
+                        @Html.ValidationMessageFor(m => m.NewAddress.VirtualNumberId, null, new { @class = "text-danger" })
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" id="btnAdd" class="btn btn-primary">Register Address</button>
+                </div>
+            }
+        </div>
+    </div>
+</div>

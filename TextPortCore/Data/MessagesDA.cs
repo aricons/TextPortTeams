@@ -165,9 +165,9 @@ namespace TextPortCore.Data
                 if (getPageCount)
                 {
                     inboxContainer.MessageCount = (from msg in _context.Messages
-                        join vn in _context.DedicatedVirtualNumbers on msg.VirtualNumberId equals vn.VirtualNumberId
-                        where vn.AccountId == accountId && msg.Direction == 1 && msg.DeleteFlag == null && vn.Cancelled == false
-                        select msg.MessageId).Count();
+                                                   join vn in _context.DedicatedVirtualNumbers on msg.VirtualNumberId equals vn.VirtualNumberId
+                                                   where vn.AccountId == accountId && msg.Direction == 1 && msg.DeleteFlag == null && vn.Cancelled == false
+                                                   select msg.MessageId).Count();
 
                     if (inboxContainer.MessageCount > 200)
                     {
@@ -304,33 +304,36 @@ namespace TextPortCore.Data
                 Account acc = _context.Accounts.FirstOrDefault(x => x.AccountId == message.AccountId);
                 message.MobileNumber = Utilities.NumberToE164(message.MobileNumber);
 
-                // Check the balance
-                if (acc.Balance > 0)
+                // Check and update the balance if the message is an outbound message
+                if (message.Direction == (int)MessageDirection.Outbound)
                 {
-                    _context.Messages.Add(message);
-                    _context.SaveChanges();
-
-                    // Get the customer's messge cost and update the account balance
-                    if (message.MMSFiles.Count > 0)
+                    if (acc.Balance > 0)
                     {
-                        message.CustomerCost = acc.MMSSegmentCost;
+                        _context.Messages.Add(message);
+                        _context.SaveChanges();
+
+                        // Get the customer's messge cost and update the account balance
+                        if (message.MMSFiles.Count > 0)
+                        {
+                            message.CustomerCost = acc.MMSSegmentCost;
+                        }
+                        else
+                        {
+                            message.CustomerCost = acc.SMSSegmentCost;
+                        }
+
+                        acc.Balance -= (decimal)message.CustomerCost;
+                        newBalance = acc.Balance;
+                        _context.SaveChanges();
+
+                        return message.MessageId;
                     }
                     else
                     {
-                        message.CustomerCost = acc.SMSSegmentCost;
+                        acc.Balance = -0.0101M;
+                        newBalance = acc.Balance;
+                        _context.SaveChanges();
                     }
-
-                    acc.Balance -= (decimal)message.CustomerCost;
-                    newBalance = acc.Balance;
-                    _context.SaveChanges();
-
-                    return message.MessageId;
-                }
-                else
-                {
-                    acc.Balance = -0.0101M;
-                    newBalance = acc.Balance;
-                    _context.SaveChanges();
                 }
             }
             catch (Exception ex)

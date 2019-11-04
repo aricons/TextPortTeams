@@ -6,6 +6,7 @@ using System.Text.RegularExpressions;
 
 using MimeKit;
 using RestSharp;
+using Talon;
 
 using TextPortCore.Data;
 using TextPortCore.Models;
@@ -128,7 +129,7 @@ namespace EmailToSMSGateway
                 }
 
                 // Verify that the sender address is registered.
-                emailToSMSMessage.ProcessingLog += $"Checking registration status for sender address {emailToSMSMessage.From}\r\n";
+                emailToSMSMessage.ProcessingLog += $"Checking registration status for sender address '{emailToSMSMessage.From}'\r\n";
                 using (TextPortDA da = new TextPortDA())
                 {
                     EmailToSMSAddress emailToSmsAddr = da.GetEmailToSMSAddressByEmailAddress(emailToSMSMessage.From);
@@ -162,6 +163,7 @@ namespace EmailToSMSGateway
                     else
                     {
                         emailToSMSMessage.ProcessingLog += "Processing stopped\r\nThe sender address is not a registered TextPort Email-to-SMS Gateway address.\r\n";
+                        return emailToSMSMessage;
                     }
 
                     emailToSMSMessage.ProcessingLog += $"All checks passed. The message is clear to send (CTS) to {emailToSMSMessage.DestinationNumbers.Count} destination numbers.\r\n";
@@ -188,9 +190,10 @@ namespace EmailToSMSGateway
             }
             catch (Exception ex)
             {
-                emailToSMSMessage.MessageText = $"An error occurred while processing message file {fileName}. Error message {ex.ToString()}\r\n";
+                emailToSMSMessage.MessageText += $"An error occurred while processing message file {fileName}. Error message {ex.ToString()}\r\n";
             }
-            //message.ProcessingLog += deleteMessageFile(fileName);
+
+            emailToSMSMessage.MessageText += deleteMessageFile(fileName);
 
             return emailToSMSMessage;
         }
@@ -234,6 +237,9 @@ namespace EmailToSMSGateway
         private static bool getMessageTextFromEmailBody(MimeMessage mimeMsg, EmailToSMSMessage message)
         {
             string textBody = mimeMsg.GetTextBody(MimeKit.Text.TextFormat.Plain);
+
+            // Strip any signatures
+            textBody = stripSignaturesFromMessage(textBody);
 
             StringReader sr = new StringReader(textBody);
             string line = string.Empty;
@@ -310,6 +316,21 @@ namespace EmailToSMSGateway
             }
         }
 
+        private static string stripSignaturesFromMessage(string messageText)
+        {
+            string strippedMessage = messageText;
+
+            Tuple<string, string> signature = Bruteforce.ExtractSignature(messageText);
+
+            if (signature.Item2 != null)
+            {
+                strippedMessage = signature.Item1; // The body part only, if the parse worked.
+                // signature.Item2 is the signature section.
+            }
+
+            return strippedMessage;
+        }
+
         //private static string parseMIMEPartsForText(Chilkat.Mime mimePart)
         //{
         //    // Recursive routine to search MIME messages for all plain-text parts.
@@ -380,7 +401,7 @@ namespace EmailToSMSGateway
         {
             try
             {
-                using (StreamWriter w = File.AppendText($"{ConfigurationManager.AppSettings["BaseMessagesFolder"]}Log.txt"))
+                using (StreamWriter w = File.AppendText($"{ConfigurationManager.AppSettings["LogFolder"]}Log.txt"))
                 {
                     Log(message.ProcessingLog, w);
                     w.Close();
@@ -396,7 +417,7 @@ namespace EmailToSMSGateway
         {
             try
             {
-                using (StreamWriter w = File.AppendText(ConfigurationManager.AppSettings["BaseMessagesFolder"] + "ErrorLog.txt"))
+                using (StreamWriter w = File.AppendText($"{ConfigurationManager.AppSettings["LogFolder"]}ErrorLog.txt"))
                 {
                     DebugLog(text, w);
                     w.Close();

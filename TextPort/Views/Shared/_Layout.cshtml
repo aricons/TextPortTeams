@@ -39,13 +39,7 @@
     <script src="~/scripts/textport/signalr-hub.js"></script>
 
     <script type="text/javascript">
-        //var _gaq = _gaq || [];
-        //_gaq.push(['_setAccount', 'UA-21685628-1']);
-        //_gaq.push(['_trackPageview']);
-
         $(function () {
-
-            // Analytics
             (function (i, s, o, g, r, a, m) {
                 i['GoogleAnalyticsObject'] = r; i[r] = i[r] || function () {
                     (i[r].q = i[r].q || []).push(arguments)
@@ -79,6 +73,12 @@
                         validateLogin();
                     }
                 });
+            });
+
+            $('#main-cont').click(function (e) {
+                if (e.target.className.substring(0, 3) != "nav") {
+                    hideSidenav();
+                }
             });
 
             getBalance();
@@ -128,13 +128,13 @@
     </script>
 </head>
 <body>
-    <div class="container">
-        <nav class="navbar navbar-expand-lg navbar-light bg-light static-top">
+    <div id="main-cont" class="container">
+        <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
             <div class="container">
                 <a class="navbar-brand" href="/">
                     <img src="~/Content/images/tp_logo_240x54.png" width="140" alt="TextPort">
                 </a>
-                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+                <button id="nb-toggle" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="navbarResponsive">
@@ -149,7 +149,7 @@
                             </li>
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Bulk / Group</a>
-                                <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                                <div class="dropdown-menu bg-light" aria-labelledby="navbarDropdownMenuLink">
                                     <a class="dropdown-item" href="/bulk">Bulk Texting</a>
                                     <a class="dropdown-item" href="/bulk/inbox">In Box</a>
                                     <a class="dropdown-item" href="/group">Group Texting</a>
@@ -159,18 +159,19 @@
                                 <a class="nav-link" href="/email-to-sms-gateway">Email to SMS</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="#">Virtual Numbers</a>
+                                <a class="nav-link" href="/virtual-mobile-numbers">Virtual Numbers</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="#">API</a>
+                                <a class="nav-link" href="/api">API</a>
                             </li>
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">@User.Identity.Name</a>
-                                <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                                <div class="dropdown-menu bg-light" aria-labelledby="navbarDropdownMenuLink">
                                     <a class="dropdown-item" href="/account/profile">Profile</a>
                                     <a class="dropdown-item" href="/account/balance">Balance</a>
                                     <a class="dropdown-item" href="/numbers">Numbers</a>
                                     <a class="dropdown-item" href="/groups">Groups</a>
+                                    <a class="dropdown-item" href="/emailtosms">Email to SMS</a>
                                     <a class="dropdown-item" href="/apisettings">API Settings</a>
                                     <div class="dropdown-divider"></div>
                                     <a class="dropdown-item" href="/account/logout">Log Out</a>
@@ -212,6 +213,7 @@
                 </div>
             </div>
         </nav>
+        <nav class="sidenav"></nav>
 
         @*@if (User.Identity.IsAuthenticated)
             {
@@ -312,6 +314,7 @@
                     </ul>
                 </nav>
             }*@
+        <br /><br /><br />
         @RenderBody()
         <hr />
         <footer class="footer bg-white">
@@ -365,3 +368,4 @@
 
 </body>
 </html>
+<script src="~/Scripts/sidenav/sidenav.js"></script>

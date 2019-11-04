@@ -13,91 +13,71 @@ namespace TextPort
         {
             routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
 
-            //  routes.MapRoute(
-            //      name: "Contact",
-            //      url: "contact",
-            //      defaults: new { controller = "Home", action = "Contact" }
-            //  );
-
-            //  routes.MapRoute(
-            //      name: "Support",
-            //      url: "support",
-            //      defaults: new { controller = "Home", action = "Support" }
-            //  );
-
-            //  routes.MapRoute(
-            //      name: "Terms",
-            //      url: "terms",
-            //      defaults: new { controller = "Home", action = "Terms" }
-            //  );
-
-            //  routes.MapRoute(
-            //      name: "Privacy",
-            //      url: "privacy",
-            //      defaults: new { controller = "Home", action = "Privacy" }
-            //  );
-
-            //  routes.MapRoute(
-            //    name: "DedicatedVirtualNumbers",
-            //    url: "DedicatedVirtualNumbers",
-            //    defaults: new { controller = "Home", action = "DedicatedVirtualNumbers" }
-            //);
-
             routes.MapRoute(
-               name: "messages",
-               url: "messages",
-               defaults: new { controller = "messages", action = "index" }
-           );
-
-            routes.MapRoute(
-                name: "trial",
-                url: "trial",
-                defaults: new { controller = "trial", action = "index" }
+            name: "messages",
+            url: "messages",
+            defaults: new { controller = "messages", action = "index" }
             );
 
             routes.MapRoute(
-                name: "bulk",
-                url: "bulk",
-                defaults: new { controller = "bulk", action = "index" }
+            name: "trial",
+            url: "trial",
+            defaults: new { controller = "trial", action = "index" }
             );
 
             routes.MapRoute(
-                name: "numbers",
-                url: "numbers",
-                defaults: new { controller = "numbers", action = "index" }
+            name: "bulk",
+            url: "bulk",
+            defaults: new { controller = "bulk", action = "index" }
             );
 
             routes.MapRoute(
-                name: "api",
-                url: "api",
-                defaults: new { controller = "smsapi", action = "index" }
+            name: "numbers",
+            url: "numbers",
+            defaults: new { controller = "numbers", action = "index" }
             );
 
             routes.MapRoute(
-               name: "apidocs",
-               url: "api/documentation",
-               defaults: new { controller = "smsapi", action = "setup" }
-           );
-
-            routes.MapRoute(
-                name: "group",
-                url: "group",
-                defaults: new { controller = "group", action = "index" }
+            name: "api",
+            url: "api",
+            defaults: new { controller = "smsapi", action = "index" }
             );
 
             routes.MapRoute(
-                name: "DefaultActionOnlyOnHomeController",
-                url: "{action}",
-                defaults: new { controller = "home", action = "index" }
+            name: "apidocs",
+            url: "api/documentation",
+            defaults: new { controller = "smsapi", action = "setup" }
             );
 
             routes.MapRoute(
-                name: "Default",
-                url: "{controller}/{action}/{id}/{p1}",
-                defaults: new { controller = "Home", action = "Index", id = UrlParameter.Optional, p1 = UrlParameter.Optional }
+            name: "group",
+            url: "group",
+            defaults: new { controller = "group", action = "index" }
             );
 
+            routes.MapRoute(
+            name: "groups",
+            url: "groups",
+            defaults: new { controller = "groups", action = "index" }
+            );
 
+            routes.MapRoute(
+            name: "emailtosms",
+            url: "emailtosms",
+            defaults: new { controller = "emailtosms", action = "index" }
+            );
+
+            routes.MapRoute(
+            name: "DefaultActionOnlyOnHomeController",
+            url: "{action}",
+            defaults: new { controller = "home", action = "index" }
+            );
+
+            routes.MapRoute(
+            name: "Default",
+            url: "{controller}/{action}/{id}/{p1}",
+            defaults: new { controller = "Home", action = "Index", id = UrlParameter.Optional, p1 = UrlParameter.Optional }
+            );
         }
     }
 }

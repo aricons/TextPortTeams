@@ -59,7 +59,7 @@ namespace Testing
         [TestMethod]
         public void ParseEmailToSMSGatewayMessage()
         {
-            string fileName = "md50000274792.msg";
+            string fileName = "md50000000016.msg";
             MessageParser.ParseMessage(@"C:\Junk\TextPort\EmailToSMSGateway\" + fileName);
         }
 

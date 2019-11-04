@@ -13,6 +13,20 @@ namespace TextPortCore.Data
 
         #region "Select Methods"
 
+        public List<EmailToSMSAddress> GetEmailToSMSAddressesForAccount(int accountId)
+        {
+            try
+            {
+                return _context.EmailToSMSAddresses.Where(x => x.AccountId == accountId).ToList();
+            }
+            catch (Exception ex)
+            {
+                ErrorHandling eh = new ErrorHandling();
+                eh.LogException("EmailToSmsDA.GetEmailToSMSAddressesForAccount", ex);
+            }
+            return null;
+        }
+
         public EmailToSMSAddress GetEmailToSMSAddressByEmailAddress(string emailAddress)
         {
             try
@@ -25,6 +39,38 @@ namespace TextPortCore.Data
                 eh.LogException("EmailToSmsDA.GetEmailToSMSAddressByEmailAddress", ex);
             }
             return null;
+        }
+
+        #endregion
+
+        #region "Update Methods"
+
+        public bool UpdataEmailToSMSAddress(EmailToSMSAddress address)
+        {
+            try
+            {
+                if (address != null)
+                {
+                    EmailToSMSAddress dbRecord = _context.EmailToSMSAddresses.FirstOrDefault(x => x.AddressId == address.AddressId);
+                    if (dbRecord != null)
+                    {
+                        dbRecord.EmailAddress = address.EmailAddress;
+                        dbRecord.VirtualNumberId = address.VirtualNumberId;
+                      
+                        _context.EmailToSMSAddresses.Update(dbRecord);
+                        this.SaveChanges();
+
+                        return true;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorHandling eh = new ErrorHandling();
+                eh.LogException("EmailToSmsDA.UpdataEmailToSMSAddress", ex);
+            }
+
+            return false;
         }
 
         #endregion

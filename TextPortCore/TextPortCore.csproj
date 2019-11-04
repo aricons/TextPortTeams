@@ -59,6 +59,7 @@
     <Compile Include="Models\DeliveryReceipt.cs" />
     <Compile Include="Models\EmailMessage.cs" />
     <Compile Include="Models\EmailToSMSAddress.cs" />
+    <Compile Include="Models\EmailToSMSContainer.cs" />
     <Compile Include="Models\EmailToSMSMessage.cs" />
     <Compile Include="Models\ErrorLog.cs" />
     <Compile Include="Models\ForgotPasswordRequest.cs" />

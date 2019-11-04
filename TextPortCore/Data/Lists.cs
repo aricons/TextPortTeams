@@ -188,37 +188,37 @@ namespace TextPortCore.Data
             return null;
         }
 
-        //public IEnumerable<SelectListItem> GetNumbersForAccount(int accountId)
-        //{
-        //    try
-        //    {
-        //        List<SelectListItem> virtualNumbers = _context.DedicatedVirtualNumbers.Where(x => x.AccountId == accountId && x.Cancelled == false)
-        //        .OrderByDescending(x => x.VirtualNumberId)
-        //            .Select(vn =>
-        //            new SelectListItem
-        //            {
-        //                Value = vn.VirtualNumberId.ToString(),
-        //                Text = $"{Utilities.NumberToDisplayFormat(vn.VirtualNumber, 22)}"
-        //            }).ToList();
+        public IEnumerable<SelectListItem> GetVirtualNumbersForAccount(int accountId, bool includeExpiredNumbers)
+        {
+            try
+            {
+                List<SelectListItem> virtualNumbers = _context.DedicatedVirtualNumbers.Where(x => x.AccountId == accountId && x.Cancelled == includeExpiredNumbers)
+                .OrderByDescending(x => x.VirtualNumberId)
+                    .Select(vn =>
+                    new SelectListItem
+                    {
+                        Value = vn.VirtualNumberId.ToString(),
+                        Text = $"{Utilities.NumberToDisplayFormat(vn.VirtualNumber, 22)}"
+                    }).ToList();
 
-        //        SelectListItem firstItem = new SelectListItem()
-        //        {
-        //            Value = null,
-        //            Text = "--- select a number ---"
-        //        };
+                SelectListItem firstItem = new SelectListItem()
+                {
+                    Value = null,
+                    Text = "--- select a number ---"
+                };
 
-        //        virtualNumbers.Insert(0, firstItem);
+                virtualNumbers.Insert(0, firstItem);
 
-        //        return new SelectList(virtualNumbers, "Value", "Text");
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        ErrorHandling eh = new ErrorHandling();
-        //        eh.LogException("Lists.GetNumbersForAccount", ex);
-        //    }
+                return new SelectList(virtualNumbers, "Value", "Text");
+            }
+            catch (Exception ex)
+            {
+                ErrorHandling eh = new ErrorHandling();
+                eh.LogException("Lists.GetVirtualNumbersForAccount", ex);
+            }
 
-        //    return null;
-        //}
+            return null;
+        }
 
         public IEnumerable<SelectListItem> GetTollFreeAreaCodes()
         {

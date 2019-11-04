@@ -2,7 +2,7 @@
     DEMO STYLE
 */
 
-@import "https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700";
+/*@import "https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700";
 
 body {
     font-family: 'Poppins', sans-serif;
@@ -15,7 +15,7 @@ p {
     font-weight: 300;
     line-height: 1.7em;
     color: #999;
-}
+}*/
 
 a,
 a:hover,
@@ -160,7 +160,7 @@ a:focus {
 #sidebar ul li.active > a,
 a[aria-expanded="true"] {
     color: #fff;
-    background: #6d7fcc;
+    background: #eaf7fe;
 }
 
 .active-number {

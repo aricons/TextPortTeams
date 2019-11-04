@@ -1,0 +1,170 @@
+﻿@using TextPortCore.Models
+
+@model EmailToSMSContainer
+@{
+    ViewBag.Title = "Manage Email to SMS Addresses";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script type="text/javascript">
+    $(function () {
+        $('#menu_emailtosms').addClass("active");
+
+        //$('#btn-addaddress').on('click', function () {
+        //    var url = '/emailtosms/addaddress/';
+
+        //    var target = $(this).data('target');
+        //    alert(target);
+
+        //    $.get(url, function (data) {
+        //        $(target).html(data);
+        //        //$(target + ' > .modal').modal({ keyboard: true }, 'show');
+        //        $(target).modal({ keyboard: true }, 'show');
+        //    });
+        //    return false;
+        //});
+
+        //$('.btn-del').on('click', function () {
+        //    alert("Delete?");
+        //    deleteGroupMember(this.id);
+        //});
+
+        $('#modal-cont-emailtosms').on('shown.bs.modal', function (e) {
+            $.validator.unobtrusive.parse("#form-add");
+        });
+
+        //$('#modal-cont-address').on('shown.bs.modal', function (e) {
+
+        //    $('#form-addmember').submit(function (event) {
+        //        event.preventDefault();
+        //    });
+        //    $.validator.unobtrusive.parse("#form-addmember");
+
+        //    $('.num_input').mask('(000) 000-0000');
+
+        //    $('#btnAddMember').on("click", function (e) {
+        //        if ($("#form-addmember").valid()) {
+        //            var memberData = {
+        //                GroupId: 0,
+        //                MobileNumber: $("#MobileNumber").val(),
+        //                MemberName: $("#MemberName").val()
+        //            };
+        //            addGroupMember(memberData);
+        //            $('#member-modal').modal('hide');
+        //        }
+        //    });
+        //});
+    });
+
+    function getGroupMembers(groupId) {
+        var url = '/groups/getmembers/' + groupId;
+        $.get({
+            url: url,
+            dataType: "html",
+            cache: false,
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert(textStatus + ": Couldn't load form. " + errorThrown);
+            },
+            success: function (newInputHTML) {
+                $("#address-list").html('');
+                var msgList = document.getElementById("members-list");
+                msgList.insertAdjacentHTML("beforeend", newInputHTML);
+            }
+        })
+    }
+
+    function addGroupMember(memberData) {
+        var url = '/emailtosms/addaddress/';
+        memberData.GroupId = $("#CurrentGroupId option:selected").val();
+        $.post({
+            url: url,
+            data: JSON.stringify(memberData),
+            contentType: "application/json",
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert(textStatus + ": Error adding memeber. " + errorThrown);
+            },
+            success: function (newInputHTML) {
+                $("#address-list").html(newInputHTML);
+            }
+        })
+    }
+
+    function deleteAddress(id) {
+
+        var requestData = {
+            GroupId: $("#CurrentGroupId option:selected").val(),
+            MemberId: id
+        };
+
+        $.post({
+            url: '/emailtosms/deleteaddress/',
+            data: JSON.stringify(requestData),
+            contentType: "application/json",
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert(textStatus + ": Error deleting address. " + errorThrown);
+            },
+            success: function (newInputHTML) {
+                $("#address-list").html(newInputHTML);
+            }
+        })
+    }
+
+    function updateAddress(id) {
+
+        var requestData = {
+            AddressId: id,
+            AccountId: $("#AccountId").val(),
+            VirtualNumberId: $("#vnid_" + id + " option:selected").val(),
+            EmailAddress: $("#addr_" + id).val()
+        };
+
+        $.post({
+            url: '/emailtosms/updateaddress/',
+            data: JSON.stringify(requestData),
+            contentType: "application/json",
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert(textStatus + ": Error deleting address. " + errorThrown);
+            },
+            success: function (newInputHTML) {
+                $("#address-list").html(newInputHTML);
+            }
+        })
+    }
+</script>
+
+<div class="row">
+    @Html.Partial("_SideMenuBar")
+    @Html.HiddenFor(x => x.AccountId)
+    <div class="col-12 col-md-9">
+        <div class="card">
+            <div class="card-header">
+                <div class="row">
+                    <div class="col-md-7">
+                        <h4>Email to SMS Addresses</h4>
+                    </div>
+                    <div class="col-md-5 text-right">
+                        <input type="button" class="btn btn-success modal-button" data-toggle="modal" data-target="#modal-cont-emailtosms" data-url="/emailtosms/addaddress" value="Register an Address" />
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <table class="table">
+                        <thead>
+                            <tr class="bg-primary">
+                                <th scope="col" class="text-white list-header">Email Address</th>
+                                <th scope="col" class="text-white list-header">Virtual Number</th>
+                                <th scope="col" class="text-white list-header text-center">Update</th>
+                                <th scope="col" class="text-white list-header text-center">Remove</th>
+                            </tr>
+                        </thead>
+                        <tbody id="address-list">
+                            @Html.Partial("_AddressList", Model)
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="modal-cont-emailtosms"></div>
