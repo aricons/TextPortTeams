@@ -6,12 +6,13 @@
     <meta name="description" content="@ViewData["Description"]">
     <meta property="og:title" content="@ViewData["Title"]">
     <meta property="og:description" content="@ViewData["Description"]">
+    <meta name="keywords" content="@ViewData["Keywords"]">
     <meta property="og:locale" content="en_US">
     <meta property="og:type" content="article">
     <meta property="og:url" content="@ViewData["Url"]">
     <meta property="og:site_name" content="TextPort">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="keywords" content="online texting service, virtual mobile number, bulk texting, group texting, business sms service" />
+
     <meta name="robots" content="index, follow" />
     <meta name="author" content="TextPort.com" />
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
@@ -75,11 +76,11 @@
                 });
             });
 
-            $('#main-cont').click(function (e) {
-                if (e.target.className.substring(0, 3) != "nav") {
-                    hideSidenav();
-                }
-            });
+            //$('#main-cont').click(function (e) {
+            //    if (e.target.className.substring(0, 3) != "nav") {
+            //        hideSidenav();
+            //    }
+            //});
 
             getBalance();
         });
@@ -129,7 +130,7 @@
 </head>
 <body>
     <div id="main-cont" class="container">
-        <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
             <div class="container">
                 <a class="navbar-brand" href="/">
                     <img src="~/Content/images/tp_logo_240x54.png" width="140" alt="TextPort">
@@ -155,12 +156,12 @@
                                     <a class="dropdown-item" href="/group">Group Texting</a>
                                 </div>
                             </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="/email-to-sms-gateway">Email to SMS</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="/virtual-mobile-numbers">Virtual Numbers</a>
-                            </li>
+                            @*<li class="nav-item">
+                                    <a class="nav-link" href="/email-to-sms-gateway">Email to SMS</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="/virtual-mobile-numbers">Virtual Numbers</a>
+                                </li>*@
                             <li class="nav-item">
                                 <a class="nav-link" href="/api">API</a>
                             </li>
@@ -185,6 +186,9 @@
                                     Home
                                     <span class="sr-only">(current)</span>
                                 </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/bulk-texting">Bulk Texting</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" href="/email-to-sms-gateway">Email to SMS</a>
@@ -316,47 +320,57 @@
             }*@
         <br /><br /><br />
         @RenderBody()
-        <hr />
-        <footer class="footer bg-white">
-            <div class="container">
-                <div class="row">
-                    <div class="col-md-6 h-100 text-center text-md-left my-auto">
-                        <ul class="list-inline mb-2">
-                            <li class="list-inline-item">
-                                <a href="/support">Support</a>
-                            </li>
-                            <li class="list-inline-item">&sdot;</li>
-                            <li class="list-inline-item">
-                                <a href="/contact">Contact</a>
-                            </li>
-                            <li class="list-inline-item">&sdot;</li>
-                            <li class="list-inline-item">
-                                <a href="/terms">Terms of Use</a>
-                            </li>
-                            <li class="list-inline-item">&sdot;</li>
-                            <li class="list-inline-item">
-                                <a href="/privacy">Privacy Policy</a>
-                            </li>
-                            <li class="list-inline-item">&sdot;</li>
-                            <li class="list-inline-item">
-                                <a href="/api">SMS API</a>
-                            </li>
-                        </ul>
-                        <p class="text-muted small mb-4 mb-md-0">&copy; TextPort 2019. All Rights Reserved.</p>
+        <footer class="mainfooter" role="contentinfo">
+            <div class="footer-middle">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-md-3 col-sm-6">
+                            <div class="footer-padxx">
+                                <h4>About</h4>
+                                <p>
+                                    Founded in 2011, TextPort was a pioneer of online texting services.
+                                    TextPort evolved to add new services like virtual numbers, bulk texting,
+                                    and an SMS API. Today, TextPort continues to provide business-class SMS
+                                    services to its growing user base of business and individuals.
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <div class="footer-padxx">
+                                <h4>Products</h4>
+                                <ul class="list-unstyled">
+                                    <li><a href="/bulk-texting">Bulk SMS</a></li>
+                                    <li><a href="/email-to-sms-gateway">Email to SMS Gateway</a></li>
+                                    <li><a href="/virtual-mobile-numbers">Virtual Mobile Numbers</a></li>
+                                    <li><a href="/api">SMS API</a></li>
+                                    <li><a href="/">Online Texting</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <div class="footer-pad">
+                                <h4>Contact</h4>
+                                <ul class="list-unstyled">
+                                    <li><a href="/support">Support</a></li>
+                                    <li><a href="/contact">Contact</a></li>
+                                    <li><a href="/terms">Terms of Use</a></li>
+                                    <li><a href="/privacy">Privacy Policy</a></li>
+                                    <li><a href="/">Home</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <h4>Social</h4>
+                            <ul class="social-network social-circle">
+                                <li><a href="https://www.facebook.com/pages/TextPort/259179750811667" title="Facebook" target="_blank"><i class="fa fa-facebook"></i></a></li>
+                                <li><a href="https://twitter.com/textport" title="Twitter" target="_blank"><i class="fa fa-twitter"></i></a></li>
+                            </ul>
+                        </div>
                     </div>
-                    <div class="col-md-6 h-100 text-center text-md-right my-auto">
-                        <ul class="list-inline mb-0">
-                            <li class="list-inline-item mr-3">
-                                <a href="#">
-                                    <i class="fa fa-facebook fa-2x fa-fw"></i>
-                                </a>
-                            </li>
-                            <li class="list-inline-item mr-3">
-                                <a href="#">
-                                    <i class="fa fa-twitter-square fa-2x fa-fw"></i>
-                                </a>
-                            </li>
-                        </ul>
+                    <div class="row">
+                        <div class="col-md-12 copy">
+                            <p class="text-center">&copy; Copyright 2019 - TextPort.com.  All rights reserved.</p>
+                        </div>
                     </div>
                 </div>
             </div>

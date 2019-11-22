@@ -11,14 +11,13 @@
                     <span aria-hidden="true">×</span>
                 </button>
             </div>
-            @using (Html.BeginForm("AddAddress", "EmailToSms", FormMethod.Post, new { id = "form-add" }))
+            @using (Html.BeginForm("AddAddress", "EmailToSms", FormMethod.Post, new { id = "form-add-address" }))
             {
-                @Html.AntiForgeryToken()
-                @Html.HiddenFor(m => m.NewAddress.AccountId)
+                @Html.HiddenFor(m => m.AccountId)
                 <div class="modal-body">
                     <div class="form-group">
                         @Html.LabelFor(m => m.NewAddress.EmailAddress, new { @class = "form-label" })
-                        @Html.TextBoxFor(m => m.NewAddress.EmailAddress, new { @class = "form-control", placeholder = "Group name" })
+                        @Html.TextBoxFor(m => m.NewAddress.EmailAddress, new { @class = "form-control" })
                         @Html.ValidationMessageFor(m => m.NewAddress.EmailAddress, null, new { @class = "text-danger" })
                     </div>
                     <div class="form-group">
@@ -29,7 +28,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="submit" id="btnAdd" class="btn btn-primary">Register Address</button>
+                    <button type="submit" id="btnAddAddress" class="btn btn-primary">Register Address</button>
                 </div>
             }
         </div>

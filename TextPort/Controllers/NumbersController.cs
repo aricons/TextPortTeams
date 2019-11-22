@@ -4,6 +4,7 @@ using System.Security.Claims;
 using System.Linq;
 using System.Web.Mvc;
 
+using TextPort.Helpers;
 using TextPortCore.Data;
 using TextPortCore.Models;
 using TextPortCore.Helpers;
@@ -104,6 +105,50 @@ namespace TextPort.Controllers
         }
 
         [Authorize]
+        [HttpPost]
+        public ActionResult GetNumber(RegistrationData regData)
+        {
+            int accountId = Utilities.GetAccountIdFromClaim(ClaimsPrincipal.Current);
+
+            regData.Success = false;
+            regData.Status = "Failed";
+            regData.CompletionTitle = "Number Assignment Failure";
+            regData.CompletionMessage = $"An error occurred while attempting to assign the number {regData.VirtualNumber} to your account. Please try again. If the problem persists please contact support.";
+
+            if (!string.IsNullOrEmpty(regData.VirtualNumber) && accountId > 0)
+            {
+                using (TextPortDA da = new TextPortDA())
+                {
+                    using (Bandwidth bw = new Bandwidth())
+                    {
+                        //if (bw.PurchaseVirtualNumber(regData))
+                        if (true)
+                        {
+                            if (da.AddNumberToAccount(regData))
+                            {
+                                regData.CompletionTitle = $"{regData.NumberDisplayFormat} Successfully Assigned";
+                                regData.CompletionMessage = $"The number {regData.NumberDisplayFormat} has been sucessfully assigned to your account for a period of {regData.LeasePeriod} {regData.LeasePeriodWord}.";
+                                regData.Status = "Complete";
+                                regData.Success = true;
+
+                                Account acc = da.GetAccountById(regData.AccountId);
+                                if (acc != null)
+                                {
+                                    acc.Balance -= (regData.NumberCost);
+                                    da.SaveChanges();
+
+                                    Cookies.WriteBalance(acc.Balance);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            return View("TransactionComplete", regData);
+        }
+
+        [Authorize]
         [HttpGet]
         public ActionResult RenewNumber(int id)
         {
@@ -122,6 +167,50 @@ namespace TextPort.Controllers
             }
 
             return View(regData);
+        }
+
+        [Authorize]
+        [HttpPost]
+        public ActionResult RenewNumber(RegistrationData regData)
+        {
+            int accountId = Utilities.GetAccountIdFromClaim(ClaimsPrincipal.Current);
+
+            regData.Success = false;
+            regData.CompletionTitle = "Number Renewal Failure";
+            regData.CompletionMessage = $"An error occurred while attempting to renew the number {regData.VirtualNumber}. Please try again. If the problem persists please contact support.";
+
+            if (accountId > 0 && regData.VirtualNumberId > 0 && regData.NumberCost > 0)
+            {
+                using (TextPortDA da = new TextPortDA())
+                {
+                    DedicatedVirtualNumber vn = da.GetVirtualNumberById(regData.VirtualNumberId);
+                    if (vn != null)
+                    {
+                        vn.ExpirationDate = vn.ExpirationDate.AddMonths(regData.LeasePeriod);
+                        vn.RenewalCount = vn.RenewalCount + 1;
+                        vn.Cancelled = false;
+                        vn.Fee = regData.NumberCost;
+                        vn.SevenDayReminderSent = null;
+                        vn.TwoDayReminderSent = null;
+                        da.SaveChanges();
+
+                        regData.CompletionTitle = "Number Renewal Complete";
+                        regData.CompletionMessage = $"The number {regData.NumberDisplayFormat} has been sucessfully renewed for {regData.LeasePeriod} {regData.LeasePeriodWord}.";
+                        regData.Status = "Complete";
+                        regData.Success = true;
+
+                        Account acc = da.GetAccountById(regData.AccountId);
+                        if (acc != null)
+                        {
+                            acc.Balance -= regData.NumberCost;
+                            da.SaveChanges();
+
+                            Cookies.WriteBalance(acc.Balance);
+                        }
+                    }
+                }
+            }
+            return View("TransactionComplete", regData);
         }
 
         [Authorize]

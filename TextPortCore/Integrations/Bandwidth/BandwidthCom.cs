@@ -43,7 +43,7 @@ namespace TextPortCore.Integrations.Bandwidth
             try
             {
                 _client.BaseUrl = new Uri(accountBaseUrl);
-                _client.Authenticator = new HttpBasicAuthenticator(Constants.Bandwidth.UserName, Constants.Bandwidth.Password);
+                _client.Authenticator = new HttpBasicAuthenticator(Constants.Bandwidth.UserName, ConfigurationManager.AppSettings["BandwidthPassword"]);
 
                 string requestString = string.Empty;
                 if (tollFree)
@@ -122,7 +122,7 @@ namespace TextPortCore.Integrations.Bandwidth
             try
             {
                 _client.BaseUrl = new Uri(accountBaseUrl);
-                _client.Authenticator = new HttpBasicAuthenticator(Constants.Bandwidth.UserName, Constants.Bandwidth.Password);
+                _client.Authenticator = new HttpBasicAuthenticator(Constants.Bandwidth.UserName, ConfigurationManager.AppSettings["BandwidthPassword"]);
 
                 RestRequest request = new RestRequest("/orders", Method.POST)
                 {
@@ -180,7 +180,7 @@ namespace TextPortCore.Integrations.Bandwidth
                 errorDescription = string.Empty;
 
                 _client.BaseUrl = new Uri(accountBaseUrl);
-                _client.Authenticator = new HttpBasicAuthenticator(Constants.Bandwidth.UserName, Constants.Bandwidth.Password);
+                _client.Authenticator = new HttpBasicAuthenticator(Constants.Bandwidth.UserName, ConfigurationManager.AppSettings["BandwidthPassword"]);
 
                 RestRequest request = new RestRequest($"/orders/{bwOrderid}", Method.GET);
                 request.AddHeader("Content-Type", "application/xml; charset=utf-8");
@@ -219,7 +219,7 @@ namespace TextPortCore.Integrations.Bandwidth
                 processingMessage = string.Empty;
 
                 _client.BaseUrl = new Uri(accountBaseUrl);
-                _client.Authenticator = new HttpBasicAuthenticator(Constants.Bandwidth.UserName, Constants.Bandwidth.Password);
+                _client.Authenticator = new HttpBasicAuthenticator(Constants.Bandwidth.UserName, ConfigurationManager.AppSettings["BandwidthPassword"]);
 
                 RestRequest request = new RestRequest("/disconnects", Method.POST)
                 {

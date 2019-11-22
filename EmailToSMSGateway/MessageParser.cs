@@ -107,7 +107,7 @@ namespace EmailToSMSGateway
                     }
                 }
 
-                // Check that there is at least one vali destination number.
+                // Check that there is at least one valid destination number.
                 if (emailToSMSMessage.DestinationNumbers.Count == 0)
                 {
                     emailToSMSMessage.ProcessingLog += "Processing stopped. No valid destination mobile numbers were located in the To or Cc headers\r\n";
@@ -115,7 +115,7 @@ namespace EmailToSMSGateway
                 }
 
                 // Extract the SMS message from the email body. 
-                // Stop parsing if any lines start with "===="
+                // Stop parsing if any lines start with "====" or "++++"
                 if (getMessageTextFromEmailBody(mimeMsg, emailToSMSMessage))
                 {
                     emailToSMSMessage.ProcessingLog += $"Message body detected.\r\nMessage text:\r\n{emailToSMSMessage.MessageText}\r\n";
@@ -191,6 +191,7 @@ namespace EmailToSMSGateway
             catch (Exception ex)
             {
                 emailToSMSMessage.MessageText += $"An error occurred while processing message file {fileName}. Error message {ex.ToString()}\r\n";
+                emailToSMSMessage.ProcessingLog += $"An error occurred while processing message file {fileName}. Error message {ex.ToString()}\r\n";
             }
 
             emailToSMSMessage.MessageText += deleteMessageFile(fileName);
@@ -236,21 +237,37 @@ namespace EmailToSMSGateway
 
         private static bool getMessageTextFromEmailBody(MimeMessage mimeMsg, EmailToSMSMessage message)
         {
-            string textBody = mimeMsg.GetTextBody(MimeKit.Text.TextFormat.Plain);
-
-            // Strip any signatures
-            textBody = stripSignaturesFromMessage(textBody);
-
-            StringReader sr = new StringReader(textBody);
-            string line = string.Empty;
-            while ((line = sr.ReadLine()) != null)
+            try
             {
-                if (line.StartsWith("===="))
+                string textBody = mimeMsg.GetTextBody(MimeKit.Text.TextFormat.Plain);
+
+                // Strip any signatures
+                textBody = stripSignaturesFromMessage(textBody);
+
+                StringReader sr = new StringReader(textBody);
+                string line = string.Empty;
+                while ((line = sr.ReadLine()) != null)
                 {
-                    break;
+                    if (line.StartsWith("====") || line.StartsWith("++++"))
+                    {
+                        break;
+                    }
+                    message.MessageText += line; // + "\r\n";
+
+                    // Check for excessively long messages. Limit to 4 segments.
+                    if (message.MessageText.Length > Constants.MaximumEmailToSMSMessageLength)
+                    {
+                        break;
+                    }
                 }
-                message.MessageText += line + "\r\n";
             }
+            catch (Exception ex)
+            {
+                message.ProcessingLog += $"An error occurred while parsing the email body for a text message. Error: {ex.Message}. Exception: {ex.InnerException}.";
+            }
+
+            // Strip any blank lines
+            message.MessageText = message.MessageText.Replace("\r\n\r\n", "\r\n");
 
             return !string.IsNullOrEmpty(message.MessageText);
         }

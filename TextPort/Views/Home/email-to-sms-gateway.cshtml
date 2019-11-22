@@ -1,8 +1,15 @@
-﻿<div class="row align-items-center my-5 main-banner">
+﻿@{
+    ViewData["Title"] = "Email-to-SMS Gateway";
+    ViewData["Description"] = "Send and receive text messages using email. Dedicated numbers. Easy setup, with programming required. Free trial.";
+    ViewData["Keywords"] = "send and receive texts from email, email to sms gateway, email to text service";
+    ViewData["Url"] = "https://textport.com/email-to-sms-gateway";
+}
+
+<div class="row align-items-center main-banner">
     <div class="col-lg-5">
-        <img class="img-fluid rounded mb-4 mb-lg-0" src="~/Content/images/email-to-sms-2.png" alt="Email to SMS Gateway">
+        <img class="img-fluid rounded mx-auto d-block mb-lg-0" src="~/Content/images/email-to-sms-2.png" alt="Email to SMS Gateway">
     </div>
-    <div class="col-lg-7">
+    <div class="col-lg-7 text-center text-lg-left">
         <h1 class="font-weight-light">Email to SMS Gateway</h1>
         <h2>
             Send an email to TextPort and we'll convert it into a text message. No need to install software, hire developers, or download anything.
@@ -14,9 +21,9 @@
     <div class="card-body">
         <h2>What is Email to SMS?</h2>
         <h3 class="text-white m-0">
-            TextPort's email-to-SMS gateway allows you to send an email to textport.com, then have the body of your email sent as a text.
-            Register your email address with TextPort, then send an email from your registered address to mobile-number@textport.com. We'll
-            take your email and deliver it as an SMS message.
+            TextPort's email-to-SMS gateway allows you to send an email to textport.com, where it is converted to a text message.
+            Simply register your email address with TextPort, then send an email to <i>{mobile_number}@@textport.com</i>. We'll
+            take your email and deliver it as a text message to the number specified in {mobile_number}.
         </h3>
     </div>
 </div>
@@ -25,7 +32,7 @@
         <div class="card h-100">
             <div class="card-body">
                 <h1 class="card-title">Send texts via email</h1>
-                <h2 class="card-text">Send texts to customers and contacts simply by sending an email. Register as many email addresses as you need to allow multiple employees to send texts from email</h2>
+                <h2 class="card-text">Send texts to customers and contacts simply by sending an email. Register as many email addresses as you need to allow multiple employees to send texts from email. </h2>
             </div>
         </div>
     </div>
@@ -41,7 +48,7 @@
         <div class="card h-100">
             <div class="card-body">
                 <h1 class="card-title">Multiple Recipients</h1>
-                <h2 class="card-text">Add more recipients to the CC field of your email to text multiple numbers at once.</h2>
+                <h2 class="card-text">Add more recipients to the To or Cc fields of your email to text multiple numbers at once.</h2>
             </div>
         </div>
     </div>
@@ -67,8 +74,8 @@
                 <div class="card-body d-flex flex-column">
                     <h1 class="card-title large-num text-primary">2</h1>
                     <h2 class="lead">
-                        From any email client, send a message to number@@textport.com. ("number" is the mobile number that you're sending the text to).
-                        Add more numbers to the CC field if needed. Write your message, then send. Your email is delivered as a text message within seconds.
+                        From any email client, send a message to {number}@@textport.com. ({number} is the mobile number that you're sending the text to).
+                        Add more numbers to the To or Cc fields if needed. Write your message, then send. Your email is converted to a text message and delivered within seconds.
                     </h2>
                 </div>
             </div>
@@ -76,15 +83,10 @@
                 <div class="card-body d-flex flex-column">
                     <h1 class="card-title large-num text-primary">3</h1>
                     <h2 class="lead">
-                        Any replies will appear in your TextPort messages page, and can also be forwarded to your email address or sent as a text to your mobile number.
+                        Any replies will appear in your TextPort messages page, and can also be forwarded to your email address, or sent as a text to your mobile number.
                     </h2>
                 </div>
             </div>
         </div>
     </div>
 </div>
-<footer class="py-5 bg-dark">
-    <div class="container">
-        <p class="m-0 text-center text-white">Copyright &copy; Your Website 2019</p>
-    </div>
-</footer>

@@ -9,14 +9,8 @@ namespace TextPortCore.Helpers
 {
     public class FileHandling
     {
-        //private readonly TextPortContext _context;
         private readonly string mmsFilePath = ConfigurationManager.AppSettings["MMSFilePath"];
         private readonly string uploadsFilePath = ConfigurationManager.AppSettings["UploadFilesBasePath"];
-
-        //public FileHandling(TextPortContext context)
-        //{
-        //    _context = context;
-        //}
 
         public bool SaveMMSFile(Stream strm, int accountId, string fileName, bool temporaryFile)
         {

@@ -19,7 +19,6 @@
 
     $('#btnContinue').on("click", function (e) {
         if ($("#form-signup").valid()) {
-
             generateProductDescription();
             var purchaseType = $('#PurchaseType').val();
             if (purchaseType === "ComplimentaryNumber") {
@@ -38,7 +37,7 @@
         $("#VirtualNumber").html('');
 
         var optionId = $("#NumberCountryId").val();
-        if (optionId == 23) {
+        if (optionId === 23) {
             $("#TollFreePrefix").val('');
             $("#BaseNumberCost").val(10);
         }
@@ -154,16 +153,20 @@ function calculateCost() {
     var totalCost = 0;
     var leasePeriod = 0;
     var baseNumberCost = 0;
+    var availableCredit = 0;
+    var remainingCreditAfterPurchase = 0;
     var creditPurchaseAmount = $("#CreditPurchaseAmount");
 
     if (creditPurchaseAmount.length) {
         creditCost = parseFloat($("#CreditPurchaseAmount").val());
     }
 
+    availableCredit = parseFloat($("#AvailableCredit").text().replace("$", ""));
     leasePeriod = parseFloat($("#LeasePeriod").val());
     baseNumberCost = parseFloat($("#BaseNumberCost").val());
     numberCost = leasePeriod * baseNumberCost;
     totalCost = numberCost + creditCost;
+    remainingCreditAfterPurchase = (availableCredit - numberCost).toFixed(2);
 
     if (totalCost < 0) { totalCost = 0; }
 
@@ -171,6 +174,15 @@ function calculateCost() {
     $("#TotalCost").text("$" + totalCost + ".00");
     $("#hidTotalCost").val(totalCost);
     $("#NumberCost").val(numberCost);
+    $("#RemainingCredit").text("$" + remainingCreditAfterPurchase);
+
+    if (remainingCreditAfterPurchase < 0) {
+        $("#creditOK").hide();
+        $("#creditInsufficient").show();
+    } else {
+        $("#creditOK").show();
+        $("#creditInsufficient").hide();
+    }
 }
 
 function generateProductDescription() {

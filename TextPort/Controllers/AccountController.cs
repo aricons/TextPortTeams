@@ -253,45 +253,45 @@ namespace TextPort.Controllers
                         //    }
                         //    return View("RegistrationComplete", regData);
 
-                        case "VirtualNumber":
-                            if (!string.IsNullOrEmpty(regData.VirtualNumber))
-                            {
-                                regData.CompletionTitle = "Number assignment failed.";
-                                regData.CompletionMessage = $"Your payment was processed, but there was a problem assigning a number to your account. <a href=\"/numbers/complimentarynumber/{regData.AccountId}\">Click here to select a new number.</a> You will not be charged for the replacement number.";
+                        //case "VirtualNumber":
+                        //    if (!string.IsNullOrEmpty(regData.VirtualNumber))
+                        //    {
+                        //        regData.CompletionTitle = "Number assignment failed.";
+                        //        regData.CompletionMessage = $"Your payment was processed, but there was a problem assigning a number to your account. <a href=\"/numbers/complimentarynumber/{regData.AccountId}\">Click here to select a new number.</a> You will not be charged for the replacement number.";
 
-                                using (Bandwidth bw = new Bandwidth())
-                                {
-                                    if (bw.PurchaseVirtualNumber(regData))
-                                    {
-                                        if (da.AddNumberToAccount(regData))
-                                        {
-                                            regData.CompletionTitle = "Number Successfully Assigned";
-                                            regData.CompletionMessage = $"The number {regData.NumberDisplayFormat} has been sucessfully assigned to your account.";
+                        //        using (Bandwidth bw = new Bandwidth())
+                        //        {
+                        //            if (bw.PurchaseVirtualNumber(regData))
+                        //            {
+                        //                if (da.AddNumberToAccount(regData))
+                        //                {
+                        //                    regData.CompletionTitle = "Number Successfully Assigned";
+                        //                    regData.CompletionMessage = $"The number {regData.NumberDisplayFormat} has been sucessfully assigned to your account.";
 
-                                            Account acc = da.GetAccountById(regData.AccountId);
-                                            if (acc != null)
-                                            {
-                                                acc.Balance += (Constants.InitialBalanceAllocation + regData.CreditPurchaseAmount);
-                                                da.SaveChanges();
+                        //                    Account acc = da.GetAccountById(regData.AccountId);
+                        //                    if (acc != null)
+                        //                    {
+                        //                        acc.Balance += (Constants.InitialBalanceAllocation + regData.CreditPurchaseAmount);
+                        //                        da.SaveChanges();
 
-                                                if (regData.CreditPurchaseAmount > 0)
-                                                {
-                                                    regData.CompletionMessage += $" {regData.CreditPurchaseAmount:C} was applied to your account.";
-                                                }
+                        //                        if (regData.CreditPurchaseAmount > 0)
+                        //                        {
+                        //                            regData.CompletionMessage += $" {regData.CreditPurchaseAmount:C} was applied to your account.";
+                        //                        }
 
-                                                Cookies.WriteBalance(acc.Balance);
-                                            }
-                                        }
-                                        else
-                                        {
-                                            string foo = regData.OrderingMessage;
-                                            da.SetComplimentaryNumberFlag(regData.AccountId, ComplimentaryNumberStatus.FailureEligible);
-                                        }
-                                    }
-                                }
-                                return PartialView("_RegistrationComplete", regData);
-                            }
-                            break;
+                        //                        Cookies.WriteBalance(acc.Balance);
+                        //                    }
+                        //                }
+                        //                else
+                        //                {
+                        //                    string foo = regData.OrderingMessage;
+                        //                    da.SetComplimentaryNumberFlag(regData.AccountId, ComplimentaryNumberStatus.FailureEligible);
+                        //                }
+                        //            }
+                        //        }
+                        //        return PartialView("_RegistrationComplete", regData);
+                        //    }
+                        //    break;
 
                         case "ComplimentaryNumber":
                             regData.CompletionTitle = "Number assignment failed";

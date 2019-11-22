@@ -29,6 +29,7 @@ namespace TextPortCore.Models
         private decimal creditPurchaseAmount;
         private decimal totalCost;
         private int accountId;
+        private string status;
         private bool success;
         private string completionTitle;
         private string completionMessage;
@@ -223,6 +224,12 @@ namespace TextPortCore.Models
             set { this.accountId = value; }
         }
 
+        public string Status
+        {
+            get { return this.status; }
+            set { this.status = value; }
+        }
+
         public bool Success
         {
             get { return this.success; }
@@ -345,6 +352,7 @@ namespace TextPortCore.Models
             this.CreditCurrentBalance = 0;
             this.CreditPurchaseAmount = 0;
             this.AccountId = 0;
+            this.Status = "Pending";
             this.Success = false;
             this.ProductDescription = string.Empty;
             this.CompletionTitle = string.Empty;
@@ -381,6 +389,7 @@ namespace TextPortCore.Models
             this.LeasePeriod = 1;
             this.CreditCurrentBalance = 0;
             this.CreditPurchaseAmount = 0;
+            this.Status = "Pending";
             this.Success = false;
             this.ProductDescription = string.Empty;
             this.CompletionTitle = string.Empty;
@@ -437,7 +446,7 @@ namespace TextPortCore.Models
                 this.CreditAmountsList = da.GetCreditAmounts(purcType);
                 this.TollFreeAreaCodesList = da.GetTollFreeAreaCodes();
 
-                if (this.PurchaseType == "Credit")
+                if (this.PurchaseType == "Credit" || this.PurchaseType == "VirtualNumber" || this.PurchaseType == "VirtualNumberRenew")
                 {
                     Account acc = da.GetAccountById(AccountId);
                     if (acc != null)

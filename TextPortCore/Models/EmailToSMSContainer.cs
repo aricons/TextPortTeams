@@ -33,7 +33,7 @@ namespace TextPortCore.Models
 
             using (TextPortDA da = new TextPortDA())
             {
-                List<DedicatedVirtualNumber> dvns = da.GetNumbersForAccount(accountId, true);
+                List<DedicatedVirtualNumber> dvns = da.GetNumbersForAccount(accountId, false);
                 foreach (DedicatedVirtualNumber dvn in dvns)
                 {
                     this.VirtualNumbersList.Add(new SelectListItem()
@@ -45,6 +45,20 @@ namespace TextPortCore.Models
 
                 this.EmailAddressList = da.GetEmailToSMSAddressesForAccount(accountId);
             }
+        }
+    }
+
+    public class DeleteEmailToSMSAddressRequest
+    {
+        public int AccountId { get; set; }
+        public int AddressId { get; set; }
+        public string EmailAddress { get; set; }
+
+        public DeleteEmailToSMSAddressRequest()
+        {
+            this.AccountId = 0;
+            this.AddressId = 0;
+            this.EmailAddress = string.Empty;
         }
     }
 }

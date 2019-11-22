@@ -26,6 +26,8 @@ namespace TextPortCore.Helpers
 
         public static int NumberOfNumbersToPullFromBandwidthForAPI = 100;
 
+        public static int MaximumEmailToSMSMessageLength = 640; // 4 Segments.
+
         public static class Bandwidth
         {
             public static string UserId = "u-imdmn6chhceskespwwwox7a";
@@ -37,8 +39,6 @@ namespace TextPortCore.Helpers
             public static string ApplicationId = "5abf6fa7-5e0f-4f1c-828b-c01f0c9674c1"; // TextPortV2
 
             public static string UserName = "richard@arionconsulting.com"; // Use userName and password when retreiving numbers
-
-            public static string Password = "Zealand!4";
 
             public static string ApiToken = "091c02aae3e8dd660fc2f99a328561790da68779e83aabd1";
 

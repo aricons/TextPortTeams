@@ -1,4 +1,5 @@
 ﻿@using TextPortCore.Models
+@using TextPortCore.Helpers
 @model RegistrationData
 
 @{
@@ -6,12 +7,47 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<script type="text/javascript" src="/Scripts/TextPort/GetNumbers.js"></script>
-<script src="https://www.paypalobjects.com/api/checkout.js"></script>
+<script type="text/javascript" src="/scripts/TextPort/GetNumbers.js"></script>
+<script type="text/javascript" src="~/scripts/bootbox/bootbox.min.js"></script>
 
 <script type="text/javascript">
     $(function () {
         $('#menu_numbers').addClass("active");
+
+        $('#btnPurchase').click(function (e) {
+            var form = $("#form-get-number");
+            if (form.valid()) {
+
+                var num = $("#VirtualNumber option:selected").text();
+                var leasePer = $("#LeasePeriod").val();
+                var periodName = "month";
+                if (leasePer.length) {
+                    leasePeriod = parseFloat(leasePer);
+                    if (leasePeriod > 1) {
+                        periodName = "months";
+                    }
+                }
+
+                bootbox.confirm({
+                    title: "Get " + num + "?",
+                    message: "Assign " + num + " to your account for a period of " + leasePer + " " + periodName + "?<br />Your account will be debited " + $("#NumberCostTxt").text(),
+                    buttons: {
+                        cancel: {
+                            label: '<i class="fa fa-times"></i> Cancel'
+                        },
+                        confirm: {
+                            label: '<i class="fa fa-check"></i> Confirm'
+                        }
+                    },
+                    callback: function (result) {
+                        if (result) {
+                            form.submit();
+                        }
+                    }
+                })
+            };
+        });
+
     });
 </script>
 
@@ -24,7 +60,7 @@
             </div>
             <div class="card-body">
                 <div class="offset-md-1 col-md-7 col-12">
-                    @using (Html.BeginForm("PostPurchase", "Account", FormMethod.Post, new { id = "form-signup" }))
+                    @using (Html.BeginForm("GetNumber", "Numbers", FormMethod.Post, new { id = "form-get-number" }))
                     {
                         @Html.HiddenFor(m => m.NumberCost)
                         @Html.HiddenFor(m => m.AccountId)
@@ -37,13 +73,15 @@
                         @Html.HiddenFor(m => m.CompletionMessage)
                         @Html.HiddenFor(m => m.BaseNumberCost)
                         @Html.HiddenFor(m => m.BaseSMSCost)
+                        @Html.HiddenFor(m => m.Success)
+                        @Html.HiddenFor(m => m.Status)
                         <input type="hidden" id="hidTotalCost" value="0" />
 
                         <div class="form-group">
                             @Html.LabelFor(m => m.NumberCountryId, new { @class = "form-label" })
                             @Html.DropDownListFor(m => m.NumberCountryId, new SelectList(Model.CountriesList, "Value", "Text"), new { @class = "form-control" })
                             @Html.ValidationMessageFor(m => m.NumberCountryId, null, new { @class = "text-danger" })
-                            <p class="subscript">* All number purchases include credit for 50 text messages.</p>
+                            @*<p class="subscript">* All number purchases include credit for 50 text messages.</p>*@
                         </div>
                         <div id="DivAreaCode">
                             <div class="form-group">
@@ -86,26 +124,32 @@
                             <label>Number Cost</label>
                             <label id="NumberCostTxt"></label>
                         </div>
-                        <div class="form-group">
-                            <label class="form-label">Additional Credit (optional)</label>
-                            @Html.DropDownListFor(m => m.CreditPurchaseAmount, new SelectList(Model.CreditAmountsList, "Value", "Text"), new { @class = "form-control" })
-                            @Html.ValidationMessageFor(m => m.CreditPurchaseAmount, null, new { @class = "text-danger" })
+                        <div class="row lower-label">
+                            <label>Available Credit</label>
+                            <label id="AvailableCredit">@Formatting.DisplayMoney(Model.CreditCurrentBalance)</label>
                         </div>
                         <div class="row lower-label">
-                            <label>Total Charge</label>
-                            <label id="TotalCost"></label>
+                            <label>Remaining Credit After Purchase</label>
+                            <label id="RemainingCredit"></label>
                         </div>
-                        <div class="form-group">
-                            <button id="btnContinue" type="button" class="btn btn-primary">@(Model.PurchaseType == "ComplimentaryNumber" ? "Select Number" : "Continue to Payment")</button>
+                        <div id="creditOK">
+                            <div class="form-group">
+                                <button id="btnPurchase" type="button" class="btn btn-primary">@(Model.PurchaseType == "ComplimentaryNumber" ? "Select Number" : "Complete Purchase")</button>
+                            </div>
+                        </div>
+                        <div id="creditInsufficient" style="display: none">
+                            <div class="pl-0">
+                                <p class="alert alert-danger text-center">
+                                    Your balance is not sufficient to make this purchase.
+                                    <br />
+                                    <br />
+                                    <a href="/account/balance" class="btn btn-danger" role="button" aria-disabled="true">Top Up Credit</a>
+                                </p>
+                            </div>
                         </div>
                     }
                 </div>
             </div>
         </div>
     </div>
-</div>
-
-<div id="purchaseModalCont" class="modal hide fade in" data-url='@Url.Action("Purchase", "Numbers")'>
-</div>
-<div id="postPurchaseModalCont" class="modal hide fade in">
 </div>

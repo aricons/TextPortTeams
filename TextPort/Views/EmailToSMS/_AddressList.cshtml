@@ -1,5 +1,4 @@
 ﻿@using TextPortCore.Models
-@using TextPortCore.Helpers
 @model EmailToSMSContainer
 
 @if (Model.EmailAddressList.Count() > 0)
@@ -17,8 +16,9 @@
             bgClass = string.Empty;
         }
         rowId++;
+        @Html.HiddenFor(x => address.AddressId)
         <tr class="@bgClass">
-            <td>@Html.TextBoxFor(x => address.EmailAddress, new {  id = "addr_" + address.AddressId, @class = "form-control form-control-sm" })</td>
+            <td>@Html.TextBoxFor(x => address.EmailAddress, new { id = "addr_" + address.AddressId, @class = "form-control form-control-sm" })</td>
             <td>
                 @Html.DropDownListFor(x => address.VirtualNumberId, new SelectList(Model.VirtualNumbersList, "Value", "Text", address.VirtualNumberId), new { id = "vnid_" + address.AddressId, @class = "form-control form-control-sm" })
             </td>
@@ -28,7 +28,7 @@
                 </button>
             </td>
             <td align="center">
-                <button onclick="deleteAddress(@address.AddressId)" class="btn">
+                <button onclick="deleteAddress(@Model.AccountId, @address.AddressId, '@address.EmailAddress')" class="btn">
                     <span class="fa fa-trash fa-lg list-icon" aria-hidden="true"></span>
                 </button>
             </td>

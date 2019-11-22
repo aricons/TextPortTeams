@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Web;
 using System.Web.Mvc;
 using System.Security.Claims;
 
@@ -30,10 +28,7 @@ namespace TextPort.Controllers
         {
             try
             {
-                EmailToSMSContainer newEmailToSmsContainer = new EmailToSMSContainer()
-                {
-                    AccountId = Utilities.GetAccountIdFromClaim(ClaimsPrincipal.Current)
-                };
+                EmailToSMSContainer newEmailToSmsContainer = new EmailToSMSContainer(Utilities.GetAccountIdFromClaim(ClaimsPrincipal.Current));
 
                 return PartialView("_AddAddress", newEmailToSmsContainer);
             }
@@ -46,23 +41,26 @@ namespace TextPort.Controllers
 
         [Authorize]
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult AddAddress(Group newGroup)
+        public ActionResult AddAddress(EmailToSMSAddress newAddress)
         {
             try
             {
-                using (TextPortDA da = new TextPortDA())
+                if (newAddress.AccountId > 0)
                 {
-                    da.AddGroup(newGroup);
-                }
+                    using (TextPortDA da = new TextPortDA())
+                    {
+                        da.AddEmailToSmsAddress(newAddress);
+                    }
 
-                return View("Index", new GroupsContainer(newGroup));
+                    return PartialView("_AddressList", new EmailToSMSContainer(newAddress.AccountId));
+                }
             }
             catch (Exception ex)
             {
                 string bar = ex.Message;
-                return null;
             }
+
+            return null;
         }
 
         [Authorize]
@@ -71,23 +69,47 @@ namespace TextPort.Controllers
         {
             try
             {
-                //int groupId = newMember.GroupId;
-                int accountId = Utilities.GetAccountIdFromClaim(ClaimsPrincipal.Current);
-                List<EmailToSMSAddress> emailToSMSAddresses = new List<EmailToSMSAddress>();
-
-                using (TextPortDA da = new TextPortDA())
+                if (address.AccountId > 0 && address.AddressId > 0)
                 {
-                    da.UpdataEmailToSMSAddress(address);
-                    emailToSMSAddresses = da.GetEmailToSMSAddressesForAccount(accountId);
-                }
+                    List<EmailToSMSAddress> emailToSMSAddresses = new List<EmailToSMSAddress>();
 
-                return PartialView("_AddressList", emailToSMSAddresses);
+                    using (TextPortDA da = new TextPortDA())
+                    {
+                        da.UpdataEmailToSMSAddress(address);
+                    }
+
+                    return PartialView("_AddressList", new EmailToSMSContainer(address.AccountId));
+                }
             }
             catch (Exception ex)
             {
                 string bar = ex.Message;
-                return null;
             }
+            return null;
+        }
+
+        [Authorize]
+        [HttpPost]
+        public ActionResult DeleteAddress(DeleteEmailToSMSAddressRequest deleteRequest)
+        {
+            try
+            {
+                if (deleteRequest.AccountId > 0 && deleteRequest.AddressId > 0)
+                {
+                    using (TextPortDA da = new TextPortDA())
+                    {
+                        da.DeleteEmailToSMSAddress(deleteRequest.AddressId);
+                    }
+
+                    return PartialView("_AddressList", new EmailToSMSContainer(deleteRequest.AccountId));
+                }
+            }
+            catch (Exception ex)
+            {
+                string bar = ex.Message;
+            }
+
+            return null;
         }
     }
 }

@@ -1,4 +1,11 @@
-﻿@model TextPortCore.Models.RegistrationData
+﻿@{
+    ViewData["Title"] = "Virtual Mobile Numbers";
+    ViewData["Description"] = "Virtual mobile numbers for texting. Choose your own number. Free trial.";
+    ViewData["Keywords"] = "virtual mobile number, virtual texting number, private texting numbers, burner texting number, send and receive texts online";
+    ViewData["Url"] = "https://textport.com/virtual-mobile-numbers";
+}
+@model TextPortCore.Models.RegistrationData
+
 <script type="text/javascript">
     $(function () {
         $.ajaxSetup({
@@ -64,11 +71,11 @@
     }
 </script>
 
-<div class="row align-items-center my-5 main-banner">
+<div class="row align-items-center main-banner">
     <div class="col-lg-5">
-        <img class="img-fluid rounded mb-4 mb-lg-0" src="~/Content/images/virtual-mobile-number.png" alt="Virtual Mobile Numbers" height="300">
+        <img class="img-fluid rounded mx-auto d-block mb-4 mb-lg-0" src="~/Content/images/virtual-mobile-number.png" alt="Virtual Mobile Numbers" height="300">
     </div>
-    <div class="col-lg-7">
+    <div class="col-lg-7 text-center text-lg-left">
         <h1 class="font-weight-light">Dedicated Virtual Mobile Numbers</h1>
         <h2>
             Send and receive business texts without having to use your own personal device and number. Virtual numbers create a professional image
@@ -176,9 +183,3 @@
         </div>
     </div>
 </div>
-<br />
-<footer class="py-5 bg-dark">
-    <div class="container">
-        <p class="m-0 text-center text-white">Copyright &copy; TextPort.com 2019</p>
-    </div>
-</footer>

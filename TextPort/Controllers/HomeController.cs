@@ -145,6 +145,12 @@ namespace TextPort.Controllers
             return View();
         }
 
+        [ActionName("bulk-texting")]
+        public ActionResult BulkTexting()
+        {
+            return View();
+        }
+
         [AllowAnonymous]
         [HttpGet]
         public ActionResult Contact()
