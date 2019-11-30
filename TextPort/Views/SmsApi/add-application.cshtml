@@ -1,0 +1,45 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "SMS API application setup | SMS API";
+    ViewData["Description"] = "Instruction on how to setup API credentials and webhooks on TextPort's SMS API";
+    ViewData["Keywords"] = "Setting up SMS API, SMS API credentials, webhook for receiving text messages";
+    ViewData["Url"] = "https://textport.com/api";
+}
+
+<script type="text/javascript">
+    $(function () {
+        $('#menu_setup').addClass("active");
+    });
+</script>
+
+<div class="container">
+    <div class="row">
+        @Html.Partial("_ApiSideMenuBar")
+        <div class="col-12 col-md-9">
+            <div class="card">
+                <div class="card-header">
+                    <h4>1. Add an Application</h4>
+                </div>
+                <div class="card-body">
+                    <p>Log into you TextPort account. If you don't have an account yet, click <a href="https://textport.com/account/signup">here</a> to sign up. You can also try the API for free using our <a href="https://textport.com/trial">free trial</a>.</p>
+                    <p>
+                        Click your username in the top-right corner of any TextPort page. Select <a href="/apisettings"><strong>API Settings</strong></a> to display the page shown below.
+                    </p>
+                    <p>
+                        <img height="616" src="~/Content/images/apisettingspage.png" alt="API settings page" class="w-100" />
+                    </p>
+                    <p>
+                        Enter the name of your application. The API Token and API Secret will be generated automatically. These are your API username and password. The secret key can be changed at any time by clicking the "generate new secret" link.
+                    </p>
+                    <p>
+                        (Optional) If you intend to have TextPort forward inbound messages to your site/app, enter the URL of the endpoint or web-hook that will receive messages.
+                    </p>
+                    <p>
+                        (Optional) If you implement security on your API endpoint, enter the username and password for that endpoint. TextPort will use basic authentication in the header to authenticate against your URL.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

@@ -1,12 +1,14 @@
 ﻿@{
     Layout = "~/Views/Shared/_Layout.cshtml";
-    ViewData["Title"] = "TextPort API: Inbound Message Callback Event";
-    ViewData["Description"] = "TextPort text messaging API documentation. Inbound message callbck event.";
-    ViewData["Url"] = "https://textport.com/api";
+    ViewData["Title"] = "Inbound Messages | SMS API";
+    ViewData["Description"] = "TextPort's SMS API handles incoming SMS messages";
+    ViewData["Keywords"] = "Receive text messages API, SMS API for receiving texts";
+    ViewData["Url"] = "https://textport.com/api/documentation/message-received";
 }
 
 <script type="text/javascript" src="~/content/highlight.pack.js"></script>
-<link rel="stylesheet" href="~/content/highlight/styles/dracula.css">
+<link rel="stylesheet" type="text/css" href="/content/css/api.css">
+<link rel="stylesheet" type="text/css" href="~/content/highlight/styles/dracula.css">
 
 <script type="text/javascript">
     $(function () {
@@ -29,7 +31,7 @@
                             <h5>Description</h5>
                             <p>
                                 When a message is received for a number on your account, TextPort will check whether the number has an
-                                application assigned (see <a href="~/documentation/">application setup</a> and <a href="~/documentation/assignnumber">number assignment</a>). If an application is found, and a callback URL (webhook) is specified,
+                                application assigned (see <a href="~/api/documentation/add-application">application setup</a> and <a href="~/api/documentation/assign-number">number assignment</a>). If an application is found, and a callback URL (webhook) is specified,
                                 TextPort will POST an inbound message notification to your callback URL in the following format.
                             </p>
                             <p>

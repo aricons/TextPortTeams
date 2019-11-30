@@ -50,6 +50,11 @@ namespace TextPort
             );
 
             routes.MapRoute(
+            name: "apidocsdetail",
+            url: "api/documentation/{action}",
+            defaults: new { controller = "smsapi", action = "Index" });
+
+            routes.MapRoute(
             name: "group",
             url: "group",
             defaults: new { controller = "group", action = "index" }
@@ -65,6 +70,12 @@ namespace TextPort
             name: "emailtosms",
             url: "emailtosms",
             defaults: new { controller = "emailtosms", action = "index" }
+            );
+
+            routes.MapRoute(
+            name: "apisettings",
+            url: "apisettings",
+            defaults: new { controller = "apisettings", action = "index" }
             );
 
             routes.MapRoute(

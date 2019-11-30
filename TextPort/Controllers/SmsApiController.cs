@@ -4,13 +4,19 @@ namespace TextPort.Controllers
 {
     [Route("api")]
     public class SmsApiController : Controller
-    {       
+    {
         public ActionResult Index()
         {
             return View();
         }
 
         public ActionResult Setup()
+        {
+            return View();
+        }
+
+        [ActionName("add-application")]
+        public ActionResult AddApplication()
         {
             return View();
         }

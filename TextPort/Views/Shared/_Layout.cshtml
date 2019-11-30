@@ -218,163 +218,67 @@
             </div>
         </nav>
         <nav class="sidenav"></nav>
-
-        @*@if (User.Identity.IsAuthenticated)
-            {
-                <nav class="navbar navbar-expand-md bg-white">
-                    <a class="navbar-brand nav-link" href="/"><img src="~/content/images/tp_logo_240x54.png?h=06d3a6bd33a5b974da6ee4b4c5b06da3" width="130" alt="TextPort"></a>
-                    <button class="navbar-toggler navbar-light border-1" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                        <span class="navbar-toggler-icon"></span>
-                    </button>
-                    <div class="collapse navbar-collapse text-primary text-primary" id="navbarNavDropdown">
-                        <ul class="navbar-nav nav-pills ml-auto text-primary">
-                            <li class="nav-item">
-                                @Html.ActionLink("My Messages", "index", "messages", null, htmlAttributes: new { @class = "nav-link" })
-                            </li>
-                            <li class="nav-item dropdown d-none d-md-block">
-                                <a class="nav-link dropdown-toggle" href="#" id="navBGLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Bulk / Group</a>
-                                <div class="dropdown-menu" aria-labelledby="navBGLink">
-                                    @Html.ActionLink("Bulk Texting", "index", "bulk", null, htmlAttributes: new { @class = "dropdown-item" })
-                                    @Html.ActionLink("In Box", "inbox", "bulk", null, htmlAttributes: new { @class = "dropdown-item" })
-                                    @Html.ActionLink("Group Texting", "index", "group", null, htmlAttributes: new { @class = "dropdown-item" })
-                                </div>
-                            </li>
-                            <li class="nav-item d-md-none">
-                                <a class="nav-link" href="/bulk/">Bulk Texting</a>
-                            </li>
-                            <li class="nav-item d-md-none">
-                                <a class="nav-link" href="/bulk/inbox">In Box</a>
-                            </li>
-                            <li class="nav-item d-md-none">
-                                <a class="nav-link" href="/group/">Group Texting</a>
-                            </li>
-                            <li class="dropdown-divider d-md-none"></li>
-                            <li class="nav-item dropdown d-none d-md-block">
-                                <a class="nav-link active dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">@User.Identity.Name</a>
-                                <div class="dropdown-menu">
-                                    @Html.ActionLink("Profile", "profile", "account", null, htmlAttributes: new { @class = "dropdown-item" })
-                                    @Html.ActionLink("Balance", "balance", "account", null, htmlAttributes: new { @class = "dropdown-item" })
-                                    @Html.ActionLink("Numbers", "", "numbers", null, htmlAttributes: new { @class = "dropdown-item" })
-                                    @Html.ActionLink("Groups", "", "Groups", null, htmlAttributes: new { @class = "dropdown-item" })
-                                    @Html.ActionLink("API Settings", "", "APISettings", null, htmlAttributes: new { @class = "dropdown-item" })
-                                    <div class="dropdown-divider"></div>
-                                    @Html.ActionLink("Log Out", "logout", "account", null, htmlAttributes: new { @class = "dropdown-item" })
-                                </div>
-                            </li>
-                            <li class="nav-item d-md-none">
-                                <a class="nav-link" href="/account/profile">Profile</a>
-                            </li>
-                            <li class="nav-item d-md-none">
-                                <a class="nav-link" href="/account/balance">Balance</a>
-                            </li>
-                            <li class="nav-item d-md-none">
-                                <a class="nav-link" href="/numbers/">Numbers</a>
-                            </li>
-                            <li class="nav-item d-md-none">
-                                <a class="nav-link" href="/groups/">Groups</a>
-                            </li>
-                            <li class="nav-item d-md-none">
-                                <a class="nav-link" href="/apisettings/">API Settings</a>
-                            </li>
-                            <li class="nav-item d-md-none">
-                                <a class="nav-link" href="/account/changepassword">Change Password</a>
-                            </li>
-                            <li class="nav-item d-md-none">
-                                <div class="dropdown-divider"></div>
-                            </li>
-                            <li class="nav-item d-md-none">
-                                <a class="nav-link" href="/account/logout">Log Out</a>
-                            </li>
-                        </ul>
-                    </div>
-                </nav>
-                <div class="row">
-                    <div class="col-12">
-                        <p class="mt-1 mb-2 text-secondary tp-bal">Balance: $<span id="balance"></span></p>
-                    </div>
-                </div>
-            }
-            else
-            {
-                <nav class="navbar">
-                    <a class="navbar-brand nav-link" href="/"><img src="~/content/images/tp_logo_240x54.png?h=06d3a6bd33a5b974da6ee4b4c5b06da3" width="130" alt="TextPort"></a>
-                    <ul class="nav nav-pills ml-auto">
-                        <li class="nav-item">
-                            <a href='/api' class="nav-link">SMS API</a>
-                        </li>
-                        <li class="nav-item">
-                            @if (Request.Browser.IsMobileDevice)
-                            {
-                                <a href='/home/loginm' class="nav-link">Log In</a>
-                            }
-                            else
-                            {
-                                <a href='#' id="login-link" class="nav-link modal-button" data-toggle="modal" data-target="#modal-cont-login" data-url="/home/login">Log In</a>
-                            }
-                        </li>
-                        <li class="nav-item d-none d-md-block">
-                            <a href='/account/signup' id="login-link-mobile" class="nav-link active">Sign Up</a>
-                        </li>
-                    </ul>
-                </nav>
-            }*@
         <br /><br /><br />
         @RenderBody()
-        <footer class="mainfooter" role="contentinfo">
-            <div class="footer-middle">
-                <div class="container">
-                    <div class="row">
-                        <div class="col-md-3 col-sm-6">
-                            <div class="footer-padxx">
-                                <h4>About</h4>
-                                <p>
-                                    Founded in 2011, TextPort was a pioneer of online texting services.
-                                    TextPort evolved to add new services like virtual numbers, bulk texting,
-                                    and an SMS API. Today, TextPort continues to provide business-class SMS
-                                    services to its growing user base of business and individuals.
-                                </p>
+        @if (!User.Identity.IsAuthenticated)
+        {
+            <footer class="mainfooter" role="contentinfo">
+                <div class="footer-middle">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-md-3 col-sm-6">
+                                <div class="footer-padxx">
+                                    <h4>About</h4>
+                                    <p>
+                                        Founded in 2011, TextPort was a pioneer of online texting services.
+                                        TextPort evolved to add new services like virtual numbers, bulk texting,
+                                        and an SMS API. Today, TextPort continues to provide business-class SMS
+                                        services to its growing user base of business and individuals.
+                                    </p>
+                                </div>
                             </div>
-                        </div>
-                        <div class="col-md-3 col-sm-6">
-                            <div class="footer-padxx">
-                                <h4>Products</h4>
-                                <ul class="list-unstyled">
-                                    <li><a href="/bulk-texting">Bulk SMS</a></li>
-                                    <li><a href="/email-to-sms-gateway">Email to SMS Gateway</a></li>
-                                    <li><a href="/virtual-mobile-numbers">Virtual Mobile Numbers</a></li>
-                                    <li><a href="/api">SMS API</a></li>
-                                    <li><a href="/">Online Texting</a></li>
+                            <div class="col-md-3 col-sm-6">
+                                <div class="footer-padxx">
+                                    <h4>Products</h4>
+                                    <ul class="list-unstyled">
+                                        <li><a href="/bulk-texting">Bulk SMS</a></li>
+                                        <li><a href="/email-to-sms-gateway">Email to SMS Gateway</a></li>
+                                        <li><a href="/virtual-mobile-numbers">Virtual Mobile Numbers</a></li>
+                                        <li><a href="/api">SMS API</a></li>
+                                        <li><a href="/">Online Texting</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-sm-6">
+                                <div class="footer-pad">
+                                    <h4>Contact</h4>
+                                    <ul class="list-unstyled">
+                                        <li><a href="/support">Support</a></li>
+                                        <li><a href="/contact">Contact</a></li>
+                                        <li><a href="/terms">Terms of Use</a></li>
+                                        <li><a href="/privacy">Privacy Policy</a></li>
+                                        <li><a href="/">Home</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <h4>Social</h4>
+                                <ul class="social-network social-circle">
+                                    <li><a href="https://www.facebook.com/pages/TextPort/259179750811667" title="Facebook" target="_blank"><i class="fa fa-facebook"></i></a></li>
+                                    <li><a href="https://twitter.com/textport" title="Twitter" target="_blank"><i class="fa fa-twitter"></i></a></li>
                                 </ul>
                             </div>
                         </div>
-                        <div class="col-md-3 col-sm-6">
-                            <div class="footer-pad">
-                                <h4>Contact</h4>
-                                <ul class="list-unstyled">
-                                    <li><a href="/support">Support</a></li>
-                                    <li><a href="/contact">Contact</a></li>
-                                    <li><a href="/terms">Terms of Use</a></li>
-                                    <li><a href="/privacy">Privacy Policy</a></li>
-                                    <li><a href="/">Home</a></li>
-                                </ul>
+
+                        <div class="row">
+                            <div class="col-md-12 copy">
+                                <p class="text-center">&copy; Copyright 2019 - TextPort.com.  All rights reserved.</p>
                             </div>
-                        </div>
-                        <div class="col-md-3">
-                            <h4>Social</h4>
-                            <ul class="social-network social-circle">
-                                <li><a href="https://www.facebook.com/pages/TextPort/259179750811667" title="Facebook" target="_blank"><i class="fa fa-facebook"></i></a></li>
-                                <li><a href="https://twitter.com/textport" title="Twitter" target="_blank"><i class="fa fa-twitter"></i></a></li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-12 copy">
-                            <p class="text-center">&copy; Copyright 2019 - TextPort.com.  All rights reserved.</p>
                         </div>
                     </div>
                 </div>
-            </div>
-        </footer>
+            </footer>
+        }
     </div>
 
     <div id="modal-cont"></div>

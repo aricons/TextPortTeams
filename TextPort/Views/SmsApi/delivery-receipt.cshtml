@@ -1,12 +1,13 @@
 ﻿@{
     Layout = "~/Views/Shared/_Layout.cshtml";
-    ViewData["Title"] = "TextPort API: Delivery Receipt Callback Event";
-    ViewData["Description"] = "TextPort text messaging API documentation. Delivery receipt callback event and code samples.";
+    ViewData["Title"] = "Delivery Receipt Callback Event | SMS API";
+    ViewData["Description"] = "Getting delivery receipts from the SMS API";
+    ViewData["Keywords"] = "SMS API delivery receipt";
     ViewData["Url"] = "https://textport.com/api";
 }
 
 <script type="text/javascript" src="~/content/highlight.pack.js"></script>
-<link rel="stylesheet" href="~/content/highlight/styles/dracula.css">
+<link rel="stylesheet" type="text/css" href="~/content/highlight/styles/dracula.css">
 
 <script type="text/javascript">
     $(function () {
@@ -29,7 +30,7 @@
                             <h5>Description</h5>
                             <p>
                                 When a delivery confirmation is received for a number on your account, TextPort will check whether the number has an
-                                application assigned (see <a href="~/documentation/">application setup</a> and <a href="~/documentation/assignnumber">number assignment</a>). If an application is found, and a callback URL (webhook) is specified,
+                                application assigned (see <a href="/api/documentation/add-application">application setup</a> and <a href="/api/documentation/assign-number">number assignment</a>). If an application is found, and a callback URL (webhook) is specified,
                                 TextPort will POST an inbound message notification to your callback URL in the following format.
                             </p>
                             <p>

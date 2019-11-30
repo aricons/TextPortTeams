@@ -314,6 +314,7 @@
     <Content Include="Content\bootstrap-reboot.min.css" />
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\bootstrap.min.css" />
+    <Content Include="Content\css\api.css" />
     <Content Include="Content\css\emoji.css" />
     <Content Include="Content\css\jnoty.css" />
     <Content Include="Content\css\messaging.css" />
@@ -779,18 +780,19 @@
     <Content Include="Views\SmsApi\assign-number.cshtml" />
     <Content Include="Views\SmsApi\delivery-receipt.cshtml" />
     <Content Include="Views\SmsApi\get-number.cshtml" />
-    <Content Include="Views\SmsApi\setup.cshtml" />
+    <Content Include="Views\SmsApi\add-application.cshtml" />
     <Content Include="Views\SmsApi\message-received.cshtml" />
     <Content Include="Views\SmsApi\ping.cshtml" />
     <Content Include="Views\SmsApi\search-numbers.cshtml" />
     <Content Include="Views\SmsApi\send-message.cshtml" />
     <Content Include="Views\Shared\_ApiSideMenuBar.cshtml" />
-    <Content Include="Views\SmsApi\Index.cshtml" />
+    <Content Include="Views\SmsApi\index.cshtml" />
     <Content Include="Views\EmailToSMS\Index.cshtml" />
     <Content Include="Views\EmailToSMS\_AddressList.cshtml" />
     <Content Include="Views\EmailToSMS\_AddAddress.cshtml" />
     <Content Include="Views\Home\bulk-texting.cshtml" />
     <Content Include="Views\Numbers\TransactionComplete.cshtml" />
+    <Content Include="Views\SmsApi\setup.cshtml" />
     <None Include="Web.Beta.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
