@@ -5,6 +5,7 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
+<script type="text/javascript" src="~/scripts/bootbox/bootbox.min.js"></script>
 <link rel="stylesheet" href="~/content/css/messaging.css">
 
 <script type="text/javascript">
@@ -18,13 +19,43 @@
             }
         });
 
+        $('.btn-auto-renew').on("click", function (e) {
+            var virtualNumberId = this.id.split('_')[1];
+            var renewFlag = false;
+
+            if ($(this).is(":checked")) {
+                renewFlag = true;
+            }
+
+            var renewData = {
+                VirtualNumberId: virtualNumberId,
+                AutoRenew: renewFlag
+            };
+
+            $.post({
+                url: '/numbers/setautorenew',
+                data: JSON.stringify(renewData),
+                contentType: "application/json",
+                error: function (jqXHR, textStatus, errorThrown) {
+                    alert("Unable change auto-renew setting.");
+                },
+                success: function (result) {
+                    bootbox.alert({
+                        title: result.ConfirmationTitle,
+                        message: result.ConfirmationDetail,
+                        callback: function () { /* your callback code */ }
+                    })
+                }
+            });
+        });
+
         $('#menu_numbers').addClass("active");
     });
 </script>
 
 <div class="row">
     @Html.Partial("_SideMenuBar")
-    <div class="col-12 col-md-9">
+    <div class="col-12 col-md-10">
         <div class="card">
             <div class="card-header">
                 <div class="row">
@@ -47,11 +78,11 @@
                         </tr>
                         <tr class="bg-primary">
                             <th scope="col" class="text-white">Number</th>
-                            @*<th scope="col" class="text-white">Country</th>*@
                             <th scope="col" class="text-white">Purchased</th>
                             <th scope="col" class="text-white">Expires</th>
                             <th scope="col" class="text-white">Active</th>
-                            <th scope="col" class="text-white">Extend</th>
+                            <th scope="col" class="text-white text-center" style="width: 25px">Auto Renew</th>
+                            <th scope="col" class="text-white text-center">Extend</th>
                             @if (Model.ApiAppCount > 0)
                             {
                                 <th scope="col" class="text-white">API Application</th>
@@ -74,13 +105,13 @@
                             rowId++;
                             <tr class="@bgClass">
                                 <td><a href="#" class="modal-button" data-toggle="modal" data-target="#modal-cont" data-url="/numbers/numberhistory/@vn.VirtualNumberId">@vn.NumberDisplayFormat</a></td>
-                                @*<td>US</td>*@
                                 <td>@String.Format("{0:yyyy-MM-dd}", vn.CreateDate)</td>
                                 <td>@String.Format("{0:yyyy-MM-dd}", vn.ExpirationDate)</td>
                                 @if (!vn.Cancelled)
                                 {
                                     <td>Yes</td>
-                                    <td>@Html.ActionLink("Extend", "RenewNumber", "Numbers", new { id = vn.VirtualNumberId }, htmlAttributes: new { @class = "" })</td>
+                                    <td class="text-center">@Html.CheckBoxFor(x => vn.AutoRenew, new { id = "autoRenew_" + vn.VirtualNumberId.ToString(), @class = "btn-auto-renew" })</td>
+                                    <td class="text-center">@Html.ActionLink("Extend", "RenewNumber", "Numbers", new { id = vn.VirtualNumberId }, htmlAttributes: new { @class = "" })</td>
                                     if (Model.ApiAppCount > 0)
                                     {
                                         if (string.IsNullOrEmpty(vn.ApiAppName))
@@ -96,6 +127,7 @@
                                 else
                                 {
                                     <td>No</td>
+                                    <td>&nbsp;</td>
                                     <td>&nbsp;</td>
                                     <td>&nbsp;</td>
                                 }

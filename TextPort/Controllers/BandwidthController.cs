@@ -63,7 +63,7 @@ namespace TextPort.Controllers
                                                 hubFunctions.SendInboundMessageNotification(notification);
                                                 if (account.EnableMobileForwarding && !string.IsNullOrEmpty(account.ForwardVnmessagesTo))
                                                 {
-                                                    decimal balance = account.Balance - Constants.BaseSMSMessageCost;
+                                                    decimal balance = account.Balance - (Constants.BaseSMSSegmentCost * Utilities.GetSegmentCount(newMessage.MessageText));
                                                     hubFunctions.SendBalanceUpdate(account.UserName, balance.ToString());
                                                 }
                                             }
@@ -93,6 +93,21 @@ namespace TextPort.Controllers
                                     Account account = da.GetAccountById(originatingMessage.AccountId);
                                     if (account != null)
                                     {
+                                        // Deduct the message cost (base rate * segment count) from the account balance
+                                        int segmentCount = receipt.SegmentCount;
+                                        decimal messageRate = Constants.BaseSMSSegmentCost;
+                                        if (originatingMessage.IsMMS)
+                                        {
+                                            messageRate = (account.MMSSegmentCost > 0) ? account.MMSSegmentCost : Constants.BaseMMSSegmentCost;
+                                        }
+                                        else
+                                        {
+                                            messageRate = (account.SMSSegmentCost > 0) ? account.SMSSegmentCost : Constants.BaseSMSSegmentCost;
+                                        }
+
+                                        account.Balance -= (messageRate * segmentCount);
+                                        da.SaveChanges();
+
                                         string messageHtml = @"<span class=""rcpt"">Delivered</span>";
                                         using (HubFunctions hubFunctions = new HubFunctions())
                                         {
@@ -125,7 +140,7 @@ namespace TextPort.Controllers
                                                 hubFunctions.SendInboundMessageNotification(notification);
                                                 if (account.EnableMobileForwarding && !string.IsNullOrEmpty(account.ForwardVnmessagesTo))
                                                 {
-                                                    decimal balance = account.Balance - Constants.BaseSMSMessageCost;
+                                                    decimal balance = account.Balance - ((int)newMessage.Segments * Constants.BaseSMSSegmentCost);
                                                     hubFunctions.SendBalanceUpdate(account.UserName, balance.ToString());
                                                 }
                                             }

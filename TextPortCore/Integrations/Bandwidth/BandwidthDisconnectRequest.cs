@@ -9,14 +9,16 @@ namespace TextPortCore.Integrations.Bandwidth
     public class DisconnectTelephoneNumberOrder
     {
         public string Name { get; set; }
-        public string CustomerOrderId { get; set; }
+        //public string CustomerOrderId { get; set; }
         public string Description { get; set; }
+        public string DisconnectMode { get; set; }
         public DisconnectTelephoneNumberOrderTypeItem DisconnectTelephoneNumberOrderType { get; set; }
 
         public DisconnectTelephoneNumberOrder()
         {
             this.Name = string.Empty;
-            this.CustomerOrderId = string.Empty;
+            //this.CustomerOrderId = string.Empty;
+            this.DisconnectMode = "normal";
             this.Description = string.Empty;
             this.DisconnectTelephoneNumberOrderType = new DisconnectTelephoneNumberOrderTypeItem();
         }
@@ -25,11 +27,12 @@ namespace TextPortCore.Integrations.Bandwidth
         {
             string name = $"{number.NumberBandwidthFormat}-{number.AccountId}-{DateTime.Now:yyMMdd}";
             this.Name = name;
-            this.CustomerOrderId = name;
-            this.Description = $"Disconnect {number}";
+            this.DisconnectMode = "normal";
+            //this.CustomerOrderId = name;
+            this.Description = $"Disconnect {number.NumberBandwidthFormat}";
             this.DisconnectTelephoneNumberOrderType = new DisconnectTelephoneNumberOrderTypeItem()
             {
-                Protected = null,
+                //Protected = null,
                 TelephoneNumberList = new TelephoneNumberList()
                 {
                     TelephoneNumber = number.NumberBandwidthFormat
@@ -53,12 +56,12 @@ namespace TextPortCore.Integrations.Bandwidth
     public class DisconnectTelephoneNumberOrderTypeItem
     {
         public TelephoneNumberList TelephoneNumberList { get; set; }
-        public string Protected { get; set; }
+        //public string Protected { get; set; }
 
         public DisconnectTelephoneNumberOrderTypeItem()
         {
             this.TelephoneNumberList = new TelephoneNumberList();
-            this.Protected = null;
+            //this.Protected = null;
         }
     }
 

@@ -113,6 +113,270 @@ namespace TextPortCore.Data
             return new List<PooledNumber>();
         }
 
+        public List<NumberExpirationData> GetNumberExpirationNotifications(int days, NumberTypes numberType, string notificationType, string emailLinkAction)
+        {
+            IEnumerable<NumberExpirationData> numbersExpiring = new List<NumberExpirationData>();
+
+            switch (days)
+            {
+                case 7:
+                    numbersExpiring =
+                        from
+                            dvn in _context.DedicatedVirtualNumbers
+                        join
+                            acc in _context.Accounts on dvn.AccountId equals acc.AccountId
+                        where
+                            dvn.Cancelled == false
+                            && (dvn.ExpirationDate - DateTime.UtcNow).TotalMinutes <= (Constants.MinutesInDay * days)
+                            && dvn.NumberType == (int)numberType
+                            && dvn.SevenDayReminderSent == null
+                            && dvn.AutoRenew == false
+                        select
+                            new NumberExpirationData()
+                            {
+                                AccountID = dvn.AccountId,
+                                CountryCode = dvn.CountryCode,
+                                DaysUntilExpiration = DateAndTime.GetDaysBetweenTwoDates(DateTime.UtcNow, dvn.ExpirationDate),
+                                HoursUntilExpiration = DateAndTime.GetRemainingHoursBetweenTwoDates(DateTime.UtcNow, dvn.ExpirationDate),
+                                Email = acc.Email,
+                                Balance = acc.Balance,
+                                ExpirationDate = dvn.ExpirationDate,
+                                NumberType = dvn.NumberType,
+                                Provider = dvn.Provider,
+                                UserName = acc.UserName,
+                                VirtualNumber = dvn.VirtualNumber,
+                                VirtualNumberID = dvn.VirtualNumberId,
+                                AutoRenew = dvn.AutoRenew,
+                                NotificationType = notificationType,
+                                EmailAction = emailLinkAction
+                            };
+                    break;
+
+                case 2:
+                    numbersExpiring =
+                        from
+                            dvn in _context.DedicatedVirtualNumbers
+                        join
+                            acc in _context.Accounts on dvn.AccountId equals acc.AccountId
+                        where
+                           dvn.Cancelled == false
+                           && (dvn.ExpirationDate - DateTime.UtcNow).TotalMinutes <= (Constants.MinutesInDay * days)
+                           && dvn.NumberType == (int)numberType
+                           && dvn.TwoDayReminderSent == null
+                           && dvn.AutoRenew == false
+                        select new NumberExpirationData()
+                        {
+                            AccountID = dvn.AccountId,
+                            CountryCode = dvn.CountryCode,
+                            DaysUntilExpiration = DateAndTime.GetDaysBetweenTwoDates(DateTime.UtcNow, dvn.ExpirationDate),
+                            HoursUntilExpiration = DateAndTime.GetRemainingHoursBetweenTwoDates(DateTime.UtcNow, dvn.ExpirationDate),
+                            Email = acc.Email,
+                            Balance = acc.Balance,
+                            ExpirationDate = dvn.ExpirationDate,
+                            NumberType = dvn.NumberType,
+                            Provider = dvn.Provider,
+                            UserName = acc.UserName,
+                            VirtualNumber = dvn.VirtualNumber,
+                            VirtualNumberID = dvn.VirtualNumberId,
+                            AutoRenew = dvn.AutoRenew,
+                            NotificationType = notificationType,
+                            EmailAction = emailLinkAction
+                        };
+                    break;
+            }
+
+            return numbersExpiring.ToList();
+        }
+
+        public List<NumberExpirationData> GetAutoRenewBalanceWarningNotifications(int days, NumberTypes numberType, string notificationType, string emailLinkAction)
+        {
+            IEnumerable<NumberExpirationData> numbersExpiring = new List<NumberExpirationData>();
+
+            switch (days)
+            {
+                case 7:
+                    numbersExpiring =
+                        from
+                            dvn in _context.DedicatedVirtualNumbers
+                        join
+                            acc in _context.Accounts on dvn.AccountId equals acc.AccountId
+                        where
+                            dvn.Cancelled == false
+                            && (dvn.ExpirationDate - DateTime.UtcNow).TotalMinutes <= (Constants.MinutesInDay * days)
+                            && dvn.NumberType == (int)numberType
+                            && dvn.SevenDayReminderSent == null
+                            && dvn.AutoRenew == true
+                            && acc.Balance < Constants.BaseNumberCost
+                        select
+                            new NumberExpirationData()
+                            {
+                                AccountID = dvn.AccountId,
+                                CountryCode = dvn.CountryCode,
+                                DaysUntilExpiration = DateAndTime.GetDaysBetweenTwoDates(DateTime.UtcNow, dvn.ExpirationDate),
+                                HoursUntilExpiration = DateAndTime.GetRemainingHoursBetweenTwoDates(DateTime.UtcNow, dvn.ExpirationDate),
+                                Email = acc.Email,
+                                Balance = acc.Balance,
+                                ExpirationDate = dvn.ExpirationDate,
+                                NumberType = dvn.NumberType,
+                                Provider = dvn.Provider,
+                                UserName = acc.UserName,
+                                VirtualNumber = dvn.VirtualNumber,
+                                VirtualNumberID = dvn.VirtualNumberId,
+                                AutoRenew = dvn.AutoRenew,
+                                NotificationType = notificationType,
+                                EmailAction = emailLinkAction
+                            };
+                    break;
+
+                case 2:
+                    numbersExpiring =
+                        from
+                            dvn in _context.DedicatedVirtualNumbers
+                        join
+                            acc in _context.Accounts on dvn.AccountId equals acc.AccountId
+                        where
+                           dvn.Cancelled == false
+                           && (dvn.ExpirationDate - DateTime.UtcNow).TotalMinutes <= (Constants.MinutesInDay * days)
+                           && dvn.NumberType == (int)numberType
+                           && dvn.TwoDayReminderSent == null
+                           && dvn.AutoRenew == true
+                           && acc.Balance < Constants.BaseNumberCost
+                        select new NumberExpirationData()
+                        {
+                            AccountID = dvn.AccountId,
+                            CountryCode = dvn.CountryCode,
+                            DaysUntilExpiration = DateAndTime.GetDaysBetweenTwoDates(DateTime.UtcNow, dvn.ExpirationDate),
+                            HoursUntilExpiration = DateAndTime.GetRemainingHoursBetweenTwoDates(DateTime.UtcNow, dvn.ExpirationDate),
+                            Email = acc.Email,
+                            Balance = acc.Balance,
+                            ExpirationDate = dvn.ExpirationDate,
+                            NumberType = dvn.NumberType,
+                            Provider = dvn.Provider,
+                            UserName = acc.UserName,
+                            VirtualNumber = dvn.VirtualNumber,
+                            VirtualNumberID = dvn.VirtualNumberId,
+                            AutoRenew = dvn.AutoRenew,
+                            NotificationType = notificationType,
+                            EmailAction = emailLinkAction
+                        };
+                    break;
+            }
+
+            return numbersExpiring.ToList();
+        }
+
+        public List<NumberExpirationData> GetExpiredNumbers()
+        {
+            IEnumerable<NumberExpirationData> numbersExpiring = new List<NumberExpirationData>();
+
+            numbersExpiring =
+                from
+                    dvn in _context.DedicatedVirtualNumbers
+                join
+                    acc in _context.Accounts on dvn.AccountId equals acc.AccountId
+                where
+                    dvn.ExpirationDate <= DateTime.UtcNow
+                    && dvn.SevenDayReminderSent != null
+                    && dvn.TwoDayReminderSent != null
+                    && dvn.Cancelled == false
+                    && dvn.AutoRenew == false
+                select
+                    new NumberExpirationData()
+                    {
+                        AccountID = dvn.AccountId,
+                        CountryCode = dvn.CountryCode,
+                        DaysUntilExpiration = DateAndTime.GetDaysBetweenTwoDates(DateTime.UtcNow, dvn.ExpirationDate),
+                        HoursUntilExpiration = DateAndTime.GetRemainingHoursBetweenTwoDates(DateTime.UtcNow, dvn.ExpirationDate),
+                        Email = acc.Email,
+                        Balance = acc.Balance,
+                        ExpirationDate = dvn.ExpirationDate,
+                        NumberType = dvn.NumberType,
+                        Provider = dvn.Provider,
+                        UserName = acc.UserName,
+                        VirtualNumber = dvn.VirtualNumber,
+                        VirtualNumberID = dvn.VirtualNumberId,
+                        AutoRenew = dvn.AutoRenew,
+                        NotificationType = string.Empty,
+                        EmailAction = "void"
+                    };
+
+            return numbersExpiring.ToList();
+        }
+
+        public List<NumberExpirationData> GetAutoRenewNumbers()
+        {
+            IEnumerable<NumberExpirationData> numbersExpiring = new List<NumberExpirationData>();
+
+            numbersExpiring =
+                from
+                    dvn in _context.DedicatedVirtualNumbers
+                join
+                    acc in _context.Accounts on dvn.AccountId equals acc.AccountId
+                where
+                    dvn.ExpirationDate <= DateTime.UtcNow
+                    && dvn.Cancelled == false
+                    && dvn.AutoRenew == true
+                    && acc.Balance >= Constants.BaseNumberCost
+                select
+                    new NumberExpirationData()
+                    {
+                        AccountID = dvn.AccountId,
+                        CountryCode = dvn.CountryCode,
+                        DaysUntilExpiration = DateAndTime.GetDaysBetweenTwoDates(DateTime.UtcNow, dvn.ExpirationDate),
+                        HoursUntilExpiration = DateAndTime.GetRemainingHoursBetweenTwoDates(DateTime.UtcNow, dvn.ExpirationDate),
+                        Email = acc.Email,
+                        Balance = acc.Balance,
+                        ExpirationDate = dvn.ExpirationDate,
+                        NumberType = dvn.NumberType,
+                        Provider = dvn.Provider,
+                        UserName = acc.UserName,
+                        VirtualNumber = dvn.VirtualNumber,
+                        VirtualNumberID = dvn.VirtualNumberId,
+                        AutoRenew = dvn.AutoRenew,
+                        NotificationType = string.Empty,
+                        EmailAction = string.Empty
+                    };
+
+            return numbersExpiring.ToList();
+        }
+
+        public List<NumberExpirationData> GetAutoRenewInsufficientBalanceExpirations()
+        {
+            IEnumerable<NumberExpirationData> numbersExpiring = new List<NumberExpirationData>();
+
+            numbersExpiring =
+                from
+                    dvn in _context.DedicatedVirtualNumbers
+                join
+                    acc in _context.Accounts on dvn.AccountId equals acc.AccountId
+                where
+                    dvn.ExpirationDate <= DateTime.UtcNow
+                    && dvn.NumberType == (int)NumberTypes.Regular
+                    && dvn.Cancelled == false
+                    && dvn.AutoRenew == true
+                    && acc.Balance < Constants.BaseNumberCost
+                select
+                    new NumberExpirationData()
+                    {
+                        AccountID = dvn.AccountId,
+                        CountryCode = dvn.CountryCode,
+                        DaysUntilExpiration = DateAndTime.GetDaysBetweenTwoDates(DateTime.UtcNow, dvn.ExpirationDate),
+                        HoursUntilExpiration = DateAndTime.GetRemainingHoursBetweenTwoDates(DateTime.UtcNow, dvn.ExpirationDate),
+                        Email = acc.Email,
+                        Balance = acc.Balance,
+                        ExpirationDate = dvn.ExpirationDate,
+                        Provider = dvn.Provider,
+                        UserName = acc.UserName,
+                        VirtualNumber = dvn.VirtualNumber,
+                        VirtualNumberID = dvn.VirtualNumberId,
+                        AutoRenew = dvn.AutoRenew,
+                        NotificationType = string.Empty,
+                        EmailAction = string.Empty
+                    };
+
+            return numbersExpiring.ToList();
+        }
+
         #endregion
 
         #region "Insert Methods"
@@ -130,7 +394,7 @@ namespace TextPortCore.Data
                 {
                     expirationDate = (rd.LeasePeriod > 0) ? DateTime.UtcNow.AddMonths(rd.LeasePeriod) : DateTime.UtcNow.AddMonths(1);
                 }
-                expirationDate = expirationDate.AddHours(-12);
+                expirationDate = expirationDate.AddHours(-6);
 
                 DedicatedVirtualNumber number = new DedicatedVirtualNumber()
                 {
@@ -173,7 +437,7 @@ namespace TextPortCore.Data
             try
             {
                 DateTime expirationDate = DateTime.UtcNow.AddDays(15);
-                expirationDate = expirationDate.AddHours(-12);
+                expirationDate = expirationDate.AddHours(-6);
 
                 DedicatedVirtualNumber number = new DedicatedVirtualNumber()
                 {
@@ -233,6 +497,107 @@ namespace TextPortCore.Data
             return false;
         }
 
+        public bool SetVirtualNumberCancelledFlag(int virtualNumberId, bool cancelValue)
+        {
+            try
+            {
+                DedicatedVirtualNumber virtualNumber = _context.DedicatedVirtualNumbers.FirstOrDefault(x => x.VirtualNumberId == virtualNumberId);
+                if (virtualNumber != null)
+                {
+                    virtualNumber.Cancelled = cancelValue;
+
+                    this.SaveChanges();
+
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorHandling eh = new ErrorHandling();
+                eh.LogException("NumbersDA.SetVirtualNumberCancelledFlag", ex);
+            }
+            return false;
+        }
+
+        public bool SetVirtualNumberXDayReminderSentFlag(int virtualNumberId, int days)
+        {
+            try
+            {
+                if (days == 2 || days == 7)
+                {
+                    DedicatedVirtualNumber virtualNumber = _context.DedicatedVirtualNumbers.FirstOrDefault(x => x.VirtualNumberId == virtualNumberId);
+                    if (virtualNumber != null)
+                    {
+                        if (days == 2)
+                        {
+                            virtualNumber.TwoDayReminderSent = DateTime.UtcNow;
+                        }
+                        else
+                        {
+                            virtualNumber.SevenDayReminderSent = DateTime.UtcNow;
+                        }
+                        this.SaveChanges();
+
+                        return true;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorHandling eh = new ErrorHandling();
+                eh.LogException("NumbersDA.SetVirtualNumberCancelledFlag", ex);
+            }
+            return false;
+        }
+
+        public bool AutoRenewNumber(int virtualNumberId)
+        {
+            try
+            {
+                DedicatedVirtualNumber virtualNumber = _context.DedicatedVirtualNumbers.FirstOrDefault(x => x.VirtualNumberId == virtualNumberId);
+                if (virtualNumber != null)
+                {
+                    virtualNumber.Cancelled = false;
+                    virtualNumber.ExpirationDate = virtualNumber.ExpirationDate.AddMonths(1);
+                    virtualNumber.SevenDayReminderSent = null;
+                    virtualNumber.TwoDayReminderSent = null;
+                    virtualNumber.RenewalCount++;
+
+                    this.SaveChanges();
+
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorHandling eh = new ErrorHandling();
+                eh.LogException("NumbersDA.AutoRenewNumber", ex);
+            }
+            return false;
+        }
+
+        public bool IncrementVirtualNumberCancellationFailureCount(int virtualNumberId)
+        {
+            try
+            {
+                DedicatedVirtualNumber virtualNumber = _context.DedicatedVirtualNumbers.FirstOrDefault(x => x.VirtualNumberId == virtualNumberId);
+                if (virtualNumber != null)
+                {
+                    virtualNumber.CancellationFailureCount++;
+
+                    this.SaveChanges();
+
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorHandling eh = new ErrorHandling();
+                eh.LogException("NumbersDA.SetVirtualNumberCancellationFailureCount", ex);
+            }
+            return false;
+        }
+
         #endregion
 
         #region "Delete methods"
@@ -247,6 +612,7 @@ namespace TextPortCore.Data
                     _context.Entry(localVn).State = Microsoft.EntityFrameworkCore.EntityState.Detached;
                 }
                 _context.DedicatedVirtualNumbers.Remove(localVn);
+
                 _context.SaveChanges();
 
                 return true;

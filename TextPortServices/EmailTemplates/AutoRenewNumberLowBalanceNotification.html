@@ -3,7 +3,7 @@
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <title>Password reset notification for TextPort.com</title>
+    <title>Activate Your TextPort Account</title>
     <style type="text/css" rel="stylesheet" media="all">
 
         body {
@@ -233,15 +233,18 @@
                             <table class="email-body_inner" align="center" width="570" cellpadding="0" cellspacing="0">
                                 <tr>
                                     <td class="content-cell">
-                                        <h1>Hi {{name}},</h1>
-                                        <p>You recently requested to reset your password for your TextPort.com account. Use the button below to reset it.</p>
+                                        <h1>Hello {{name}},</h1>
+                                        <p>Just a reminder that your TextPort Virtual Number {{virtual_number}} will expire in {{time_remaining}}.</p>
+                                        <p>Your number is set for Auto-Renew, but your account balance is currently {{remaining_balance}}, which is insufficient to cover the renew cost.</p>
+                                        <p>To top-up your balance, click the Top Up my Account button below.</p>
+                                        <p>If you no longer need this number, no further action is required. Your number will be automatically disconnected on {{expiration_date}} and you will not be billed.</p>
                                         <table class="body-action" align="center" width="100%" cellpadding="0" cellspacing="0">
                                             <tr>
                                                 <td>
                                                     <table align="center" cellpadding="0" cellspacing="0">
                                                         <tr>
                                                             <td align="center" class="button">
-                                                                <a href="{{action_url}}" target="_blank">Reset Your Password</a>
+                                                                <a href="{{action_url}}" target="_blank">Top Up my Account</a>
                                                             </td>
                                                         </tr>
                                                     </table>
@@ -249,10 +252,10 @@
                                             </tr>
                                         </table>
                                         <br />
-                                        <p>For security, this request was received from IP address {{ip_address}} using a {{browser_type}} browser. If you did not request a password reset, please ignore this email or <a href="{{support_url}}">contact support</a> if you have questions.</p>
                                         <p>
-                                            Thanks,
-                                            <br />TextPort Support
+                                            Thank you for choosing TextPort,
+                                            <br />
+                                            TextPort Support
                                         </p>
                                         <table class="body-sub">
                                             <tr>

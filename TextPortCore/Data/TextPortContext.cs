@@ -253,6 +253,8 @@ namespace TextPortCore.Data
 
                 entity.Property(e => e.ExpirationDate).HasColumnType("datetime");
 
+                entity.Property(e => e.AutoRenew).HasDefaultValueSql("((0))");
+
                 entity.Property(e => e.APIApplicationId);
 
                 entity.Property(e => e.Fee).HasColumnType("money");

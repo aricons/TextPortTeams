@@ -27,7 +27,7 @@ namespace TextPortServices
 
         Thread outboundMessageThread = null;
         Thread watcherThread = null;
-        //Thread virtualNumberExpirationsThread = null;
+        Thread virtualNumberExpirationsThread = null;
         //Thread emailNotificationsThread = null;
         //Thread virtualNumbersAuditThread = null;
 
@@ -42,8 +42,6 @@ namespace TextPortServices
         private void InitializeComponent()
         {
             this.ServiceName = "TextPort Communications Service";
-
-
         }
 
         // Start the Windows service.
@@ -56,8 +54,8 @@ namespace TextPortServices
             watcherThread.Start();
 
             // Start the virtual number expirations poller.
-            //virtualNumberExpirationsThread = new Thread(new ThreadStart(startVirtualNumberExpirationsPolling));
-            //virtualNumberExpirationsThread.Start();
+            virtualNumberExpirationsThread = new Thread(new ThreadStart(startVirtualNumberExpirationsPolling));
+            virtualNumberExpirationsThread.Start();
 
             // Start the incoming message email notifications poller.
             //emailNotificationsThread = new Thread(new ThreadStart(startEmailNotificationsPolling));
@@ -129,26 +127,26 @@ namespace TextPortServices
             }
         }
 
-        //public void startVirtualNumberExpirationsPolling()
-        //{
-        //    int sleepIntervalSeconds = VnExpirationsPoller.GetPollingInterval();
+        public void startVirtualNumberExpirationsPolling()
+        {
+            int sleepIntervalSeconds = VnExpirationsPoller.GetPollingInterval();
 
-        //    while (!stopService)
-        //    {
-        //        try
-        //        {
-        //            VnExpirationsPoller.CheckForVirtualNumberExpirations();
-        //            //sleep(60, false); for testing
-        //            sleep(sleepIntervalSeconds, false);
-        //        }
+            while (!stopService)
+            {
+                try
+                {
+                    VnExpirationsPoller.CheckForVirtualNumberExpirations();
+                    //sleep(60, false); for testing
+                    sleep(sleepIntervalSeconds, false);
+                }
 
-        //        catch (Exception ex)
-        //        {
-        //            EventLogging.WriteEventLogEntry("An exception occurred in the TextPort.com communications service in startVirtualNumberExpirationsPolling. Message: " + ex.Message, System.Diagnostics.EventLogEntryType.Error);
-        //            sleep(10, false);
-        //        }
-        //    }
-        //}
+                catch (Exception ex)
+                {
+                    EventLogging.WriteEventLogEntry("An exception occurred in the TextPort.com communications service in startVirtualNumberExpirationsPolling. Message: " + ex.Message, System.Diagnostics.EventLogEntryType.Error);
+                    sleep(10, false);
+                }
+            }
+        }
 
         //public void startEmailNotificationsPolling()
         //{

@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Security.Claims;
 using System.Linq;
 using System.Web.Mvc;
+using System.Web;
+using Microsoft.Owin.Security;
 
 using TextPort.Helpers;
 using TextPortCore.Data;
@@ -121,8 +123,7 @@ namespace TextPort.Controllers
                 {
                     using (Bandwidth bw = new Bandwidth())
                     {
-                        //if (bw.PurchaseVirtualNumber(regData))
-                        if (true)
+                        if (bw.PurchaseVirtualNumber(regData))
                         {
                             if (da.AddNumberToAccount(regData))
                             {
@@ -236,6 +237,49 @@ namespace TextPort.Controllers
         }
 
         [Authorize]
+        [HttpPost]
+        public JsonResult SetAutoRenew(AutoRenewSettings autoRenewSettings)
+        {
+            int accountId = Utilities.GetAccountIdFromClaim(ClaimsPrincipal.Current);
+            autoRenewSettings.ConfirmationTitle = "Error setting auto-renew.";
+            autoRenewSettings.ConfirmationDetail = "An error occurred while updating the auto-renew settings for this number.";
+
+            if (accountId > 0 && autoRenewSettings != null)
+            {
+                using (TextPortDA da = new TextPortDA())
+                {
+                    DedicatedVirtualNumber dvn = da.GetVirtualNumberById(autoRenewSettings.VirtualNumberId);
+                    if (dvn != null)
+                    {
+                        dvn.AutoRenew = autoRenewSettings.AutoRenew;
+                        int rowsUpdated = da.SaveChanges();
+
+                        if (rowsUpdated > 0)
+                        {
+                            if (autoRenewSettings.AutoRenew)
+                            {
+                                autoRenewSettings.ConfirmationTitle = "Auto-Renew Enabled";
+                                autoRenewSettings.ConfirmationDetail = $"<ul><li>Your lease for {dvn.NumberDisplayFormat} will be automatically renewed on {dvn.ExpirationDate:MM/dd/yyyy}. A {Constants.BaseNumberCost:C2} fee will be debited from your TextPort balance.</li><li>The number will continue to be renewed monthly provided your account carries a sufficient balnce.</li><li>You will be notified by email if your balance is not sufficient to cover an upcoming renewal.</li><li>You may disable auto-renew at any time by unchecking the auto-renew box.</li></ul>";
+                            }
+                            else
+                            {
+                                autoRenewSettings.ConfirmationTitle = "Auto-Renew Disabled";
+                                autoRenewSettings.ConfirmationDetail = $"<ul><li>Auto-Renew has been disabled for number {dvn.NumberDisplayFormat}.</li><li>The number will auto-expire on {dvn.ExpirationDate:MM/dd/yyyy}.</li><li>To enable auto-renew, check the auto-renew box.</li></ul>";
+                            }
+                        }
+                        else
+                        {
+                            autoRenewSettings.ConfirmationTitle = "Error setting auto-renew.";
+                            autoRenewSettings.ConfirmationDetail = $"An error occurred while attempting to update the auto-renew setting on this number {dvn.NumberDisplayFormat}";
+                        }
+                    }
+                }
+            }
+
+            return Json(autoRenewSettings, JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize]
         [HttpGet]
         public ActionResult NumberHistory(int id)
         {
@@ -272,6 +316,60 @@ namespace TextPort.Controllers
             }
             NumbersContainer nc = new NumbersContainer(apiApps.AccountId, false);
             return View("Index", nc);
+        }
+
+        [HttpGet]
+        [AllowAnonymous]
+        public ActionResult Renew(string id)
+        {
+            List<int> parameterValues = RandomString.ExtractJDelimitedValues(id);
+            if (parameterValues != null && parameterValues.Count >= 2)
+            {
+                int accountId = parameterValues[0];
+                int virtualNumberId = parameterValues[1];
+
+                if (accountId > 0 && virtualNumberId > 0)
+                {
+                    using (TextPortDA da = new TextPortDA())
+                    {
+                        Account account = da.GetAccountById(parameterValues[0]);
+                        if (account != null)
+                        {
+                            // As an extra security measure, get the virtual number record and check that the
+                            // account Id assigned to the virtual number is the same as the account ID that was
+                            // passed in as the account ID parameter. This requires that both the account ID parameter
+                            // and the virtual number ID parameter are both associated with the same account.
+                            DedicatedVirtualNumber dvn = da.GetVirtualNumberById(virtualNumberId);
+                            if (dvn != null)
+                            {
+                                if (dvn.AccountId == accountId)
+                                {
+                                    List<Claim> claims = new List<Claim> {
+                                        new Claim("AccountId", account.AccountId.ToString(), ClaimValueTypes.Integer),
+                                        new Claim(ClaimTypes.Name, account.UserName.ToString()),
+                                        new Claim(ClaimTypes.NameIdentifier, account.UserName.ToString()),
+                                        new Claim(ClaimTypes.Email, account.Email.ToString()),
+                                        new Claim(ClaimTypes.Role, "User")
+                                    };
+
+                                    ClaimsIdentity identity = new ClaimsIdentity(claims, "ApplicationCookie");
+                                    ClaimsPrincipal principal = new ClaimsPrincipal(identity);
+
+                                    var context = Request.GetOwinContext();
+                                    var authManager = context.Authentication;
+
+                                    authManager.SignIn(new AuthenticationProperties { IsPersistent = true }, identity);
+
+                                    Cookies.Write("balance", account.Balance.ToString(), 0);
+
+                                    return RedirectToAction("Index", "Numbers");
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return RedirectToAction("Index", "Home");
         }
     }
 }

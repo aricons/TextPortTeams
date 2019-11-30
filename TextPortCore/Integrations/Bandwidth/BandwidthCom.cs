@@ -182,7 +182,7 @@ namespace TextPortCore.Integrations.Bandwidth
                 _client.BaseUrl = new Uri(accountBaseUrl);
                 _client.Authenticator = new HttpBasicAuthenticator(Constants.Bandwidth.UserName, ConfigurationManager.AppSettings["BandwidthPassword"]);
 
-                RestRequest request = new RestRequest($"/orders/{bwOrderid}", Method.GET);
+                RestRequest request = new RestRequest($"/orders/{bwOrderid}", Method.POST);
                 request.AddHeader("Content-Type", "application/xml; charset=utf-8");
 
                 BandwidthOrderResponse result = _client.Execute<BandwidthOrderResponse>(request).Data;
@@ -548,10 +548,9 @@ namespace TextPortCore.Integrations.Bandwidth
                 {
                     if (!string.IsNullOrEmpty(response.id))
                     {
-                        message.ProcessingMessage += "Message delivered to Bandwidth gateway. ";
                         using (TextPortDA da = new TextPortDA())
                         {
-                            da.UpdateMessageWithGatewayMessageId(message.MessageId, response.id, Constants.BaseSMSMessageCharge, message.ProcessingMessage);
+                            da.UpdateMessageWithGatewayMessageId(message.MessageId, response.id, response.segmentCount, "Message delivered to Bandwidth gateway. ");
                         };
 
                         return true;

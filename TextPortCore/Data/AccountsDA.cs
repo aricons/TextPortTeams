@@ -270,6 +270,28 @@ namespace TextPortCore.Data
             return false;
         }
 
+        public bool DebitFeeFromAccount(int accountId, decimal fee)
+        {
+            try
+            {
+                Account acc = GetAccountById(accountId);
+                if (acc != null)
+                {
+                    acc.Balance -= fee;
+                    SaveChanges();
+
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorHandling eh = new ErrorHandling();
+                eh.LogException("AccountDA.DebitFeeFromAccount", ex);
+            }
+
+            return false;
+        }
+
         #endregion
 
         #region "Insert Methods"
@@ -290,8 +312,8 @@ namespace TextPortCore.Data
                 newAccount.Enabled = rd.AccountEnabled;
                 newAccount.AccountValidationKey = rd.AccountValidationKey;
                 newAccount.Balance = rd.CreditPurchaseAmount;
-                newAccount.SMSSegmentCost = Constants.BaseSMSMessageCost;
-                newAccount.MMSSegmentCost = Constants.BaseMMSMessageCost;
+                newAccount.SMSSegmentCost = Constants.BaseSMSSegmentCost;
+                newAccount.MMSSegmentCost = Constants.BaseMMSSegmentCost;
                 newAccount.Deleted = false;
                 newAccount.Email = rd.EmailAddress;
                 newAccount.LastLogin = null;
@@ -336,8 +358,8 @@ namespace TextPortCore.Data
 
                 temporaryAccount.CreateDate = DateTime.UtcNow;
                 temporaryAccount.Balance = 0;
-                temporaryAccount.SMSSegmentCost = Constants.BaseSMSMessageCost;
-                temporaryAccount.MMSSegmentCost = Constants.BaseMMSMessageCost;
+                temporaryAccount.SMSSegmentCost = Constants.BaseSMSSegmentCost;
+                temporaryAccount.MMSSegmentCost = Constants.BaseMMSSegmentCost;
                 temporaryAccount.Enabled = false;
                 temporaryAccount.Deleted = false;
                 temporaryAccount.Email = rd.EmailAddress;

@@ -8,15 +8,17 @@ namespace TextPortCore.Helpers
     {
         public static decimal BaseNumberCost = 6.00M;
 
-        public static decimal BaseSMSMessageCost = 0.015M;
+        public static decimal BaseSMSSegmentCost = 0.015M;
 
-        public static decimal BaseMMSMessageCost = 0.025M;
+        public static decimal BaseMMSSegmentCost = 0.025M;
 
         public static decimal InitialBalanceAllocation = 0.75M; // 50 messages @ $0.015 each.
 
         public static decimal InitialFreeTrialBalanceAllocation = 0.15M; // 20 messages @ $0.015 each.
 
         public static decimal BaseSMSMessageCharge = 0.004M;
+
+        public static decimal BaseMMSMessageCharge = 0.015M;
 
         public static decimal Free = 0M;
 
@@ -27,6 +29,10 @@ namespace TextPortCore.Helpers
         public static int NumberOfNumbersToPullFromBandwidthForAPI = 100;
 
         public static int MaximumEmailToSMSMessageLength = 640; // 4 Segments.
+
+        public static int MinutesInDay = 1440; // 60 * 24
+
+        public static int AccountIdScramblerOffset = 1967;
 
         public static class Bandwidth
         {

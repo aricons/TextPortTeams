@@ -66,7 +66,7 @@ namespace Testing
         [TestMethod]
         public void TestRC4Decryption()
         {
-            string decryptedPassword = RC4.Decrypt("McKtwp3Ct8O8FQ==", Constants.RC4Key);
+            string decryptedPassword = RC4.Decrypt("/ydTx+lYIBMFDxHWE5Vfow==", Constants.RC4Key);
             string foo = decryptedPassword;
 
             // McKtwp3Ct8O8FQ==
@@ -75,10 +75,11 @@ namespace Testing
         [TestMethod]
         public void TestAESDecryption()
         {
-            string decryptedPassword = AESEncryptDecrypt.Decrypt("1­·ü", Constants.RC4Key);
+            string decryptedPassword = AESEncryptDecrypt.Decrypt("/ydTx+lYIBMFDxHWE5Vfow==", Constants.RC4Key);
             string foo = decryptedPassword;
 
             // McKtwp3Ct8O8FQ==
+            // /ydTx+lYIBMFDxHWE5Vfow==
         }
 
         [TestMethod]

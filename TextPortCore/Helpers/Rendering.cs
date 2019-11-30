@@ -37,6 +37,7 @@ namespace TextPortCore.Helpers
             html = html.Replace("{{to_number}}", msg.VirtualNumber);
             html = html.Replace("{{from_number}}", msg.MobileNumber);
             html = html.Replace("{{message}}", msg.MessageText);
+            html = html.Replace("{{copy_year}}", $"{DateTime.Now.Year}");
 
             return html;
         }
@@ -48,6 +49,7 @@ namespace TextPortCore.Helpers
             template = template.Replace("{{action_url}}", req.ResetUrl);
             template = template.Replace("{{ip_address}}", req.IPAddress);
             template = template.Replace("{{browser_type}}", req.BrowserType);
+            template = template.Replace("{{copy_year}}", $"{DateTime.Now.Year}");
 
             return template;
         }
@@ -60,6 +62,36 @@ namespace TextPortCore.Helpers
             template = template.Replace("{{action_url}}", activationUrl);
             template = template.Replace("{{ip_address}}", regData.IPAddress);
             template = template.Replace("{{browser_type}}", regData.BrowserType);
+            template = template.Replace("{{copy_year}}", $"{DateTime.Now.Year}");
+
+            return template;
+        }
+
+        public static string RenderVirtualNumberExpirationEmailBody(NumberExpirationData expData)
+        {
+            string template = File.ReadAllText($"{ConfigurationManager.AppSettings["EmailTemplatesFolder"]}NumberExpirationNotification.html");
+            template = template.Replace("{{name}}", expData.UserName);
+            template = template.Replace("{{virtual_number}}", expData.VirtualNumberDisplay);
+            template = template.Replace("{{time_remaining}}", expData.ExpirationDaysAndHours.ToString());
+            template = template.Replace("{{expiration_date}}", $"{expData.ExpirationDate:MM/dd/yyyy}");
+            template = template.Replace("{{renewal_fee}}", $"{Constants.BaseNumberCost:C2}");
+            template = template.Replace("{{action_url}}", expData.ActionUrl);
+            template = template.Replace("{{copy_year}}", $"{DateTime.Now.Year}");
+
+            return template;
+        }
+
+        public static string RenderAutoRenewNumberLowBalanceNotificationBody(NumberExpirationData expData)
+        {
+            string template = File.ReadAllText($"{ConfigurationManager.AppSettings["EmailTemplatesFolder"]}AutoRenewNumberLowBalanceNotification.html");
+            template = template.Replace("{{name}}", expData.UserName);
+            template = template.Replace("{{virtual_number}}", expData.VirtualNumberDisplay);
+            template = template.Replace("{{remaining_balance}}", $"{expData.Balance:C2}");
+            template = template.Replace("{{time_remaining}}", expData.ExpirationDaysAndHours.ToString());
+            template = template.Replace("{{expiration_date}}", $"{expData.ExpirationDate:MM/dd/yyyy}");
+            template = template.Replace("{{renewal_fee}}", $"{Constants.BaseNumberCost:C2}");
+            template = template.Replace("{{action_url}}", expData.ActionUrl);
+            template = template.Replace("{{copy_year}}", $"{DateTime.Now.Year}");
 
             return template;
         }

@@ -359,7 +359,7 @@ namespace TextPortCore.Models
             this.CompletionMessage = string.Empty;
             this.OrderingMessage = string.Empty;
             this.BaseNumberCost = Constants.BaseNumberCost;
-            this.BaseSMSCost = Constants.BaseSMSMessageCost;
+            this.BaseSMSCost = Constants.BaseSMSSegmentCost;
             this.ShowAnnouncementBanner = false;
             this.FreeTrial = false;
             this.AccountEnabled = false;
@@ -396,7 +396,7 @@ namespace TextPortCore.Models
             this.CompletionMessage = string.Empty;
             this.OrderingMessage = string.Empty;
             this.BaseNumberCost = Constants.BaseNumberCost;
-            this.BaseSMSCost = Constants.BaseSMSMessageCost;
+            this.BaseSMSCost = Constants.BaseSMSSegmentCost;
             this.ShowAnnouncementBanner = false;
             this.FreeTrial = false;
             this.AccountEnabled = false;

@@ -94,7 +94,7 @@ namespace TextPortCore.Models
                     });
                 };
 
-                if (this.Balance <= (Constants.BaseSMSMessageCost * 2))
+                if (this.Balance <= (Constants.BaseSMSSegmentCost * 2))
                 {
                     this.BalanceAlert = $"Your balance of {this.Balance:C3} is insufficient for sending messages.";
                 }

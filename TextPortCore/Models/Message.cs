@@ -7,7 +7,6 @@ using System.ComponentModel.DataAnnotations;
 
 using TextPortCore.Helpers;
 using TextPortCore.Integrations.Bandwidth;
-using API = TextPortCore.Models.API;
 
 namespace TextPortCore.Models
 {
@@ -88,7 +87,7 @@ namespace TextPortCore.Models
             this.GatewayMessageId = string.Empty;
             this.TimeStamp = DateTime.UtcNow;
             this.MessageText = string.Empty;
-            this.Segments = 0;
+            this.Segments = 1;
             this.IsMMS = false;
             this.Account = null;
             this.MMSFiles = new List<MMSFile>();
@@ -105,12 +104,12 @@ namespace TextPortCore.Models
             this.Ipaddress = Utilities.GetUserHostAddress();
             this.VirtualNumberId = virtualNumId;
             this.Direction = (int)MessageDirection.Outbound;
-            this.CustomerCost = Constants.BaseSMSMessageCost;
+            this.CustomerCost = Constants.BaseSMSSegmentCost;
             this.MobileNumber = string.Empty;
             this.GatewayMessageId = string.Empty;
             this.TimeStamp = DateTime.UtcNow;
             this.MessageText = msgText;
-            this.Segments = 0;
+            this.Segments = Utilities.GetSegmentCount(msgText);
             this.IsMMS = false;
             this.Account = null;
             this.MMSFiles = new List<MMSFile>();
@@ -124,14 +123,14 @@ namespace TextPortCore.Models
             this.Direction = (int)MessageDirection.Outbound;
             this.QueueStatus = (byte)QueueStatuses.Queued;
             this.CarrierId = (int)Carriers.BandWidth;
-            this.CustomerCost = Constants.BaseSMSMessageCost;
+            this.CustomerCost = Constants.BaseSMSSegmentCost;
             this.Ipaddress = Utilities.GetUserHostAddress();
             this.VirtualNumberId = sourceNumberId;
             this.MobileNumber = Utilities.NumberToE164(bulkMessage.Number);
             this.GatewayMessageId = string.Empty;
             this.TimeStamp = DateTime.UtcNow;
             this.MessageText = bulkMessage.MessageText;
-            this.Segments = 0;
+            this.Segments = Utilities.GetSegmentCount(bulkMessage.MessageText);
             this.IsMMS = false;
             this.Account = null;
             this.MMSFiles = new List<MMSFile>();
@@ -145,14 +144,14 @@ namespace TextPortCore.Models
             this.Direction = (int)MessageDirection.Outbound;
             this.QueueStatus = (byte)QueueStatuses.Queued;
             this.CarrierId = (int)Carriers.BandWidth;
-            this.CustomerCost = Constants.BaseSMSMessageCost;
+            this.CustomerCost = Constants.BaseSMSSegmentCost;
             this.Ipaddress = Utilities.GetUserHostAddress();
             this.VirtualNumberId = emailToSMSMessage.VirtualNumberId;
             this.MobileNumber = destinationNumber;
             this.GatewayMessageId = string.Empty;
             this.TimeStamp = DateTime.UtcNow;
             this.MessageText = emailToSMSMessage.MessageText;
-            this.Segments = 0;
+            this.Segments = Utilities.GetSegmentCount(emailToSMSMessage.MessageText);
             this.IsMMS = false;
             this.Account = null;
             this.MMSFiles = new List<MMSFile>();
@@ -167,14 +166,14 @@ namespace TextPortCore.Models
             this.Direction = (int)MessageDirection.Outbound;
             this.QueueStatus = (byte)QueueStatuses.Queued;
             this.CarrierId = (int)Carriers.BandWidth;
-            this.CustomerCost = Constants.BaseSMSMessageCost;
+            this.CustomerCost = Constants.BaseSMSSegmentCost;
             this.Ipaddress = Utilities.GetUserHostAddress();
             this.VirtualNumberId = virtualNumberId;
             this.MobileNumber = apiMessage.To;
             this.GatewayMessageId = string.Empty;
             this.TimeStamp = DateTime.UtcNow;
             this.MessageText = apiMessage.MessageText;
-            this.Segments = 0;
+            this.Segments = Utilities.GetSegmentCount(apiMessage.MessageText);
             this.IsMMS = false;
             this.Account = null;
             this.MMSFiles = new List<MMSFile>();
@@ -195,13 +194,14 @@ namespace TextPortCore.Models
             this.VirtualNumberId = virtualNumberId;
             this.TimeStamp = DateTime.UtcNow;
             this.Account = null;
+            this.Segments = 1;
 
             if (bwMessage.message != null)
             {
                 this.MobileNumber = bwMessage.message.from.Replace("+", "");
                 this.GatewayMessageId = bwMessage.message.id;
                 this.MessageText = bwMessage.message.text;
-                this.Segments = bwMessage.message.segmentCount;
+                this.Segments = (bwMessage.message.segmentCount == 0) ? 1 : bwMessage.message.segmentCount;
                 this.IsMMS = false;
                 this.MMSFiles = new List<MMSFile>();
 

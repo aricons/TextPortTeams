@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Reflection;
-using System.Configuration.Install;
 using System.ServiceProcess;
 using TextPortCore.Helpers;
 

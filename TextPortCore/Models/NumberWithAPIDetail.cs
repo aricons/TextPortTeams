@@ -29,6 +29,9 @@ namespace TextPortCore.Models
         [Display(Name = "Expiration Date")]
         public DateTime ExpirationDate { get; set; }
 
+        [Display(Name = "Auto-Renew")]
+        public bool AutoRenew { get; set; }
+
         public bool IsDefault { get; set; }
 
         public bool Cancelled { get; set; }
@@ -63,6 +66,7 @@ namespace TextPortCore.Models
             this.CountryCode = string.Empty;
             this.CreateDate = DateTime.MinValue;
             this.ExpirationDate = DateTime.MinValue;
+            this.AutoRenew = false;
             this.IsDefault = false;
             this.NumberType = 0;
             this.VirtualNumber = string.Empty;
@@ -78,6 +82,7 @@ namespace TextPortCore.Models
             this.CountryCode = dvn.CountryCode;
             this.CreateDate = dvn.CreateDate;
             this.ExpirationDate = dvn.ExpirationDate;
+            this.AutoRenew = dvn.AutoRenew;
             this.IsDefault = dvn.IsDefault;
             this.NumberType = dvn.NumberType;
             this.VirtualNumber = dvn.VirtualNumber;

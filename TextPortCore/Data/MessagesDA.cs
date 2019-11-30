@@ -85,7 +85,7 @@ namespace TextPortCore.Data
                         && m.VirtualNumberId == virtualNumberId
                         && m.MobileNumber == number
                         && m.MessageType != (byte)MessageTypes.Notification
-                        && m.DeleteFlag == null).OrderBy(x => x.TimeStamp).ToList();
+                        && m.DeleteFlag == null).OrderBy(x => x.TimeStamp).Take(300).ToList();
             }
             catch (Exception ex)
             {
@@ -144,7 +144,10 @@ namespace TextPortCore.Data
                                 }).OrderByDescending(x => x.TimeStamp).FirstOrDefault()
                             };
 
-                return query.OrderByDescending(x => x.Message.TimeStamp).Select(x => x.Message).ToList();
+                if (query != null)
+                {
+                    return query.OrderByDescending(x => x.Message.TimeStamp).Select(x => x.Message).Take(100).ToList();
+                }
             }
             catch (Exception ex)
             {
@@ -267,7 +270,7 @@ namespace TextPortCore.Data
 
         #region "Update Methods"
 
-        public bool UpdateMessageWithGatewayMessageId(int messageId, string gatewayMessageId, decimal price, string processingMessage)
+        public bool UpdateMessageWithGatewayMessageId(int messageId, string gatewayMessageId, int segmentCount, string processingMessage)
         {
             try
             {
@@ -275,7 +278,8 @@ namespace TextPortCore.Data
                 if (message != null)
                 {
                     message.GatewayMessageId = gatewayMessageId;
-                    message.Price = price;
+                    message.Segments = segmentCount;
+                    message.Price = 0; // Don't update price until a confirmation of delivery is received.
                     message.ProcessingMessage += processingMessage;
 
                     this.SaveChanges();
@@ -305,36 +309,41 @@ namespace TextPortCore.Data
                 message.MobileNumber = Utilities.NumberToE164(message.MobileNumber);
 
                 // Check and update the balance if the message is an outbound message
-                if (message.Direction == (int)MessageDirection.Outbound)
+                //if (message.Direction == (int)MessageDirection.Outbound)
+                //{
+                if (acc.Balance > 0)
                 {
-                    if (acc.Balance > 0)
-                    {
-                        _context.Messages.Add(message);
-                        _context.SaveChanges();
+                    _context.Messages.Add(message);
+                    _context.SaveChanges();
 
-                        // Get the customer's messge cost and update the account balance
-                        if (message.MMSFiles.Count > 0)
-                        {
-                            message.CustomerCost = acc.MMSSegmentCost;
-                        }
-                        else
-                        {
-                            message.CustomerCost = acc.SMSSegmentCost;
-                        }
+                    // Get the customer's messge cost and update the account balance
+                    // Remove this. Update the balance when the delivery receipt is received.
+                    // Don't update the balance when the message is sent.
+                    // A possibility: Deduct one credit when the message is sent. If it's delivered, then check the
+                    // segment count. If it's > 1 then deduct additional credits.
 
-                        acc.Balance -= (decimal)message.CustomerCost;
-                        newBalance = acc.Balance;
-                        _context.SaveChanges();
+                    //if (message.MMSFiles.Count > 0)
+                    //{
+                    //    message.CustomerCost = acc.MMSSegmentCost;
+                    //}
+                    //else
+                    //{
+                    //    message.CustomerCost = acc.SMSSegmentCost;
+                    //}
 
-                        return message.MessageId;
-                    }
-                    else
-                    {
-                        acc.Balance = -0.0101M;
-                        newBalance = acc.Balance;
-                        _context.SaveChanges();
-                    }
+                    //acc.Balance -= (decimal)message.CustomerCost * message.Segments;
+                    //newBalance = acc.Balance;
+                    //_context.SaveChanges();
+
+                    return message.MessageId;
                 }
+                else
+                {
+                    acc.Balance = -0.0101M;
+                    newBalance = acc.Balance;
+                    _context.SaveChanges();
+                }
+                //}
             }
             catch (Exception ex)
             {

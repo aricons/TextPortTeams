@@ -187,6 +187,57 @@ namespace TextPortCore.Helpers
             return new string(input.ToCharArray().Where(c => !Char.IsWhiteSpace(c)).ToArray());
         }
 
+        public static int GetSegmentCount(string messageText)
+        {
+            if (!string.IsNullOrEmpty(messageText))
+            {
+                int messageLength = messageText.Length;
+
+                if (messageLength <= 160)
+                {
+                    return 1;
+                }
+                if (messageLength <= 306)
+                {
+                    return 2;
+                }
+                if (messageLength <= 459)
+                {
+                    return 3;
+                }
+                if (messageLength <= 612)
+                {
+                    return 4;
+                }
+                if (messageLength <= 765)
+                {
+                    return 5;
+                }
+                if (messageLength <= 918)
+                {
+                    return 6;
+                }
+                if (messageLength <= 1071)
+                {
+                    return 7;
+                }
+                if (messageLength <= 1224)
+                {
+                    return 8;
+                }
+                if (messageLength <= 1377)
+                {
+                    return 9;
+                }
+                if (messageLength <= 1530)
+                {
+                    return 10;
+                }
+            };
+
+            return 1;
+        }
+
         public static bool WriteEventLogEntry(string eventMessage, EventLogEntryType eventType)
         {
             try

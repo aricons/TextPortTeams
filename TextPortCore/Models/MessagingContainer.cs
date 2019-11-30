@@ -99,11 +99,11 @@ namespace TextPortCore.Models
                 }
                 this.Contacts = da.GetContactsForAccount(accountId);
                 this.Recents = da.GetRecentMessagesForAccountAndVirtualNumber(accountId, this.ActiveVirtualNumberId);
-                if (this.Recents.Count > 0)
+                if (this.Recents != null && this.Recents.Count > 0)
                 {
                     recents.FirstOrDefault().IsActiveMessage = true;
                     this.Messages = da.GetMessagesForAccountAndRecipient(accountId, this.ActiveVirtualNumberId, this.Recents.FirstOrDefault().Number);
-                    this.ActiveDestinationNumber =  Utilities.NumberToE164(recents.FirstOrDefault().Number);
+                    this.ActiveDestinationNumber = Utilities.NumberToE164(recents.FirstOrDefault().Number);
                 }
                 else
                 {

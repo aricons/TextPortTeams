@@ -9,8 +9,6 @@ namespace TextPortCore.Models
 {
     public class EmailMessage : IDisposable
     {
-        //private readonly TextPortContext _context;
-
         private string from;
         private string fromName;
         private string to;
@@ -50,7 +48,6 @@ namespace TextPortCore.Models
         // Constructors
         public EmailMessage()
         {
-            //this._context = context;
             this.From = ConfigurationManager.AppSettings["EmailFrom"].ToString();
             this.FromName = "TextPort Support";
             this.To = string.Empty;
@@ -60,7 +57,6 @@ namespace TextPortCore.Models
 
         public EmailMessage(string toAddress, string subject, string body)
         {
-            //this._context = context;
             this.From = ConfigurationManager.AppSettings["EmailFrom"].ToString();
             this.FromName = "TextPort Notifications";
             this.To = toAddress;
@@ -99,7 +95,7 @@ namespace TextPortCore.Models
             catch (Exception ex)
             {
                 ErrorHandling eh = new ErrorHandling();
-                eh.LogException("AccountDA.AddAccount", ex);
+                eh.LogException("EmailMessage.Send", ex);
             }
 
             return false;

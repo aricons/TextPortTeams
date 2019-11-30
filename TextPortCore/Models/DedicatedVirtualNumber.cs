@@ -34,6 +34,9 @@ namespace TextPortCore.Models
         [Display(Name = "Expiration Date")]
         public DateTime ExpirationDate { get; set; }
 
+        [Display(Name = "Auto-Renew")]
+        public bool AutoRenew { get; set; }
+
         public int? APIApplicationId { get; set; }
 
         public bool IsDefault { get; set; }
@@ -67,6 +70,24 @@ namespace TextPortCore.Models
             {
                 return Utilities.NumberToBandwidthFormat(this.VirtualNumber);
             }
+        }
+
+        // Constructors
+        public DedicatedVirtualNumber()
+        {
+            this.VirtualNumberId = 0;
+            this.VirtualNumber = string.Empty;
+            this.AccountId = 0;
+        }
+
+        public DedicatedVirtualNumber(NumberExpirationData expData)
+        {
+            this.VirtualNumberId = expData.VirtualNumberID;
+            this.VirtualNumber = expData.VirtualNumber;
+            this.AccountId = expData.AccountID;
+            this.CountryCode = expData.CountryCode;
+            this.Provider = expData.Provider;
+            this.ExpirationDate = expData.ExpirationDate;
         }
     }
 }

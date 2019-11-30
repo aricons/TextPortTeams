@@ -17,6 +17,7 @@ namespace TextPortCore.Models
         public int VirtualNumberId { get; set; }
         public string VirtualNumber { get; set; }
         public string MessageText { get; set; }
+        public int SegmentCount { get; set; }
         public NotificationHtmls Htmls { get; set; }
 
         public MessageNotification()
@@ -27,6 +28,7 @@ namespace TextPortCore.Models
             this.VirtualNumberId = 0;
             this.VirtualNumber = string.Empty;
             this.MessageText = string.Empty;
+            this.SegmentCount = 1;
             this.Htmls = new NotificationHtmls();
         }
 
@@ -38,6 +40,7 @@ namespace TextPortCore.Models
             this.VirtualNumberId = msg.VirtualNumberId;
             this.VirtualNumber = msg.VirtualNumber;
             this.MessageText = msg.MessageText;
+            this.SegmentCount = Utilities.GetSegmentCount(this.MessageText);
             this.Htmls = Rendering.RenderMessageIn(msg);
         }
     }
