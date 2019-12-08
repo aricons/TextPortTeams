@@ -11,6 +11,8 @@ using TextPortCore.Models;
 using TextPortCore.Data;
 using TextPortCore.Helpers;
 
+//using PagedList;
+
 namespace TextPort.Controllers
 {
     public class BulkController : Controller
@@ -134,20 +136,23 @@ namespace TextPort.Controllers
             int accountId = Utilities.GetAccountIdFromClaim(ClaimsPrincipal.Current);
             InboxContainer inboxContainer = new InboxContainer();
 
-            if (accountId > 0)
-            {
-                using (TextPortDA da = new TextPortDA())
-                {
-                    inboxContainer = da.GetInboundMessagesForAccount(accountId, 1, inboxPageSize, true);
-                }
-            }
+            //if (accountId > 0)
+            //{
+            //    using (TextPortDA da = new TextPortDA())
+            //    {
+            //        inboxContainer = da.GetInboundMessagesForAccount(accountId, new PagingParameters());
+            //    }
+            //}
+
+            //IPagedList<InboxMessage> pageMessages = new StaticPagedList<InboxMessage>(inboxContainer.Messages, inboxContainer.CurrentPage + 1, 5, inboxContainer.MessageCount);
+            //return View(pageMessages);
 
             return View(inboxContainer);
         }
 
         [Authorize]
-        [HttpGet]
-        public ActionResult GetInboxPage(int page)
+        [HttpPost]
+        public ActionResult GetInboxPage(PagingParameters parameters)
         {
             int accountId = Utilities.GetAccountIdFromClaim(ClaimsPrincipal.Current);
             InboxContainer inboxContainer = new InboxContainer();
@@ -156,11 +161,24 @@ namespace TextPort.Controllers
             {
                 using (TextPortDA da = new TextPortDA())
                 {
-                    inboxContainer = da.GetInboundMessagesForAccount(accountId, page, inboxPageSize, false);
+                    inboxContainer = da.GetInboundMessagesForAccount(accountId, parameters);
                 }
             }
 
-            return PartialView("_InboundMessages", inboxContainer.Messages);
+            return Json(new
+            {
+                page = inboxContainer.CurrentPage,
+                recordsPerPage = inboxContainer.RecordsPerPage,
+                pageCount = inboxContainer.PageCount,
+                recordLabel = inboxContainer.RecordLabel,
+                sortOrder = inboxContainer.SortOrder,
+                html = renderRazorViewToString("_InboundMessages", inboxContainer)
+            });
+            //}
+
+            //return Json(new { Url = Url.Action("_InboundMessages", inboxContainer) });
+
+            //return PartialView("_InboundMessages", inboxContainer);
         }
 
         [Authorize]
@@ -296,6 +314,74 @@ namespace TextPort.Controllers
         public ActionResult UploadGuidelines()
         {
             return View();
+        }
+
+        public ActionResult BoxIn(string sortOrder, string searchString)
+        {
+            //ViewBag.DateSortParm = String.IsNullOrEmpty(sortOrder) ? "datetime" : "";
+            //ViewBag.NumberSortParm = sortOrder == "number" ? "number_desc" : "number";
+
+            using (TextPortContext ctxt = new TextPortContext())
+            {
+                var messages = from m in ctxt.Messages
+                               where m.AccountId == 1
+                               select m;
+
+                //    if (!String.IsNullOrEmpty(searchString))
+                //    {
+                //        messages = messages.Where(m => m.MobileNumber.Contains(searchString));
+                //    }
+
+                //    switch (sortOrder)
+                //    {
+                //        case "number":
+                //            messages = messages.OrderBy(s => s.MobileNumber);
+                //            break;
+                //        case "number_desc":
+                //            messages = messages.OrderByDescending(s => s.MobileNumber);
+                //            break;
+                //        case "datetime":
+                //            messages = messages.OrderBy(s => s.TimeStamp);
+                //            break;
+                //        default:
+                //            messages = messages.OrderByDescending(s => s.TimeStamp);
+                //            break;
+                //    }
+
+                //    List<InboxMessage> ibms = new List<InboxMessage>();
+                //    foreach (Message msg in messages)
+                //    {
+                //        ibms.Add(new InboxMessage()
+                //        {
+                //            MessageText = msg.MessageText,
+                //            MobileNumber = msg.MobileNumber,
+                //            TimeStamp = msg.TimeStamp,
+                //            VirtualNumber = msg.VirtualNumber
+                //        });
+                //    }
+
+                //    InboxContainer ibc = new InboxContainer()
+                //    {
+                //        Messages = ibms
+                //    };
+
+
+                return View(messages);
+            }
+
+        }
+
+        private string renderRazorViewToString(string viewName, object model)
+        {
+            ViewData.Model = model;
+            using (var sw = new StringWriter())
+            {
+                var viewResult = ViewEngines.Engines.FindPartialView(ControllerContext, viewName);
+                var viewContext = new ViewContext(ControllerContext, viewResult.View, ViewData, TempData, sw);
+                viewResult.View.Render(viewContext, sw);
+                viewResult.ViewEngine.ReleaseView(ControllerContext, viewResult.View);
+                return sw.GetStringBuilder().ToString();
+            }
         }
     }
 }

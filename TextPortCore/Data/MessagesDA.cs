@@ -157,44 +157,132 @@ namespace TextPortCore.Data
             return null;
         }
 
-        public InboxContainer GetInboundMessagesForAccount(int accountId, int page, int pageSize, bool getPageCount)
+        public InboxContainer GetInboundMessagesForAccount(int accountId, PagingParameters pParams)
         {
             try
             {
-                InboxContainer inboxContainer = new InboxContainer();
-                inboxContainer.CurrentPage = page;
-                inboxContainer.PageSize = pageSize;
+                int page = pParams.Page;
+                int recordsPerPage = pParams.RecordsPerPage;
+                int previousRecordsPerPage = pParams.PreviousRecordsPerPage;
+                string sortBy = pParams.SortBy;
+                string sortOrder = pParams.SortOrder;
+                byte filterBy = pParams.Filter;
+                byte prevFilterBy = pParams.PrevFilter;
 
-                if (getPageCount)
+                if (pParams.Operation == "sort")
                 {
-                    inboxContainer.MessageCount = (from msg in _context.Messages
-                                                   join vn in _context.DedicatedVirtualNumbers on msg.VirtualNumberId equals vn.VirtualNumberId
-                                                   where vn.AccountId == accountId && msg.Direction == 1 && msg.DeleteFlag == null && vn.Cancelled == false
-                                                   select msg.MessageId).Count();
-
-                    if (inboxContainer.MessageCount > 200)
+                    if (pParams.SortBy == pParams.PrevSortBy)
                     {
-                        inboxContainer.MessageCount = 200;
+                        sortOrder = (sortOrder == "asc") ? "desc" : "asc";
                     }
-                };
-
-                inboxContainer.Messages = (from msg in _context.Messages
-                                           join vn in _context.DedicatedVirtualNumbers on msg.VirtualNumberId equals vn.VirtualNumberId
-                                           where vn.AccountId == accountId && msg.Direction == 1 && msg.DeleteFlag == null && vn.Cancelled == false
-                                           orderby msg.TimeStamp descending
-                                           select new InboxMessage()
-                                           {
-                                               VirtualNumber = vn.VirtualNumber,
-                                               MobileNumber = msg.MobileNumber,
-                                               TimeStamp = msg.TimeStamp,
-                                               MessageText = msg.MessageText
-                                           }).Take(200).Skip(page * pageSize).Take(pageSize).ToList();
-
-
-                if (inboxContainer.MessageCount > 0 && inboxContainer.PageSize > 0)
-                {
-                    inboxContainer.PageCount = inboxContainer.MessageCount / inboxContainer.PageSize;
                 }
+                bool sortDescending = (sortOrder == "desc");
+
+                InboxContainer inboxContainer = new InboxContainer();
+                inboxContainer.RecordsPerPage = recordsPerPage;
+                inboxContainer.SortOrder = sortOrder;
+
+                //inboxContainer.RecordCount = (from msg in _context.Messages
+                //                              join vn in _context.DedicatedVirtualNumbers on msg.VirtualNumberId equals vn.VirtualNumberId
+                //                              where vn.AccountId == accountId && msg.Direction == 1 && msg.DeleteFlag == null && vn.Cancelled == false
+                //                              select msg.MessageId).Count();
+
+                var msgCount = _context.Messages
+                   .Join(_context.DedicatedVirtualNumbers, msg => msg.VirtualNumberId, dvn => dvn.VirtualNumberId, (msg, dvn) => new { Msg = msg, Dvn = dvn })
+                   .Where(mv => mv.Msg.AccountId == accountId && mv.Msg.DeleteFlag == null && mv.Dvn.Cancelled == false);
+                switch (filterBy)
+                {
+                    case 0:
+                    case 1:
+                        msgCount = msgCount.Where(m => m.Msg.Direction == filterBy);
+                        break;
+                        // Case 2: Don't filter. Show all messages.
+                };
+                inboxContainer.RecordCount = msgCount.Count();
+
+                if (previousRecordsPerPage > 0 && recordsPerPage != previousRecordsPerPage)
+                {
+                    int firstRecord = page * previousRecordsPerPage;
+                    if (firstRecord > inboxContainer.RecordCount)
+                    {
+                        firstRecord = inboxContainer.RecordCount;
+                    }
+
+                    for (int x = 1; x <= firstRecord; x++)
+                    {
+                        if (x * recordsPerPage >= firstRecord)
+                        {
+                            page = x;
+                            x += firstRecord;
+                        }
+                    }
+                }
+                inboxContainer.CurrentPage = page;
+                inboxContainer.LowRecord = (recordsPerPage * (page - 1)) + 1;
+                inboxContainer.HighRecord = inboxContainer.LowRecord + recordsPerPage - 1;
+
+                var messages = _context.Messages
+                     .Join(_context.DedicatedVirtualNumbers, msg => msg.VirtualNumberId, dvn => dvn.VirtualNumberId, (msg, dvn) => new { Msg = msg, Dvn = dvn })
+                     .Where(mv => mv.Msg.AccountId == accountId && mv.Msg.DeleteFlag == null && mv.Dvn.Cancelled == false);
+                switch (filterBy)
+                {
+                    case 0:
+                    case 1:
+                        messages = messages.Where(m => m.Msg.Direction == filterBy);
+                        break;
+                        // Case 2: Don't filter. Show all messages.
+                }
+                inboxContainer.Messages = messages.Select(mv => new InboxMessage()
+                {
+                    MessageId = mv.Msg.MessageId,
+                    Direction = mv.Msg.Direction,
+                    VirtualNumber = mv.Dvn.VirtualNumber,
+                    MobileNumber = mv.Msg.MobileNumber,
+                    TimeStamp = mv.Msg.TimeStamp,
+                    MessageText = mv.Msg.MessageText
+                }).OrderBy(pParams.SortBy, sortDescending).Skip((page - 1) * recordsPerPage).Take(recordsPerPage).ToList();
+
+                //var messages = from msg in _context.Messages
+                //               where msg.Accoun
+                //               join vn in _context.DedicatedVirtualNumbers on msg.VirtualNumberId equals vn.VirtualNumberId;
+
+                //where vn.AccountId ==  && msg.DeleteFlag == null && vn.Cancelled == false;
+
+                //select new InboxMessage()
+                //{
+                //    MessageId = msg.MessageId,
+                //    VirtualNumber = vn.VirtualNumber,
+                //    MobileNumber = msg.MobileNumber,
+                //    TimeStamp = msg.TimeStamp,
+                //    MessageText = msg.MessageText
+                //}).OrderBy(pParams.SortBy, sortDescending).Skip((page - 1) * recordsPerPage).Take(recordsPerPage).ToList();
+                //inboxContainer.Messages = (from msg in _context.Messages
+                //                           join vn in _context.DedicatedVirtualNumbers on msg.VirtualNumberId equals vn.VirtualNumberId
+                //                           where vn.AccountId == accountId && msg.Direction == 1 && msg.DeleteFlag == null && vn.Cancelled == false
+                //                           select new InboxMessage()
+                //                           {
+                //                               MessageId = msg.MessageId,
+                //                               VirtualNumber = vn.VirtualNumber,
+                //                               MobileNumber = msg.MobileNumber,
+                //                               TimeStamp = msg.TimeStamp,
+                //                               MessageText = msg.MessageText
+                //                           }).OrderBy(pParams.SortBy, sortDescending).Skip((page - 1) * recordsPerPage).Take(recordsPerPage).ToList();
+
+                if (inboxContainer.HighRecord > inboxContainer.RecordCount)
+                {
+                    inboxContainer.HighRecord = inboxContainer.RecordCount;
+                }
+
+                if (inboxContainer.RecordCount > 0 && inboxContainer.RecordsPerPage > 0)
+                {
+                    float pageCount = (float)inboxContainer.RecordCount / (float)inboxContainer.RecordsPerPage;
+                    inboxContainer.PageCount = (int)pageCount;
+                    if (pageCount - inboxContainer.PageCount > 0)
+                    {
+                        inboxContainer.PageCount++;
+                    }
+                }
+
                 return inboxContainer;
             }
             catch (Exception ex)

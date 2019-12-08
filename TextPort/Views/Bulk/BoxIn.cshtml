@@ -1,0 +1,31 @@
+﻿@using TextPortCore.Models
+@using NonFactors.Mvc.Grid
+
+@model  IEnumerable<Message>
+@{
+    ViewBag.Title = "Box In";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script src="/js/mvc-grid/mvc-grid.js"></script>
+<link href="/css/mvc-grid/mvc-grid.css" type="text/css" rel="stylesheet">
+
+<h2>Box In</h2>
+@(Html.Grid(Model)
+    .Build(columns =>
+    {
+        columns.Add(model => model.TimeStamp).Titled("Date/Time");
+        columns.Add(model => model.MobileNumber).Titled("From");
+    })
+    .Empty("No data found")
+    .Filterable()
+    .Sortable()
+    .Pageable()
+)
+
+
+<script>
+    [].forEach.call(document.getElementsByClassName('mvc-grid'), function (element) {
+        new MvcGrid(element);
+    });
+</script>

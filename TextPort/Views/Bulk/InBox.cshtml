@@ -1,94 +1,159 @@
 ﻿@using TextPortCore.Models;
+
 @model  InboxContainer
 @{
     ViewBag.Title = "TextPort: Inbox - Received Messages";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
+<script type="text/javascript" src="/scripts/jquery.twbsPagination.min.js"></script>
+
 <script type="text/javascript">
-    var currentPage = 0;
-    var pageCount = 0;
 
     $(document).ready(function () {
-        pageCount = $("#PageCount").val();
-        $(".page-link").on('click', function () {
-            var pageId = 0;
-            var itemId = this.id;
-            var splitVals = itemId.split('-');
-            if (splitVals.length > 1) {
-                pageId = splitVals[1];
-            }
-            if (pageId == 0) {
-                currentPage--;
-            } else if (pageId == (parseInt(pageCount) + 1)) {
-                currentPage++;
-                if (currentPage >= pageCount) {
-                    currentPage = pageCount;
-                }
-            }
-            else {
-                currentPage = pageId;
-            }
-
-            $(".page-item").removeClass('active');
-            $("#pitem-" + currentPage).addClass('active');
-
-            if (currentPage == 1) {
-                $("#pitem-0").addClass('disabled');
-                $("#plink-0").addClass('disabled');
-            }
-            else {
-                $("#pitem-0").removeClass('disabled');
-                $("#plink-0").removeClass('disabled');
-            }
-            if (currentPage >= pageCount) {
-                var endTabId = parseInt(pageCount) + 1;;
-                $("#pitem-" + endTabId).addClass('disabled');
-                $("#plink-" + endTabId).addClass('disabled');
-            }
-            else {
-                var endTabId = parseInt(pageCount) + 1;;
-                $("#pitem-" + endTabId).removeClass('disabled');
-                $("#plink-" + endTabId).removeClass('disabled');
-            }
-            loadMessages(currentPage);
-        });
+        loadMessages(1);
     });
 
-    function loadMessages(page, pageSize) {
-        var url = '/bulk/getinboxpage?page=' + page
-        $.get({
-            url: url,
-            dataType: "html",
+    function loadMessages(page) {
+        var operation = $("#operation").val();
+        var recordsPerPage = $("#rowsToShow option:selected").val();
+        var previousRecordsPerPage = $("#prevRecordsPerPage").val();
+        var sortBy = $("#sortBy").val();
+        var prevSortBy = $("#prevSortBy").val();
+        var sortOrder = $("#sortOrder").val();
+        var filterBy = $("#filterBy").val();
+        var prevFilterBy = $("#prevFilterBy").val();
+
+        $("#currentPage").val(page);
+        $("#prevRecordsPerPage").val(recordsPerPage);
+        $("#prevFilterBy").val(filterBy);
+
+        var params = {
+            Operation: operation,
+            Page: page,
+            RecordsPerPage: recordsPerPage,
+            PreviousRecordsPerPage: previousRecordsPerPage,
+            Filter: filterBy,
+            PrevFilter: prevFilterBy,
+            SortBy: sortBy,
+            PrevSortBy: prevSortBy,
+            SortOrder: sortOrder
+        };
+
+        $.post({
+            url: '/bulk/getinboxpage',
+            data: JSON.stringify(params),
+            contentType: "application/json",
             cache: false,
             error: function (jqXHR, textStatus, errorThrown) {
                 alert(textStatus + ": Message data load failed. " + errorThrown);
             },
-            success: function (newInputHTML) {
-                $("#msg-list").html(newInputHTML);
+            success: function (inboxData) {
+                $("#msg-list").html(inboxData.html);
+                $("#recordLabel").text(inboxData.recordLabel);
+                $("#currentPage").val(inboxData.page);
+                $("#recordsPerPage").val(inboxData.recordsPerPage);
+                $("#sortOrder").val(inboxData.sortOrder);
+
+                $('#paginator').twbsPagination('destroy');
+                $("#paginator").twbsPagination({
+                    totalPages: inboxData.pageCount,
+                    visiblePages: 5,
+                    startPage: inboxData.page,
+                    initiateStartPageClick: false,
+                    onPageClick: function (event, page) {
+                        $("#operation").val('page');
+                        loadMessages(page);
+                    }
+                });
             }
         })
     }
+
+    function del(msgId) {
+        alert("Deleting " + msgId);
+    }
+
+    function setFilter() {
+        $("#operation").val('filter');
+        var filterBy = $("#messageType option:selected").val();
+        $("#filterBy").val(filterBy);
+        loadMessages($("#currentPage").val());
+        $("#prevFilterBy").val(filterBy);
+    }
+
+    function changeRowCount() {
+        loadMessages($("#currentPage").val());
+    }
+
+    function changeSort(sortBy) {
+        $("#operation").val('sort');
+        $("#sortBy").val(sortBy);
+        loadMessages($("#currentPage").val());
+        $("#prevSortBy").val(sortBy);
+    }
+
+    function changeRowCount() {
+        loadMessages($("#currentPage").val());
+    }
+
+    function selectAll() {
+        var checkVal = $("#cbSelectAll").prop("checked");
+        alert(checkVal);
+        $(".sel").prop("checked", checkVal);
+    }
 </script>
 
-<h2>In Box</h2>
-<br />
-@Html.HiddenFor(m => m.PageCount)
-<div id="msg-list">
-    @Html.Partial("_InboundMessages", Model.Messages)
-</div>
-<nav aria-label="Navigation">
-    <ul class="pagination justify-content-center">
-        <li id="pitem-0" class="page-item disabled">
-            <a id="plink-0" class="page-link disabled" href="#">Previous</a>
-        </li>
-        @for (int x = 0; x < Model.PageCount; x++)
-        {
-            <li id="pitem-@(x + 1)" class="page-item @(Model.CurrentPage == (x + 1) ? "active" : "")"><a class="page-link" id="plink-@(x + 1)" href="#">@(x + 1)</a></li>
-        }
-        <li id="pitem-@(Model.PageCount + 1)" class="page-item">
-            <a id="plink-@(Model.PageCount + 1)" class="page-link" href="#">Next</a>
-        </li>
-    </ul>
-</nav>
+<h2>Message History</h2>
+<input type="hidden" id="operation" value="page" />
+<input type="hidden" id="prevRecordsPerPage" value="10" />
+<input type="hidden" id="currentPage" value="1" />
+<input type="hidden" id="filterBy" value="1" />
+<input type="hidden" id="prevFilterBy" value="" />
+<input type="hidden" id="sortBy" value="TimeStamp" />
+<input type="hidden" id="prevSortBy" value="" />
+<input type="hidden" id="sortOrder" value="desc" />
+<input type="hidden" id="recordsPerPage" value="10" />
 
+<div class="row pb-2">
+    <div class="col-2">
+        <label class="col-form-label">Message Type</label>
+        <select class="form-control" id="messageType" onchange="setFilter()">
+            <option value="1">Received</option>
+            <option value="0">Sent</option>
+            <option value="2">Sent + Received</option>
+        </select>
+    </div>
+    <div class="col-2">
+        <label class="col-form-label">Records per Page</label>
+        <select class="form-control w-50" id="rowsToShow" onchange="changeRowCount()">
+            <option value="10">10</option>
+            <option value="25">25</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+        </select>
+    </div>
+</div>
+<div class="row">
+    <div class="col-12">
+        <table class="table table-striped">
+            <thead>
+                <tr class="bg-primary text-white">
+                    <th scope="col" class="text-center">In/Out</th>
+                    <th scope="col" class="text-nowrap"><button type="button" class="btn btn-primary font-weight-bold" onclick="changeSort('MobileNumber')">Mobile Number</button></th>
+                    <th scope="col" class="text-nowrap"><button type="button" class="btn btn-primary" onclick="changeSort('VirtualNumberId')">My Number</button></th>
+                    <th scope="col" class="text-nowrap"><button type="button" class="btn btn-primary bold" onclick="changeSort('TimeStamp')">Date &amp; Time</button></th>
+                    <th scope="col" class="text-nowrap">Message</th>
+                    <th scope="col" class="text-nowrap">Delete<input type="checkbox" id="cbSelectAll" onclick="selectAll()" /></th>
+                </tr>
+            </thead>
+            <tbody id="msg-list"></tbody>
+        </table>
+    </div>
+</div>
+<div class="row">
+    <div class="col-12">
+        <label id="recordLabel" class="pt-0 mt-0 mb-0 small text-right float-right"></label>
+    </div>
+</div>
+<ul id="paginator" class="pagination justify-content-center"></ul>

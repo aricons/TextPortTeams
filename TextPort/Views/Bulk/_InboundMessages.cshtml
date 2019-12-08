@@ -1,37 +1,40 @@
 ﻿@using TextPortCore.Models;
 @using TextPortCore.Helpers;
-@model  List<InboxMessage>
-<div class="row">
+@model  InboxContainer
+@*<div class="row">
     <div class="col-12">
         <table class="table table-striped">
             <thead>
                 <tr class="bg-primary text-white">
-                    <th scope="col" class="text-nowrap">Received From</th>
-                    <th scope="col" class="text-nowrap">My Number</th>
-                    <th scope="col" class="text-nowrap">Received</th>
+                    <th scope="col" class="text-nowrap" onclick="changeSort('mobile_number')">Mobile Number</th>
+                    <th scope="col" class="text-nowrap" onclick="changeSort('virtual_number')">My Number</th>
+                    <th scope="col" class="text-nowrap" onclick="changeSort('date_time')">Date &amp; Time</th>
                     <th scope="col" class="text-nowrap">Message</th>
+                    <th scope="col" class="text-nowrap">Delete<input type="checkbox" id="cbSelectAll" onclick="selectAll()" /></th>
                 </tr>
-            </thead>
-            <tbody>
-                @if (Model.Count > 0)
-                {
-                    foreach (InboxMessage message in Model)
-                    {
-                        <tr>
-                            <td class="text-nowrap">@Utilities.NumberToDisplayFormat(message.MobileNumber, 22)</td>
-                            <td class="text-nowrap">@Utilities.NumberToDisplayFormat(message.VirtualNumber, 22)</td>
-                            <td class="text-nowrap">@string.Format("{0:MM/dd hh:mm tt}", message.TimeStamp)</td>
-                            <td>@message.MessageText</td>
-                        </tr>
-                    }
-                }
-                else
-                {
-                    <tr>
-                        <td colspan="4">No messages for this number</td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </div>
-</div>
+            </thead>*@
+@*<tbody>*@
+@if (Model.Messages.Count > 0)
+{
+    foreach (InboxMessage message in Model.Messages)
+    {
+        <tr>
+            <td class="text-center"><img src="/content/images/arw-@(message.Direction == 1 ? "recv" : "sent").png"></td>
+            <td class="text-nowrap">@Utilities.NumberToDisplayFormat(message.MobileNumber, 22)</td>
+            <td class="text-nowrap">@Utilities.NumberToDisplayFormat(message.VirtualNumber, 22)</td>
+            <td class="text-nowrap">@string.Format("{0:MM/dd hh:mm tt}", message.TimeStamp)</td>
+            <td>@message.MessageText</td>
+            <td><input type="checkbox" class="cbsel" onclick="del(@message.MessageId)" /></td>
+        </tr>
+    }
+}
+else
+{
+    <tr>
+        <td colspan="4">No messages for this number</td>
+    </tr>
+}
+@*</tbody>*@
+@*</table>
+        </div>
+    </div>*@
