@@ -174,11 +174,25 @@ namespace TextPort.Controllers
                 sortOrder = inboxContainer.SortOrder,
                 html = renderRazorViewToString("_InboundMessages", inboxContainer)
             });
-            //}
+        }
 
-            //return Json(new { Url = Url.Action("_InboundMessages", inboxContainer) });
+        [Authorize]
+        [HttpPost]
+        public ActionResult DeleteInboxMessages(MessageIdList idsList)
+        {
+            int accountId = Utilities.GetAccountIdFromClaim(ClaimsPrincipal.Current);
+            int messagesDeleted = 0;
 
-            //return PartialView("_InboundMessages", inboxContainer);
+            using (TextPortDA da = new TextPortDA())
+            {
+                messagesDeleted = da.FlagListOfMessagesAsDeleted(accountId, idsList);
+            }
+
+            return Json(new
+            {
+                messageCount = messagesDeleted,
+                message = $"{messagesDeleted} messages successfully deleted."
+            });
         }
 
         [Authorize]
@@ -314,61 +328,6 @@ namespace TextPort.Controllers
         public ActionResult UploadGuidelines()
         {
             return View();
-        }
-
-        public ActionResult BoxIn(string sortOrder, string searchString)
-        {
-            //ViewBag.DateSortParm = String.IsNullOrEmpty(sortOrder) ? "datetime" : "";
-            //ViewBag.NumberSortParm = sortOrder == "number" ? "number_desc" : "number";
-
-            using (TextPortContext ctxt = new TextPortContext())
-            {
-                var messages = from m in ctxt.Messages
-                               where m.AccountId == 1
-                               select m;
-
-                //    if (!String.IsNullOrEmpty(searchString))
-                //    {
-                //        messages = messages.Where(m => m.MobileNumber.Contains(searchString));
-                //    }
-
-                //    switch (sortOrder)
-                //    {
-                //        case "number":
-                //            messages = messages.OrderBy(s => s.MobileNumber);
-                //            break;
-                //        case "number_desc":
-                //            messages = messages.OrderByDescending(s => s.MobileNumber);
-                //            break;
-                //        case "datetime":
-                //            messages = messages.OrderBy(s => s.TimeStamp);
-                //            break;
-                //        default:
-                //            messages = messages.OrderByDescending(s => s.TimeStamp);
-                //            break;
-                //    }
-
-                //    List<InboxMessage> ibms = new List<InboxMessage>();
-                //    foreach (Message msg in messages)
-                //    {
-                //        ibms.Add(new InboxMessage()
-                //        {
-                //            MessageText = msg.MessageText,
-                //            MobileNumber = msg.MobileNumber,
-                //            TimeStamp = msg.TimeStamp,
-                //            VirtualNumber = msg.VirtualNumber
-                //        });
-                //    }
-
-                //    InboxContainer ibc = new InboxContainer()
-                //    {
-                //        Messages = ibms
-                //    };
-
-
-                return View(messages);
-            }
-
         }
 
         private string renderRazorViewToString(string viewName, object model)

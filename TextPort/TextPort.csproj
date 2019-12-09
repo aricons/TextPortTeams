@@ -746,6 +746,10 @@
     <Content Include="Content\images\apisettingspage.png" />
     <Content Include="Content\images\arw-recv.png" />
     <Content Include="Content\images\arw-sent.png" />
+    <Content Include="Content\images\arw-sort-asc-16.png" />
+    <Content Include="Content\images\arw-sort-asc-24.png" />
+    <Content Include="Content\images\arw-sort-desc-16.png" />
+    <Content Include="Content\images\arw-sort-desc-24.png" />
     <Content Include="Content\images\assignapiapplication.png" />
     <Content Include="Content\images\assignapiapplication2.png" />
     <Content Include="Content\images\bulk-texting-1.png" />

@@ -72,6 +72,7 @@
     <Compile Include="Models\LoginCredentials.cs" />
     <Compile Include="Models\Message.cs" />
     <Compile Include="Models\MessageHistory.cs" />
+    <Compile Include="Models\MessageIdList.cs" />
     <Compile Include="Models\MessageNotification.cs" />
     <Compile Include="Models\NewNumberModel.cs" />
     <Compile Include="Models\NumberExpirationData.cs" />

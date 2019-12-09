@@ -384,6 +384,30 @@ namespace TextPortCore.Data
             return false;
         }
 
+        public int FlagListOfMessagesAsDeleted(int accountId, MessageIdList messageIds)
+        {
+            int messagesDeleted = 0;
+            try
+            {
+                List<int> ids = new List<int>();
+                foreach (MessageIdItem idItem in messageIds.Ids)
+                {
+                    ids.Add(idItem.Id);
+                }
+
+                var messagesToDelete = _context.Messages.Where(x => x.AccountId == accountId && ids.Contains(x.MessageId)).ToList();
+                messagesToDelete.ForEach(x => x.DeleteFlag = DateTime.UtcNow);
+                messagesDeleted = SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                ErrorHandling eh = new ErrorHandling();
+                eh.LogException("MessagesDA.FlagListOfMessagesAsDeleted", ex);
+            }
+
+            return messagesDeleted;
+        }
+
         #endregion
 
         #region "Insert Methods"
