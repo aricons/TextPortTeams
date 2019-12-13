@@ -499,6 +499,7 @@
     <Compile Include="App_Start\Startup.Auth.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\AccountController.cs" />
+    <Compile Include="Controllers\BlogController.cs" />
     <Compile Include="Controllers\EmailToSMSController.cs" />
     <Compile Include="Controllers\SmsApiController.cs" />
     <Compile Include="Controllers\ApiSettingsController.cs" />
@@ -752,6 +753,7 @@
     <Content Include="Content\images\arw-sort-desc-24.png" />
     <Content Include="Content\images\assignapiapplication.png" />
     <Content Include="Content\images\assignapiapplication2.png" />
+    <Content Include="Content\images\blog\sms-marketing.jpg" />
     <Content Include="Content\images\bulk-texting-1.png" />
     <Content Include="Content\images\bulk\CSVSampleQuoted.jpg" />
     <Content Include="Content\images\bulk\CSVSampleUnQuoted.jpg" />
@@ -834,6 +836,7 @@
     <Content Include="Content\css\emoji.css.map" />
     <Content Include="Scripts\jquery.twbsPagination.min.js" />
     <Content Include="Scripts\sidenav\sidenav.js" />
+    <Content Include="Scripts\TextPort\SegmentCounter.js" />
     <Content Include="SidebarMenu\external\bootstrap-custom.css" />
     <Content Include="SidebarMenu\external\bootstrap.min.css" />
     <Content Include="SidebarMenu\external\bootstrap.min.js" />
@@ -999,7 +1002,7 @@
     <Content Include="Views\Messages\_PanelRightMobile.cshtml" />
     <Content Include="SidebarMenu\sidebar.zip" />
     <Content Include="Views\Bulk\Upload.cshtml" />
-    <Content Include="Views\Bulk\UploadGuidelines.cshtml" />
+    <Content Include="Views\Bulk\upload-guidelines.cshtml" />
     <Content Include="Views\ApiSettings\Index.cshtml" />
     <Content Include="Views\ApiSettings\_ApplicationsList.cshtml" />
     <Content Include="Views\Bulk\InBox.cshtml" />
@@ -1032,6 +1035,8 @@
     <Content Include="Views\Numbers\TransactionComplete.cshtml" />
     <Content Include="Views\SmsApi\setup.cshtml" />
     <Content Include="Views\Bulk\BoxIn.cshtml" />
+    <Content Include="Views\Blog\Index.cshtml" />
+    <Content Include="Views\Blog\effective-sms-marketing.cshtml" />
     <None Include="Web.Beta.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

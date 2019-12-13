@@ -21,7 +21,7 @@ namespace Testing
         [TestMethod]
         public void TestCheckForVirtualNumberExpirations()
         {
-            int days = 2;
+            int days = 7;
             VnExpirationsPoller.CheckForVirtualNumberExpirationNotifications(days, NumberTypes.Regular);
 
             int foo = days;

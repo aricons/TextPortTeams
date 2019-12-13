@@ -106,7 +106,7 @@ namespace TextPort.Controllers
                 message.MessageType = (byte)MessageTypes.Normal;
                 message.Direction = (byte)MessageDirection.Outbound;
                 message.CarrierId = (int)Carriers.BandWidth;
-                message.QueueStatus = (byte)QueueStatuses.Queued;
+                message.QueueStatus = (byte)QueueStatuses.NotProcessed;
                 message.Ipaddress = Utilities.GetUserHostAddress();
 
                 if (message.AccountId > 0)
@@ -126,7 +126,7 @@ namespace TextPort.Controllers
                         decimal newBalance = 0;
                         if (da.InsertMessage(message, ref newBalance) > 0)
                         {
-                            Cookies.WriteBalance(newBalance);
+                            //Cookies.WriteBalance(newBalance);
 
                             MessageList messageList = new MessageList()
                             {

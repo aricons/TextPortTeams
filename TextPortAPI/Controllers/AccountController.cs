@@ -1,15 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Security.Claims;
 using System.Net;
-using System.Net.Http;
 using System.Web.Http;
 
 using core = TextPortCore.Models;
 using TextPortCore.Models.API;
 using TextPortCore.Data;
 using TextPortCore.Helpers;
-using TextPortCore.Integrations.Bandwidth;
 
 using Swashbuckle.Swagger.Annotations;
 

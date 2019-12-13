@@ -10,13 +10,6 @@ namespace TextPortCore.Models
 {
     public class MessagingContainer
     {
-        //private readonly TextPortContext _context;
-
-        //public MessagingContainer(TextPortContext context)
-        //{
-        //    this._context = context;
-        //}
-
         private Account account;
         private List<Message> messages;
         private List<DedicatedVirtualNumber> numbers;

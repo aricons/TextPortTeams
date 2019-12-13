@@ -1,7 +1,7 @@
 ﻿@{
-    ViewData["Title"] = "An SMS API for sending and receiving text messages | TextPort";
-    ViewData["Description"] = "A REST text messaging API. Easily integrate SMS messaging into your application. Easy to setup, affordably priced, and free trial";
-    ViewData["Keywords"] = "SMS API, API for sending and receiving text messages, text messaging API";
+    ViewData["Title"] = "SMS API - Send and Receive Text Messages | TextPort";
+    ViewData["Description"] = "REST text messaging API. Integrate SMS messaging into your application. Easy to setup, affordably priced. Free trial";
+    ViewData["Keywords"] = "SMS API for sending and receiving text messages online, text messaging API";
     ViewData["Url"] = "https://textport.com/api";
 }
 
@@ -9,7 +9,24 @@
 <link rel="stylesheet" type="text/css" href="/content/css/api.css">
 <link rel="stylesheet" type="text/css" href="~/content/highlight/styles/dracula.css">
 
-<div class="row align-items-center my-5 main-banner">
+<script>
+    $(function () {
+        $("[data-toggle=popover]").popover({
+            html: true,
+            content: function () {
+                return $('#popover-content').html();
+            }
+        });
+
+        $('html').on('click', function (e) {
+            if (typeof $(e.target).data('original-title') == 'undefined') {
+                $('[data-original-title]').popover('hide');
+            }
+        });
+    });
+</script>
+
+<div class="row align-items-center mt-3 main-banner">
     <div class="col-lg-5">
         <img class="img-fluid rounded mb-4 mb-lg-0" style="margin-left: 90px" src="~/Content/images/api.png" alt="TextPort SMS API">
     </div>
@@ -385,3 +402,12 @@ puts response.read_body</code></pre>
     </div>
 </div>
 <script>hljs.initHighlightingOnLoad()</script>
+<div id="popover-content" class="d-none">
+    <ul>
+        <li>SMS Messages are comprised of segments.</li>
+        <li>Each segment can contain up to 160 characters.</li>
+        <li>A message with 160 characters or less creates one message segment.</li>
+        <li>Between 161 and 320 characters = 2 message segments.
+        <li>321 to 480 characters = 3 message segments, etc.</li>
+    </ul>
+</div>

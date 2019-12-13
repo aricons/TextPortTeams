@@ -10,9 +10,7 @@ namespace TextPortAPI.Controllers
     {
         public ActionResult Index()
         {
-            ViewBag.Title = "TextPort Text Messaging API";
-
-            return View();
+            return Redirect("http://textport.com/api");
         }
     }
 }

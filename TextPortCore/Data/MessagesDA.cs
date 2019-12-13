@@ -85,7 +85,8 @@ namespace TextPortCore.Data
                         && m.VirtualNumberId == virtualNumberId
                         && m.MobileNumber == number
                         && m.MessageType != (byte)MessageTypes.Notification
-                        && m.DeleteFlag == null).OrderBy(x => x.TimeStamp).Take(300).ToList();
+                        && m.DeleteFlag == null).OrderByDescending(x => x.TimeStamp).Take(300).AsEnumerable().Reverse().ToList();
+                //&& m.DeleteFlag == null).OrderBy(x => x.TimeStamp).ToList();
             }
             catch (Exception ex)
             {
@@ -146,7 +147,7 @@ namespace TextPortCore.Data
 
                 if (query != null)
                 {
-                    return query.OrderByDescending(x => x.Message.TimeStamp).Select(x => x.Message).Take(100).ToList();
+                    return query.OrderByDescending(x => x.Message.TimeStamp).Select(x => x.Message).Take(150).ToList();
                 }
             }
             catch (Exception ex)
@@ -200,7 +201,7 @@ namespace TextPortCore.Data
                 };
                 inboxContainer.RecordCount = msgCount.Count();
 
-                if (previousRecordsPerPage > 0 && recordsPerPage != previousRecordsPerPage)
+                if ((previousRecordsPerPage > 0 && recordsPerPage != previousRecordsPerPage) || (prevFilterBy != filterBy))
                 {
                     int firstRecord = page * previousRecordsPerPage;
                     if (firstRecord > inboxContainer.RecordCount)
@@ -358,7 +359,7 @@ namespace TextPortCore.Data
 
         #region "Update Methods"
 
-        public bool UpdateMessageWithGatewayMessageId(int messageId, string gatewayMessageId, int segmentCount, string processingMessage)
+        public bool UpdateMessageWithGatewayMessageId(int messageId, string gatewayMessageId, int segmentCount, QueueStatuses status, string processingMessage)
         {
             try
             {
@@ -367,7 +368,8 @@ namespace TextPortCore.Data
                 {
                     message.GatewayMessageId = gatewayMessageId;
                     message.Segments = segmentCount;
-                    message.Price = 0; // Don't update price until a confirmation of delivery is received.
+                    message.CustomerCost = 0; // Don't update price until a confirmation of delivery is received.
+                    message.QueueStatus = (byte)status;
                     message.ProcessingMessage += processingMessage;
 
                     this.SaveChanges();
@@ -412,9 +414,9 @@ namespace TextPortCore.Data
 
         #region "Insert Methods"
 
-        public int InsertMessage(Message message, ref decimal newBalance)
+        public int InsertMessage(Message message, ref decimal estimatedRemainingBalance)
         {
-            newBalance = 0;
+            estimatedRemainingBalance = 0;
             try
             {
                 Account acc = _context.Accounts.FirstOrDefault(x => x.AccountId == message.AccountId);
@@ -434,14 +436,16 @@ namespace TextPortCore.Data
                     // A possibility: Deduct one credit when the message is sent. If it's delivered, then check the
                     // segment count. If it's > 1 then deduct additional credits.
 
-                    //if (message.MMSFiles.Count > 0)
-                    //{
-                    //    message.CustomerCost = acc.MMSSegmentCost;
-                    //}
-                    //else
-                    //{
-                    //    message.CustomerCost = acc.SMSSegmentCost;
-                    //}
+                    if (message.MMSFiles.Count > 0)
+                    {
+                        message.CustomerCost = acc.MMSSegmentCost;
+                    }
+                    else
+                    {
+                        message.CustomerCost = acc.SMSSegmentCost;
+                    }
+
+                    estimatedRemainingBalance = acc.Balance - ((decimal)message.CustomerCost * (int)message.Segments);
 
                     //acc.Balance -= (decimal)message.CustomerCost * message.Segments;
                     //newBalance = acc.Balance;
@@ -452,7 +456,7 @@ namespace TextPortCore.Data
                 else
                 {
                     acc.Balance = -0.0101M;
-                    newBalance = acc.Balance;
+                    estimatedRemainingBalance = acc.Balance;
                     _context.SaveChanges();
                 }
                 //}

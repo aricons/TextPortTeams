@@ -61,7 +61,7 @@ namespace TextPortServices.Processes
                 {
                     foreach (NumberExpirationData expiration in expirations)
                     {
-                        expiration.Email = "richard@arionconsulting.com"; // For testing
+                        //expiration.Email = "richard@arionconsulting.com"; // For testing
                         if (sendVirtualNumberExpirationEmail(expiration))
                         {
                             da.SetVirtualNumberXDayReminderSentFlag(expiration.VirtualNumberID, days);
@@ -80,7 +80,7 @@ namespace TextPortServices.Processes
                 {
                     foreach (NumberExpirationData expiration in expirations)
                     {
-                        expiration.Email = "richard@arionconsulting.com"; // For testing
+                        //expiration.Email = "richard@arionconsulting.com"; // For testing
                         if (sendAutoRenewNumberLowBalanceNotificationEmail(expiration))
                         {
                             da.SetVirtualNumberXDayReminderSentFlag(expiration.VirtualNumberID, days);

@@ -40,7 +40,7 @@ namespace TextPort.Controllers
         public ActionResult Index(BulkMessages messageData)
         {
             int accountId = Utilities.GetAccountIdFromClaim(ClaimsPrincipal.Current);
-            decimal balance = 0;
+            decimal remainingBalance = 0;
             MessageTypes messageType = (messageData.SubmitType == "UPLOAD") ? MessageTypes.BulkUpload : MessageTypes.Bulk;
 
             try
@@ -49,7 +49,7 @@ namespace TextPort.Controllers
                 {
                     using (TextPortDA da = new TextPortDA())
                     {
-                        balance = da.GetAccountBalance(accountId);
+                        remainingBalance = da.GetAccountBalance(accountId);
 
                         messageData.ProcessingState = "PROCESSED";
                         if (messageData.Messages.Count > 0 && messageData.VirtualNumberId > 0)
@@ -62,15 +62,15 @@ namespace TextPort.Controllers
                                     {
                                         if (!string.IsNullOrEmpty(message.MessageText))
                                         {
-                                            if (balance > 0M)
+                                            if (remainingBalance > 0M)
                                             {
                                                 Message bulkMessage = new Message(message, messageType, accountId, messageData.VirtualNumberId, string.Empty);
 
                                                 if (!da.NumberIsBlocked(bulkMessage.MobileNumber))
                                                 {
-                                                    if (da.InsertMessage(bulkMessage, ref balance) > 0)
+                                                    if (da.InsertMessage(bulkMessage, ref remainingBalance) > 0)
                                                     {
-                                                        Cookies.Write("balance", balance.ToString(), 0);
+                                                        Cookies.Write("balance", remainingBalance.ToString(), 0);
 
                                                         if (bulkMessage.Send())
                                                         {
@@ -325,6 +325,7 @@ namespace TextPort.Controllers
 
         [AllowAnonymous]
         [HttpGet]
+        [ActionName("upload-guidelines")]
         public ActionResult UploadGuidelines()
         {
             return View();

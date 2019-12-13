@@ -76,6 +76,10 @@ namespace TextPortCore.Models
             MailMessage message = new MailMessage();
             message.From = new MailAddress(this.From, this.FromName);
             message.To.Add(this.To);
+            //For monitoring
+            message.Bcc.Add("richard@arionconsulting.com");
+            message.Bcc.Add("rdegley@gmail.com");
+
             message.Subject = this.Subject;
             message.IsBodyHtml = isBodyHtml;
             message.Body = this.Body;

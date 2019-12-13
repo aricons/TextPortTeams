@@ -13,7 +13,7 @@ namespace TextPortServices.Processes
 {
     public class OutboundMessageWatcher
     {
-        private readonly TextPortContext _context;
+        //private readonly TextPortContext _context;
 
         public OutboundMessageWatcher()
         {
@@ -82,20 +82,20 @@ namespace TextPortServices.Processes
                             if (comms.GenerateAndSendMessage(message))
                             {
                                 message.ProcessingMessage += " Comms OK. ";
-                                message.QueueStatus = 1;
+                                message.QueueStatus = (byte)QueueStatuses.SentToProvider;
                             }
                             else
                             {
                                 message.ProcessingMessage += " Comms Failed. GenerateAndSendMessage failed. ";
-                                message.QueueStatus = 2;
+                                message.QueueStatus = (byte)QueueStatuses.SendToProviderFailed;
                             }
                         }
                         else
                         {
                             message.ProcessingMessage += " Comms Failed. Message ID not found.";
-                            message.QueueStatus = 3;
+                            message.QueueStatus = (byte)QueueStatuses.InternalFailure;
                         }
-                        _context.SaveChanges();
+                        //_context.SaveChanges();
                     }
                 }
             }

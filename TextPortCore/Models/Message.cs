@@ -80,7 +80,7 @@ namespace TextPortCore.Models
             this.MessageType = (byte)MessageTypes.Normal;
             this.Direction = (int)MessageDirection.Outbound;
             this.CarrierId = (int)Carriers.BandWidth;
-            this.QueueStatus = (byte)QueueStatuses.Queued;
+            this.QueueStatus = (byte)QueueStatuses.NotProcessed;
             this.Ipaddress = "0.0.0.0";
             this.CustomerCost = 0;
             this.MobileNumber = string.Empty;
@@ -99,7 +99,7 @@ namespace TextPortCore.Models
             this.MessageType = msgType;
             this.AccountId = accId;
             this.CarrierId = (int)Carriers.BandWidth;
-            this.QueueStatus = (byte)QueueStatuses.Queued;
+            this.QueueStatus = (byte)QueueStatuses.NotProcessed;
             this.CarrierId = (int)Carriers.BandWidth;
             this.Ipaddress = Utilities.GetUserHostAddress();
             this.VirtualNumberId = virtualNumId;
@@ -121,7 +121,7 @@ namespace TextPortCore.Models
             this.AccountId = accountId;
             this.MessageType = (byte)msgType;
             this.Direction = (int)MessageDirection.Outbound;
-            this.QueueStatus = (byte)QueueStatuses.Queued;
+            this.QueueStatus = (byte)QueueStatuses.NotProcessed;
             this.CarrierId = (int)Carriers.BandWidth;
             this.CustomerCost = Constants.BaseSMSSegmentCost;
             this.Ipaddress = Utilities.GetUserHostAddress();
@@ -142,7 +142,7 @@ namespace TextPortCore.Models
             this.AccountId = emailToSMSMessage.AccountId;
             this.MessageType = (byte)MessageTypes.EmailToSMS;
             this.Direction = (int)MessageDirection.Outbound;
-            this.QueueStatus = (byte)QueueStatuses.Queued;
+            this.QueueStatus = (byte)QueueStatuses.NotProcessed;
             this.CarrierId = (int)Carriers.BandWidth;
             this.CustomerCost = Constants.BaseSMSSegmentCost;
             this.Ipaddress = Utilities.GetUserHostAddress();
@@ -164,7 +164,7 @@ namespace TextPortCore.Models
             this.AccountId = accountId;
             this.MessageType = (byte)MessageTypes.API;
             this.Direction = (int)MessageDirection.Outbound;
-            this.QueueStatus = (byte)QueueStatuses.Queued;
+            this.QueueStatus = (byte)QueueStatuses.NotProcessed;
             this.CarrierId = (int)Carriers.BandWidth;
             this.CustomerCost = Constants.BaseSMSSegmentCost;
             this.Ipaddress = Utilities.GetUserHostAddress();

@@ -76,12 +76,6 @@
                 });
             });
 
-            //$('#main-cont').click(function (e) {
-            //    if (e.target.className.substring(0, 3) != "nav") {
-            //        hideSidenav();
-            //    }
-            //});
-
             getBalance();
         });
 
@@ -156,12 +150,6 @@
                                     <a class="dropdown-item" href="/group">Group Texting</a>
                                 </div>
                             </li>
-                            @*<li class="nav-item">
-                                    <a class="nav-link" href="/email-to-sms-gateway">Email to SMS</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="/virtual-mobile-numbers">Virtual Numbers</a>
-                                </li>*@
                             <li class="nav-item">
                                 <a class="nav-link" href="/api">API</a>
                             </li>
@@ -200,6 +188,9 @@
                                 <a class="nav-link" href="/api">API</a>
                             </li>
                             <li class="nav-item">
+                                <a class="nav-link" href="/blog">Blog</a>
+                            </li>
+                            <li class="nav-item">
                                 @if (Request.Browser.IsMobileDevice)
                                 {
                                     <a href='/loginm' class="nav-link">Log In</a>
@@ -217,6 +208,14 @@
                 </div>
             </div>
         </nav>
+        @if (User.Identity.IsAuthenticated)
+        {
+            <div class="row">
+                <div class="col-12">
+                    <p class="mt-1 mb-2 text-secondary tp-bal">Balance: $<span id="balance"></span></p>
+                </div>
+            </div>
+        }
         <nav class="sidenav"></nav>
         <br />
         @RenderBody()
@@ -245,7 +244,9 @@
                                         <li><a href="/email-to-sms-gateway">Email to SMS Gateway</a></li>
                                         <li><a href="/virtual-mobile-numbers">Virtual Mobile Numbers</a></li>
                                         <li><a href="/api">SMS API</a></li>
+                                        <li><a href="/blog">Blog</a></li>
                                         <li><a href="/">Online Texting</a></li>
+                                        <li><a href="/trial">Free Trial</a></li>
                                     </ul>
                                 </div>
                             </div>
@@ -283,7 +284,6 @@
 
     <div id="modal-cont"></div>
     <div id="modal-cont-login"></div>
-
 </body>
 </html>
 <script src="~/Scripts/sidenav/sidenav.js"></script>

@@ -57,14 +57,22 @@ namespace TextPortCore.Helpers
 
     public enum QueueStatuses : byte
     {
+        [Description("NotProcessed")]
+        NotProcessed = 0,
         [Description("Queued")]
-        Queued = 0,
-        [Description("Success")]
-        Success = 1,
-        [Description("Failed")]
-        Failed = 2,
+        Queued = 1,
+        [Description("SentToProvider")]
+        SentToProvider = 2,
+        [Description("SendToProviderFailed")]
+        SendToProviderFailed = 3,
+        [Description("DeliveryConfirmed")]
+        DeliveryConfirmed = 4,
+        [Description("DeliveryFailed")]
+        DeliveryFailed = 5,
+        [Description("InternalFailure")]
+        InternalFailure = 6,
         [Description("Received")]
-        Received = 3
+        Received = 10
     }
 
     public enum RequestStatus : int

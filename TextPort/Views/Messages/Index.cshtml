@@ -14,6 +14,7 @@
 <script src="~/scripts/emoji/jquery.emojiarea.js"></script>
 <script src="~/scripts/emoji/emoji-picker.js"></script>
 <script src="~/scripts/dropzone/dropzone.js"></script>
+<script src="~/scripts/textport/segmentcounter.js"></script>
 
 <script type="text/javascript">
 
@@ -167,6 +168,21 @@
                 });
             });
         });
+
+        $("[data-toggle=popover]").popover({
+            html: true,
+            content: function () {
+                return $('#popover-content').html();
+            }
+        });
+
+        $('html').on('click', function (e) {
+            if (typeof $(e.target).data('original-title') == 'undefined') {
+                $('[data-original-title]').popover('hide');
+            }
+        });
+
+        $('#message_text').countSms('#sms-counter');
     });
 
     // This optional function html-encodes messages for display in the page.
@@ -207,10 +223,16 @@
                     }
                 }
             }
+            calcSegmentCount();
         }
         else {
             $('#emojipick_1').attr('placeholder', 'Type message');
         }
+    }
+
+    function calcSegmentCount() {
+        var charCount = $('#emojipick_1').html().length;
+            $("#seg-count").html(charCount);
     }
 
     function getRecentsForVirtualNumber(virtualNumberId) {
@@ -448,6 +470,8 @@
 <input type="hidden" id="hidActiveVirtualNumberId" value="@Model.ActiveVirtualNumberId" />
 <input type="hidden" id="hidActiveDestinationNumber" value="@Model.ActiveDestinationNumber" />
 <input type="hidden" id="hidBalance" value="@Model.Account.Balance" />
+<input type="hidden" id="hidSMSCost" value="@Model.Account.SMSSegmentCost" />
+<input type="hidden" id="hidMMSCost" value="@Model.Account.MMSSegmentCost" />
 
 <div class="messages_container">
     <div class="container">
@@ -460,4 +484,3 @@
 <div id="modal-new"></div>
 <div id="modal-del"></div>
 <div class="clearfix"></div>
-

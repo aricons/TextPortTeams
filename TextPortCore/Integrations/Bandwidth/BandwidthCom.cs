@@ -546,28 +546,25 @@ namespace TextPortCore.Integrations.Bandwidth
 
                 if (response != null)
                 {
-                    if (!string.IsNullOrEmpty(response.id))
+                    using (TextPortDA da = new TextPortDA())
                     {
-                        using (TextPortDA da = new TextPortDA())
+                        if (!string.IsNullOrEmpty(response.id))
                         {
-                            da.UpdateMessageWithGatewayMessageId(message.MessageId, response.id, response.segmentCount, "Message delivered to Bandwidth gateway. ");
-                        };
-
-                        return true;
-                    }
-                    else
-                    {
-                        message.ProcessingMessage += "Message delivery to Bandwidth gateway failed. Response processing failure. ";
-                        using (TextPortDA da = new TextPortDA())
+                            da.UpdateMessageWithGatewayMessageId(message.MessageId, response.id, response.segmentCount, QueueStatuses.SentToProvider, "Message delivered to Bandwidth gateway. ");
+                            return true;
+                        }
+                        else
                         {
-                            da.UpdateMessageWithGatewayMessageId(message.MessageId, null, 0, message.ProcessingMessage);
-                        };
+                            message.ProcessingMessage += "Message delivery to Bandwidth gateway failed. Response processing failure. ";
+                            da.UpdateMessageWithGatewayMessageId(message.MessageId, null, 0, QueueStatuses.SendToProviderFailed, message.ProcessingMessage);
+                        }
                     }
                 }
             }
             catch (Exception ex)
             {
                 message.ProcessingMessage += "Bandwidth gateway delivery failed. Exception: " + ex.Message + ". ";
+                message.QueueStatus = (byte)QueueStatuses.InternalFailure;
                 EventLogging.WriteEventLogEntry("An error occurred in RouteMessageViaBandwidthDotComGateway. Message: " + ex.ToString(), System.Diagnostics.EventLogEntryType.Error);
             }
             return false;

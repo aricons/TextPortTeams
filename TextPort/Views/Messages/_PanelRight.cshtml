@@ -40,10 +40,49 @@
                 </div>
             </div>
         </div>
+        <div class="row border-top bg-light my- py-1">
+            <div id="sms-counter" class="col-12 small">
+                <div class="row">
+                    <div class="col-4 float-left">
+                        Characters: <span class="length"></span> / <span class="remaining"></span>
+                    </div>
+                    <div class="col-4 text-center">
+                        Segments: <span class="messages"></span>
+                    </div>
+                    <div class="col-3 float-right">
+                        <span class="float-right">
+                            Cost: $<span class="cost"></span>
+                        </span>
+                    </div>
+                    <div class="col-1">
+                        <sup>
+                            <button class="btn" style="padding: 2px" data-toggle="popover" title="Message" data-content="" data-html="true">
+                                <i class="fa fa-info-circle text-primary"></i>
+                            </button>
+                        </sup>
+
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
     <div id="msg_area_disabled" class="msg_area_disabled text-center alert alert-danger" style="display: none">
         <p>Messages cannot be sent because your balance is exhausted</p>
         <p><a href="/account/balance">Top up your account</a></p>
     </div>
 </div>
+<div id="popover-content" class="d-none">
+    <ul class="small">
+        <li>Text messages from all providers are divided into segments of either 160 or 70 characters.</li>
+        <li>
+            Segment length depends on the characters being sent. Segments containing only plain text alphanumeric charcters will accommodate up to 160 characters.
+            Messages containing extended characters (e.g. 😀, ½, Ë) require additional encoding (UCS-2) and will accommodate up to 70 characters.
+        </li>
+        <li>Message rates are calculated using your base messaging rate multiplied by the segment count.</li>
+        <li>MMS (picture) messages are charged at a flat rate.</li>
+        <li>Base messging rates are displayed on your <a href="/account/profile">profile page</a>.</li>
+        <li>To reduce cost, it's recommended that you use plain text when sending bulk messages.</li>
+    </ul>
+</div>
+
 

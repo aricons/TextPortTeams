@@ -6,42 +6,122 @@
             http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
   <url>
     <loc>https://textport.com/</loc>
-    <lastmod>2019-08-02T07:31:10+00:00</lastmod>
+    <lastmod>2019-12-11T09:01:25+00:00</lastmod>
     <priority>1.00</priority>
   </url>
   <url>
+    <loc>https://textport.com/bulk-texting</loc>
+    <lastmod>2019-12-11T09:01:25+00:00</lastmod>
+    <priority>0.80</priority>
+  </url>
+  <url>
+    <loc>https://textport.com/email-to-sms-gateway</loc>
+    <lastmod>2019-12-11T09:01:25+00:00</lastmod>
+    <priority>0.80</priority>
+  </url>
+  <url>
+    <loc>https://textport.com/virtual-mobile-numbers</loc>
+    <lastmod>2019-12-11T09:01:25+00:00</lastmod>
+    <priority>0.80</priority>
+  </url>
+  <url>
     <loc>https://textport.com/api</loc>
-    <lastmod>2019-08-25T01:00:00+00:00</lastmod>
-    <priority>0.90</priority>
+    <lastmod>2019-12-11T09:01:25+00:00</lastmod>
+    <priority>0.80</priority>
   </url>
   <url>
     <loc>https://textport.com/account/signup</loc>
-    <lastmod>2019-08-02T07:31:10+00:00</lastmod>
+    <lastmod>2019-12-11T09:01:25+00:00</lastmod>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://textport.com/trial</loc>
-    <lastmod>2019-08-02T07:31:10+00:00</lastmod>
+    <lastmod>2019-12-11T09:01:25+00:00</lastmod>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://textport.com/support</loc>
-    <lastmod>2019-08-02T07:31:10+00:00</lastmod>
+    <lastmod>2019-12-11T09:01:25+00:00</lastmod>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://textport.com/contact</loc>
-    <lastmod>2019-08-02T07:31:10+00:00</lastmod>
+    <lastmod>2019-12-11T09:01:25+00:00</lastmod>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://textport.com/terms</loc>
-    <lastmod>2019-08-02T07:31:10+00:00</lastmod>
+    <lastmod>2019-12-11T09:01:25+00:00</lastmod>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://textport.com/privacy</loc>
-    <lastmod>2019-08-02T07:31:10+00:00</lastmod>
+    <lastmod>2019-12-11T09:01:25+00:00</lastmod>
     <priority>0.80</priority>
+  </url>
+  <url>
+    <loc>https://textport.com/bulk/upload-guidelines</loc>
+    <lastmod>2019-12-11T09:01:25+00:00</lastmod>
+    <priority>0.64</priority>
+  </url>
+  <url>
+    <loc>https://textport.com/api/documentation</loc>
+    <lastmod>2019-12-11T09:01:25+00:00</lastmod>
+    <priority>0.64</priority>
+  </url>
+  <url>
+    <loc>https://textport.com/api/documentation/</loc>
+    <lastmod>2019-12-11T09:01:25+00:00</lastmod>
+    <priority>0.51</priority>
+  </url>
+  <url>
+    <loc>https://textport.com/api/documentation/add-application</loc>
+    <lastmod>2019-12-11T09:01:25+00:00</lastmod>
+    <priority>0.51</priority>
+  </url>
+  <url>
+    <loc>https://textport.com/api/documentation/assign-number</loc>
+    <lastmod>2019-12-11T09:01:25+00:00</lastmod>
+    <priority>0.51</priority>
+  </url>
+  <url>
+    <loc>https://textport.com/api/documentation/send-message</loc>
+    <lastmod>2019-12-11T09:01:25+00:00</lastmod>
+    <priority>0.51</priority>
+  </url>
+  <url>
+    <loc>https://textport.com/api/documentation/active-numbers</loc>
+    <lastmod>2019-12-11T09:01:25+00:00</lastmod>
+    <priority>0.51</priority>
+  </url>
+  <url>
+    <loc>https://textport.com/api/documentation/search-numbers</loc>
+    <lastmod>2019-12-11T09:01:25+00:00</lastmod>
+    <priority>0.51</priority>
+  </url>
+  <url>
+    <loc>https://textport.com/api/documentation/get-number</loc>
+    <lastmod>2019-12-11T09:01:25+00:00</lastmod>
+    <priority>0.51</priority>
+  </url>
+  <url>
+    <loc>https://textport.com/api/documentation/account-balance</loc>
+    <lastmod>2019-12-11T09:01:25+00:00</lastmod>
+    <priority>0.51</priority>
+  </url>
+  <url>
+    <loc>https://textport.com/api/documentation/ping</loc>
+    <lastmod>2019-12-11T09:01:25+00:00</lastmod>
+    <priority>0.51</priority>
+  </url>
+  <url>
+    <loc>https://textport.com/api/documentation/message-received</loc>
+    <lastmod>2019-12-11T09:01:25+00:00</lastmod>
+    <priority>0.51</priority>
+  </url>
+  <url>
+    <loc>https://textport.com/api/documentation/delivery-receipt</loc>
+    <lastmod>2019-12-11T09:01:25+00:00</lastmod>
+    <priority>0.51</priority>
   </url>
 </urlset>

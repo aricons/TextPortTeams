@@ -79,6 +79,17 @@ namespace TextPort
             );
 
             routes.MapRoute(
+            name: "blog",
+            url: "blog",
+            defaults: new { controller = "blog", action = "index" }
+            );
+
+            routes.MapRoute(
+            name: "blogarticle",
+            url: "blog/{action}",
+            defaults: new { controller = "blog", action = "Index" });
+
+            routes.MapRoute(
             name: "DefaultActionOnlyOnHomeController",
             url: "{action}",
             defaults: new { controller = "home", action = "index" }

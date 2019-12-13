@@ -368,7 +368,7 @@
          * ! MODIFICATION START Following code was modified by Igor Zhukov, in
          * order to improve rich text paste
          */
-        var changeEvents = 'blur change';
+        var changeEvents = 'blur change keyup'; /* RDE - Added keyup */
         if (!this.options.norealTime) {
             changeEvents += ' keyup';
         }
@@ -618,8 +618,7 @@
             var target = e.originalTarget || e.target || window;
 
             // RDE
-            if (target.id === "emoji-sel-button" & self.emojiarea.emojiMenu.visible)
-            {
+            if (target.id === "emoji-sel-button" & self.emojiarea.emojiMenu.visible) {
                 return;
             }
 

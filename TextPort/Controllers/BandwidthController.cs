@@ -89,6 +89,7 @@ namespace TextPort.Controllers
                                 Message originatingMessage = da.GetMessageByGatewayMessageId(receipt.GatewayMessageId);
                                 if (originatingMessage != null)
                                 {
+                                    originatingMessage.QueueStatus = (byte)QueueStatuses.DeliveryConfirmed;
                                     int messageId = originatingMessage.MessageId;
                                     Account account = da.GetAccountById(originatingMessage.AccountId);
                                     if (account != null)
@@ -96,6 +97,10 @@ namespace TextPort.Controllers
                                         // Deduct the message cost (base rate * segment count) from the account balance
                                         int segmentCount = receipt.SegmentCount;
                                         decimal messageRate = Constants.BaseSMSSegmentCost;
+                                        decimal messageCost = 0;
+
+                                        originatingMessage.Segments = segmentCount;
+
                                         if (originatingMessage.IsMMS)
                                         {
                                             messageRate = (account.MMSSegmentCost > 0) ? account.MMSSegmentCost : Constants.BaseMMSSegmentCost;
@@ -104,8 +109,11 @@ namespace TextPort.Controllers
                                         {
                                             messageRate = (account.SMSSegmentCost > 0) ? account.SMSSegmentCost : Constants.BaseSMSSegmentCost;
                                         }
+                                       
+                                        messageCost = (messageRate * segmentCount);
+                                        originatingMessage.CustomerCost = messageCost;
+                                        account.Balance -= messageCost;
 
-                                        account.Balance -= (messageRate * segmentCount);
                                         da.SaveChanges();
 
                                         string messageHtml = @"<span class=""rcpt"">Delivered</span>";
