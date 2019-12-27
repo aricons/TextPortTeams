@@ -32,6 +32,12 @@ namespace TextPort
             );
 
             routes.MapRoute(
+            name: "contacts",
+            url: "contacts",
+            defaults: new { controller = "contacts", action = "index" }
+            );
+
+            routes.MapRoute(
             name: "numbers",
             url: "numbers",
             defaults: new { controller = "numbers", action = "index" }
@@ -85,9 +91,14 @@ namespace TextPort
             );
 
             routes.MapRoute(
+            name: "blogdraft",
+            url: "blog/draft",
+            defaults: new { controller = "blog", action = "draft" });
+
+            routes.MapRoute(
             name: "blogarticle",
-            url: "blog/{action}",
-            defaults: new { controller = "blog", action = "Index" });
+            url: "blog/{id}",
+            defaults: new { controller = "blog", action = "article", id = UrlParameter.Optional });
 
             routes.MapRoute(
             name: "DefaultActionOnlyOnHomeController",

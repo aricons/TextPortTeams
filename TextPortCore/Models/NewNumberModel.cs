@@ -163,7 +163,7 @@ namespace TextPortCore.Models
             using (TextPortDA da = new TextPortDA())
             {
                 this.CountriesList = da.GetNumberCountriesList(string.Empty);
-                this.LeasePeriodsList = da.GetLeasePeriods(false);
+                this.LeasePeriodsList = da.GetLeasePeriods();
             }
         }
 

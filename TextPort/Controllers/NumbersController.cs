@@ -44,15 +44,21 @@ namespace TextPort.Controllers
 
         [AllowAnonymous]
         [HttpGet]
-        public JsonResult GetAvailableNumbers(string areaCode, bool tollFree, int count)
+        public JsonResult GetAvailableNumbers(string areaCode, bool tollFree, int count, int page)
         {
             List<SelectListItem> numbersItems = new List<SelectListItem>();
 
             using (Bandwidth bw = new Bandwidth())
             {
-                List<string> numbers = bw.GetVirtualNumbersList(areaCode, count, tollFree);
+                List<string> numbers = bw.GetVirtualNumbersList(areaCode, count, tollFree, page);
                 if (numbers.Any())
                 {
+                    if (numbers.FirstOrDefault().Equals("No more numbers"))
+                    {
+                        numbersItems.Add(new SelectListItem() { Text = "No more numbers", Value = string.Empty });
+                        return Json(numbersItems, JsonRequestBehavior.AllowGet);
+                    }
+
                     foreach (string number in numbers)
                     {
                         numbersItems.Add(new SelectListItem() { Text = Utilities.NumberToDisplayFormat(number, 22), Value = number });
@@ -177,8 +183,8 @@ namespace TextPort.Controllers
             int accountId = Utilities.GetAccountIdFromClaim(ClaimsPrincipal.Current);
 
             regData.Success = false;
-            regData.CompletionTitle = "Number Renewal Failure";
-            regData.CompletionMessage = $"An error occurred while attempting to renew the number {regData.VirtualNumber}. Please try again. If the problem persists please contact support.";
+            regData.CompletionTitle = "Number Extension Failure";
+            regData.CompletionMessage = $"An error occurred while attempting to extend the lease on {regData.VirtualNumber}. Please try again. If the problem persists please contact support.";
 
             if (accountId > 0 && regData.VirtualNumberId > 0 && regData.NumberCost > 0)
             {
@@ -187,16 +193,51 @@ namespace TextPort.Controllers
                     DedicatedVirtualNumber vn = da.GetVirtualNumberById(regData.VirtualNumberId);
                     if (vn != null)
                     {
-                        vn.ExpirationDate = vn.ExpirationDate.AddMonths(regData.LeasePeriod);
+                        DateTime startDate = vn.ExpirationDate;
+                        DateTime expirationDate = DateTime.UtcNow.AddDays(7);
+                        DateTime? twoDayRenewalReminderDate = null;
+                        DateTime? sevenDayRenewalReminderDate = null;
+                        int leasePeriod = (regData.LeasePeriod == 0) ? 1 : regData.LeasePeriod;
+
+                        switch (regData.LeasePeriodType)
+                        {
+                            case "D":
+                                expirationDate = startDate.AddDays(leasePeriod);
+                                break;
+                            case "W":
+                                expirationDate = startDate.AddDays(leasePeriod * 7);
+                                break;
+                            case "M":
+                                expirationDate = startDate.AddMonths(leasePeriod).AddHours(-4);
+                                break;
+                            case "Y":
+                                expirationDate = startDate.AddYears(leasePeriod).AddHours(-6);
+                                break;
+                        }
+
+                        double daysUntilExpiration = (expirationDate - DateTime.UtcNow).TotalDays;
+                        if (daysUntilExpiration <= 4)
+                        {
+                            twoDayRenewalReminderDate = DateTime.UtcNow;
+                            sevenDayRenewalReminderDate = DateTime.UtcNow;
+                        }
+                        if (daysUntilExpiration <= 10)
+                        {
+                            sevenDayRenewalReminderDate = DateTime.UtcNow;
+                        }
+
+                        vn.LeasePeriod = (short)leasePeriod;
+                        vn.LeasePeriodType = regData.LeasePeriodType;
+                        vn.ExpirationDate = expirationDate;
                         vn.RenewalCount = vn.RenewalCount + 1;
                         vn.Cancelled = false;
                         vn.Fee = regData.NumberCost;
-                        vn.SevenDayReminderSent = null;
-                        vn.TwoDayReminderSent = null;
+                        vn.SevenDayReminderSent = sevenDayRenewalReminderDate;
+                        vn.TwoDayReminderSent = twoDayRenewalReminderDate;
                         da.SaveChanges();
 
                         regData.CompletionTitle = "Number Renewal Complete";
-                        regData.CompletionMessage = $"The number {regData.NumberDisplayFormat} has been sucessfully renewed for {regData.LeasePeriod} {regData.LeasePeriodWord}.";
+                        regData.CompletionMessage = $"The lease for number {regData.NumberDisplayFormat} has been extended for {regData.LeasePeriod} {regData.LeasePeriodWord}. It will expire on {expirationDate:MM/dd/yyyy} at {expirationDate:hh:mm tt}";
                         regData.Status = "Complete";
                         regData.Success = true;
 
@@ -241,8 +282,8 @@ namespace TextPort.Controllers
         public JsonResult SetAutoRenew(AutoRenewSettings autoRenewSettings)
         {
             int accountId = Utilities.GetAccountIdFromClaim(ClaimsPrincipal.Current);
-            autoRenewSettings.ConfirmationTitle = "Error setting auto-renew.";
-            autoRenewSettings.ConfirmationDetail = "An error occurred while updating the auto-renew settings for this number.";
+            autoRenewSettings.ConfirmationTitle = "Error setting auto-extend.";
+            autoRenewSettings.ConfirmationDetail = "An error occurred while updating the auto-extend settings for this number.";
 
             if (accountId > 0 && autoRenewSettings != null)
             {
@@ -258,19 +299,19 @@ namespace TextPort.Controllers
                         {
                             if (autoRenewSettings.AutoRenew)
                             {
-                                autoRenewSettings.ConfirmationTitle = "Auto-Renew Enabled";
-                                autoRenewSettings.ConfirmationDetail = $"<ul><li>Your lease for {dvn.NumberDisplayFormat} will be automatically renewed on {dvn.ExpirationDate:MM/dd/yyyy}. A {Constants.BaseNumberCost:C2} fee will be debited from your TextPort balance.</li><li>The number will continue to be renewed monthly provided your account carries a sufficient balnce.</li><li>You will be notified by email if your balance is not sufficient to cover an upcoming renewal.</li><li>You may disable auto-renew at any time by unchecking the auto-renew box.</li></ul>";
+                                autoRenewSettings.ConfirmationTitle = "Auto-Extend Enabled";
+                                autoRenewSettings.ConfirmationDetail = $"<ul><li>Your lease for {dvn.NumberDisplayFormat} will be automatically extended on a monthly basis starting {dvn.ExpirationDate:MM/dd/yyyy}. A {Constants.MonthlyNumberRenewalCost:C2} fee will be debited from your TextPort balance.</li><li>The number will continue to be extended monthly provided your account carries a sufficient balnce.</li><li>You will be notified by email if your balance is not sufficient to cover an upcoming extension renewal.</li><li>You may disable auto-extend at any time by unchecking the auto-extend box.</li></ul>";
                             }
                             else
                             {
-                                autoRenewSettings.ConfirmationTitle = "Auto-Renew Disabled";
-                                autoRenewSettings.ConfirmationDetail = $"<ul><li>Auto-Renew has been disabled for number {dvn.NumberDisplayFormat}.</li><li>The number will auto-expire on {dvn.ExpirationDate:MM/dd/yyyy}.</li><li>To enable auto-renew, check the auto-renew box.</li></ul>";
+                                autoRenewSettings.ConfirmationTitle = "Auto-Extend Disabled";
+                                autoRenewSettings.ConfirmationDetail = $"<ul><li>Auto-Extend has been disabled for number {dvn.NumberDisplayFormat}.</li><li>The number will auto-expire on {dvn.ExpirationDate:MM/dd/yyyy}.</li><li>To enable auto-extend, check the auto-extend box.</li></ul>";
                             }
                         }
                         else
                         {
-                            autoRenewSettings.ConfirmationTitle = "Error setting auto-renew.";
-                            autoRenewSettings.ConfirmationDetail = $"An error occurred while attempting to update the auto-renew setting on this number {dvn.NumberDisplayFormat}";
+                            autoRenewSettings.ConfirmationTitle = "Error setting auto-extend.";
+                            autoRenewSettings.ConfirmationDetail = $"An error occurred while attempting to update the auto-extend setting on this number {dvn.NumberDisplayFormat}";
                         }
                     }
                 }

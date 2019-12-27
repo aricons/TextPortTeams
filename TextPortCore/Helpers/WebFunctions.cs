@@ -10,7 +10,6 @@ namespace TextPortCore.Helpers
     {
         public static string MakeHttpPost(string url, string content)
         {
-            //Uri uri = new Uri(url);
             string responseString = string.Empty;
 
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);

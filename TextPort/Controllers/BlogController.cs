@@ -1,21 +1,43 @@
-﻿using System;
+﻿using System.Web.Mvc;
 using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.Web.Mvc;
+
+using TextPortCore.Models;
+using TextPortCore.Data;
+using TextPortCore.Helpers;
 
 namespace TextPort.Controllers
 {
     public class BlogController : Controller
     {
-        // GET: Blog
-        public ActionResult Index()
+        public const int postsToDisplayPerPage = 2;
+
+        public ActionResult Index(string page)
         {
-            return View();
+            int pageNumber = (!string.IsNullOrEmpty(page)) ? Conversion.StringToIntOrZero(page) : 1;
+            if (pageNumber == 0)
+            {
+                pageNumber = 1;
+            }
+
+            BlogPostsContainer posts = new BlogPostsContainer(pageNumber, postsToDisplayPerPage);
+            return View(posts);
         }
 
-        [ActionName("effective-sms-marketing")]
-        public ActionResult EffectiveSMSMarketing()
+        public ActionResult Article(string id)
+        {
+            using (TextPortDA da = new TextPortDA())
+            {
+                BlogPost blogPost = da.GetPostByUrlName(id);
+                if (blogPost != null)
+                {
+                    return View(blogPost);
+                }
+            }
+
+            return View(new BlogPost());
+        }
+
+        public ActionResult Draft()
         {
             return View();
         }

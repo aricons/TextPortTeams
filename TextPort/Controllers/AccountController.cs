@@ -83,6 +83,25 @@ namespace TextPort.Controllers
             try
             {
                 RegistrationData rd = new RegistrationData("VirtualNumberSignUp", 0);
+                string virtualNumber = Request.QueryString["vn"];
+                string leasePeriod = Request.QueryString["p"];
+                string leasePeriodParam = string.Empty;
+
+                rd.VirtualNumber = (!string.IsNullOrEmpty(virtualNumber)) ? virtualNumber : string.Empty;
+                if (!string.IsNullOrEmpty(leasePeriod) && leasePeriod.Length == 2)
+                {
+                    leasePeriodParam = $"{leasePeriod.Substring(0, 1)}|{leasePeriod.Substring(1, 1)}";
+
+                    foreach (SelectListItem perItem in rd.LeasePeriodsList)
+                    {
+                        if (perItem.Value.StartsWith(leasePeriodParam))
+                        {
+                            rd.LeasePeriodCode = perItem.Value;
+                            break;
+                        }
+                    }
+                }
+
                 return View(rd);
             }
             catch (Exception ex)
@@ -206,93 +225,6 @@ namespace TextPort.Controllers
                             }
                             break;
 
-                        //case "FreeTrial_OLD":
-                        //    regData.Success = false;
-                        //    regData.CompletionTitle = "Registration Failed";
-                        //    regData.CompletionMessage = "An error occurred while processing the request. We apologize fo any inconvenience. <a href=\"/home/support\">Please submit a support request to report this issue.</a>";
-
-                        //    regData.AccountId = da.AddAccount(regData);
-                        //    if (regData.AccountId > 0)
-                        //    {
-                        //        if (!string.IsNullOrEmpty(regData.VirtualNumber))
-                        //        {
-                        //            // Log the user in
-                        //            List<Claim> claims = new List<Claim> {
-                        //                    new Claim("AccountId", regData.AccountId.ToString(), ClaimValueTypes.Integer),
-                        //                    new Claim(ClaimTypes.Name, regData.UserName.ToString()),
-                        //                    new Claim(ClaimTypes.Email, regData.EmailAddress.ToString()),
-                        //                    new Claim(ClaimTypes.Role, "User") };
-
-                        //            ClaimsIdentity identity = new ClaimsIdentity(claims, "ApplicationCookie");
-                        //            ClaimsPrincipal principal = new ClaimsPrincipal(identity);
-
-                        //            var context = Request.GetOwinContext();
-                        //            var authManager = context.Authentication;
-
-                        //            authManager.SignIn(new AuthenticationProperties { IsPersistent = false }, identity);
-
-                        //            if (da.AddNumberToAccount(regData))
-                        //            {
-                        //                Cookies.WriteBalance(regData.CreditPurchaseAmount);
-                        //                regData.CompletionTitle = "Registration Complete";
-                        //                regData.Success = true;
-                        //            }
-                        //            else
-                        //            {
-                        //                regData.CompletionMessage += " The number was unable to be assigned to your account.";
-                        //            }
-                        //        }
-                        //        else
-                        //        {
-                        //            regData.CompletionMessage += " No number was specified.";
-                        //        }
-                        //    }
-                        //    else
-                        //    {
-                        //        regData.CompletionMessage += " Account creation failed.";
-                        //    }
-                        //    return View("RegistrationComplete", regData);
-
-                        //case "VirtualNumber":
-                        //    if (!string.IsNullOrEmpty(regData.VirtualNumber))
-                        //    {
-                        //        regData.CompletionTitle = "Number assignment failed.";
-                        //        regData.CompletionMessage = $"Your payment was processed, but there was a problem assigning a number to your account. <a href=\"/numbers/complimentarynumber/{regData.AccountId}\">Click here to select a new number.</a> You will not be charged for the replacement number.";
-
-                        //        using (Bandwidth bw = new Bandwidth())
-                        //        {
-                        //            if (bw.PurchaseVirtualNumber(regData))
-                        //            {
-                        //                if (da.AddNumberToAccount(regData))
-                        //                {
-                        //                    regData.CompletionTitle = "Number Successfully Assigned";
-                        //                    regData.CompletionMessage = $"The number {regData.NumberDisplayFormat} has been sucessfully assigned to your account.";
-
-                        //                    Account acc = da.GetAccountById(regData.AccountId);
-                        //                    if (acc != null)
-                        //                    {
-                        //                        acc.Balance += (Constants.InitialBalanceAllocation + regData.CreditPurchaseAmount);
-                        //                        da.SaveChanges();
-
-                        //                        if (regData.CreditPurchaseAmount > 0)
-                        //                        {
-                        //                            regData.CompletionMessage += $" {regData.CreditPurchaseAmount:C} was applied to your account.";
-                        //                        }
-
-                        //                        Cookies.WriteBalance(acc.Balance);
-                        //                    }
-                        //                }
-                        //                else
-                        //                {
-                        //                    string foo = regData.OrderingMessage;
-                        //                    da.SetComplimentaryNumberFlag(regData.AccountId, ComplimentaryNumberStatus.FailureEligible);
-                        //                }
-                        //            }
-                        //        }
-                        //        return PartialView("_RegistrationComplete", regData);
-                        //    }
-                        //    break;
-
                         case "ComplimentaryNumber":
                             regData.CompletionTitle = "Number assignment failed";
                             regData.CompletionMessage = $"An error occurred while assigning your number. <a href=\"/numbers/complimentarynumber/{regData.AccountId}\">Click here to select a new number.</a> You will not be charged for the replacement number. ";
@@ -389,7 +321,7 @@ namespace TextPort.Controllers
                                     }
                                 }
 
-                                regData.CompletionTitle = "Credit PurchaseComplete";
+                                regData.CompletionTitle = "Credit Purchase Complete";
                                 regData.CompletionMessage = $"{regData.CreditPurchaseAmount:C2} credit was sucessfully added to your account";
                             }
                             return PartialView("_RegistrationComplete", regData);
@@ -560,13 +492,13 @@ namespace TextPort.Controllers
                     }
                     else
                     {
-                        actReq.CompletionMessage = "Invalid reset token.";
+                        actReq.CompletionMessage = "Invalid activation token.";
                     }
                 }
             }
             else
             {
-                actReq.CompletionMessage = "Missing reset token.";
+                actReq.CompletionMessage = "Missing activation token.";
             }
             return View(actReq);
         }

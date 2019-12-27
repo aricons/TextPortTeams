@@ -50,11 +50,15 @@
     <Compile Include="Models\AutoRenewSettings.cs" />
     <Compile Include="Models\BadEmailDomain.cs" />
     <Compile Include="Models\BlockedNumber.cs" />
+    <Compile Include="Models\BlogPost.cs" />
+    <Compile Include="Models\BlogPostsContainer.cs" />
+    <Compile Include="Models\BlogRecentPosts.cs" />
     <Compile Include="Models\BulkMessages.cs" />
     <Compile Include="Models\BulkUpload.cs" />
     <Compile Include="Models\Captcha.cs" />
     <Compile Include="Models\ChangePasswordRequest.cs" />
     <Compile Include="Models\Contact.cs" />
+    <Compile Include="Models\ContactsContainer.cs" />
     <Compile Include="Models\DedicatedVirtualNumber.cs" />
     <Compile Include="Models\DeleteMessageInfo.cs" />
     <Compile Include="Models\DeliveryReceipt.cs" />
@@ -76,6 +80,7 @@
     <Compile Include="Models\MessageNotification.cs" />
     <Compile Include="Models\NewNumberModel.cs" />
     <Compile Include="Models\NumberExpirationData.cs" />
+    <Compile Include="Models\NumberPrice.cs" />
     <Compile Include="Models\NumbersContainer.cs" />
     <Compile Include="Models\NumberWithAPIDetail.cs" />
     <Compile Include="Models\PagingParameters.cs" />

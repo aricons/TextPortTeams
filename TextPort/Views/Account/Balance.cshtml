@@ -2,10 +2,9 @@
 @model RegistrationData
 @{
     ViewBag.Title = "My Balance";
-    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<script type="text/javascript" src="/Scripts/TextPort/GetNumbers.js"></script>
+<script type="text/javascript" src="/scripts/TextPort/purchases.js"></script>
 <script src="https://www.paypalobjects.com/api/checkout.js"></script>
 
 <script type="text/javascript">
@@ -49,9 +48,10 @@
                     @Html.HiddenFor(m => m.ProductDescription)
                     @Html.HiddenFor(m => m.CompletionTitle)
                     @Html.HiddenFor(m => m.CompletionMessage)
-                    @Html.HiddenFor(m => m.BaseNumberCost)
-                    @Html.HiddenFor(m => m.BaseSMSCost)
+                    //@Html.HiddenFor(m => m.BaseNumberCost)
+                    //@Html.HiddenFor(m => m.BaseSMSCost)
                     @Html.HiddenFor(m => m.LeasePeriod)
+                    @Html.HiddenFor(m => m.LeasePeriodCode)
                     @Html.HiddenFor(m => m.VirtualNumber)
 
                     <input type="hidden" id="hidTotalCost" value="0" />

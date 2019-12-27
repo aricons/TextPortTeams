@@ -27,6 +27,7 @@ namespace TextPortCore.Data
         public virtual DbSet<AreaCode> AreaCodes { get; set; }
         public virtual DbSet<BadEmailDomain> BadEmailDomains { get; set; }
         public virtual DbSet<BlockedNumber> BlockedNumbers { get; set; }
+        public virtual DbSet<BlogPost> BlogPosts { get; set; }
         public virtual DbSet<Contact> Contacts { get; set; }
         public virtual DbSet<DedicatedVirtualNumber> DedicatedVirtualNumbers { get; set; }
         public virtual DbSet<EmailToSMSAddress> EmailToSMSAddresses { get; set; }
@@ -35,6 +36,7 @@ namespace TextPortCore.Data
         public virtual DbSet<GroupMember> GroupMembers { get; set; }
         public virtual DbSet<Message> Messages { get; set; }
         public virtual DbSet<MMSFile> MMSFiles { get; set; }
+        public virtual DbSet<NumberPrice> NumberPricing { get; set; }
         public virtual DbSet<PurchaseTransaction> PurchaseTransactions { get; set; }
         public virtual DbSet<SupportRequest> SupportRequests { get; set; }
         public virtual DbSet<VirtualNumberCountry> VirtualNumberCountries { get; set; }
@@ -195,6 +197,15 @@ namespace TextPortCore.Data
                 entity.HasIndex(e => e.MobileNumber);
 
                 entity.Property(e => e.DateRequested).HasColumnType("datetime");
+            });
+
+            modelBuilder.Entity<BlogPost>(entity =>
+            {
+                entity.ToTable("BlogPosts");
+
+                entity.HasKey(e => e.PostId);
+
+                entity.HasIndex(e => e.UrlName);
             });
 
             modelBuilder.Entity<Contact>(entity =>
@@ -460,6 +471,15 @@ namespace TextPortCore.Data
                     .IsRequired()
                     .HasMaxLength(200)
                     .IsUnicode(false);
+            });
+
+            modelBuilder.Entity<NumberPrice>(entity =>
+            {
+                entity.ToTable("NumberPricing");
+
+                entity.HasKey(e => e.PriceId);
+
+                entity.HasIndex(e => new { e.Enabled, e.CountryId, e.SortOrder });
             });
 
             modelBuilder.Entity<PurchaseTransaction>(entity =>

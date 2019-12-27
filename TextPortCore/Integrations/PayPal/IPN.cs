@@ -18,12 +18,8 @@ namespace TextPortCore.Integrations.PayPal
             bool returnValue = false;
             string[] customFieldValues;
             string virtualMobileNumber = String.Empty;
-            int virtualNumberCountryId = 0;
             string alphaCountryCode = String.Empty;
-            int leasePeriod = 1;
-            int creditPricingId = 1;
             string creditCountCode = String.Empty;
-            int virtualNumberId = 0;
 
             try
             {

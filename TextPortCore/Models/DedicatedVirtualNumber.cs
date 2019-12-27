@@ -25,6 +25,10 @@ namespace TextPortCore.Models
 
         public string Provider { get; set; }
 
+        public string LeasePeriodType { get; set; }
+
+        public short LeasePeriod { get; set; }
+
         [Display(Name = "Cost")]
         public decimal Fee { get; set; }
 

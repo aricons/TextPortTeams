@@ -1,0 +1,4 @@
+﻿User-agent: *
+Disallow: /WebServices/TextPortSMS.asmx
+Disallow: /WebServices/TextPortSMS.svc
+Sitemap: https://textport.com/sitemap.xml

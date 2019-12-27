@@ -147,6 +147,9 @@ namespace TextPortCore.Data
                                 VirtualNumber = dvn.VirtualNumber,
                                 VirtualNumberID = dvn.VirtualNumberId,
                                 AutoRenew = dvn.AutoRenew,
+                                LeasePeriod = dvn.LeasePeriod,
+                                LeasePeriodType = dvn.LeasePeriodType,
+                                Fee = dvn.Fee,
                                 NotificationType = notificationType,
                                 EmailAction = emailLinkAction
                             };
@@ -179,6 +182,9 @@ namespace TextPortCore.Data
                             VirtualNumber = dvn.VirtualNumber,
                             VirtualNumberID = dvn.VirtualNumberId,
                             AutoRenew = dvn.AutoRenew,
+                            LeasePeriod = dvn.LeasePeriod,
+                            LeasePeriodType = dvn.LeasePeriodType,
+                            Fee = dvn.Fee,
                             NotificationType = notificationType,
                             EmailAction = emailLinkAction
                         };
@@ -206,7 +212,7 @@ namespace TextPortCore.Data
                             && dvn.NumberType == (int)numberType
                             && dvn.SevenDayReminderSent == null
                             && dvn.AutoRenew == true
-                            && acc.Balance < Constants.BaseNumberCost
+                            && acc.Balance < dvn.Fee
                         select
                             new NumberExpirationData()
                             {
@@ -223,6 +229,9 @@ namespace TextPortCore.Data
                                 VirtualNumber = dvn.VirtualNumber,
                                 VirtualNumberID = dvn.VirtualNumberId,
                                 AutoRenew = dvn.AutoRenew,
+                                LeasePeriod = dvn.LeasePeriod,
+                                LeasePeriodType = dvn.LeasePeriodType,
+                                Fee = dvn.Fee,
                                 NotificationType = notificationType,
                                 EmailAction = emailLinkAction
                             };
@@ -240,7 +249,7 @@ namespace TextPortCore.Data
                            && dvn.NumberType == (int)numberType
                            && dvn.TwoDayReminderSent == null
                            && dvn.AutoRenew == true
-                           && acc.Balance < Constants.BaseNumberCost
+                           && acc.Balance < dvn.Fee
                         select new NumberExpirationData()
                         {
                             AccountID = dvn.AccountId,
@@ -256,6 +265,9 @@ namespace TextPortCore.Data
                             VirtualNumber = dvn.VirtualNumber,
                             VirtualNumberID = dvn.VirtualNumberId,
                             AutoRenew = dvn.AutoRenew,
+                            LeasePeriod = dvn.LeasePeriod,
+                            LeasePeriodType = dvn.LeasePeriodType,
+                            Fee = dvn.Fee,
                             NotificationType = notificationType,
                             EmailAction = emailLinkAction
                         };
@@ -296,6 +308,9 @@ namespace TextPortCore.Data
                         VirtualNumber = dvn.VirtualNumber,
                         VirtualNumberID = dvn.VirtualNumberId,
                         AutoRenew = dvn.AutoRenew,
+                        LeasePeriod = dvn.LeasePeriod,
+                        LeasePeriodType = dvn.LeasePeriodType,
+                        Fee = dvn.Fee,
                         NotificationType = string.Empty,
                         EmailAction = "void"
                     };
@@ -316,7 +331,7 @@ namespace TextPortCore.Data
                     dvn.ExpirationDate <= DateTime.UtcNow
                     && dvn.Cancelled == false
                     && dvn.AutoRenew == true
-                    && acc.Balance >= Constants.BaseNumberCost
+                    && acc.Balance >= dvn.Fee
                 select
                     new NumberExpirationData()
                     {
@@ -333,6 +348,9 @@ namespace TextPortCore.Data
                         VirtualNumber = dvn.VirtualNumber,
                         VirtualNumberID = dvn.VirtualNumberId,
                         AutoRenew = dvn.AutoRenew,
+                        LeasePeriod = dvn.LeasePeriod,
+                        LeasePeriodType = dvn.LeasePeriodType,
+                        Fee = dvn.Fee,
                         NotificationType = string.Empty,
                         EmailAction = string.Empty
                     };
@@ -354,7 +372,7 @@ namespace TextPortCore.Data
                     && dvn.NumberType == (int)NumberTypes.Regular
                     && dvn.Cancelled == false
                     && dvn.AutoRenew == true
-                    && acc.Balance < Constants.BaseNumberCost
+                    && acc.Balance < dvn.Fee
                 select
                     new NumberExpirationData()
                     {
@@ -370,6 +388,9 @@ namespace TextPortCore.Data
                         VirtualNumber = dvn.VirtualNumber,
                         VirtualNumberID = dvn.VirtualNumberId,
                         AutoRenew = dvn.AutoRenew,
+                        LeasePeriod = dvn.LeasePeriod,
+                        LeasePeriodType = dvn.LeasePeriodType,
+                        Fee = dvn.Fee,
                         NotificationType = string.Empty,
                         EmailAction = string.Empty
                     };
@@ -385,16 +406,39 @@ namespace TextPortCore.Data
         {
             try
             {
-                DateTime expirationDate = DateTime.UtcNow.AddMonths(1);
+                DateTime expirationDate = DateTime.UtcNow.AddDays(7);
+                DateTime? twoDayRenewalReminderDate = null;
+                DateTime? sevenDayRenewalReminderDate = null;
+                int leasePeriod = (rd.LeasePeriod == 0) ? 1 : rd.LeasePeriod;
+
                 if (rd.FreeTrial)
                 {
                     expirationDate = DateTime.UtcNow.AddDays(15);
                 }
                 else
                 {
-                    expirationDate = (rd.LeasePeriod > 0) ? DateTime.UtcNow.AddMonths(rd.LeasePeriod) : DateTime.UtcNow.AddMonths(1);
+                    switch (rd.LeasePeriodType)
+                    {
+                        case "D":
+                            expirationDate = DateTime.UtcNow.AddDays(leasePeriod);
+                            twoDayRenewalReminderDate = DateTime.UtcNow;
+                            sevenDayRenewalReminderDate = DateTime.UtcNow;
+                            break;
+                        case "W":
+                            expirationDate = DateTime.UtcNow.AddDays(leasePeriod * 7);
+                            if (leasePeriod <= 1)
+                            {
+                                sevenDayRenewalReminderDate = DateTime.UtcNow;
+                            }
+                            break;
+                        case "M":
+                            expirationDate = DateTime.UtcNow.AddMonths(leasePeriod).AddHours(-4);
+                            break;
+                        case "Y":
+                            expirationDate = DateTime.UtcNow.AddYears(leasePeriod).AddHours(-6);
+                            break;
+                    }
                 }
-                expirationDate = expirationDate.AddHours(-6);
 
                 DedicatedVirtualNumber number = new DedicatedVirtualNumber()
                 {
@@ -405,13 +449,16 @@ namespace TextPortCore.Data
                     NumberType = (byte)rd.NumberType,
                     CreateDate = DateTime.Now,
                     ExpirationDate = expirationDate,
-                    IsDefault = true,
-                    Fee = rd.TotalCost,
+                    IsDefault = false,
+                    AutoRenew = false,
+                    Fee = rd.NumberCost,
+                    LeasePeriod = rd.LeasePeriod,
+                    LeasePeriodType = rd.LeasePeriodType,
                     Provider = rd.NumberProvider,
                     ReminderFailureCount = 0,
                     RenewalCount = 0,
-                    SevenDayReminderSent = null,
-                    TwoDayReminderSent = null,
+                    SevenDayReminderSent = sevenDayRenewalReminderDate,
+                    TwoDayReminderSent = twoDayRenewalReminderDate,
                     VirtualNumber = rd.VirtualNumber,
                     VirtualNumberCountryId = rd.NumberCountryId,
                     VirtualNumberId = 0

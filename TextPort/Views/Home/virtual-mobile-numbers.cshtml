@@ -1,73 +1,14 @@
 ﻿@{
     ViewData["Title"] = "Virtual Mobile Numbers for Online Texting and Bulk SMS | TextPort";
     ViewData["Description"] = "Virtual mobile numbers for texting, bulk sms and SMS API. Choose your own number. Free trial.";
-    ViewData["Keywords"] = "virtual mobile number, virtual texting number, private texting numbers, burner texting number, send and receive texts online";
+    ViewData["Keywords"] = "virtual mobile number, virtual text number, private texting numbers, burner phone number, send and receive texts online";
     ViewData["Url"] = "https://textport.com/virtual-mobile-numbers";
 }
-@model TextPortCore.Models.RegistrationData
+<script type="text/javascript" src="/scripts/textport/getnumbers.js"></script>
 
 <script type="text/javascript">
-    $(function () {
-        $.ajaxSetup({
-            cache: false
-        });
-
-        $('#AreaCode').on("keyup", function (e) {
-            var areaCode = $(this).val();
-            if (areaCode.length === 3) {
-                getAreaCodeName(areaCode, false);
-            } else {
-                $("#number-results").hide();
-                $("#area-code-name").text('');
-                $("#numbers-list").html('');
-            }
-        });
-
-        $("#number-results").hide();
-        $("#AreaCode").mask("000");
-    });
-
-    function getAreaCodeName(areaCode, tollFree) {
-        var url = '/numbers/getareacodename';
-        var count = 80;
-        if ($(window).width() <= 600) {
-            count = 20;
-        };
-
-        $.getJSON(url, {
-            areaCode: areaCode,
-            tollFree: tollFree
-        }, function (response) {
-            $("#number-results").show();
-            if (response !== "Invalid area code" && response != "") {
-                $("#area-code-name").text("Available numbers for " + response);
-                getAvailableNumbers(areaCode, tollFree, count);
-            } else {
-                $("#area-code-name").text("Invalid area code");
-            }
-        });
-    }
-
-    function getAvailableNumbers(areaCode, tollFree, count) {
-        var url = '/numbers/getavailablenumbers';
-        var numbers = "";
-        var spinId = "spintiller1";
-
-        $("#numbers-list").html('');
-        $("#" + spinId).show();
-
-        $.getJSON(url, {
-            areaCode: areaCode,
-            tollFree: tollFree,
-            count: count
-        }, function (response) {
-            $.each(response, function (index, item) {
-                numbers += "<li class='list-inline-item vn-result'>" + item.Text + "</li>";
-            });
-
-            $("#numbers-list").html(numbers);
-            $("#" + spinId).hide();
-        });
+    function getNumber(number) {
+        location.href = "/account/signup?vn=1" + number + '&p=M1'
     }
 </script>
 
@@ -97,27 +38,30 @@
     <div class="col-md-4 mb-5">
         <div class="card h-100">
             <div class="card-body">
-                <h1 class="card-title">Promote Your Business with SMS</h1>
-                <h2 class="card-text">
+                <h2 class="card-title">Promote Your Business with SMS</h2>
+                <h3 class="card-text">
                     Send promotional texts and notifications from your dedicated virtual number.
                     Replies can be forwarded to your mobile device, email address, or viewed in the TextPort web site.
-                </h2>
+                </h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-5">
+        <div class="card h-100">
+            <div class="card-body pb-0">
+                <h2 class="card-title">Disposable Numbers</h2>
+                <h3 class="card-text">TextPort provides temporary, disposable phone numbers for text messaging. Ideal for situations where you need to give out a number, but not reveal your own personal number.</h3>
+            </div>
+            <div class="card-body pt-2">
+                <a href="/temporary-numbers" class="btn btn-primary btn-sm">More Info</a>
             </div>
         </div>
     </div>
     <div class="col-md-4 mb-5">
         <div class="card h-100">
             <div class="card-body">
-                <h1 class="card-title">Localized Numbers</h1>
-                <h2 class="card-text">If you're targeting customers in a particular area, chose a number in that area code to create a more localized presence. Customers are more likely to read and respond to a message that originates from the same area code as their own.</h2>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4 mb-5">
-        <div class="card h-100">
-            <div class="card-body">
-                <h1 class="card-title">Dedicated Employee Numbers</h1>
-                <h2 class="card-text">Do you have multiple employees or groups within your organization? Assign each entity their own unique number. Replies can be routed back to each employee or group.</h2>
+                <h2 class="card-title">Dedicated Employee Numbers</h2>
+                <h3 class="card-text">Do you have multiple employees or groups within your organization? Assign each entity their own unique number. Replies can be routed back to each employee or group.</h3>
             </div>
         </div>
     </div>
@@ -126,60 +70,49 @@
     <div class="col-md-4 mb-5">
         <div class="card h-100">
             <div class="card-body">
-                <h1 class="card-title">Protect your Identity</h1>
-                <h2 class="card-text">
+                <h2 class="card-title">Protect your Identity</h2>
+                <h3 class="card-text">
                     Virtual numbers help maintain privacy and protect your identity. Send texts anonymously without exposing your mobile number.
-                </h2>
+                </h3>
             </div>
         </div>
     </div>
     <div class="col-md-4 mb-5">
         <div class="card h-100">
             <div class="card-body">
-                <h1 class="card-title">National Coverage</h1>
-                <h2 class="card-text">Choose from thousands of numbers across every US area code. Check number availability using the number lookup tool below.</h2>
+                <h2 class="card-title">National Coverage</h2>
+                <h3 class="card-text">Choose from thousands of numbers across every US area code. Check number availability using the number lookup tool below.</h3>
             </div>
         </div>
     </div>
     <div class="col-md-4 mb-5">
         <div class="card h-100">
             <div class="card-body">
-                <h1 class="card-title">Affordable</h1>
-                <h2 class="card-text">Lease numbers for $6.00 per month. All number and messaging pricing can be viewed <a href="~/#pricing">here</a></h2>
+                <h2 class="card-title">Affordable</h2>
+                <h3 class="card-text">Lease numbers for $6.00 per month. All number and messaging pricing can be viewed <a href="~/#pricing">here</a></h3>
             </div>
         </div>
     </div>
 </div>
 <div class="background-lt-gray">
     <div class="px-3 py-3 pt-md-4 pb-md-4 mx-auto text-center">
-        <h1>Virtual Number Lookup</h1>
-        <h2 class="lead">
+        <h2>Virtual Number Lookup</h2>
+        <h3 class="lead">
             Check for available numbers using our virtual number lookup tool.
-        </h2>
+        </h3>
     </div>
-    <div class="container">
-        <div class="row">
-            <div class="col-12">
-                <div class="form-inline justify-content-center">
-                    <div class="form-group">
-                        @Html.TextBoxFor(m => m.AreaCode, new { @class = "form-control form-control-lg ac-input", placeholder = "Area Code" })
-                    </div>
-                </div>
-                <div class="form-inline justify-content-center">
-                    <div id="spintiller1" class="spinner-border collapse mt-3" role="status">
-                        <span class="sr-only">Loading...</span>
-                    </div>
+    <div class="row">
+        <div class="col-12">
+            <div class="form-inline justify-content-center">
+                <div class="form-group">
+                    <input type="text" id="area-code" class="form-control form-control-lg ac-input" , placeholder="Area Code" />
                 </div>
             </div>
         </div>
-        <br>
     </div>
-    <div id="number-results" class="px-3 py-3 pt-md-3 pb-md-4 mx-auto text-center">
-        <h2 class="lead">
-            <label id="area-code-name" class="h3"></label>
-        </h2>
-        <div class="text-left">
-            <ul id="numbers-list" class="list-inline"></ul>
-        </div>
+    <div class="ml-3 pl-1">
+        @Html.Partial("_NumberPicker")
     </div>
+    <br />
 </div>
+<br />

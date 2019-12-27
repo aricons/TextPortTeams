@@ -500,6 +500,7 @@
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\BlogController.cs" />
+    <Compile Include="Controllers\ContactsController.cs" />
     <Compile Include="Controllers\EmailToSMSController.cs" />
     <Compile Include="Controllers\SmsApiController.cs" />
     <Compile Include="Controllers\ApiSettingsController.cs" />
@@ -753,6 +754,7 @@
     <Content Include="Content\images\arw-sort-desc-24.png" />
     <Content Include="Content\images\assignapiapplication.png" />
     <Content Include="Content\images\assignapiapplication2.png" />
+    <Content Include="Content\images\blog\send-texts-online.jpg" />
     <Content Include="Content\images\blog\sms-marketing.jpg" />
     <Content Include="Content\images\bulk-texting-1.png" />
     <Content Include="Content\images\bulk\CSVSampleQuoted.jpg" />
@@ -796,6 +798,7 @@
     <Content Include="Global.asax" />
     <Content Include="Content\Site.css" />
     <Content Include="html\Test.html" />
+    <Content Include="robots.txt" />
     <Content Include="Scripts\bootbox\bootbox.js" />
     <Content Include="Scripts\bootbox\bootbox.min.js" />
     <Content Include="Scripts\bootpag\jquery-bootpag.js" />
@@ -836,6 +839,7 @@
     <Content Include="Content\css\emoji.css.map" />
     <Content Include="Scripts\jquery.twbsPagination.min.js" />
     <Content Include="Scripts\sidenav\sidenav.js" />
+    <Content Include="Scripts\TextPort\GetNumbers.js" />
     <Content Include="Scripts\TextPort\SegmentCounter.js" />
     <Content Include="SidebarMenu\external\bootstrap-custom.css" />
     <Content Include="SidebarMenu\external\bootstrap.min.css" />
@@ -915,7 +919,7 @@
     <Content Include="Scripts\popper-utils.min.js" />
     <Content Include="Scripts\popper.js" />
     <Content Include="Scripts\popper.min.js" />
-    <Content Include="Scripts\TextPort\GetNumbers.js" />
+    <Content Include="Scripts\TextPort\Purchases.js" />
     <Content Include="Scripts\TextPort\LandingCounter.js" />
     <Content Include="Scripts\TextPort\RequiredIfValidation.js" />
     <Content Include="Scripts\TextPort\signalr-hub.js" />
@@ -1036,7 +1040,16 @@
     <Content Include="Views\SmsApi\setup.cshtml" />
     <Content Include="Views\Bulk\BoxIn.cshtml" />
     <Content Include="Views\Blog\Index.cshtml" />
-    <Content Include="Views\Blog\effective-sms-marketing.cshtml" />
+    <Content Include="Views\Blog\articles\original-template.cshtml" />
+    <Content Include="Views\Contacts\Index.cshtml" />
+    <Content Include="Views\Contacts\_ContactsList.cshtml" />
+    <Content Include="Views\Blog\articles\send-and-receive-text-messages-online.cshtml" />
+    <Content Include="Views\Blog\article.cshtml" />
+    <Content Include="Views\Blog\_recent-articles.cshtml" />
+    <Content Include="Views\Blog\articles\effective-sms-marketing.cshtml" />
+    <Content Include="Views\Blog\draft.cshtml" />
+    <Content Include="Views\Home\temporary-numbers.cshtml" />
+    <Content Include="Views\Shared\_NumberPicker.cshtml" />
     <None Include="Web.Beta.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

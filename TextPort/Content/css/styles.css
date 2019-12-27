@@ -287,11 +287,6 @@ footer.footer {
         margin-right: 10px;
     }
 
-/*.modal-content {
-    width: 600px !important;
-    margin: 30px auto !important;
-}*/
-
 .tp-bal {
     font-size: smaller;
     text-align: right;
@@ -324,11 +319,11 @@ footer.footer {
     line-height: 1.5rem;
 }
 
-.landing-cards .card-body h1 {
+.landing-cards .card-body h2 {
     font-size: 2rem;
 }
 
-.landing-cards .card-body h2 {
+.landing-cards .card-body h3 {
     font-size: 1rem;
     line-height: 1.5rem;
     font-weight: 400;
@@ -346,6 +341,32 @@ footer.footer {
     font-size: 1.2rem;
     padding: 15px 20px 15px 15px;
     margin: 6px;
+}
+
+.vn-result-sm {
+    border: 1px solid #007bff;
+    border-radius: 5px;
+    font-size: 0.90rem;
+    font-weight: 500;
+    padding: 10px 12px 10px 12px;
+    margin: 4px;
+}
+
+    .vn-result-sm:hover {
+        cursor: pointer;
+        border-color: #28a745;
+        background-color: #d4edda;
+    }
+
+.vn-result-sel {
+    color: white;
+    background-color: #28a745;
+}
+
+.vn-sel-num {
+    font-size: 1.0em;
+    font-weight: 600;
+    margin-right: 14px;
 }
 
 .feature-block {
@@ -689,3 +710,18 @@ ul.social-network {
     .list-head:hover {
         text-decoration: underline;
     }
+
+.blog-img-60 {
+    height: 60%;
+    width: 60%;
+}
+
+.blog-img-80 {
+    height: 80%;
+    width: 80%;
+}
+
+.blog-img-border {
+    border: 1px dashed #dcdcdc;
+    margin-bottom: 35px;
+}

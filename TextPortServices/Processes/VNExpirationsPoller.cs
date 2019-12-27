@@ -141,7 +141,7 @@ namespace TextPortServices.Processes
                         {
                             if (da.AutoRenewNumber(autoRenewNumber.VirtualNumberID))
                             {
-                                da.DebitFeeFromAccount(autoRenewNumber.AccountID, Constants.BaseNumberCost);
+                                da.DebitFeeFromAccount(autoRenewNumber.AccountID, autoRenewNumber.Fee);
                             }
                             else
                             {

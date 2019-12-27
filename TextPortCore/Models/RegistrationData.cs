@@ -24,7 +24,9 @@ namespace TextPortCore.Models
         private int virtualNumberId;
         private string numberProvider;
         private string productDescription;
-        private int leasePeriod;
+        private string leasePeriodCode;
+        private string leasePeriodType;
+        private short leasePeriod;
         private decimal creditCurrentBalance;
         private decimal creditPurchaseAmount;
         private decimal totalCost;
@@ -34,8 +36,8 @@ namespace TextPortCore.Models
         private string completionTitle;
         private string completionMessage;
         private string orderingMessage;
-        private decimal baseNumberCost;
-        private decimal baseSMSCost;
+        private decimal numberCost;
+        //private decimal baseSMSCost;
         private bool showAnnouncementBanner;
         private string accountValidationKey;
         private string ipAddress;
@@ -150,9 +152,20 @@ namespace TextPortCore.Models
         }
 
         [Required(ErrorMessage = "A lease period is required")]
-        [Range(typeof(int), "1", "200", ErrorMessage = "A lease period is required")]
         [Display(Name = "Keep Number for")]
-        public int LeasePeriod
+        public string LeasePeriodCode
+        {
+            get { return this.leasePeriodCode; }
+            set { this.leasePeriodCode = value; }
+        }
+
+        public string LeasePeriodType
+        {
+            get { return this.leasePeriodType; }
+            set { this.leasePeriodType = value; }
+        }
+
+        public short LeasePeriod
         {
             get { return this.leasePeriod; }
             set { this.leasePeriod = value; }
@@ -160,7 +173,20 @@ namespace TextPortCore.Models
 
         public string LeasePeriodWord
         {
-            get { return (this.LeasePeriod == 1) ? "month" : "months"; }
+            get
+            {
+                switch (this.LeasePeriodType)
+                {
+                    case "D":
+                        return (this.LeasePeriod == 1) ? "day" : "days";
+                    case "W":
+                        return (this.LeasePeriod == 1) ? "week" : "weeks";
+                    case "Y":
+                        return (this.LeasePeriod == 1) ? "year" : "years";
+                    default:
+                        return (this.LeasePeriod == 1) ? "month" : "months";
+                }
+            }
         }
 
         public string NumberProvider
@@ -187,7 +213,8 @@ namespace TextPortCore.Models
 
         public decimal NumberCost
         {
-            get { return this.BaseNumberCost * this.LeasePeriod; }
+            get { return this.numberCost; }
+            set { this.numberCost = value; }
         }
 
         [Display(Name = "Total Cost")]
@@ -276,17 +303,17 @@ namespace TextPortCore.Models
             set { this.orderingMessage = value; }
         }
 
-        public decimal BaseNumberCost
-        {
-            get { return this.baseNumberCost; }
-            set { this.baseNumberCost = value; }
-        }
+        //public decimal BaseNumberCost
+        //{
+        //    get { return this.baseumberCost; }
+        //    set { this.baseNumberCost = value; }
+        //}
 
-        public decimal BaseSMSCost
-        {
-            get { return this.baseSMSCost; }
-            set { this.baseSMSCost = value; }
-        }
+        //public decimal BaseSMSCost
+        //{
+        //    get { return this.baseSMSCost; }
+        //    set { this.baseSMSCost = value; }
+        //}
 
         public bool ShowAnnouncementBanner
         {
@@ -348,6 +375,7 @@ namespace TextPortCore.Models
             this.VirtualNumber = string.Empty;
             this.VirtualNumberId = 0;
             this.NumberProvider = "Bandwidth";
+            this.LeasePeriodType = "M";
             this.LeasePeriod = 0;
             this.CreditCurrentBalance = 0;
             this.CreditPurchaseAmount = 0;
@@ -358,8 +386,8 @@ namespace TextPortCore.Models
             this.CompletionTitle = string.Empty;
             this.CompletionMessage = string.Empty;
             this.OrderingMessage = string.Empty;
-            this.BaseNumberCost = Constants.BaseNumberCost;
-            this.BaseSMSCost = Constants.BaseSMSSegmentCost;
+            //this.BaseNumberCost = 0; // Constants.BaseNumberCost;
+            //this.BaseSMSCost = 0; // Constants.BaseSMSSegmentCost;
             this.ShowAnnouncementBanner = false;
             this.FreeTrial = false;
             this.AccountEnabled = false;
@@ -367,6 +395,7 @@ namespace TextPortCore.Models
             this.IPAddress = string.Empty;
             this.BrowserType = string.Empty;
             this.NumberType = NumberTypes.Regular;
+            this.NumberCountryId = (int)Countries.UnitedStates;
 
             // Initialize the numbers drop-down.
             List<SelectListItem> numbers = new List<SelectListItem>();
@@ -386,7 +415,6 @@ namespace TextPortCore.Models
             this.VirtualNumber = string.Empty;
             this.VirtualNumberId = 0;
             this.NumberProvider = "Bandwidth";
-            this.LeasePeriod = 1;
             this.CreditCurrentBalance = 0;
             this.CreditPurchaseAmount = 0;
             this.Status = "Pending";
@@ -395,8 +423,6 @@ namespace TextPortCore.Models
             this.CompletionTitle = string.Empty;
             this.CompletionMessage = string.Empty;
             this.OrderingMessage = string.Empty;
-            this.BaseNumberCost = Constants.BaseNumberCost;
-            this.BaseSMSCost = Constants.BaseSMSSegmentCost;
             this.ShowAnnouncementBanner = false;
             this.FreeTrial = false;
             this.AccountEnabled = false;
@@ -404,27 +430,26 @@ namespace TextPortCore.Models
             this.IPAddress = string.Empty;
             this.BrowserType = string.Empty;
             this.NumberType = NumberTypes.Regular;
+            this.NumberCountryId = (int)Countries.UnitedStates;
 
             if (purcType == "ComplimentaryNumber")
             {
-                this.BaseNumberCost = 0;
+                this.NumberCost = 0;
                 this.LeasePeriod = 1;
             }
             else if (purcType == "Credit")
             {
-                this.BaseNumberCost = 0;
                 this.LeasePeriod = 0;
-                this.BaseNumberCost = 0;
+                this.NumberCost = 0;
             }
             else if (purcType == "FreeTrial")
             {
-                this.BaseNumberCost = 0;
-                this.LeasePeriod = 1;
-                this.BaseNumberCost = 0;
+                this.NumberCost = 0;
+                this.LeasePeriodType = "W";
+                this.LeasePeriod = 2;
                 this.NumberType = NumberTypes.Pooled;
                 this.FreeTrial = true;
                 this.CreditPurchaseAmount = Constants.InitialFreeTrialBalanceAllocation;
-                this.BaseNumberCost = Constants.Free;
                 this.AccountValidationKey = RandomString.GenerateRandomToken(30);
             }
 
@@ -442,7 +467,7 @@ namespace TextPortCore.Models
             using (TextPortDA da = new TextPortDA())
             {
                 this.CountriesList = da.GetNumberCountriesList(this.PurchaseType);
-                this.LeasePeriodsList = da.GetLeasePeriods((purcType == "ComplimentaryNumber"));
+                this.LeasePeriodsList = da.GetLeasePeriods();
                 this.CreditAmountsList = da.GetCreditAmounts(purcType);
                 this.TollFreeAreaCodesList = da.GetTollFreeAreaCodes();
 
@@ -456,11 +481,9 @@ namespace TextPortCore.Models
                 }
                 else if (this.PurchaseType == "FreeTrial")
                 {
-                    this.BaseNumberCost = 0;
-                    this.LeasePeriod = 0;
-                    this.BaseNumberCost = 0;
+                    this.LeasePeriodType = "M";
+                    this.LeasePeriod = 15;
                     this.NumbersList = da.GetPooledNumbersList();
-                    this.NumberCountryId = (int)Countries.UnitedStates;
                 }
             }
         }

@@ -135,8 +135,7 @@ namespace TextPort.Controllers
         [ActionName("virtual-mobile-numbers")]
         public ActionResult DedicatedVirtualNumbers()
         {
-            RegistrationData rd = new RegistrationData("VirtualNumberSignUp", 0);
-            return View(rd);
+            return View();
         }
 
         [ActionName("email-to-sms-gateway")]
@@ -147,6 +146,12 @@ namespace TextPort.Controllers
 
         [ActionName("bulk-texting")]
         public ActionResult BulkTexting()
+        {
+            return View();
+        }
+
+        [ActionName("temporary-numbers")]
+        public ActionResult TemporaryNumbers()
         {
             return View();
         }

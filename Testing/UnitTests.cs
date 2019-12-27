@@ -92,7 +92,7 @@ namespace Testing
 
             using (Bandwidth bw = new Bandwidth())
             {
-                List<string> numbers = bw.GetVirtualNumbersList(areaCode, 10, true);
+                List<string> numbers = bw.GetVirtualNumbersList(areaCode, 10, true, 1);
                 var foo = numbers;
             }
         }

@@ -1,0 +1,119 @@
+﻿@{
+    ViewData["Title"] = "Temporary phone numbers for sending and receiving texts | TextPort";
+    ViewData["Description"] = "Temporary, disposable phone numbers for short-term sending and receiving of text messages.";
+    ViewData["Keywords"] = "temporary phone number, burner phone number, disposable text number, temporary text number";
+    ViewData["Url"] = "https://textport.com/temporary-numbers";
+}
+
+<script type="text/javascript" src="/scripts/textport/getnumbers.js"></script>
+<script type="text/javascript">
+    function getNumber(number) {
+        location.href = "/account/signup?vn=1" + number + '&p=D1'
+    }
+</script>
+
+<div class="row align-items-center main-banner">
+    <div class="col-lg-5">
+        <img class="img-fluid rounded mx-auto d-block mb-4 mb-lg-0" src="~/Content/images/virtual-mobile-number.png" alt="Virtual Mobile Numbers" height="300">
+    </div>
+    <div class="col-lg-7 text-center text-lg-left">
+        <h1 class="font-weight-light">Disposable Phone Numbers</h1>
+        <h2>
+            Temporary, disposable phone numbers are ideal for situations where you need to give out a number, but would prefer not to reveal your actual mobile number. Any time you share
+            your number you run the risk of it ending up in the wrong hands and later being plagued with robocalls or spam texts. Short term numbers protect your privacy in situations like
+            dating, short-term projects, job searches or Craigslist transactions.
+        </h2>
+    </div>
+</div>
+<div class="card text-white bg-secondary my-5 py-4 text-center sub-banner">
+    <div class="card-body">
+        <h2>How do disposable numbers work?</h2>
+        <h3 class="text-white m-0">
+            Disposable numbers, also known as <strong>burner numbers</strong> are not assigned to a physical mobile device. TextPort maintains a pool of numbers that can be leased for as short as 1 day,
+            or extended indefinitely. You pick a number, then use it to send and receive text messages until you're done with it. Disposable numbers allow you to share a number
+            while keeping your actual number private.
+            @*<br />
+                <br />
+                As often seen on TV, undercover cops and villans have endless supplies of burner phones that they use once or twice, then dispose of in some dramatic fashion. In real life that's completely impractical.
+                But, it is completely possible... if we use virtual disposable numbers instead of actual mobile phones.*@
+        </h3>
+    </div>
+</div>
+<div class="row landing-cards">
+    <div class="col-md-4 mb-5">
+        <div class="card h-100">
+            <div class="card-body">
+                <h2 class="card-title">Online Dating</h2>
+                <h3 class="card-text">
+                    Providing your personal number to someone prior to meeting them is risky, which makes disposable numbers ideal for online dating. If a date doesn't work out as planned, no problem.
+                    Simply let your number expire and you're assured that there's no unwnted communication.
+                </h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-5">
+        <div class="card h-100">
+            <div class="card-body">
+                <h2 class="card-title">Online Exchanges</h2>
+                <h3 class="card-text">When buying or selling on classified sites like Craigslist, burner numbers are useful. You can communicate via text while keeping your actual mobile numbre private and protecting your identity.</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-5">
+        <div class="card h-100">
+            <div class="card-body">
+                <h2 class="card-title">Short Term Projects</h2>
+                <h3 class="card-text">Perhaps you have a business project or job that requires temporary contact with third parties. Giving out your personal mobile number to parties w</h3>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row landing-cards">
+    <div class="col-md-4 mb-5">
+        <div class="card h-100">
+            <div class="card-body">
+                <h2 class="card-title">Protect your Identity</h2>
+                <h3 class="card-text">
+                    Burner numbers help maintain privacy and protect your identity. Send texts anonymously and keep your personal mobile number private.
+                </h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-5">
+        <div class="card h-100">
+            <div class="card-body">
+                <h2 class="card-title">National Coverage</h2>
+                <h3 class="card-text">Choose from thousands of numbers across every US area code. Check number availability using the number lookup tool below.</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-5">
+        <div class="card h-100">
+            <div class="card-body">
+                <h2 class="card-title">Affordable</h2>
+                <h3 class="card-text">2-Day leases start at $1.00. All number and messaging pricing can be viewed <a href="/#pricing">here</a></h3>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="background-lt-gray">
+    <div class="px-3 py-3 pt-md-4 pb-md-4 mx-auto text-center">
+        <h2>Look up disposable numbers</h2>
+        <h3 class="lead">
+            Check for available numbers using our virtual number lookup tool.
+        </h3>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <div class="form-inline justify-content-center">
+                <div class="form-group">
+                    <input type="text" id="area-code" class="form-control form-control-lg ac-input" , placeholder="Area Code" />
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="ml-3 pl-1">
+        @Html.Partial("_NumberPicker")
+    </div>
+    <br />
+</div>

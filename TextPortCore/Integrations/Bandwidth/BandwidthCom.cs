@@ -36,9 +36,16 @@ namespace TextPortCore.Integrations.Bandwidth
             this._client.Authenticator = new HttpBasicAuthenticator(Constants.Bandwidth.ApiToken, Constants.Bandwidth.ApiSecret);
         }
 
-        public List<string> GetVirtualNumbersList(string areaCode, int numbersToReturn, bool tollFree)
+        public List<string> GetVirtualNumbersList(string areaCode, int numbersToReturn, bool tollFree, int page)
         {
             List<String> numbersOut = new List<String>();
+
+            // Don't fetch any more than 6 pages.
+            if (page > 6)
+            {
+                numbersOut.Add("No more numbers");
+                return numbersOut;
+            }
 
             try
             {
@@ -48,20 +55,27 @@ namespace TextPortCore.Integrations.Bandwidth
                 string requestString = string.Empty;
                 if (tollFree)
                 {
-                    requestString = $"/availableNumbers?tollFreeWildCardPattern={areaCode.Substring(0, 2)}*&quantity={numbersToReturn}";
+                    requestString = $"/availableNumbers?tollFreeWildCardPattern={areaCode.Substring(0, 2)}*&quantity={(numbersToReturn * page)}";
                 }
                 else
                 {
-                    requestString = $"/availableNumbers?areaCode={areaCode}&quantity={numbersToReturn}";
+                    requestString = $"/availableNumbers?areaCode={areaCode}&quantity={(numbersToReturn * page)}";
                 }
 
                 RestRequest request = new RestRequest(requestString, Method.GET);
                 request.AddHeader("Content-Type", "application/xml; charset=utf-8");
 
                 SearchResult result = _client.Execute<SearchResult>(request).Data;
+
+                int resultNumber = 1;
+                int startAtRecord = (numbersToReturn * (page - 1)) + 1;
                 foreach (string number in result.TelephoneNumberList)
                 {
-                    numbersOut.Add($"1{number}"); // Add a leading 1 to Bandwidth numbers
+                    if (resultNumber >= startAtRecord)
+                    {
+                        numbersOut.Add($"1{number}"); // Add a leading 1 to Bandwidth numbers
+                    }
+                    resultNumber++;
                 }
             }
             catch (Exception ex)
@@ -182,7 +196,7 @@ namespace TextPortCore.Integrations.Bandwidth
                 _client.BaseUrl = new Uri(accountBaseUrl);
                 _client.Authenticator = new HttpBasicAuthenticator(Constants.Bandwidth.UserName, ConfigurationManager.AppSettings["BandwidthPassword"]);
 
-                RestRequest request = new RestRequest($"/orders/{bwOrderid}", Method.POST);
+                RestRequest request = new RestRequest($"/orders/{bwOrderid}", Method.GET);
                 request.AddHeader("Content-Type", "application/xml; charset=utf-8");
 
                 BandwidthOrderResponse result = _client.Execute<BandwidthOrderResponse>(request).Data;

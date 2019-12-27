@@ -25,6 +25,9 @@ namespace TextPortCore.Models
         public bool AutoRenew { get; set; }
         public string NotificationType { get; set; }
         public string EmailAction { get; set; }
+        public decimal Fee { get; set; }
+        public string LeasePeriodType { get; set; }
+        public short LeasePeriod { get; set; }
         public string VirtualNumberDisplay
         {
             get
@@ -74,6 +77,9 @@ namespace TextPortCore.Models
             Provider = string.Empty;
             AutoRenew = false;
             EmailAction = string.Empty;
+            Fee = 0;
+            LeasePeriodType = string.Empty;
+            LeasePeriod = 0;
         }
 
         private string generateActionUrl()

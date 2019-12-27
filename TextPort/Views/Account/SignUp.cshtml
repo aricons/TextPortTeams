@@ -7,14 +7,64 @@
     ViewData["Url"] = "https://textport.com/account/signup";
 }
 
-<script src="~/scripts/TextPort/GetNumbers.js"></script>
+<script src="/scripts/TextPort/GetNumbers.js"></script>
+<script src="/scripts/TextPort/Purchases.js"></script>
 <script src="https://www.paypalobjects.com/api/checkout.js"></script>
 
 <script type="text/javascript">
+
     $(function () {
-        $("#UserName").focus();
+        $.ajaxSetup({
+            cache: false
+        });
+
+        $('#AreaCode').on("keyup", function (e) {
+            var areaCode = $(this).val();
+            if (areaCode.length === 3) {
+                getAreaCode(areaCode, false);
+            } else {
+                $("#number-results").hide();
+                $("#area-code-name").text('');
+                $("#numbers-list").html('');
+                $("#selected-number").text('');
+                $("#VirtualNumber").val('');
+            }
+        });
+
+        $("#lnk-change-number").on("click", function (e) {
+            $("#number-chooser").toggle(500);
+        });
+
+        var vn = $("#selected-number").text();
+        if (vn !== "") {
+            // number
+            $("#number-chooser").hide();
+            $("#selected-number-wrap").show();
+            $("#payment-section").show();
+            $("#lbl-sel-number").text("Selected number");
+        }
+        else {
+            // no number
+            $("#lbl-sel-number").text("Select a number (enter an area code)");
+            $("#payment-section").hide();
+            $("#selected-number-wrap").hide();
+        }
+
+        $("#number-results").hide();
         $("#AreaCode").mask("000");
+        $("#UserName").focus();
+        numberCount = 42;
     });
+
+    function getNumber(number) {
+        $("#lbl-sel-number").text("Selected number");
+        $("#selected-number").text(numberToDisplay(number));
+        $("#VirtualNumber").val("1" + numberToE164(number));
+        $("#selected-number-wrap").show();
+        $("#number-chooser").hide(500);
+        $("#payment-section").show(500);
+        $("#form-signup").validate().element("#VirtualNumber");
+    }
 </script>
 
 <div class="card">
@@ -36,10 +86,12 @@
             @Html.HiddenFor(m => m.ProductDescription)
             @Html.HiddenFor(m => m.CompletionTitle)
             @Html.HiddenFor(m => m.CompletionMessage)
-            @Html.HiddenFor(m => m.BaseNumberCost)
-            @Html.HiddenFor(m => m.BaseSMSCost)
             @Html.HiddenFor(m => m.NumberType)
             @Html.HiddenFor(m => m.FreeTrial)
+            @Html.HiddenFor(m => m.NumberCountryId)
+            @Html.HiddenFor(m => m.VirtualNumber)
+            @Html.HiddenFor(m => m.LeasePeriodType)
+            @Html.HiddenFor(m => m.LeasePeriod)
 
             <input type="hidden" id="hidTotalCost" value="0" />
             <div class="row">
@@ -64,80 +116,116 @@
                         @Html.TextBoxFor(m => m.ConfirmPassword, new { @class = "col-md-5 form-control", placeholder = "Confirm password", @type = "password", maxlength = "60" })
                         @Html.ValidationMessageFor(m => m.ConfirmPassword, null, new { @class = "text-danger" })
                     </div>
-                    <div class="form-group">
-                        &nbsp;
+                </div>
+            </div>
+            @*<div class="row">
+                    <div class="col-12">
+                        <h1 class="h1-sml">Select a Number</h1>
+                        <hr>
                     </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-12">
-                    <h1 class="h1-sml">Select a Number</h1>
-                    <hr>
-                </div>
-            </div>
+                </div>*@
             <div class="row">
                 <div class="col-12 offset-md-1 col-md-11">
-                    <div class="form-group">
-                        @Html.LabelFor(m => m.NumberCountryId, new { @class = "form-label" })
-                        @Html.DropDownListFor(m => m.NumberCountryId, new SelectList(Model.CountriesList, "Value", "Text"), new { @class = "col-md-5 form-control" })
-                        @Html.ValidationMessageFor(m => m.NumberCountryId, null, new { @class = "text-danger" })
-                        <p class="subscript">* All number purchases include credit for 50 text messages.</p>
+                    @*<div class="form-group">
+                                 @Html.LabelFor(m => m.NumberCountryId, new { @class = "form-label" })
+                                 @Html.DropDownListFor(m => m.NumberCountryId, new SelectList(Model.CountriesList, "Value", "Text"), new { @class = "col-md-5 form-control" })
+                                 @Html.ValidationMessageFor(m => m.NumberCountryId, null, new { @class = "text-danger" })
+                                 <p class="subscript">* All number purchases include credit for 50 text messages.</p>
+                             </div>
+                         <div id="DivAreaCode">
+                                 <div class="form-group">
+                                     @Html.LabelFor(m => m.AreaCode, new { @class = "form-label" })
+                                     <div class="form-row m-1">
+                                         @Html.TextBoxFor(m => m.AreaCode, new { @class = "col-3 col-md-1 form-control", placeholder = "000" })
+                                         <div id="spintiller1" class="spinner-border collapse ml-3" role="status">
+                                             <span class="sr-only">Loading...</span>
+                                         </div>
+                                         <div class="ml-3">
+                                             <label id="AreaCodeDescription" class="col-form-label"></label>
+                                         </div>
+                                     </div>
+                                 </div>
+                                 @Html.ValidationMessageFor(m => m.AreaCode, null, new { @class = "text-danger" })
+                             </div>
+                        @if (!string.IsNullOrEmpty(Model.VirtualNumber))
+                             {
+                             }
+                             else
+                             {
+                         <div id="number-results" class="mx-auto text-center">
+                                 <h2 class="lead">
+                                     <label id="area-code-name" class="h3"></label>
+                                 </h2>
+                                 <div class="text-left">
+                                     <ul id="numbers-list" class="list-inline"></ul>
+                                 </div>
+                             </div>
+                         }
+                         <div id="number-results" class="mx-auto text-center">
+                                 <h2 class="lead">
+                                     <label id="area-code-name" class="h3"></label>
+                                 </h2>
+                                 <div class="text-left">
+                                     <ul id="numbers-list" class="list-inline"></ul>
+                                 </div>
+                             </div>
+                         <div class="form-group" id="DivTollFreePrefix" style="display:none">
+                                 @Html.LabelFor(m => m.TollFreePrefix, new { @class = "form-label" })
+                                 <div class="form-row m-1">
+                                     @Html.DropDownListFor(m => m.TollFreePrefix, new SelectList(Model.TollFreeAreaCodesList, "Value", "Text"), new { @class = "col-md-2 form-control" })
+                                     <div id="spintiller2" class="spinner-border collapse ml-3" role="status">
+                                         <span class="sr-only">Loading...</span>
+                                     </div>
+                                     <div class="col">
+                                         <label id="TFAreaCodeDescription" class="col-form-label"></label>
+                                     </div>
+                                 </div>
+                                 @Html.ValidationMessageFor(m => m.TollFreePrefix, null, new { @class = "text-danger" })
+                             </div>
+                         <div class="form-group">
+                                 @Html.LabelFor(m => m.VirtualNumber, new { @class = "form-label" })
+                                 @Html.DropDownListFor(m => m.VirtualNumber, new SelectList(Model.NumbersList, "Value", "Text"), new { @class = "col-md-5 form-control" })
+                                 @Html.ValidationMessageFor(m => m.VirtualNumber, null, new { @class = "text-danger" })
+                             </div>*@
+
+                    <div class="form-group mb-0">
+                        <label id="lbl-sel-number" class="form-label pb-1">Select a number (search by area code)</label>
+                        <div id="selected-number-wrap">
+                            <label id="selected-number" class="vn-sel-num">@Model.NumberDisplayFormat</label>
+                            <a id="lnk-change-number" href="#">change</a>
+                        </div>
                     </div>
-                    <div id="DivAreaCode">
+                    <div id="number-chooser">
+                        <input type="text" id="area-code" class="form-control ac-input mb-2" , placeholder="Area Code" />
+                        @Html.Partial("_NumberPicker")
+                    </div>
+                    @Html.ValidationMessageFor(m => m.VirtualNumber, null, new { @class = "text-danger" })
+                    <div id="payment-section">
                         <div class="form-group">
-                            @Html.LabelFor(m => m.AreaCode, new { @class = "form-label" })
-                            <div class="form-row m-1">
-                                @Html.TextBoxFor(m => m.AreaCode, new { @class = "col-3 col-md-1 form-control", placeholder = "000" })
-                                <div id="spintiller1" class="spinner-border collapse ml-3" role="status">
-                                    <span class="sr-only">Loading...</span>
-                                </div>
-                                <div class="ml-3">
-                                    <label id="AreaCodeDescription" class="col-form-label"></label>
-                                </div>
-                            </div>
+                            @Html.LabelFor(m => m.LeasePeriodCode, new { @class = "form-label" })
+                            @Html.DropDownListFor(m => m.LeasePeriodCode, new SelectList(Model.LeasePeriodsList, "Value", "Text"), new { @class = "col-md-5 form-control" })
+                            @Html.ValidationMessageFor(m => m.LeasePeriodCode, null, new { @class = "text-danger" })
+                            <div class="subscript">All new accounts include $0.50 credit, good for approximately 30 messages.</div>
                         </div>
-                        @Html.ValidationMessageFor(m => m.AreaCode, null, new { @class = "text-danger" })
-                    </div>
-                    <div class="form-group" id="DivTollFreePrefix" style="display:none">
-                        @Html.LabelFor(m => m.TollFreePrefix, new { @class = "form-label" })
-                        <div class="form-row m-1">
-                            @Html.DropDownListFor(m => m.TollFreePrefix, new SelectList(Model.TollFreeAreaCodesList, "Value", "Text"), new { @class = "col-md-2 form-control" })
-                            <div id="spintiller2" class="spinner-border collapse ml-3" role="status">
-                                <span class="sr-only">Loading...</span>
-                            </div>
-                            <div class="col">
-                                <label id="TFAreaCodeDescription" class="col-form-label"></label>
-                            </div>
+                        @*<div class="row lower-label">
+                                <label>Number Cost</label>
+                                <label id="NumberCostTxt"></label>
+                            </div>*@
+                        <div class="form-group">
+                            <label class="form-label">Additional Credit (optional)</label>
+                            @Html.DropDownListFor(m => m.CreditPurchaseAmount, new SelectList(Model.CreditAmountsList, "Value", "Text"), new { @class = "col-md-5 form-control" })
+                            @Html.ValidationMessageFor(m => m.CreditPurchaseAmount, null, new { @class = "text-danger" })
                         </div>
-                        @Html.ValidationMessageFor(m => m.TollFreePrefix, null, new { @class = "text-danger" })
-                    </div>
-                    <div class="form-group">
-                        @Html.LabelFor(m => m.VirtualNumber, new { @class = "form-label" })
-                        @Html.DropDownListFor(m => m.VirtualNumber, new SelectList(Model.NumbersList, "Value", "Text"), new { @class = "col-md-5 form-control" })
-                        @Html.ValidationMessageFor(m => m.VirtualNumber, null, new { @class = "text-danger" })
-                    </div>
-                    <div class="form-group sm-lower-margin">
-                        @Html.LabelFor(m => m.LeasePeriod, new { @class = "col-form-label" })
-                        @Html.DropDownListFor(m => m.LeasePeriod, new SelectList(Model.LeasePeriodsList, "Value", "Text"), new { @class = "col-md-5 form-control" })
-                        @Html.ValidationMessageFor(m => m.LeasePeriod, null, new { @class = "text-danger" })
-                    </div>
-                    <div class="row lower-label">
-                        <label>Number Cost</label>
-                        <label id="NumberCostTxt"></label>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Additional Credit (optional)</label>
-                        @Html.DropDownListFor(m => m.CreditPurchaseAmount, new SelectList(Model.CreditAmountsList, "Value", "Text"), new { @class = "col-md-5 form-control" })
-                        @Html.ValidationMessageFor(m => m.CreditPurchaseAmount, null, new { @class = "text-danger" })
-                    </div>
-                    <div class="row lower-label">
-                        <label>Total Charge</label>
-                        <label id="TotalCost"></label>
-                    </div>
-                    <div class="form-group">
-                        <button id="btnContinue" type="button" class="btn btn-primary">Continue to Payment</button>
+                        <div class="row lower-label">
+                            <label>Total Charge</label>
+                            <label id="TotalCost"></label>
+                        </div>
+                        <div class="form-group">
+                            <button id="btnContinue" type="button" class="btn btn-primary">Continue to Payment</button>
+                        </div>
                     </div>
                 </div>
+
             </div>
         }
     </div>

@@ -1,0 +1,31 @@
+How to Send and Receive Text Messages Online
+
+Mobile devices will always be the predominant method of exchanging text messages, but there are situations where one may choose to send and receive text messages online. 
+
+Over the years, websites dedicated to online text messaging have evolved. These sites provide web-based texting, and most offer expanded services like bulk texting, SMS APIs, and email to SMS gateways.
+
+An obvious question could be why send and receive text messages online instead of using a phone? Here are a few reasons why:
+
+Bulk Texting:
+The use of text messaging as a medium for sending notifications, marketing messages and alerts has grown rapidly over the years. Anyone wanting to send more than a few messages at once would be clearly disadvantaged if they were to attempt it using only a phone. High volume, or bulk texting is where online services offer significant advantages over traditional phone-based texting. 
+
+Many sites like TextPort provide an interface where users can upload lists of phone numbers and messages in file formats like Excel or CSV, then send large numbers of text messages in a single operation. Most sites provide additional tools for at-a-glance viewing and management of sent and received text messages. The instructions on this page show how easy it it to send large numbers of text messages using a simple one or two column data file.
+
+Automated Texting:
+Many companies utilize text messaging as a means of communicating with their customer base. Order confirmations, appointment reminders, promotional messages and weather alerts, etc. are all examples of text messages that originate from automated systems.
+
+Text messages like these all all sent via an SMS API (Short Messge Service Application Programming Interface). Most companies or businesses operate some form of order tracking or customer relationship management software, from which they have a need to send text messages.
+
+Rather than deal with the complexities of sending and receiving text messages directly from their software, businesses will opt to integrate their software with an SMS API. Their system then forwards basic text message data - a phone number and the content of the message - to an API hosted by an online texting service. The texting service then handles the details of sending the text message to the appropriate mobile provider and tracking delivery receipts, etc.
+
+Privacy:
+When a business uses text messaging to communicate with its customer base, sending text messages from a personal phone is not ideal. Most people prefer to keep their mobile number private, and only share with those who they choose to. Using a personal phone to send bulk messages, for example, is a bad idea, and would likely result in many unwanted text messages or phone calls at all hours of the day or night. 
+
+The solution is to use a virtual number. A virtual mobile number is a phone number, just like a regular phone number, but instead of being assigned to a physical mobile device it's associated with a user account. This allows a business or individual to send and receive text messages without exposing their own personal phone number to their client base. Larger business or companies can have many virtual numbers, so each group or employee within the company can have their own unique number.
+
+Integration with Email:
+In the business world, email remains the ubiquitous form of communication, but online texting services are helping bridge the gap between personal and business communication by offering email-to-SMS gateways. 
+
+An email to SMS gateway is a service that converts email messages into text messages. Instead of sending an email to a regular email address, a user would send an email to an address like 8185551212@textport.com, where the numbers to the left of the "@" sign are the mobile number that the message will be delivered to, and the part to the right is the domain name of the SMS gateway provider. The email-to-SMS gateway offers 2-way communication by routing any inbound text messages back to the email address of the user who originated the message. SMS gateways are secured by allowing only registered email addresses to access it.
+
+In summary, there are many use cases where sending and receiving text messages online is more advantageous than using a phone. Whether it be bulk texting, API integration with an internal software system, or combining texting and email via a gateway, services like TextPort have solutions. TextPort offers all of the features outlined in this article, and at very competitive rates. For more information about any or all of these features.

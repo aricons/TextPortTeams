@@ -1,4 +1,5 @@
 ﻿@using TextPortCore.Models
+@using TextPortCore.Helpers
 @model NumbersContainer
 @{
     ViewBag.Title = "Manage Numbers";
@@ -49,6 +50,8 @@
             });
         });
 
+        $('[data-toggle="tooltip"]').tooltip()
+
         $('#menu_numbers').addClass("active");
     });
 </script>
@@ -81,7 +84,7 @@
                             <th scope="col" class="text-white">Purchased</th>
                             <th scope="col" class="text-white">Expires</th>
                             <th scope="col" class="text-white">Active</th>
-                            <th scope="col" class="text-white text-center" style="width: 25px">Auto Renew</th>
+                            <th scope="col" class="text-white text-center" style="width: 25px">Auto Extend</th>
                             <th scope="col" class="text-white text-center">Extend</th>
                             @if (Model.ApiAppCount > 0)
                             {
@@ -111,7 +114,16 @@
                                 {
                                     <td>Yes</td>
                                     <td class="text-center">@Html.CheckBoxFor(x => vn.AutoRenew, new { id = "autoRenew_" + vn.VirtualNumberId.ToString(), @class = "btn-auto-renew" })</td>
-                                    <td class="text-center">@Html.ActionLink("Extend", "RenewNumber", "Numbers", new { id = vn.VirtualNumberId }, htmlAttributes: new { @class = "" })</td>
+                                    if (vn.NumberType == (byte)NumberTypes.Pooled)
+                                    {
+                                        <td class="text-center">
+                                            Trial<sup><a href="#" class="btn p-1" tabindex="0" role="button" data-toggle="tooltip" title="Trial numbers cannot be extended"><i class="fa fa-info-circle text-primary"></i></a></sup>
+                                        </td>
+                                    }
+                                    else
+                                    {
+                                        <td class="text-center">@Html.ActionLink("Extend", "RenewNumber", "Numbers", new { id = vn.VirtualNumberId }, htmlAttributes: new { @class = "" })</td>
+                                    }
                                     if (Model.ApiAppCount > 0)
                                     {
                                         if (string.IsNullOrEmpty(vn.ApiAppName))

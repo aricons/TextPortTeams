@@ -1,0 +1,157 @@
+﻿@{
+    ViewData["Title"] = "Draft | TextPort";
+    ViewData["Description"] = "Draft";
+    ViewData["Keywords"] = "Draft";
+    ViewData["Url"] = "#";
+}
+<div class="row">
+    <div class="col-lg-8 mb-lg-3">
+        <h1 class="mt-4">Draft Blog Article</h1>
+        <p class="lead">by TextPort</p>
+        <hr />
+        <p>Posted: 2019-12-17 10:30:00 PM</p>
+        <hr />
+        <img class="img-fluid rounded" src="~/content/images/blog/sms-marketing.jpg" alt="Send text messages using C#">
+        <hr />
+        <!-- Content here -->
+        <!-- Title -->
+        <h1 class="mt-4">Send text messages using C# | SMS API</h1>
+
+        <!-- Author -->
+        <p class="lead">by TextPort</p>
+        <hr>
+        <!-- Date/Time -->
+        <p>Posted: December 17th, 2019</p>
+        <hr>
+        <!-- Preview Image -->
+
+        <hr>
+
+        <script type="text/javascript" src="/content/highlight.pack.js"></script>
+        <link rel="stylesheet" type="text/css" href="/content/css/api.css">
+        <link rel="stylesheet" type="text/css" href="/content/highlight/styles/atom-one-light.css" />
+
+        <p>TextPort’s REST SMS API is an easy way to <strong>send text messages using C#</strong>. This article guides you through setting up an account, writing the code, and sending texts using C# in as little as 15 minutes.</p>
+
+        <h5>Set up an account</h5>
+        <p>The first step is to set up an account. TextPort offers a 15-day free trial. No credit card or money is needed to get started. Visit the <a href="/trial">free trial</a> page to set up an account and get a free <a href="/virtual-mobile-numbers">virtual mobile number</a>. The number you choose will be the number that your texts will be sent and received from.</p>
+
+        <h5>Add an API Application</h5>
+        <p>Once your account is set up, go to the API Applications page. Click your username in the top-right corner, then select API Applications.</p>
+
+        <p>Assign a name to your your application. TextPort will generate an API token and API key. These are your API username and password. They will be passed in the HTTP header using basic authentication. See the code samples below to see how these are applied.</p>
+
+        <div class="mx-auto d-block background-lt-gray p-3 blog-img-border">
+            <img src="/content/images/apisettingspage.png" class="mx-auto d-block blog-img-80" alt="SMS API Application Setup" />
+        </div>
+
+        <h5>Associate your API Application with your Virtual Number</h5>
+        <p class="mt-2">
+            The next step is to assign the API application that you just created to your virtual number. Navigate to your Numbers page. Here you will see your virtual number. Click the Apply link to
+            display the Assign API Application dialog.
+        </p>
+        <div class="mx-auto d-block background-lt-gray p-3 blog-img-border">
+            <img src="/content/images/numberslist.png" class="mx-auto d-block blog-img-80" alt="Virtual numbers listing" />
+        </div>
+
+        <p class="mt-2">Select the API application that you created in the step above and click Apply.</p>
+        <div class="mx-auto d-block background-lt-gray p-3 blog-img-border">
+            <img src="/Content/images/assignapiapplication.png" class="mx-auto d-block blog-img-60" alt="Assign API Application to a number" />
+        </div>
+        <p class="mt-2">Your Numbers page should now look like this.</p>
+        <div class="mx-auto d-block background-lt-gray p-3 blog-img-border">
+            <img src="~/Content/images/numberwithappassigned.png" class=" mx-auto d-block blog-img-80" alt="Virtual number with API Application assigned" />
+        </div>
+        <h5 class="mt-2">Now to start writing some code.</h5>
+        <p>
+            Here we'll demonstrate how to <strong>send a text message using C#</strong> with both the .NET WebClient and the newer HttpClient. There's no preferred method to use, so it's simply a matter of personal preference.
+            An alternative would be to use the popular RestSharp client for .NET. This post outlines <a href="/blog/how-to-send-sms-messages-using-restsharp">how to send SMS messages using RestSharp</a>.
+        </p>
+        <h5 class="mt-2">Using the WebClient class</h5>
+        <pre><code class="lang-cs">
+using System.Net;
+
+public void SendSMSUsingWebClient()
+{
+    string jsonData = @@"[ { 'From': '14045551212', 'To': '12065551650', 'MessageText': 'Hello world.' } ]";
+    string apiToken = "63871-opY49WGQ8s";
+    string apiSecret = "GkRMr2ffrgtvns9g5mHe";
+
+    using (WebClient client = new WebClient())
+    {
+        // Add the apiToken and apiSecret as credentials
+        client.Credentials = new NetworkCredential(apiToken, apiSecret);
+        client.Headers.Add(HttpRequestHeader.ContentType, "application/json");
+
+        // Send the request
+        string response = client.UploadString(new Uri("https://api.textport.com/v1/messages/send"), "POST", jsonData);
+    }
+}
+        </code></pre>
+        <h5 class="mt-4">Using the HttpClient class</h5>
+        <pre><code class="lang-cs">
+using System.Text;
+using System.Net.Http;
+
+public async Task SendSMSUsingHttpClient()
+{
+    string jsonData = @@"[ { 'From': '14045551212', 'To': '12065551650', 'MessageText': 'Hello world' } ]";
+
+    // Initialize an instance of the HTTP client
+    using (HttpClient client = new HttpClient())
+    {
+        client.BaseAddress = new Uri("https://api.textport.com");
+        HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, "/v1/messages/send");
+
+        // Add the credentials using basic authentication. This will generate an HTTP header like:
+        string apiToken = "63871-opY49WGQ8s";
+        string apiSecret = "GkRMr2ffrgtvns9g5mHe";
+        byte[] byteArray = new UTF8Encoding().GetBytes($"{apiToken}:{apiSecret}");
+        client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Basic", Convert.ToBase64String(byteArray));
+
+        // Add the JSON content to the request
+        request.Content = new StringContent(jsonData, Encoding.UTF8, "application/json");
+
+        HttpResponseMessage response = await client.SendAsync(request);
+
+        string jsonResult = await response.Content.ReadAsStringAsync();
+    }
+}
+        </code></pre>
+
+        <p class="mt-4">
+            Regardless of which of the above methods you use, the end result will be the same. If the request is successful you'll receive an HTTP 200 (OK) response back, with a JSON (or XML)
+            payload confirming the details of the messsage and the remaining balance.
+        </p>
+        <pre>
+        <code class="lang-json">[
+    {
+        "From":"14045551212",
+        "To":"12065551650",
+        "MessageText":"Hello world",
+        "Status":"OK",
+        "ErrorMessage":"",
+        "MessageId":10488785,
+        "Balance":48.2500
+    }
+]</code></pre>
+        <h5>What if I want to use XML instead of JSON?</h5>
+        <p class="mt-4">
+            If you prefer to use XML over JSON, simply change the value of the <i>Content-type</i> header key to "text/xml". TextPort will accept and return both XML and JSON payloads.
+        </p>
+        <h5>Conclusion</h5>
+        <p>
+            That's all there is to it. It's that simple to <strong>send SMS messages using C#</strong>. Click here for more information on TextPort's <a href="/api/documentation">SMS API documentation and code samples</a>.
+        </p>
+        <script>hljs.initHighlightingOnLoad()</script>
+        <hr />
+    </div>
+    <div class="col-md-4">
+        <div class="mt-md-5">&nbsp;</div>
+        <div class="mt-md-1">&nbsp;</div>
+        <div class="card my-4">
+            <h5 class="card-header"><a href="/blog">Blog Home</a></h5>
+        </div>
+        <div>No recents</div>
+    </div>
+</div>

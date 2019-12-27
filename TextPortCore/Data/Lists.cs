@@ -44,53 +44,70 @@ namespace TextPortCore.Data
             return null;
         }
 
-        public IEnumerable<SelectListItem> GetLeasePeriods(bool complimentaryOnly)
+        public IEnumerable<SelectListItem> GetLeasePeriods()
         {
             try
             {
-                Dictionary<int, string> leasePeriodsDict = null;
+                //Dictionary<int, string> leasePeriodsDict = null;
 
-                if (complimentaryOnly)
-                {
-                    leasePeriodsDict = new Dictionary<int, string>()
+                //if (complimentaryOnly)
+                //{
+                //    leasePeriodsDict = new Dictionary<int, string>()
+                //    {
+                //        {1, "1 Month"}
+                //    };
+                //}
+                //else
+                //{
+                //    leasePeriodsDict = new Dictionary<int, string>()
+                //    {
+                //        {1, "1 Month"},
+                //        {2, "2 Months"},
+                //        {3, "3 Months"},
+                //        {6, "6 Months"},
+                //        {12, "1 Year"},
+                //        {24, "2 Years"}
+                //    };
+                //}
+
+                //List<SelectListItem> periods = leasePeriodsDict
+                //    .OrderBy(p => p.Key)
+                //        .Select(lp =>
+                //        new SelectListItem
+                //        {
+                //            Value = lp.Key.ToString(),
+                //            Text = lp.Value
+                //        }).ToList();
+
+                //if (!complimentaryOnly)
+                //{
+                //    SelectListItem firstItem = new SelectListItem()
+                //    {
+                //        Value = "0",
+                //        Text = "--- select lease period ---"
+                //    };
+
+                //    periods.Insert(0, firstItem);
+                //}
+
+                List<SelectListItem> prices = _context.NumberPricing.Where(n => n.Enabled && n.CountryId == 22)
+                .OrderBy(n => n.SortOrder)
+                    .Select(n =>
+                    new SelectListItem
                     {
-                        {1, "1 Month"}
-                    };
-                }
-                else
+                        Value = $"{n.LeasePeriodType}|{n.LeasePeriod}|{n.Cost:N2}",
+                        Text = $"{n.Description} - {n.Cost:C2}"
+                    }).ToList();
+
+                SelectListItem firstItem = new SelectListItem()
                 {
-                    leasePeriodsDict = new Dictionary<int, string>()
-                    {
-                        {1, "1 Month"},
-                        {2, "2 Months"},
-                        {3, "3 Months"},
-                        {6, "6 Months"},
-                        {12, "1 Year"},
-                        {24, "2 Years"}
-                    };
-                }
+                    Value = "",
+                    Text = "--- select a lease period ---"
+                };
 
-                List<SelectListItem> periods = leasePeriodsDict
-                    .OrderBy(p => p.Key)
-                        .Select(lp =>
-                        new SelectListItem
-                        {
-                            Value = lp.Key.ToString(),
-                            Text = lp.Value
-                        }).ToList();
+                prices.Insert(0, firstItem);
 
-                if (!complimentaryOnly)
-                {
-                    SelectListItem firstItem = new SelectListItem()
-                    {
-                        Value = "0",
-                        Text = "--- select lease period ---"
-                    };
-
-                    periods.Insert(0, firstItem);
-                }
-
-                return new SelectList(periods, "Value", "Text");
+                return new SelectList(prices, "Value", "Text");
             }
             catch (Exception ex)
             {

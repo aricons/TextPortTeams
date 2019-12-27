@@ -2,7 +2,8 @@
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
     ViewBag.Title = "Send and Receive Text Messages Online for Free | TextPort";
-    ViewData["Description"] = "Send and receive text messages online 15-day free. No obligation free trial for virtual texting numbers, bulk texting, SMS API, and email-to-SMS gateway.";
+    ViewData["Description"] = "Send and receive text messages online 15-day free trial. No obligation free trial for virtual texting numbers, bulk texting, SMS API, and email-to-SMS gateway.";
+    ViewData["Keywords"] = "online texting free trial, send and receive text messages free, texting service free trial, business sms service, sms api, email to sms gateway";
     ViewData["Url"] = "https://textport.com/trial";
 }
 <script type="text/javascript">
@@ -29,8 +30,8 @@
             @Html.HiddenFor(m => m.ProductDescription)
             @Html.HiddenFor(m => m.CompletionTitle)
             @Html.HiddenFor(m => m.CompletionMessage)
-            @Html.HiddenFor(m => m.BaseNumberCost)
-            @Html.HiddenFor(m => m.BaseSMSCost)
+            //@Html.HiddenFor(m => m.BaseNumberCost)
+            //@Html.HiddenFor(m => m.BaseSMSCost)
             @Html.HiddenFor(m => m.NumberType)
             @Html.HiddenFor(m => m.FreeTrial)
             @Html.HiddenFor(m => m.NumberCountryId)
@@ -38,14 +39,12 @@
             @Html.HiddenFor(m => m.CreditPurchaseAmount)
             @Html.HiddenFor(m => m.AccountEnabled)
             @Html.HiddenFor(m => m.AccountValidationKey)
-
             <input type="hidden" id="hidTotalCost" value="0" />
-
             <div class="row">
                 <div class="col-12 offset-lg-1 col-lg-5">
                     <div class="form-group">
                         <p class="mb-1"><strong>Full-featured, no obligation 15-Day FREE trial</strong>.</p>
-                        <p>No credit card required. Full acccess to features. Free credit provided.</p>
+                        <p>No credit card required. Access to all features. Free credit provided.</p>
                     </div>
                     <div class="form-group">
                         @Html.LabelFor(m => m.UserName, new { @class = "form-label" })
@@ -84,7 +83,7 @@
                         @Html.LabelFor(m => m.VirtualNumber, new { @class = "form-label" })
                         @Html.DropDownListFor(m => m.VirtualNumber, new SelectList(Model.NumbersList, "Value", "Text"), new { @class = "form-control" })
                         @Html.ValidationMessageFor(m => m.VirtualNumber, null, new { @class = "text-danger" })
-                        <div class="subscript">When opening a regular account you will have the option to choose a number from any area code. Trial numbers are allocated from a pool.</div>
+                        <div class="subscript">When opening a regular account you will have the option to choose from hundreds of numbers for any area code. Trial numbers are allocated from a pool.</div>
                     </div>
                     <div class="form-group">
                         <button id="btnFreeTrial" type="submit" class="btn btn-primary">Start my Trial</button>
