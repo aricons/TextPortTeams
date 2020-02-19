@@ -140,7 +140,7 @@ function calculateCost() {
     $("#LeasePeriodType").val(leasePeriodType);
     $("#LeasePeriod").val(leasePeriod);
 
-    if (remainingCreditAfterPurchase < 0) {
+    if (remainingCreditAfterPurchase <= 0) {
         $("#creditOK").hide();
         $("#creditInsufficient").show();
     } else {

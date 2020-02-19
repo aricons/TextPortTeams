@@ -138,6 +138,7 @@ namespace EmailToSMSGateway
                         emailToSMSMessage.AccountId = emailToSmsAddr.AccountId;
                         emailToSMSMessage.VirtualNumberId = emailToSmsAddr.VirtualNumberId;
                         emailToSMSMessage.ProcessingLog += $"Sender address {emailToSMSMessage.From} is a registered sender address.\r\nAccount ID is {emailToSMSMessage.AccountId}\r\nVirtual number ID is {emailToSMSMessage.VirtualNumberId}\r\n";
+                        emailToSMSMessage.AddressId = emailToSmsAddr.AddressId;
 
                         // Check that the virtual number is valid and active.
                         emailToSMSMessage.ProcessingLog += $"Checking active status of virtual number ID {emailToSMSMessage.VirtualNumberId}\r\n";

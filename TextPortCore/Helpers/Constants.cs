@@ -52,5 +52,10 @@ namespace TextPortCore.Helpers
 
             public static string ApiSecret = "f015bb36ce195ed94610f2e1489dc3619e47bb5c8ffc37f1";
         }
+
+        public static class IPData
+        {
+            public static string ApiKey = "3bfcba21299854a74d3d28b160fb119b9a87b142195081d99403ae79";
+        }
     }
 }

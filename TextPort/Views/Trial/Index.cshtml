@@ -15,8 +15,8 @@
     <div class="card-body">
         <div class="row">
             <div class="col-12">
-                <h4>Send and Receive Text Messages Online for Free for 15 Days</h4>
-                <hr>
+                <h1 class="h4">Send and Receive Text Messages Online</h1>
+                <hr />
             </div>
         </div>
         @using (Html.BeginForm("", "trial", FormMethod.Post))
@@ -30,8 +30,6 @@
             @Html.HiddenFor(m => m.ProductDescription)
             @Html.HiddenFor(m => m.CompletionTitle)
             @Html.HiddenFor(m => m.CompletionMessage)
-            //@Html.HiddenFor(m => m.BaseNumberCost)
-            //@Html.HiddenFor(m => m.BaseSMSCost)
             @Html.HiddenFor(m => m.NumberType)
             @Html.HiddenFor(m => m.FreeTrial)
             @Html.HiddenFor(m => m.NumberCountryId)

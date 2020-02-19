@@ -42,6 +42,20 @@ namespace TextPortCore.Helpers
             return html;
         }
 
+        public static string RenderEmailToSMSResponseEmail(Message msg, string emailAddress)
+        {
+            string salutationName = emailAddress.Substring(0, emailAddress.IndexOf("@"));
+            string html = File.ReadAllText($"{ConfigurationManager.AppSettings["EmailTemplatesFolder"]}EmailToSMSResponseNotification.html");
+            html = html.Replace("{{name}}", salutationName);
+            html = html.Replace("{{time}}", $"{TimeFunctions.GetUsersLocalTime(msg.TimeStamp, msg.Account.TimeZoneId):MM-dd-yyyy hh:mm tt}");
+            html = html.Replace("{{to_number}}", msg.VirtualNumber);
+            html = html.Replace("{{from_number}}", msg.MobileNumber);
+            html = html.Replace("{{message}}", msg.MessageText);
+            html = html.Replace("{{copy_year}}", $"{DateTime.Now.Year}");
+
+            return html;
+        }
+
         public static string RenderForgotPasswordEmailBody(ForgotPasswordRequest req)
         {
             string template = File.ReadAllText($"{ConfigurationManager.AppSettings["EmailTemplatesFolder"]}ResetPassword.html");

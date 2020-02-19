@@ -320,6 +320,7 @@ namespace TextPortCore.Integrations.Bandwidth
                     int accountId = 0;
                     int virtualNumberId = 0;
                     string pooledNumberSearchResult = string.Empty;
+                    bool isEmailToSMSResponse = false;
 
                     DedicatedVirtualNumber dvn = null;
 
@@ -377,7 +378,7 @@ namespace TextPortCore.Integrations.Bandwidth
                     int messageId = da.InsertMessage(messageIn, ref newBalance);
                     result += (messageId > 0) ? $"Message successfully added to messages table.{Environment.NewLine}" : $"Failure adding message to messages table.{Environment.NewLine}";
 
-                    // Check for forwarding
+                    // Check for forwarding and email-to-SMS message responses
                     if (messageIn.AccountId > 0)
                     {
                         string nl = Environment.NewLine;
@@ -385,42 +386,60 @@ namespace TextPortCore.Integrations.Bandwidth
                         if (account != null)
                         {
                             messageIn.Account = account;
-                            // Check for email forwarding.
-                            if (account.EnableEmailNotifications && !string.IsNullOrEmpty(account.NotificationsEmailAddress))
-                            {
-                                result += $"Email forwarding enabled. Sending notification to {account.NotificationsEmailAddress}. ";
-                                string body = Rendering.RenderMessageInEmail(messageIn);
 
-                                EmailMessage email = new EmailMessage(account.NotificationsEmailAddress, $"TextPort - New Message From {Utilities.NumberToDisplayFormat(messageIn.MobileNumber, 22)}", body);
-                                result += (email.Send()) ? "Email sent successfully.\r\n" : "Email send failed.\r\n";
+                            // Check to see if this message is a response to an email-to-sms message.
+                            // If so, send an email notification back to that address.
+                            string originatingEmailToSMSEmailAddress = da.GetOriginalSMSToEmailSenderAddressByAccountIdVirtualNumberIdAndMobileNumber(messageIn.AccountId, messageIn.VirtualNumberId, messageIn.MobileNumber);
+                            if (!string.IsNullOrEmpty(originatingEmailToSMSEmailAddress))
+                            {
+                                isEmailToSMSResponse = true;
+
+                                result += $"Inbound message detected as response to an Email-to-SMS message. Sending email reply to {originatingEmailToSMSEmailAddress}. ";
+                                string body = Rendering.RenderEmailToSMSResponseEmail(messageIn, originatingEmailToSMSEmailAddress);
+
+                                EmailMessage email = new EmailMessage(originatingEmailToSMSEmailAddress, $"TextPort - New Message From {Utilities.NumberToDisplayFormat(messageIn.MobileNumber, 22)}", body);
+                                result += (email.Send()) ? "Email-to-SMS response notification email sent successfully.\r\n" : "Email send failed.\r\n";
                             }
 
-                            // Check for mobile forwarding.
-                            if (account.EnableMobileForwarding && !string.IsNullOrEmpty(account.ForwardVnmessagesTo))
+                            if (!isEmailToSMSResponse)
                             {
-                                // Make sure the virtual number receiving the message and the forwarding number aren't the same, to avoid pushing a notification
-                                // to the same number from which it came and creating a loop.
-                                if (messageIn.VirtualNumber != account.ForwardVnmessagesTo)
+                                // Check for email forwarding.
+                                if (account.EnableEmailNotifications && !string.IsNullOrEmpty(account.NotificationsEmailAddress))
                                 {
-                                    result += $"SMS forwarding enabled. Sending notification to {account.ForwardVnmessagesTo}. ";
-                                    // Check whether the user has a credit balance
-                                    if (account.Balance > 0.10M)
-                                    {
-                                        result += $"Balance is {account.Balance:C}. OK. ";
-                                        // Send the message from the same virtual number on which it was received.
-                                        string msg = $"TextPort message received from {Utilities.NumberToDisplayFormat(messageIn.MobileNumber, 22)}:{nl}";
-                                        msg += $"{messageIn.MessageText}";
+                                    result += $"Email forwarding enabled. Sending notification to {account.NotificationsEmailAddress}. ";
+                                    string body = Rendering.RenderMessageInEmail(messageIn);
 
-                                        Message notificationMessage = new Message(account.AccountId, (byte)MessageTypes.Notification, messageIn.VirtualNumberId, msg);
-                                        notificationMessage.MobileNumber = account.ForwardVnmessagesTo;
+                                    EmailMessage email = new EmailMessage(account.NotificationsEmailAddress, $"TextPort - New Message From {Utilities.NumberToDisplayFormat(messageIn.MobileNumber, 22)}", body);
+                                    result += (email.Send()) ? "Email sent successfully.\r\n" : "Email send failed.\r\n";
+                                }
 
-                                        decimal newBalance2 = 0;
-                                        da.InsertMessage(notificationMessage, ref newBalance2);
-                                        result += (notificationMessage.Send()) ? "SMS sent successfully.\r\n" : "SMS send failed.\r\n";
-                                    }
-                                    else
+                                // Check for mobile forwarding.
+                                if (account.EnableMobileForwarding && !string.IsNullOrEmpty(account.ForwardVnmessagesTo))
+                                {
+                                    // Make sure the virtual number receiving the message and the forwarding number aren't the same, to avoid pushing a notification
+                                    // to the same number from which it came and creating a loop.
+                                    if (messageIn.VirtualNumber != account.ForwardVnmessagesTo)
                                     {
-                                        result += $"Insufficient balance: {account.Balance:C}. SMS not sent.\r\n";
+                                        result += $"SMS forwarding enabled. Sending notification to {account.ForwardVnmessagesTo}. ";
+                                        // Check whether the user has a credit balance
+                                        if (account.Balance > 0.10M)
+                                        {
+                                            result += $"Balance is {account.Balance:C}. OK. ";
+                                            // Send the message from the same virtual number on which it was received.
+                                            string msg = $"TextPort message received from {Utilities.NumberToDisplayFormat(messageIn.MobileNumber, 22)}:{nl}";
+                                            msg += $"{messageIn.MessageText}";
+
+                                            Message notificationMessage = new Message(account.AccountId, (byte)MessageTypes.Notification, messageIn.VirtualNumberId, msg);
+                                            notificationMessage.MobileNumber = account.ForwardVnmessagesTo;
+
+                                            decimal newBalance2 = 0;
+                                            da.InsertMessage(notificationMessage, ref newBalance2);
+                                            result += (notificationMessage.Send()) ? "SMS sent successfully.\r\n" : "SMS send failed.\r\n";
+                                        }
+                                        else
+                                        {
+                                            result += $"Insufficient balance: {account.Balance:C}. SMS not sent.\r\n";
+                                        }
                                     }
                                 }
                             }

@@ -10,10 +10,10 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using TextPortCore.Data;
 using TextPortCore.Models;
 using TextPortCore.Helpers;
+using TextPortCore.Integrations.IPData;
 using TextPortCore.Integrations.Bandwidth;
 using TextPortServices.Processes;
 using EmailToSMSGateway;
-
 
 namespace Testing
 {
@@ -320,6 +320,43 @@ namespace Testing
             TextPortASMX.TextPortSMSResponses responses = client.SendMessages(messages);
 
             var foo = responses;
+        }
+
+        [TestMethod]
+        public void TestNumberLookup()
+        {
+            string number = "9493859115";
+
+            short npa = 0;
+            short nxx = 0;
+            string thousands = string.Empty;
+
+            if (!string.IsNullOrEmpty(number) && number.Length >= 7)
+            {
+                npa = (short)Conversion.StringToIntOrZero(number.Substring(0, 3));
+                nxx = (short)Conversion.StringToIntOrZero(number.Substring(3, 3));
+                thousands = number.Substring(6, 1);
+            }
+
+            using (TextPortDA da = new TextPortDA())
+            {
+                NumberLookupResult result = da.LookupNumber(number);
+
+                var foo = result;
+            }
+        }
+
+        [TestMethod]
+        public void TestIPGeoLocation()
+        {
+            string ipAddress = "70.182.139.22";
+
+            using (IPData ipd = new IPData())
+            {
+                TextPortCore.Models.IPData.IPDataResult res = ipd.LookupIP(ipAddress);
+
+                var bar = res;
+            }
         }
 
     }

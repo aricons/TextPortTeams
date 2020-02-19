@@ -59,6 +59,8 @@ namespace TextPortCore.Models
 
         public int? Segments { get; set; }
 
+        public int? EmailToSMSAddressId { get; set; }
+
         public Account Account { get; set; }
 
         public List<MMSFile> MMSFiles { get; set; } = new List<MMSFile>();
@@ -154,6 +156,7 @@ namespace TextPortCore.Models
             this.Segments = Utilities.GetSegmentCount(emailToSMSMessage.MessageText);
             this.IsMMS = false;
             this.Account = null;
+            this.EmailToSMSAddressId = emailToSMSMessage.AddressId;
             this.MMSFiles = new List<MMSFile>();
         }
 

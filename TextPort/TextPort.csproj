@@ -512,6 +512,7 @@
     <Compile Include="Controllers\MessagesController.cs" />
     <Compile Include="Controllers\NumbersController.cs" />
     <Compile Include="Controllers\PayPalController.cs" />
+    <Compile Include="Controllers\ToolsController.cs" />
     <Compile Include="Controllers\TrialController.cs" />
     <Compile Include="DependencyInjection.cs" />
     <Compile Include="Global.asax.cs">
@@ -556,7 +557,10 @@
     <Content Include="Content\css\styles.css" />
     <Content Include="Content\css\styles.min.css" />
     <Content Include="Content\EmailTemplates\ActivateAccount.html" />
+    <Content Include="Content\EmailTemplates\AutoRenewNumberLowBalanceNotification.html" />
+    <Content Include="Content\EmailTemplates\EmailToSMSResponseNotification.html" />
     <Content Include="Content\EmailTemplates\InboundMessageNotification.html" />
+    <Content Include="Content\EmailTemplates\NumberExpirationNotification.html" />
     <Content Include="Content\EmailTemplates\ResetPassword.html" />
     <Content Include="Content\highlight.pack.js" />
     <Content Include="Content\highlight\highlight\highlight.pack.js" />
@@ -1050,6 +1054,11 @@
     <Content Include="Views\Blog\draft.cshtml" />
     <Content Include="Views\Home\temporary-numbers.cshtml" />
     <Content Include="Views\Shared\_NumberPicker.cshtml" />
+    <Content Include="Views\Tools\number-lookup.cshtml" />
+    <Content Include="Views\Tools\test.cshtml" />
+    <Content Include="Views\Tools\_NumberLookupResult.cshtml" />
+    <Content Include="Views\Tools\ip-address-lookup.cshtml" />
+    <Content Include="Views\Tools\_IPLookupResult.cshtml" />
     <None Include="Web.Beta.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

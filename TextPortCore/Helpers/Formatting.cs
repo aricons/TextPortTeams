@@ -8,7 +8,7 @@ namespace TextPortCore.Helpers
         {
             if (decValue != null)
             {
-                return $"{decValue:C2}";
+                return $"${decValue:F2}"; // Don't use C2 because it will use parentheses for nagative numbers instead of a neagtive (-) sign.
             }
             return "$0.00";
         }

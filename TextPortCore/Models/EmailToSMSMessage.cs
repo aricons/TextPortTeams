@@ -15,6 +15,7 @@ namespace TextPortCore.Models
         public string MessageText { get; set; }
         public List<string> DestinationNumbers { get; set; }
         public string ProcessingLog { get; set; }
+        public int? AddressId { get; set; }
 
         // Constructors
         public EmailToSMSMessage()

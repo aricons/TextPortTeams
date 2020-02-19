@@ -36,12 +36,15 @@ namespace TextPortCore.Data
         public virtual DbSet<GroupMember> GroupMembers { get; set; }
         public virtual DbSet<Message> Messages { get; set; }
         public virtual DbSet<MMSFile> MMSFiles { get; set; }
+        public virtual DbSet<NpaNxxCity> NpaNxxCities { get; set; }
+        public virtual DbSet<NpaNxxThou> NpaNxxThous { get; set; }
         public virtual DbSet<NumberPrice> NumberPricing { get; set; }
         public virtual DbSet<PurchaseTransaction> PurchaseTransactions { get; set; }
         public virtual DbSet<SupportRequest> SupportRequests { get; set; }
         public virtual DbSet<VirtualNumberCountry> VirtualNumberCountries { get; set; }
         public virtual DbSet<PooledNumber> PooledNumbers { get; set; }
         public virtual DbSet<Models.TimeZone> TimeZones { get; set; }
+        public virtual DbSet<ZipLatLong> ZipLatLongs { get; set; }
 
         //public static readonly LoggerFactory _loggerFactory = new LoggerFactory(new[] {
         //    new DebugLoggerProvider((category, level) => category == DbLoggerCategory.Database.Command.Name && level == LogLevel.Debug)
@@ -473,6 +476,24 @@ namespace TextPortCore.Data
                     .IsUnicode(false);
             });
 
+            modelBuilder.Entity<NpaNxxCity>(entity =>
+            {
+                entity.ToTable("NpaNxxCity");
+
+                entity.HasKey(e => e.CityId);
+
+                entity.HasIndex(e => new { e.NPA, e.NXX });
+            });
+
+            modelBuilder.Entity<NpaNxxThou>(entity =>
+            {
+                entity.ToTable("NpaNxxThou");
+
+                entity.HasKey(e => e.Id);
+
+                entity.HasIndex(e => new { e.NPA, e.NXX, e.Thousands });
+            });
+
             modelBuilder.Entity<NumberPrice>(entity =>
             {
                 entity.ToTable("NumberPricing");
@@ -632,6 +653,15 @@ namespace TextPortCore.Data
                     .IsRequired()
                     .HasMaxLength(10)
                     .IsUnicode(false);
+            });
+
+            modelBuilder.Entity<ZipLatLong>(entity =>
+            {
+                entity.ToTable("ZipLatLong");
+
+                entity.HasKey(e => e.ZipId);
+
+                entity.HasIndex(e => new { e.Zip });
             });
         }
     }

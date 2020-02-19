@@ -1,0 +1,81 @@
+﻿@model TextPortCore.Models.IPData.IPDataResult
+<br />
+@if (Model.ip != "NOT FOUND")
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th scope="col">IP Address</th>
+                <th scope="col">@Model.ip</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <th scope="row">City</th>
+                <td>@Model.city</td>
+            </tr>
+            <tr>
+                <th scope="row">Region/County</th>
+                <td>@Model.region</td>
+            </tr>
+            <tr>
+                <th scope="row">Country</th>
+                <td>@Model.country_name</td>
+            </tr>
+            <tr>
+                <th scope="row">Postal Code</th>
+                <td>@Model.postal</td>
+            </tr>
+            <tr>
+                <th scope="row">Continent</th>
+                <td>@Model.continent_name (@Model.continent_code)</td>
+            </tr>
+            <tr>
+                <th scope="row">Latitude</th>
+                <td>@Model.latitude</td>
+            </tr>
+            <tr>
+                <th scope="row">Longitude</th>
+                <td>@Model.longitude</td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th scope="col" colspan="2">Time Zone</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <th scope="row">Time Zone</th>
+                <td>@Model.time_zone.name</td>
+            </tr>
+            <tr>
+                <th scope="row">UTC Offset</th>
+                <td>@Model.time_zone.offset</td>
+            </tr>
+            <tr>
+                <th scope="row">Current Time</th>
+                <td>@Model.time_zone.current_time</td>
+            </tr>
+        </tbody>
+    </table>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th scope="col">IP Address</th>
+                <th scope="col">@Model.ip</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td colspan="2">Unable to perform a lookup on this IP</td>
+            </tr>
+        </tbody>
+    </table>
+}
+

@@ -349,6 +349,40 @@ namespace TextPortCore.Data
             return null;
         }
 
+        public string GetOriginalSMSToEmailSenderAddressByAccountIdVirtualNumberIdAndMobileNumber(int accountId, int virtualNumberId, string mobileNumber)
+        {
+            try
+            {
+                // This method is used to match an SMS to Email Address to an existing EMail-to-SMS outbound message that was sent from that address.
+                // When a message is received a lookup is performed on the receiving virtual number ID, the receiving accountId (probably redundant),
+                // and the mobile number that the message was originally send to. The original outbound message will have the EMailToSMSAddressId set
+                // which can be tied back to the original sender. This allows inbound messages to be directed back to the original sender of the 
+                // email-to-sms message.
+                var query = from
+                    msg in _context.Messages.AsQueryable()
+                            join
+                                emlAdd in _context.EmailToSMSAddresses on msg.EmailToSMSAddressId equals emlAdd.AddressId
+                            where
+                                msg.AccountId == accountId &&
+                                msg.VirtualNumberId == virtualNumberId &&
+                                msg.MobileNumber == mobileNumber &&
+                                msg.Direction == (byte)MessageDirection.Outbound &&
+                                msg.MessageType == (byte)MessageTypes.EmailToSMS
+                            orderby
+                                msg.MessageId descending
+                            select
+                                emlAdd.EmailAddress;
+
+                return query.FirstOrDefault();
+            }
+            catch (Exception ex)
+            {
+                ErrorHandling eh = new ErrorHandling();
+                eh.LogException("MessagesDA.GetOriginalSMSToEmailSenderAddressByAccountIdVirtualNumberIdAndMobileNumber", ex);
+            }
+            return null;
+        }
+
         public bool NumberIsBlocked(string mobileNumber)
         {
             BlockedNumber bn = _context.BlockedNumbers.FirstOrDefault(x => x.MobileNumber == mobileNumber);
@@ -455,7 +489,7 @@ namespace TextPortCore.Data
                 }
                 else
                 {
-                    acc.Balance = -0.0101M;
+                    acc.Balance = 0M;
                     estimatedRemainingBalance = acc.Balance;
                     _context.SaveChanges();
                 }

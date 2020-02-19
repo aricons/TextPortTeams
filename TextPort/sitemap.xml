@@ -2,8 +2,7 @@
 <urlset
       xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-      xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
-            http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+      xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
   <url>
     <loc>https://textport.com/</loc>
     <lastmod>2019-12-17T08:07:38+00:00</lastmod>
@@ -22,6 +21,11 @@
   <url>
     <loc>https://textport.com/virtual-mobile-numbers</loc>
     <lastmod>2019-12-17T08:07:38+00:00</lastmod>
+    <priority>0.80</priority>
+  </url>
+  <url>
+    <loc>https://textport.com/temporary-numbers</loc>
+    <lastmod>2019-12-27T07:17:38+00:00</lastmod>
     <priority>0.80</priority>
   </url>
   <url>
@@ -45,8 +49,8 @@
     <priority>0.80</priority>
   </url>
   <url>
-    <loc>https://textport.com/api/documentation/</loc>
-    <lastmod>2019-12-17T08:07:38+00:00</lastmod>
+    <loc>https://textport.com/api/documentation</loc>
+    <lastmod>2019-12-30T08:07:38+00:00</lastmod>
     <priority>0.77</priority>
   </url>
   <url>

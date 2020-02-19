@@ -1,4 +1,5 @@
 ﻿@using TextPortCore.Models
+@using TextPortCore.Helpers
 @model RegistrationData
 @{
     ViewBag.Title = "My Balance";
@@ -25,7 +26,7 @@
                     <div class="offset-md-1 col-md-7">
                         <div class="form-group">
                             @Html.LabelFor(m => m.CreditCurrentBalance, new { @class = "form-label" })
-                            <label id="VirtualNumberLabel" class="col-4 form-label font-weight-bold">@String.Format("{0:C3}", Model.CreditCurrentBalance)</label>
+                            <label id="VirtualNumberLabel" class="col-4 form-label font-weight-bold">@Formatting.DisplayMoney(Model.CreditCurrentBalance)</label>
                         </div>
                     </div>
                 </div>

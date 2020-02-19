@@ -73,13 +73,17 @@
     <Compile Include="Models\GroupsContainer.cs" />
     <Compile Include="Models\GroupText.cs" />
     <Compile Include="Models\InboxContainer.cs" />
+    <Compile Include="Models\IPDataResult.cs" />
     <Compile Include="Models\LoginCredentials.cs" />
     <Compile Include="Models\Message.cs" />
     <Compile Include="Models\MessageHistory.cs" />
     <Compile Include="Models\MessageIdList.cs" />
     <Compile Include="Models\MessageNotification.cs" />
     <Compile Include="Models\NewNumberModel.cs" />
+    <Compile Include="Models\NpaNxxCity.cs" />
+    <Compile Include="Models\NpaNxxThou.cs" />
     <Compile Include="Models\NumberExpirationData.cs" />
+    <Compile Include="Models\NumberLookupResult.cs" />
     <Compile Include="Models\NumberPrice.cs" />
     <Compile Include="Models\NumbersContainer.cs" />
     <Compile Include="Models\NumberWithAPIDetail.cs" />
@@ -97,6 +101,7 @@
     <Compile Include="Models\SupportRequest.cs" />
     <Compile Include="Models\TimeZone.cs" />
     <Compile Include="Models\VirtualNumberCountry.cs" />
+    <Compile Include="Models\ZipLatLong.cs" />
   </ItemGroup>
 
   <ItemGroup>
