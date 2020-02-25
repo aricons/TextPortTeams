@@ -68,6 +68,8 @@
     <Compile Include="Models\EmailToSMSMessage.cs" />
     <Compile Include="Models\ErrorLog.cs" />
     <Compile Include="Models\ForgotPasswordRequest.cs" />
+    <Compile Include="Models\FreeTextContainer.cs" />
+    <Compile Include="Models\FreeTextIPAddress.cs" />
     <Compile Include="Models\Group.cs" />
     <Compile Include="Models\GroupMember.cs" />
     <Compile Include="Models\GroupsContainer.cs" />

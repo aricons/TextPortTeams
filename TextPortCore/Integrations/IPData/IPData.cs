@@ -36,7 +36,8 @@ namespace TextPortCore.Integrations.IPData
         {
             try
             {
-                //_client.BaseUrl = new Uri(ipDataBaseUrl);
+                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+                _client.BaseUrl = new Uri(ipDataBaseUrl);
                 RestRequest request = new RestRequest($"{ipAddress}?api-key={Constants.IPData.ApiKey}", Method.GET);
                 IRestResponse<IPDataResult> response = _client.Execute<IPDataResult>(request);
 

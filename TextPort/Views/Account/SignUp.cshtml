@@ -2,7 +2,7 @@
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
     ViewBag.Title = "TextPort: Sign up for online texting.";
-    ViewData["Description"] = "Sign up for TextPort's online texting service. Choose your virtual mobile number.";
+    ViewData["Description"] = "Sign up for TextPort's online texting service. Choose your virtual phone number.";
 
     ViewData["Url"] = "https://textport.com/account/signup";
 }
@@ -96,6 +96,9 @@
             <input type="hidden" id="hidTotalCost" value="0" />
             <div class="row">
                 <div class="col-12 offset-md-1 col-md-11">
+                    <div class="form-group">
+                        <h2 class="h6 mb-1">Sign up for online texting, bulk SMS, SMS API, virtual phone numbers and more.</h2>
+                    </div>
                     <div class="form-group">
                         @Html.LabelFor(m => m.UserName, new { @class = "form-label" })
                         @Html.TextBoxFor(m => m.UserName, new { @class = "col-md-5 form-control", placeholder = "User name", maxlength = "20" })

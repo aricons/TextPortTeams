@@ -1,0 +1,91 @@
+﻿@model  TextPortCore.Models.FreeTextContainer
+@{
+    ViewData["Title"] = "Send a Text Online for Free | TextPort";
+    ViewData["Description"] = "Send text messages online for free. Try our free online texting tool.";
+    ViewData["Keywords"] = "send a text online for free, free online texting";
+    ViewData["Url"] = "https://textport.com/support";
+}
+
+<script type="text/javascript">
+    $(function () {
+        $("#MobileNumber").mask('(000) 000-0000');
+
+        $('#ta_message').on('keyup', function (e) {
+            var len = $('#ta_message').val().length;
+            $("#counter").html("Characters: " + len + "/" + (160 - len));
+        });
+    });
+</script>
+
+<div class="free mt-1">
+    <div class="container">
+        <h1>Send a Free Text</h1>
+        <p class="mt-3">
+            Use our free online texting tool to send a free text to any US mobile number.
+        </p>
+        <p class="mb-3">Select any of the free numbers in the Send From drop-down. Enter the recipient's mobile number. Enter your message, then click Send.</p>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="well well-sm">
+                    @using (Html.BeginForm("send-text", "free", FormMethod.Post, new { id = "form-send-text" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.HiddenFor(m => m.Result);
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    @Html.LabelFor(m => m.VirtualNumberId, new { @class = "form-label" })
+                                    @Html.DropDownListFor(m => m.VirtualNumberId, new SelectList(Model.NumbersList, "Value", "Text"), new { @class = "form-control" })
+                                    @Html.ValidationMessageFor(m => m.VirtualNumberId, null, new { @class = "text-danger" })
+                                </div>
+                                <div class="form-group">
+                                    @Html.LabelFor(m => m.MobileNumber, new { @class = "form-label" })
+                                    @Html.TextBoxFor(m => m.MobileNumber, new { @class = "form-control", placeholder = "Mobile number" })
+                                    @Html.ValidationMessageFor(m => m.MobileNumber, null, new { @class = "text-danger" })
+                                </div>
+                                <div class="form-group">
+                                    @Html.LabelFor(m => m.MessageText, new { @class = "form-label" })
+                                    @Html.TextAreaFor(m => m.MessageText, new { @class = "form-control", id = "ta_message", placeholder = "Enter your message...", maxlength = "160" })
+                                    @Html.ValidationMessageFor(m => m.MessageText, null, new { @class = "text-danger" })
+                                    <div class="row pt-1">
+                                        <div class="col-12 small">
+                                            <div id="counter" class="float-right">Characters: 0/160</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        if (!string.IsNullOrEmpty(Model.SubmissionMessage))
+                        {
+                            <div>
+                                @if (Model.Result == "OK")
+                                {
+                                    <p class="text-success">@Html.Raw(Model.SubmissionMessage)</p>
+                                }
+                                else
+                                {
+                                    <p class="text-danger">@Html.Raw(Model.SubmissionMessage)</p>
+                                }
+                            </div>
+                        }
+                        <div class="row">
+                            <div class="col-lg-7">
+                                <div class="form-group">
+                                    <div class="g-recaptcha" data-sitekey="6Ldl-rQUAAAAALacF1sl4vM1WHQL5OhAYRFdLlnQ"></div>
+                                </div>
+                            </div>
+                            <div class="col-lg-5">
+                                <div class="form-group">
+                                    <button type="submit" class="btn btn-primary float-lg-right" id="btnRequestSupport">Send</button>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<br />
+<br />
+<script src='https://www.google.com/recaptcha/api.js'></script>

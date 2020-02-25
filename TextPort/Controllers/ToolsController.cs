@@ -11,24 +11,28 @@ namespace TextPort.Controllers
 {
     public class ToolsController : Controller
     {
-        [ActionName("number-lookup")]
+        [HttpGet]
+        [ActionName("phone-number-lookup")]
         public ActionResult NumberLookup(string n)
         {
-            n = Utilities.StripLeading1(Utilities.StripNumber(n));
-            if (!string.IsNullOrEmpty(n) && n.Length >= 7)
+            if (!string.IsNullOrEmpty(n))
             {
-                using (TextPortDA da = new TextPortDA())
+                n = Utilities.StripLeading1(Utilities.StripNumber(n));
+                if (!string.IsNullOrEmpty(n) && n.Length >= 7)
                 {
-                    NumberLookupResult lookupResult = new NumberLookupResult();
-                    lookupResult = da.LookupNumber(n);
-                    return View(lookupResult);
+                    using (TextPortDA da = new TextPortDA())
+                    {
+                        NumberLookupResult lookupResult = new NumberLookupResult();
+                        lookupResult = da.LookupNumber(n);
+                        return View(lookupResult);
+                    }
                 }
             }
             return View(new NumberLookupResult());
         }
 
         [HttpPost]
-        [ActionName("number-lookup")]
+        [ActionName("phone-number-lookup")]
         [ValidateAntiForgeryToken]
         public ActionResult NumberLookup(NumberLookupResult res)
         {
@@ -45,14 +49,28 @@ namespace TextPort.Controllers
             return View(lookupResult);
         }
 
-        [ActionName("ip-address-lookup")]
-        public ActionResult IpAddressLookup()
+        [HttpGet]
+        [ActionName("ip-address-locator")]
+        public ActionResult IpAddressLookup(string ip)
         {
-            return View(new IPDataResult());
+            IPDataResult res = new IPDataResult();
+            if (string.IsNullOrEmpty(ip))
+            {
+                ip = Request.UserHostAddress;
+            }
+
+            if (!string.IsNullOrEmpty(ip))
+            {
+                using (IPData ipd = new IPData())
+                {
+                    res = ipd.LookupIP(ip);
+                }
+            }
+            return View(res);
         }
 
         [HttpPost]
-        [ActionName("ip-address-lookup")]
+        [ActionName("ip-address-locator")]
         [ValidateAntiForgeryToken]
         public ActionResult IpAddressLookup(IPDataResult res)
         {
@@ -65,21 +83,5 @@ namespace TextPort.Controllers
             }
             return View(res);
         }
-
-        //[HttpPost]
-        //public ActionResult ExecNumberLookup(string phoneNumber)
-        //{
-        //    phoneNumber = Utilities.StripNumber(phoneNumber);
-        //    NumberLookupResult lookupResult = new NumberLookupResult();
-
-        //    if (!string.IsNullOrEmpty(phoneNumber) && phoneNumber.Length >= 7)
-        //    {
-        //        using (TextPortDA da = new TextPortDA())
-        //        {
-        //            lookupResult = da.LookupNumber(phoneNumber);
-        //        }
-        //    }
-        //    return PartialView("_NumberLookupResult", lookupResult);
-        //}
     }
 }

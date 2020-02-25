@@ -182,6 +182,27 @@ namespace TextPortCore.Models
             this.MMSFiles = new List<MMSFile>();
         }
 
+        public Message(FreeTextContainer cont)
+        {
+            // Free text outbound message
+            this.AccountId = cont.AccountId;
+            this.MessageType = (byte)MessageTypes.FreeTextSend;
+            this.Direction = (int)MessageDirection.Outbound;
+            this.QueueStatus = (byte)QueueStatuses.NotProcessed;
+            this.CarrierId = (int)Carriers.BandWidth;
+            this.CustomerCost = 0;
+            this.Ipaddress = cont.IPAddress;
+            this.VirtualNumberId = cont.VirtualNumberId;
+            this.MobileNumber = Utilities.NumberToE164(cont.MobileNumber);
+            this.GatewayMessageId = string.Empty;
+            this.TimeStamp = DateTime.UtcNow;
+            this.MessageText = cont.MessageText;
+            this.Segments = Utilities.GetSegmentCount(cont.MessageText);
+            this.IsMMS = false;
+            this.Account = null;
+            this.MMSFiles = new List<MMSFile>();
+        }
+
         // Inbound messages
         public Message(BandwidthInboundMessage bwMessage, int accountId, int virtualNumberId)
         {

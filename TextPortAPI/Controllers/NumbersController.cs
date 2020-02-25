@@ -54,7 +54,7 @@ namespace TextPortAPI.Controllers
                     {
                         using (Bandwidth bw = new Bandwidth())
                         {
-                            List<string> bwNumbers = bw.GetVirtualNumbersList(areaCode, Constants.NumberOfNumbersToPullFromBandwidthForAPI, false);
+                            List<string> bwNumbers = bw.GetVirtualNumbersList(areaCode, Constants.NumberOfNumbersToPullFromBandwidthForAPI, false, 1);
                             if (bwNumbers != null)
                             {
                                 result.NumberCount = bwNumbers.Count;
@@ -140,12 +140,12 @@ namespace TextPortAPI.Controllers
                                 AccountId = accountId,
                                 PurchaseType = "VirtualNumber",
                                 VirtualNumber = numberRequest.Number,
-                                LeasePeriod = numberRequest.LeasePeriod,
+                                LeasePeriod = (short)numberRequest.LeasePeriod,
                             };
 
                             // Check the balance
                             decimal balance = da.GetAccountBalance(accountId);
-                            decimal requiredAmount = Constants.BaseNumberCost * numberRequest.LeasePeriod;
+                            decimal requiredAmount = Constants.MonthlyNumberRenewalCost * numberRequest.LeasePeriod;
                             if (balance < requiredAmount)
                             {
                                 result.ProcessingMessage = $"The account balance is insufficient. A balance of at least {requiredAmount:C} is required."; ;

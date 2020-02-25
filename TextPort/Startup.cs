@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Web.Mvc;
 using System.Web.Http;
+using System.Configuration;
 using System.Web.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Owin;
@@ -31,6 +32,8 @@ namespace TextPort
             // DataAnnotationsModelValidatorProvider.RegisterAdapter(typeof(RequiredIfAttribute), typeof(RequiredAttributeAdapter));
 
             app.MapSignalR();
+
+            GlobalVariables.Environment = ConfigurationManager.AppSettings["Environment"];
         }
 
         public void ConfigureServices(IServiceCollection services)

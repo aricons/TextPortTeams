@@ -1,18 +1,17 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
-    <title>@ViewData["Title"]</title>
     <meta charset="utf-8">
+    <title>@ViewData["Title"]</title>
     <meta name="description" content="@ViewData["Description"]">
+    <meta name="keywords" content="@ViewData["Keywords"]">
     <meta property="og:title" content="@ViewData["Title"]">
     <meta property="og:description" content="@ViewData["Description"]">
-    <meta name="keywords" content="@ViewData["Keywords"]">
     <meta property="og:locale" content="en_US">
     <meta property="og:type" content="article">
     <meta property="og:url" content="@ViewData["Url"]">
     <meta property="og:site_name" content="TextPort">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no" />
     <meta name="robots" content="index, follow" />
     <meta name="author" content="TextPort.com" />
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
@@ -21,6 +20,7 @@
     <meta http-equiv="expires" content="3600" />
     <meta property="fb:page_id" content="259179750811667" />
 
+    <link rel="canonical" href="@ViewData["Url"]" />
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" crossorigin="anonymous">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic,700italic">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css">
@@ -48,8 +48,13 @@
                     m = s.getElementsByTagName(o)[0]; a.async = 1; a.src = g; m.parentNode.insertBefore(a, m)
             })(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga');
 
-            ga('create', 'UA-21685628-1', 'auto');
-            ga('send', 'pageview');
+             @if (GlobalVariables.Environment == "PRODUCTION")
+             {
+                  @:ga('create', 'UA-21685628-1', 'auto'); ga('send', 'pageview');
+             }
+
+            //ga('create', 'UA-21685628-1', 'auto');
+            //ga('send', 'pageview');
 
             $('.modal-button').on('click', function () {
                 var url = $(this).data('url');
@@ -121,6 +126,10 @@
             $("#balance").html(readCookie("balance"));
         }
     </script>
+    @if (GlobalVariables.Environment.Equals("PRODUCTION"))
+    {
+        @*<script></script>*@
+    }
 </head>
 <body>
     <div id="main-cont" class="container">
@@ -183,7 +192,7 @@
                                 <a class="nav-link" href="/email-to-sms-gateway">Email to SMS</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="/virtual-mobile-numbers">Virtual Numbers</a>
+                                <a class="nav-link" href="/virtual-phone-numbers">Virtual Numbers</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" href="/api">API</a>
@@ -243,11 +252,12 @@
                                     <ul class="list-unstyled">
                                         <li><a href="/bulk-texting">Bulk SMS</a></li>
                                         <li><a href="/email-to-sms-gateway">Email to SMS Gateway</a></li>
-                                        <li><a href="/virtual-mobile-numbers">Virtual Mobile Numbers</a></li>
+                                        <li><a href="/virtual-phone-numbers">Virtual Phone Numbers</a></li>
                                         <li><a href="/api">SMS API</a></li>
                                         <li><a href="/temporary-numbers">Temporary Phone Numbers</a></li>
                                         <li><a href="/">Online Texting</a></li>
                                         <li><a href="/trial">Free Trial</a></li>
+                                        <li><a href="/free/send-text">Send a Free Text</a></li>
                                     </ul>
                                 </div>
                             </div>
@@ -255,6 +265,7 @@
                                 <div class="footer-pad">
                                     <h4>Contact</h4>
                                     <ul class="list-unstyled">
+                                        <li><a href="/faq">FAQs</a></li>
                                         <li><a href="/support">Support</a></li>
                                         <li><a href="/contact">Contact</a></li>
                                         <li><a href="/blog">Blog</a></li>
@@ -268,8 +279,8 @@
                                 <div class="footer-pad">
                                     <h4>Tools</h4>
                                     <ul class="list-unstyled">
-                                        <li><a href="/tools/number-lookup">Phone Number Lookup</a></li>
-                                        <li><a href="/tools/ip-address-lookup">IP Address Lookup</a></li>
+                                        <li><a href="/tools/phone-number-lookup">Phone Number Lookup</a></li>
+                                        <li><a href="/tools/ip-address-locator">IP Address Locator</a></li>
                                     </ul>
                                     <h4>Social</h4>
                                     <ul class="social-network social-circle">
@@ -293,6 +304,10 @@
 
     <div id="modal-cont"></div>
     <div id="modal-cont-login"></div>
+    @if (!User.Identity.IsAuthenticated)
+    {
+        <script type='text/javascript' data-cfasync='false'>window.purechatApi = { l: [], t: [], on: function () { this.l.push(arguments); } }; (function () { var done = false; var script = document.createElement('script'); script.async = true; script.type = 'text/javascript'; script.src = 'https://app.purechat.com/VisitorWidget/WidgetScript'; document.getElementsByTagName('HEAD').item(0).appendChild(script); script.onreadystatechange = script.onload = function (e) { if (!done && (!this.readyState || this.readyState == 'loaded' || this.readyState == 'complete')) { var w = new PCWidget({ c: 'b091137a-773e-4beb-83c0-830ebf96f126', f: true }); done = true; } }; })();</script>
+    }
 </body>
 </html>
 <script src="~/Scripts/sidenav/sidenav.js"></script>

@@ -13,7 +13,7 @@
         <hr />
         <p>Posted: @String.Format("{0:MMMM dd, yyyy}", @Model.Date)</p>
         <hr />
-        <img class="img-fluid rounded" src="@Model.ImageUrl" alt="@Model.Title">
+        <img class="img-responsive mx-auto d-block w-50" src="@Model.ImageUrl" alt="@Model.Title">
         <hr />
         @Html.Raw(Model.PostContent)
         <hr />

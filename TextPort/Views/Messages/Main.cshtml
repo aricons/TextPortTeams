@@ -1,0 +1,510 @@
+﻿@model TextPortCore.Models.MessagingContainer
+@using TextPortCore.Helpers;
+@{
+    ViewData["Title"] = "Messages";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<link rel="stylesheet" href="~/content/css/messaging.css">
+<link rel="stylesheet" href="~/content/css/emoji.css">
+<link rel="stylesheet" href="~/Scripts/dropzone/basic.css">
+
+<script src="~/scripts/emoji/config.js"></script>
+<script src="~/scripts/emoji/util.js"></script>
+<script src="~/scripts/emoji/jquery.emojiarea.js"></script>
+<script src="~/scripts/emoji/emoji-picker.js"></script>
+<script src="~/scripts/dropzone/dropzone.js"></script>
+
+<script type="text/javascript">
+
+    Dropzone.autoDiscover = false;
+    var mmsFiles = [];
+
+    $(function () {
+
+        $('#from_number').on("change", function (e) {
+            getRecentsForVirtualNumber(numberToE164($("#from_number option:selected").val()));
+        });
+
+        $('#btn_send_message').on("click", function (e) {
+            sendMessage();
+            //getBalance();
+            //checkBalance();
+        });
+
+        $('#new_recipient_number').on("focus", function (e) {
+            $("#msg_list").html('');
+            $('.chl').removeClass("active_number");
+            checkSendButtonEligibility();
+        });
+
+        $('#new_recipient_number').on("keyup", function (e) {
+            var newNumber = $("#new_recipient_number").cleanVal();
+            if (newNumber.length >= 10) {
+                $("#hidActiveDestinationNumber").val(newNumber);
+            }
+            else {
+                $("#hidActiveDestinationNumber").val('');
+            }
+            checkSendButtonEligibility();
+        });
+
+        $("#new_recipient_number").mask('(000) 000-0000');
+
+        setChangeDetect();
+        checkBalance();
+
+        // SignalR - Need to declare inHub.client.messageNotification prior to calling $.connection.hub.start();
+        //var inHub = $.connection.inboundHub;
+        //// Create a function that the hub can call back to display messages.
+        //inHub.client.messageNotification = function (notifyJson) {
+        //    var notification = $.parseJSON(notifyJson);
+        //    //debugger;
+        //    // Look for hidActiveDestinationNumber to check whether on messages page. Only display the notification
+        //    // if the destination virtual number matches the ID of the virtual number currintly being viewed.
+        //    var activeDestNum = $("#hidActiveDestinationNumber");
+        //    if (activeDestNum.length && $("#hidActiveVirtualNumberId").val() == notification.VirtualNumberId) {
+        //        var activeDestinationNumber = activeDestNum.val()
+
+        //        // Update or add recents item
+        //        //var recentMessageItem = $('#recent_' + notification.MobileNumber);
+        //        //if (recentMessageItem.length) {
+        //        //    recentMessageItem.html(notification.Htmls.RecentHtml);
+        //        //    if (activeDestinationNumber != notification.MobileNumber) {
+        //        //        recentMessageItem.addClass("new_message");
+        //        //    }
+        //        //}
+        //        //else {
+        //        //    // No existing recent for this number. Add one.
+        //        //    var newRecent = "<div id='recent_" + notification.MobileNumber + "' class='chl chat_list new_message'>" + notification.Htmls.RecentHtml + "</div>";
+        //        //    var lastRecentItem = $('.chat_list:first').attr('id');
+        //        //    if (typeof lastRecentItem != 'undefined') {
+        //        //        $("#" + lastRecentItem).before(newRecent);
+        //        //        setChangeDetect();
+        //        //    }
+        //        //}
+
+        //        // Delete the existing recents item for this number, if it exists, and add a new one. This places the new one at the top.
+        //        var recentMessageItem = $('#recent_' + notification.MobileNumber);
+        //        if (recentMessageItem.length) {
+        //            recentMessageItem.remove();
+        //        }
+        //        var newRecent = "<div id='recent_" + notification.MobileNumber + "' class='chl chat_list new_message'>" + notification.Htmls.RecentHtml + "</div>";
+        //        var firstRecentItem = $('.chat_list:first').attr('id');
+        //        if (typeof firstRecentItem != 'undefined') {
+        //            $("#" + firstRecentItem).before(newRecent);
+        //            setChangeDetect();
+        //        }
+
+        //        // Add notification item (only if this is the active destination number)
+        //        if (notification.MobileNumber == activeDestinationNumber) {
+        //            var lastMessageItem = $('.msg_item:last').attr('id');
+        //            if (typeof lastMessageItem != 'undefined') {
+        //                $("#" + lastMessageItem).after(notification.Htmls.MessageHtml);
+        //            }
+        //            else {
+        //                $("#msg_list").html('');
+        //                var msgList = document.getElementById("msg_list");
+        //                msgList.insertAdjacentHTML("beforeend", notification.Htmls.MessageHtml);
+        //            }
+
+        //            var ml = $("#msg_list");
+        //            ml.animate({ scrollTop: ml.prop("scrollHeight") - ml.height() }, 50);
+        //        }
+        //    }
+        //    else {
+        //        // Not on messages page, or not the active virtual number. Pop up a note.
+        //        alert("Not on messages page. New message received: " + notification.MessageText);
+        //        $.jnoty(notification.MessageText, {
+        //            sticky: false,
+        //            header: 'Message received from ' + numberToE164(notification.MobileNumber) + ' to ' + numberToE164(notification.VirtualNumber),
+        //            theme: 'jnoty-info',
+        //            life: 6000
+        //        });
+        //    }
+        //}
+
+        //inHub.client.deliveryReceipt = function (messageId, messageHtml) {
+        //    var msgItem = document.getElementById("td_" + messageId);
+        //    msgItem.insertAdjacentHTML("beforeend", messageHtml);
+        //}
+
+        //inHub.client.balanceUpdate = function (balTxt) {
+        //    $("#balance").html(balTxt);
+        //}
+
+        //// Start the hub
+        //$.connection.hub.start();
+
+        // Setup emoji picker
+        window.emojiPicker = new EmojiPicker({
+            iconSize: '25',
+            assetsPath: '/content/images/emoji',
+            emojiable_selector: '[data-emojiable=true]',
+            popupButtonClasses: 'fa fa-smile-o'
+        });
+        window.emojiPicker.discover();
+
+        $('#emojipick_1').on("keyup", function (e) {
+            checkSendButtonEligibility();
+        });
+
+        // Setup dropzone
+        myDropzone = $("#mmsDropzone").dropzone({
+            url: "/messages/uploadfile",
+            method: 'POST',
+            addRemoveLinks: true,
+            thumbnailHeight: 30,
+            thumbnailWidth: 30,
+            maxFiles: 10,
+            maxFilesize: 4000,
+            success: function (file) {
+                file.previewElement.parentNode.removeChild(file.previewElement);
+                var fileId = $(file.xhr.response).attr("id");
+                var fileName = file.name.replace(/\s/g, "");
+                mmsFiles.push({ "UniqueName": fileId + "_" + fileName });
+
+                var lastMessageItem = $('.msg_item:last').attr('id');
+                if (typeof lastMessageItem != 'undefined') {
+                    $("#" + lastMessageItem).after(file.xhr.response);
+                }
+                else {
+                    $("#msg_list").html('');
+                    var msgList = document.getElementById("msg_list");
+                    msgList.insertAdjacentHTML("beforeend", file.xhr.response);
+                }
+
+                var ml = $("#msg_list");
+
+                // Animated
+                ml.animate({ scrollTop: ml.prop("scrollHeight") - ml.height() }, 50);
+
+                checkSendButtonEligibility();
+            },
+            error: function (file) {
+                alert("Upload error" + file.error);
+            },
+        });
+
+        // Scroll to the most-recent message.
+        var ml = $("#msg_list");
+        ml.animate({ scrollTop: ml.prop("scrollHeight") - ml.height() }, 50);
+
+        // Check send button eligibility
+        var emjpick = $('#emojipick_1');
+        checkSendButtonEligibility();
+    });
+
+    // This optional function html-encodes messages for display in the page.
+    function htmlEncode(value) {
+        var encodedValue = $('<div />').text(value).html();
+        return encodedValue;
+    }
+
+    function setChangeDetect() {
+        $('.chl').on("click", function (e) {
+            var number = this.id.split('_')[1];
+            $('#' + this.id).removeClass("active_number new_message");
+            getMessagesForNumber(number);
+            $("#hidActiveDestinationNumber").val(number);
+            checkSendButtonEligibility();
+        });
+    }
+
+    function checkSendButtonEligibility() {
+        $('#btn_send_message').prop('disabled', true);
+        if ($("#hidActiveDestinationNumber").val().length >= 10) {
+            $('#emojipick_1').attr('placeholder', 'Type message to ' + $("#hidActiveDestinationNumber").val());
+            if ($('#emojipick_1').html().length >= 1 && $('#emojipick_1').html() != "<br>") {
+                var foo = $('#emojipick_1').html();
+                $('#btn_send_message').prop('disabled', false);
+            };
+
+            var dz = Dropzone.forElement("#mmsDropzone");
+            if (dz.files.length >= 1) {
+                for (i = 0, len = dz.files.length; i < len; i++) {
+                    if (dz.files[i].accepted == true) {
+                        $('#btn_send_message').prop('disabled', false);
+                    }
+                }
+            }
+        }
+        else {
+            $('#emojipick_1').attr('placeholder', 'Type message');
+        }
+    }
+
+    function getRecentsForVirtualNumber(virtualNumberId) {
+        $("#hidActiveVirtualNumberId").val(virtualNumberId);
+
+        var url = '@Url.Action("GetRecentToNumbersForDedicatedVirtualNumber", "Messages")';
+        url = url + "?aid=" + @Model.Account.AccountId + "&vnid=" + virtualNumberId;
+
+        $.get({
+            url: url,
+            dataType: "html",
+            cache: false,
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert(textStatus + ": Message data load failed. " + errorThrown);
+            },
+            success: function (newInputHTML) {
+                $("#recents").html('');
+                var recentsList = document.getElementById("recents");
+                recentsList.insertAdjacentHTML("beforeend", newInputHTML);
+
+                var activeNumberElem = $('.active_number:first').attr('id');
+                if (typeof activeNumberElem != 'undefined') {
+                    var newActiveNumber = activeNumberElem.split('_')[1];
+                    $("#hidActiveDestinationNumber").val(newActiveNumber);
+                    getMessagesForNumber(newActiveNumber);
+                    setChangeDetect();
+                }
+                else {
+                    $("#msg_list").html('');
+                }
+            }
+        })
+    }
+
+    function getMessagesForNumber(number) {
+
+        $('#new_recipient_number').val('');
+        activeVirtualNumberId = $("#hidActiveVirtualNumberId").val();
+
+        var url = '@Url.Action("GetMessagesForNumber", "Messages")';
+        url = url + "?aid=" + @Model.Account.AccountId + "&vnid=" + activeVirtualNumberId + "&num=" + number;
+        $.get({
+            url: url,
+            dataType: "html",
+            cache: false,
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert(textStatus + ": Couldn't load form. " + errorThrown);
+            },
+            success: function (newInputHTML) {
+                $("#msg_list").html('');
+                var msgList = document.getElementById("msg_list");
+                msgList.insertAdjacentHTML("beforeend", newInputHTML);
+                var ml = $("#msg_list");
+
+                // Animated
+                ml.animate({ scrollTop: ml.prop("scrollHeight") - ml.height() }, 50);
+
+                $('.chl').removeClass("active_number");
+                $('#recent_' + number).addClass("active_number");
+            }
+        })
+    }
+
+    function removeImage(imageId, imageFileName) {
+        mmsFiles = jQuery.grep(mmsFiles, function (a) {
+            return a.UniqueName !== imageFileName;
+        });
+
+        var fileNameParam = { FileName: imageFileName };
+        $.post({
+            url: '@Url.Action("DeleteMMSFile", "Messages")',
+            data: JSON.stringify(fileNameParam),
+            contentType: "application/json",
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert("Unable to remove file");
+            },
+            success: function (newInputHTML) {
+                //alert("File deleted OK");
+            }
+        });
+
+        document.getElementById(imageId).outerHTML = "";
+        var ml = $("#msg_list");
+        ml.animate({ scrollTop: ml.prop("scrollHeight") - ml.height() }, 50);
+        checkSendButtonEligibility();
+
+        return false;
+    }
+
+    function sendMessage() {
+
+        if ($("#new_recipient_number").cleanVal() != "") {
+            $("#hidActiveDestinationNumber").val("1" + $("#new_recipient_number").cleanVal());
+        }
+        var message = $("#message_text").val();
+        var fromNumberId = $("#hidActiveVirtualNumberId").val();
+        var toNumber = $("#hidActiveDestinationNumber").val();
+
+        if (message != "" || mmsFiles.length > 0) {
+            if (fromNumberId != "") {
+                if (toNumber != "") {
+                    // Get MMS files
+                    var mmsList = [];
+                    for (i = 0, len = mmsFiles.length; i < len; i++) {
+                        mmsList.push({ "FileName": mmsFiles[i].UniqueName });
+                    }
+
+                    var messageData = {
+                        VirtualNumberId: $("#hidActiveVirtualNumberId").val(),
+                        MobileNumber: $("#hidActiveDestinationNumber").val(),
+                        MessageText: $("#message_text").val(),
+                        MMSFiles: mmsList
+                    };
+
+                    $.post({
+                        url: '@Url.Action("SendMessage", "Messages")',
+                        data: JSON.stringify(messageData),
+                        contentType: "application/json",
+                        error: function (jqXHR, textStatus, errorThrown) {
+                            alert(textStatus + ": Failure sending message. " + errorThrown);
+                        },
+                        success: function (newInputHTML) {
+                            var lastMessageItem = $('.msg_item:last').attr('id');
+                            if (typeof lastMessageItem != 'undefined') {
+                                $("#" + lastMessageItem).after(newInputHTML);
+
+                                $(".temp_img").remove();
+
+                                // Clear all dropzone files
+                                var dz = Dropzone.forElement("#mmsDropzone");
+                                //dz.removeAllFiles();
+                                dz.files = [];
+                                mmsFiles = [];
+
+                                // Clear the message area and apply the placeholder
+                                $('#emojipick_1').text('');
+                                //$('#emojipick_1').attr('placeholder', 'Type message to ' + $("#hidActiveDestinationNumber").val());
+                            }
+                            else {
+                                $("#msg_list").html('');
+                                var msgList = document.getElementById("msg_list");
+                                msgList.insertAdjacentHTML("beforeend", newInputHTML);
+                            }
+
+                            var ml = $("#msg_list");
+
+                            // Animated
+                            ml.animate({ scrollTop: ml.prop("scrollHeight") - ml.height() }, 50);
+
+                            getBalance();
+                            checkBalance();
+                        }
+                    });
+                }
+                else {
+                    alert("No destination number is selected. Make sure a number that the message will be sent to is selected.");
+                }
+            }
+            else {
+                alert("No virtual number is selected. Make sure a number that the message will be sent from is selected.");
+            }
+        }
+        else {
+            alert("No message entered.");
+        }
+    }
+
+    function showEmojiPicker() {
+        var ep = $(".emoji_menu");
+        if (ep.visible == false) {
+            ep.visible = true;
+        } else {
+            ep.visible = false;
+        }
+    }
+
+    function checkBalance() {
+        var bal = parseFloat($("#balance").text());
+        if (bal < 0.015) {
+            $('#msg_area').hide();
+            $('#msg_area_disabled').show();
+        }
+    }
+</script>
+
+<input type="hidden" id="hidActiveVirtualNumberId" value="@Model.ActiveVirtualNumberId" />
+<input type="hidden" id="hidActiveDestinationNumber" value="@Model.ActiveDestinationNumber" />
+<input type="hidden" id="hidBalance" value="@Model.Account.Balance" />
+
+<div class="messages_container">
+    @*Left hand column*@
+    @if (Model.VirtualNumberCount > 0)
+    {
+        <div class="inbox_people">
+            <div class="heading_wrap">
+                <h4 class="num_title">Virtual Number</h4>
+                <select id="from_number" class="form-control num_dd">
+                    @foreach (TextPortCore.Models.DedicatedVirtualNumber number in Model.Numbers)
+                    {
+                        <option value="@number.VirtualNumberId">@number.NumberDisplayFormat</option>
+                    }
+                </select>
+            </div>
+            <div class="heading_wrap_thin">
+                <h4 class="heading_title">Recents</h4>
+            </div>
+            <div id="recents" class="inbox_chat">
+                @Html.Partial("_RecentsList", Model.Recents)
+            </div>
+            <div class="new_num_wrap">
+                <div class="type_num">
+                    <div class="input_num_write">
+                        <input id="new_recipient_number" type="text" placeholder="New number" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="no_num_wrap">
+            <div class="center_vertically">
+                <div class="alert alert-primary text-center">
+                    <h3 class="alert-primary">No Active Numbers</h3>
+                    <p>
+                        You don't have any numbers assigned to your account. Click the link below to add a number.
+                    </p>
+                    <p>
+                        <h5>
+                            <a href="/numbers/getnumber/">Add a Number</a>
+                        </h5>
+                    </p>
+                </div>
+            </div>
+        </div>
+    }
+
+    @*Right hand column*@
+    <div class="message_wrap">
+        <div class="mesgs">
+            <div id="msg_list" class="msg_history">
+                @Html.Partial("_MessageList", Model)
+            </div>
+        </div>
+        <div id="msg_area" class="container no-gutters new_msg_pad">
+            <div class="row no-gutters">
+                <div class="col-sm-10 border-right"><textarea id="message_text" class="message_texarea" data-emojiable="true" data-emoji-ta-id="emojipick_1"></textarea></div>
+                <div class="col-sm-2 h-100 my-auto text-center send-btn-container">
+                    <div>
+                        <button id="btn_send_message" class="btn btn-primary">Send</button>
+                    </div>
+                </div>
+            </div>
+            <div class="row no-gutters border-top">
+                <div class="col-sm-4"></div>
+                <div class="dz-wrap col-sm1 h-100 my-auto text-center">
+                    <form action="/messages/UploadFile/" class="dropzone" id="mmsDropzone">
+                        <span class="dz-message"><i class="fa fa-image mms-icon msg_function_icon"></i></span>
+                    </form>
+                </div>
+                <div class="col-sm-2"></div>
+                <div class="col-sm-1 h-100 my-auto text-center">
+                    <i id="emoji-sel-button" class="fa fa-image fa-smile-o msg_function_icon"></i>
+                </div>
+                <div class="col-sm-4"></div>
+            </div>
+        </div>
+        <div id="msg_area_disabled" class="msg_area_disabled text-center alert alert-danger" style="display: none">
+            <p>Messages cannot be sent because your balance is exhausted</p>
+            <p><a href="/account/balance">Top up your account</a></p>
+        </div>
+    </div>
+</div>
+
+<div class="clearfix"></div>
+

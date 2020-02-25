@@ -260,3 +260,4 @@ paket-files/
 __pycache__/
 *.pyc
 /TextPort/Content/images/MMSFiles/1
+/ArchitectUI

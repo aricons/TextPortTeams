@@ -1,0 +1,102 @@
+﻿@model TextPortCore.Models.NumberLookupResult
+@{
+    ViewData["Title"] = "Reverse Phone Number Lookup | TextPort";
+    ViewData["Description"] = "Reverse Phone Number Lookup Tool";
+    ViewData["Keywords"] = "reverse phone number lookup, phone number check, phone number validator";
+    ViewData["Url"] = "https://textport.com/tools/phone-number-lookup";
+}
+
+<script type="text/javascript">
+    $(function () {
+        $("#Number").mask('(000) 000-0000');
+    });
+
+    function setLatLong(lat, long) {
+        $("#map-lat").val(lat);
+        $("#map-long").val(long);
+    }
+
+    function initMap() {
+        var lat = parseFloat($("#map-lat").val());
+        var long = parseFloat($("#map-long").val());
+        var coord = { lat: lat, lng: long };
+        var map = new google.maps.Map(document.getElementById('map'),
+            {
+                center: coord,
+                zoom: 9,
+                zoomControl: true,
+                mapTypeControl: false,
+                scaleControl: false,
+                streetViewControl: false,
+                rotateControl: false,
+                fullscreenControl: false
+            }
+        );
+        var marker = new google.maps.Marker({ position: coord, map: map });
+    }
+</script>
+
+<input type="hidden" id="map-lat" value="" />
+<input type="hidden" id="map-long" value="" />
+<div class="row align-items-center main-banner">
+    <div class="col-lg-5">
+        <img class="img-fluid rounded mx-auto d-block mb-lg-0" src="~/Content/images/reverse-phone-lookup.png" alt="Reverse phone number lookup" height="280" width="280">
+    </div>
+    <div class="col-lg-7 text-center text-lg-left">
+        <h1 class="font-weight-light">Reverse Phone Number Lookup</h1>
+        <h2>
+            See a phone number or area code that you don't recognize? Our reverse phone number lookup will help identify the location and provider information for that number.
+        </h2>
+    </div>
+</div>
+<div class="card background-lt-gray my-5 py-4 sub-banner">
+    <div class="row justify-content-center">
+        <div class="col-auto">
+            @using (Html.BeginForm("phone-number-lookup", "tools", FormMethod.Post, new { id = "form-lookup", @class = "pt-3" }))
+            {
+                @Html.AntiForgeryToken()
+                <div class="form-inline">
+                    <div class="form-group">
+                        @Html.TextBoxFor(m => m.Number, new { @class = "form-control form-control-lg lu-input", placeholder = "phone number" })
+                    </div>
+                    <button type="submit" id="btn-submit" class="btn btn-lg btn-primary ml-2">Lookup</button>
+                </div>
+                @Html.ValidationMessageFor(m => m.Number, null, new { @class = "text-danger mx-2 mt-2" })
+            }
+        </div>
+    </div>
+    @if (Model.HasResult)
+    {
+        <div class="row mx-2 mt-2">
+            <div class="col-lg-5 col-md-10 mx-auto">
+                @Html.Partial("_NumberLookupResult", Model)
+            </div>
+        </div>
+    }
+</div>
+<br />
+<div>
+    <h2 class="h3">What Data Does the Search Provide?</h2>
+    <p>
+        This search provides a free, immediate lookup on any North American phone number. The search will identify the cellular, wireline, or virtual carrier who owns the number.
+        It will also return the city, state, county and ZIP code, which help identify where a call originates from. Where possible, the geolocation and map for the rate center or
+        exchange will be provided.
+    </p>
+    <p>
+        This search should be used as a general guide only, as the introduction of Local Number Portability (see below for more information on LNP) has resulted in
+        numbers being relocated to new areas and rate centers.
+    </p>
+    <h2 class="h3">What is Local Number Portability (LNP)?</h2>
+    <p>
+        Local Number Portability (or LNP) is a program introduced in 2001 that allowed subscribers to move to a new location, yet keep their phone number.
+        Prior to LNP, end users had to relnquish their old number, then get a new one in their new location. Fortunately, LNP spares us from having to give up our
+        valuable cellular number.
+    </p>
+    <p>
+        LNP is a system that enables end users to keep their telephone numbers when switching from one communications service provider to another. It was largely
+        driven by deregulation in the communications industry when many of the large US telephone companies split into smaller entities and new service providers emerged.
+        This offered subscribers choices when choosing a phone carrier, but switching providers still required getting a new phone number. The introduction of number
+        portability allowed consumers to freely select the communications service provider of their choice and keep their original telephone number.
+    </p>
+    <br />
+</div>

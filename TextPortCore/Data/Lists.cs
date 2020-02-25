@@ -178,6 +178,7 @@ namespace TextPortCore.Data
             try
             {
                 List<SelectListItem> pooledNumbers = _context.PooledNumbers
+                .Where(pn => pn.IsFreeNumber == false)
                 .OrderBy(pn => pn.VirtualNumber)
                     .Select(pn =>
                     new SelectListItem
@@ -200,6 +201,39 @@ namespace TextPortCore.Data
             {
                 ErrorHandling eh = new ErrorHandling();
                 eh.LogException("Lists.GetPooledNumbers", ex);
+            }
+
+            return null;
+        }
+
+        public IEnumerable<SelectListItem> GetFreeNumbersList()
+        {
+            try
+            {
+                List<SelectListItem> freeNumbers = _context.PooledNumbers
+                .Where(pn => pn.IsFreeNumber == true)
+                .OrderBy(pn => pn.VirtualNumber)
+                    .Select(pn =>
+                    new SelectListItem
+                    {
+                        Value = pn.VirtualNumberId.ToString(),
+                        Text = $"{Utilities.NumberToDisplayFormat(pn.VirtualNumber, 22)} - {pn.Description}"
+                    }).ToList();
+
+                SelectListItem firstItem = new SelectListItem()
+                {
+                    Value = null,
+                    Text = "--- select a number ---"
+                };
+
+                freeNumbers.Insert(0, firstItem);
+
+                return new SelectList(freeNumbers, "Value", "Text");
+            }
+            catch (Exception ex)
+            {
+                ErrorHandling eh = new ErrorHandling();
+                eh.LogException("Lists.GetFreeNumbersList", ex);
             }
 
             return null;

@@ -30,7 +30,9 @@ namespace TextPortCore.Helpers
         [Description("ASMX")]
         ASMX = 7,
         [Description("EmailToSMS")]
-        EmailToSMS = 8
+        EmailToSMS = 8,
+        [Description("FreeTextSend")]
+        FreeTextSend = 9
     }
 
     public enum NumberTypes : byte

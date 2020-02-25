@@ -132,7 +132,7 @@ namespace TextPort.Controllers
             return View();
         }
 
-        [ActionName("virtual-mobile-numbers")]
+        [ActionName("virtual-phone-numbers")]
         public ActionResult DedicatedVirtualNumbers()
         {
             return View();
@@ -165,6 +165,13 @@ namespace TextPort.Controllers
         }
 
         [AllowAnonymous]
+        [HttpGet]
+        public ActionResult Test()
+        {
+            return View();
+        }
+
+        [AllowAnonymous]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Contact(SupportRequestModel request)
@@ -191,6 +198,13 @@ namespace TextPort.Controllers
         [AllowAnonymous]
         [HttpGet]
         public ActionResult Terms()
+        {
+            return View();
+        }
+
+        [AllowAnonymous]
+        [HttpGet]
+        public ActionResult FAQ()
         {
             return View();
         }

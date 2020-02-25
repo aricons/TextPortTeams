@@ -103,12 +103,26 @@ namespace TextPortCore.Data
         {
             try
             {
-                return _context.PooledNumbers.Where(x => x.Enabled == true).OrderBy(x => x.VirtualNumber).ToList();
+                return _context.PooledNumbers.Where(x => x.Enabled == true && x.IsFreeNumber == false).OrderBy(x => x.VirtualNumber).ToList();
             }
             catch (Exception ex)
             {
                 ErrorHandling eh = new ErrorHandling();
                 eh.LogException("NumbersDA.GetPooledNumbers", ex);
+            }
+            return new List<PooledNumber>();
+        }
+
+        public List<PooledNumber> GetFreeNumbers()
+        {
+            try
+            {
+                return _context.PooledNumbers.Where(x => x.Enabled == true && x.IsFreeNumber == true).OrderBy(x => x.VirtualNumber).ToList();
+            }
+            catch (Exception ex)
+            {
+                ErrorHandling eh = new ErrorHandling();
+                eh.LogException("NumbersDA.GetFreeNumbers", ex);
             }
             return new List<PooledNumber>();
         }

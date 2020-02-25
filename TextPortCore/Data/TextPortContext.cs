@@ -32,6 +32,7 @@ namespace TextPortCore.Data
         public virtual DbSet<DedicatedVirtualNumber> DedicatedVirtualNumbers { get; set; }
         public virtual DbSet<EmailToSMSAddress> EmailToSMSAddresses { get; set; }
         public virtual DbSet<ErrorLogItem> ErrorLog { get; set; }
+        public virtual DbSet<FreeTextIPAddress> FreeTextIPAddresses { get; set; }
         public virtual DbSet<Group> Groups { get; set; }
         public virtual DbSet<GroupMember> GroupMembers { get; set; }
         public virtual DbSet<Message> Messages { get; set; }
@@ -325,6 +326,15 @@ namespace TextPortCore.Data
                     .IsRequired()
                     .HasMaxLength(80)
                     .IsUnicode(false);
+            });
+
+            modelBuilder.Entity<FreeTextIPAddress>(entity =>
+            {
+                entity.ToTable("FreeTextIPAddresses");
+
+                entity.HasKey(e => e.IpId);
+
+                entity.HasIndex(e => e.IPAddress);
             });
 
             modelBuilder.Entity<Group>(entity =>

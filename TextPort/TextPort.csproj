@@ -502,6 +502,7 @@
     <Compile Include="Controllers\BlogController.cs" />
     <Compile Include="Controllers\ContactsController.cs" />
     <Compile Include="Controllers\EmailToSMSController.cs" />
+    <Compile Include="Controllers\FreeController.cs" />
     <Compile Include="Controllers\SmsApiController.cs" />
     <Compile Include="Controllers\ApiSettingsController.cs" />
     <Compile Include="Controllers\BandwidthController.cs" />
@@ -520,6 +521,7 @@
     </Compile>
     <Compile Include="Helpers\Cookies.cs" />
     <Compile Include="Helpers\Extensions.cs" />
+    <Compile Include="Helpers\GlobalVariables.cs" />
     <Compile Include="Hubs\HubFunctions.cs" />
     <Compile Include="Hubs\InboundHubOld.cs" />
     <Compile Include="Hubs\InboundHub.cs" />
@@ -758,8 +760,21 @@
     <Content Include="Content\images\arw-sort-desc-24.png" />
     <Content Include="Content\images\assignapiapplication.png" />
     <Content Include="Content\images\assignapiapplication2.png" />
+    <Content Include="Content\images\blog\bulk-mms-1.png" />
+    <Content Include="Content\images\blog\bulk-mms.png" />
+    <Content Include="Content\images\blog\international-sms.png" />
+    <Content Include="Content\images\blog\phone-with-messages.jpg" />
+    <Content Include="Content\images\blog\send-receive-texts-online.png" />
+    <Content Include="Content\images\blog\send-text.jpg" />
     <Content Include="Content\images\blog\send-texts-online.jpg" />
+    <Content Include="Content\images\blog\sms-api-programming.png" />
+    <Content Include="Content\images\blog\sms-from-computer.png" />
+    <Content Include="Content\images\blog\sms-marketing-2.jpg" />
     <Content Include="Content\images\blog\sms-marketing.jpg" />
+    <Content Include="Content\images\blog\sms-message-sent.png" />
+    <Content Include="Content\images\blog\textport-free-trial.png" />
+    <Content Include="Content\images\blog\textport-home-page.png" />
+    <Content Include="Content\images\blog\textport-send-sms-online.png" />
     <Content Include="Content\images\bulk-texting-1.png" />
     <Content Include="Content\images\bulk\CSVSampleQuoted.jpg" />
     <Content Include="Content\images\bulk\CSVSampleUnQuoted.jpg" />
@@ -777,6 +792,7 @@
     <Content Include="Content\images\emoji\IconsetSmiles_1x.png" />
     <Content Include="Content\images\emoji\IconsetW.png" />
     <Content Include="Content\images\emoji\IconsetW_1x.png" />
+    <Content Include="Content\images\ip-address-lookup.png" />
     <Content Include="Content\images\messages_page.png" />
     <Content Include="Content\images\messages_page_100.png" />
     <Content Include="Content\images\messages_page_25.png" />
@@ -791,6 +807,8 @@
     <Content Include="Content\images\numberslist.png" />
     <Content Include="Content\images\numberwithappassigned.png" />
     <Content Include="Content\images\phone-icon.png" />
+    <Content Include="Content\images\reverse-phone-lookup.png" />
+    <Content Include="Content\images\temporary-phone-number.png" />
     <Content Include="Content\images\textport-logo-256.png" />
     <Content Include="Content\images\tp_logo_240x54.png" />
     <Content Include="Content\images\user-profile.png" />
@@ -1059,6 +1077,10 @@
     <Content Include="Views\Tools\_NumberLookupResult.cshtml" />
     <Content Include="Views\Tools\ip-address-lookup.cshtml" />
     <Content Include="Views\Tools\_IPLookupResult.cshtml" />
+    <Content Include="Views\Home\faq.cshtml" />
+    <Content Include="Views\Tools\ip-address-locator.cshtml" />
+    <Content Include="Views\Home\test.cshtml" />
+    <Content Include="Views\Free\send-text.cshtml" />
     <None Include="Web.Beta.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

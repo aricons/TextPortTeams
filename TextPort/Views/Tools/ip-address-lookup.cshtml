@@ -16,11 +16,39 @@
             }
         });
     });
+
+    function setLatLong(lat, long) {
+        $("#map-lat").val(lat);
+        $("#map-long").val(long);
+        alert("Setting lat long");
+    }
+
+    function initMap() {
+        var lat = parseFloat($("#map-lat").val());
+        var long = parseFloat($("#map-long").val());
+        var coord = { lat: lat, lng: long };
+        alert("Initing");
+        var map = new google.maps.Map(document.getElementById('map'),
+            {
+                center: coord,
+                zoom: 9,
+                zoomControl: true,
+                mapTypeControl: false,
+                scaleControl: false,
+                streetViewControl: false,
+                rotateControl: false,
+                fullscreenControl: false
+            }
+        );
+        var marker = new google.maps.Marker({ position: coord, map: map });
+    }
 </script>
 
+<input type="hidden" id="map-lat" value="" />
+<input type="hidden" id="map-long" value="" />
 <div class="row align-items-center main-banner">
     <div class="col-lg-5">
-        <img class="img-fluid rounded mx-auto d-block mb-4 mb-lg-0" src="~/Content/images/virtual-mobile-number.png" alt="Phone number lookup tool" height="300">
+        <img class="img-fluid rounded mx-auto d-block mb-4 mb-lg-0" src="/content/images/ip-address-lookup.png" alt="IP address geolocation lookup tool" height="250" width="250">
     </div>
     <div class="col-lg-7 text-center text-lg-left">
         <h1 class="font-weight-light">IP Address Lookup</h1>
@@ -35,8 +63,8 @@
             @using (Html.BeginForm("ip-address-lookup", "Tools", FormMethod.Post, new { id = "form-lookup" }))
             {
                 @Html.AntiForgeryToken()
-                <div class="mx-auto align-content-center border-primary">
-                    <label for="phone-number" class="h5 mx-2">Enter an IP Address</label>
+                <div class="mx-auto align-content-center border-primary pt-3 pb-0">
+                    <label for="phone-number" class="h5 mx-2">IP Address</label>
                     <div class="form-inline">
                         <div class="form-group mx-2">
                             @Html.TextBoxFor(m => m.ip, new { @class = "form-control form-control-lg lu-input" })

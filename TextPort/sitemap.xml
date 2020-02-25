@@ -5,7 +5,7 @@
       xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
   <url>
     <loc>https://textport.com/</loc>
-    <lastmod>2019-12-17T08:07:38+00:00</lastmod>
+    <lastmod>2020-01-05T23:30:00+00:00</lastmod>
     <priority>1.00</priority>
   </url>
   <url>
@@ -19,8 +19,8 @@
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://textport.com/virtual-mobile-numbers</loc>
-    <lastmod>2019-12-17T08:07:38+00:00</lastmod>
+    <loc>https://textport.com/virtual-phone-numbers</loc>
+    <lastmod>2020-02-21T08:07:38+00:00</lastmod>
     <priority>0.80</priority>
   </url>
   <url>
@@ -31,6 +31,11 @@
   <url>
     <loc>https://textport.com/email-to-sms-gateway</loc>
     <lastmod>2019-12-17T08:07:38+00:00</lastmod>
+    <priority>0.80</priority>
+  </url>
+  <url>
+    <loc>https://textport.com/faq</loc>
+    <lastmod>2020-02-13T08:07:38+00:00</lastmod>
     <priority>0.80</priority>
   </url>
   <url>
@@ -64,6 +69,16 @@
     <priority>0.75</priority>
   </url>
   <url>
+    <loc>https://textport.com/tools/phone-number-lookup</loc>
+    <lastmod>2020-02-20T01:03:38+00:00</lastmod>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://textport.com/tools/ip-address-locator</loc>
+    <lastmod>2020-02-20T01:03:38+00:00</lastmod>
+    <priority>0.75</priority>
+  </url>
+  <url>
     <loc>https://textport.com/blog/send-and-receive-text-messages-online</loc>
     <lastmod>2019-12-17T08:07:38+00:00</lastmod>
     <priority>0.76</priority>
@@ -71,6 +86,41 @@
   <url>
     <loc>https://textport.com/blog/effective-sms-marketing</loc>
     <lastmod>2019-12-17T08:07:38+00:00</lastmod>
+    <priority>0.76</priority>
+  </url>
+  <url>
+    <loc>https://textport.com/blog/how-to-send-text-messages-using-csharp</loc>
+    <lastmod>2020-01-05T23:30:00+00:00</lastmod>
+    <priority>0.76</priority>
+  </url>
+  <url>
+    <loc>https://textport.com/blog/how-to-send-sms-messages-using-restsharp</loc>
+    <lastmod>2020-01-05T23:30:00+00:00</lastmod>
+    <priority>0.76</priority>
+  </url>
+  <url>
+    <loc>https://textport.com/blog/send-picture-message-from-computer</loc>
+    <lastmod>2020-01-06T23:35:00+00:00</lastmod>
+    <priority>0.76</priority>
+  </url>
+  <url>
+    <loc>https://textport.com/blog/send-text-messages-from-foreign-countries</loc>
+    <lastmod>2020-01-23T22:00:00+00:00</lastmod>
+    <priority>0.76</priority>
+  </url>
+  <url>
+    <loc>https://textport.com/blog/5-rules-for-effective-sms-marketing-in-2020</loc>
+    <lastmod>2020-01-28T22:00:00+00:00</lastmod>
+    <priority>0.76</priority>
+  </url>
+  <url>
+    <loc>https://textport.com/blog/5-ways-to-send-text-messages-online</loc>
+    <lastmod>2020-02-16T22:00:00+00:00</lastmod>
+    <priority>0.76</priority>
+  </url>
+  <url>
+    <loc>https://textport.com/blog/send-texts-online-5-easy-steps</loc>
+    <lastmod>2020-02-17T22:00:00+00:00</lastmod>
     <priority>0.76</priority>
   </url>
   <url>
@@ -105,7 +155,7 @@
   </url>
   <url>
     <loc>https://textport.com/api/documentation/active-numbers</loc>
-    <lastmod>2019-12-17T08:07:38+00:00</lastmod>
+    <lastmod>2020-02-21T08:07:38+00:00</lastmod>
     <priority>0.51</priority>
   </url>
   <url>
@@ -125,12 +175,12 @@
   </url>
   <url>
     <loc>https://textport.com/api/documentation/ping</loc>
-    <lastmod>2019-12-17T08:07:38+00:00</lastmod>
+    <lastmod>2020-02-21T08:07:38+00:00</lastmod>
     <priority>0.51</priority>
   </url>
   <url>
     <loc>https://textport.com/api/documentation/message-received</loc>
-    <lastmod>2019-12-17T08:07:38+00:00</lastmod>
+    <lastmod>2020-02-21T08:07:38+00:00</lastmod>
     <priority>0.51</priority>
   </url>
   <url>

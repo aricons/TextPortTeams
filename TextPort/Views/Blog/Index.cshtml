@@ -48,7 +48,7 @@
         @foreach (BlogPost post in Model.Posts)
         {
             <div class="card mb-5">
-                <img class="card-img-top" src="@post.ImageUrl" alt="@post.Title" />
+                <img class="card-img-top w-50 h-50 img-thumbnail rounded border-0 mx-auto align-content-center" src="@post.ImageUrl" alt="@post.Title" />
                 <div class="card-body">
                     <h2 class="card-title">@post.Title</h2>
                     <p class="card-text">@Html.Raw(post.Introduction)</p>
