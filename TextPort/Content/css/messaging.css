@@ -1,5 +1,45 @@
-﻿img {
+﻿body {
+    height: 100%;
+    margin: 0;
+}
+
+.pnl-show {
+    visibility: visible;
+    transform: translateX(-100%);
+}
+
+.pnl-hide {
+    visibility: hidden;
+    transform: translateX(-100%);
+}
+
+img {
     max-width: 100%;
+}
+
+.fa-big {
+    font-size: 1.5rem;
+}
+
+.counter-font {
+    font-size: 75%;
+    font-weight: 400;
+}
+
+.counter-info {
+    width: 25px;
+    margin: -5px 2px 0 10px;
+}
+
+
+@media (max-width: 991.98px) {
+    .counter-font {
+        font-size: 60%;
+    }
+}
+
+.msg-icons-cont {
+    width: 50px;
 }
 
 .inbox_people {
@@ -10,8 +50,6 @@
 
 .messages_container {
     border: 1px solid #c4c4c4;
-    width: 100%;
-    /*float: left;*/
 }
 
 .top_spac {
@@ -49,14 +87,19 @@
 }
 
 .heading_wrap h4, .heading_wrap_thin h4, .heading_wrap_b h4 {
-    padding: 5px 12px 0px 2px;
+    padding: 0px 12px 0px 5px;
     color: #007bff;
-    font-size: 21px;
+    font-size: 20px;
+}
+
+.chat_ib {
+    float: left;
+    width: 100%;
 }
 
 .msg-h4 {
     color: #007bff;
-    font-size: 21px;
+    font-size: 18px;
     line-height: 20px;
 }
 
@@ -74,17 +117,20 @@
 .chat_ib p {
     font-size: 14px;
     color: #989898;
-    margin: auto
+    width: 90%;
+    float: left;
+}
+
+.chat_ib a {
+    font-size: 14px;
+    color: #007bff;
+    width: 10%;
+    text-align: right;
 }
 
 .chat_img {
     float: left;
     width: 11%;
-}
-
-.chat_ib {
-    float: left;
-    width: 88%;
 }
 
 .chat_people {
@@ -105,17 +151,17 @@
 
 .vn-del {
     margin-right: 12px;
-    /*text-align: right;*/
 }
 
 .inbox_chat {
-    height: 455px;
+    width: 100%;
+    height: 575px;
     overflow-y: auto;
 }
 
 .msg_history {
     width: 100%;
-    height: 458px;
+    height: 550px;
     overflow-y: auto;
 }
 
@@ -127,50 +173,23 @@
     background: #d4edda;
 }
 
-.incoming_msg_img {
-    display: inline-block;
-    width: 6%;
-}
-
-.received_msg {
-    display: inline-block;
-    padding: 0 0 0 10px;
-    vertical-align: top;
-    width: 92%;
-}
-
-.received_withd_msg p {
-    background: #ebebeb none repeat scroll 0 0;
-    border-radius: 3px;
-    color: #646464;
-    font-size: 14px;
-    margin: 0;
-    padding: 5px 10px 5px 12px;
-    width: 100%;
-}
-
-.time_date {
-    color: #747474;
-    display: block;
-    font-size: 12px;
-    margin: 8px 0 0;
-}
-
 .rcpt {
-    float: right;
+    text-align: right;
     margin-right: 4px;
     color: #28a745;
-    font-size: 13px;
+    font-size: 0.8rem;
     font-weight: bold;
 }
 
-.received_withd_msg {
-    width: 57%;
+.rcpt-fail {
+    text-align: right;
+    margin-right: 4px;
+    color: #a71d2a;
+    font-size: 0.8rem;
+    font-weight: bold;
 }
 
 .message_wrap {
-    /*float: left;
-    width: 60%;*/
     border-left: 1px solid #c4c4c4;
 }
 
@@ -179,60 +198,75 @@
     border-bottom: 1px solid #c4c4c4;
 }
 
-.sent_msg p {
-    background: #007bff none repeat scroll 0 0;
-    border-radius: 3px;
-    font-size: 14px;
-    margin: 0;
-    color: #fff;
-    padding: 5px 10px 5px 12px;
-    width: 100%;
-}
-
-    .sent_msg p img {
-        background: #ffffff none repeat scroll 0 0;
-    }
-
-.outgoing_msg {
-    overflow: hidden;
-    margin: 25px 8px 25px 8px;
+.msg_item {
+    clear: both;
 }
 
 .sent_msg {
+    padding: 0 8px 18px 0px;
     float: right;
-    width: 46%;
+    max-width: 70%;
+}
+
+    .sent_msg p {
+        background: #007bff;
+        border-radius: 3px;
+        font-size: 14px;
+        margin: 0;
+        color: #fff;
+        padding: 5px 10px 5px 10px;
+        width: 100%;
+        text-align: right;
+    }
+
+.received_msg {
+    padding: 0 0 18px 8px;
+    max-width: 70%;
+}
+
+    .received_msg p {
+        display: inline-block;
+        background: #ebebeb;
+        border-radius: 3px;
+        color: #646464;
+        font-size: 14px;
+        padding: 5px 10px 5px 10px;
+        margin-bottom: 0;
+        text-align: left;
+    }
+
+.time_date {
+    color: #747474;
+    display: block;
+    font-size: 0.7rem;
+}
+
+.drt {
+    text-align: right;
+}
+
+.outgoing_msg {
+    overflow: hidden;
+    margin: 20px 8px 20px 0px;
 }
 
 .input_num_write input {
-    /*background: #FFFFFF none repeat scroll 0 0;*/
-    /*border: medium none;*/
     color: #4c4c4c;
     font-size: 18px;
-    /*min-height: 50px;*/
     width: 100%;
 }
-
-/*.type_msg {
-    padding: 5px 5px 10px 0px;
-    border-top: 1px solid #c4c4c4;
-    position: relative;
-}*/
 
 .message_texarea {
     width: 100%;
     overflow: scroll;
     border: solid 1px #dcdcdc;
+    font-size: 1rem;
 }
 
 .new_num_wrap {
     margin: 0px;
     background: #FFFFFF;
     position: relative;
-}
-
-.type_num {
-    /*border-top: 1px solid #c4c4c4;*/
-    /*padding: 10px 0px 0px 15px;*/
 }
 
 .no_num_wrap {
@@ -246,12 +280,7 @@
     margin-top: 250px;
 }
 
-/*.send-btn-container {
-    width: 80px;
-}*/
-
 .msg_send_btn {
-    /*background: #05728f none repeat scroll 0 0;*/
     background: #007bff none repeat scroll 0 0;
     border: medium none;
     border-radius: 50%;
@@ -271,17 +300,7 @@
     }
 
 .msg_send_icon {
-    padding: 0 5px 5px 0;
-}
-
-.dz-wrap {
-    float: left;
-    width: 50px;
-    height: 50px;
-}
-
-.mms-icon {
-    font-size: 24px;
+    padding: 0 0px 0px 0;
 }
 
 .borders {
@@ -289,14 +308,13 @@
 }
 
 .msg_function_icon {
-    padding: 10px 0px 10px 0px;
-    font-size: 26px;
-    color: #464646;
+    font-size: 1.4rem;
+    text-align: center;
 }
 
     .msg_function_icon:hover {
         cursor: pointer;
-        color: black;
+        color: darkred;
     }
 
 .new_msg_pad {
@@ -322,4 +340,80 @@
         height: 300px;
         overflow-y: auto;
     }
+}
+
+/*!
+ * animate.css -https://daneden.github.io/animate.css/
+ * Version - 3.7.2
+ * Licensed under the MIT license - http://opensource.org/licenses/MIT
+ * Copyright (c) 2019 Daniel Eden
+ */
+
+@-webkit-keyframes slideInLeft {
+    from {
+        -webkit-transform: translate3d(-100%, 0, 0);
+        transform: translate3d(-100%, 0, 0);
+        visibility: visible;
+    }
+
+    to {
+        -webkit-transform: translate3d(0, 0, 0);
+        transform: translate3d(0, 0, 0);
+    }
+}
+
+@keyframes slideInLeft {
+    from {
+        -webkit-transform: translate3d(-100%, 0, 0);
+        transform: translate3d(-100%, 0, 0);
+        visibility: visible;
+    }
+
+    to {
+        -webkit-transform: translate3d(0, 0, 0);
+        transform: translate3d(0, 0, 0);
+    }
+}
+
+.slideInLeft {
+    -webkit-animation-name: slideInLeft;
+    animation-name: slideInLeft;
+}
+
+@-webkit-keyframes slideInRight {
+    from {
+        -webkit-transform: translate3d(100%, 0, 0);
+        transform: translate3d(100%, 0, 0);
+        visibility: visible;
+    }
+
+    to {
+        -webkit-transform: translate3d(0, 0, 0);
+        transform: translate3d(0, 0, 0);
+    }
+}
+
+@keyframes slideInRight {
+    from {
+        -webkit-transform: translate3d(100%, 0, 0);
+        transform: translate3d(100%, 0, 0);
+        visibility: visible;
+    }
+
+    to {
+        -webkit-transform: translate3d(0, 0, 0);
+        transform: translate3d(0, 0, 0);
+    }
+}
+
+.slideInRight {
+    -webkit-animation-name: slideInRight;
+    animation-name: slideInRight;
+}
+
+.animated {
+    -webkit-animation-duration: 600ms;
+    animation-duration: 600ms;
+    -webkit-animation-fill-mode: both;
+    animation-fill-mode: both;
 }

@@ -2,26 +2,17 @@
 {
     if (msg.Direction == (int)TextPortCore.Helpers.MessageDirection.Outbound)
     {
-        <div id="@msg.MessageId" class="msg_item outgoing_msg">
+        <div id="@msg.MessageId" class="msg_item">
             <div class="sent_msg">
-                <p>
-                    @msg.MessageText
-                </p>
-                <span class="time_date">@string.Format("{0:MMMM dd, yy | hh:mm tt}", msg.TimeStamp)</span>
+                <p>@msg.MessageText</p><span class="time_date drt">@string.Format("{0:MMMM dd, yy | hh:mm tt}", msg.TimeStamp)</span>
             </div>
         </div>
     }
     else
     {
-        <div id="@msg.MessageId" class="msg_item incoming_msg">
-            <div class="incoming_msg_img"> <img src="~/images/user-profile.png" /> </div>
+        <div id="@msg.MessageId" class="msg_item">
             <div class="received_msg">
-                <div class="received_withd_msg">
-                    <p>
-                        @msg.MessageText
-                    </p>
-                    <span class="time_date">@string.Format("{0:MMMM dd, yy | hh:mm tt}", msg.TimeStamp)</span>
-                </div>
+                <p>@msg.MessageText</p><span class="time_date">@string.Format("{0:MMMM dd, yy | hh:mm tt}", msg.TimeStamp)</span>
             </div>
         </div>
     }

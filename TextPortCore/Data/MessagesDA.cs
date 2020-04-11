@@ -80,7 +80,7 @@ namespace TextPortCore.Data
         {
             try
             {
-                return _context.Messages.Include(m => m.MMSFiles)
+                return _context.Messages.Include(m => m.MMSFiles).Include(m => m.Account)
                     .Where(m => m.AccountId == accountId
                         && m.VirtualNumberId == virtualNumberId
                         && m.MobileNumber == number

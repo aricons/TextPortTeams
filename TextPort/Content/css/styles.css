@@ -1,3 +1,30 @@
+.master-wrapper {
+    height: 100vh;
+    display: -webkit-box; /* OLD - iOS 6-, Safari 3.1-6 */
+    display: -moz-box; /* OLD - Firefox 19- (buggy but mostly works) */
+    display: -ms-flexbox; /* TWEENER - IE 10 */
+    display: -webkit-flex; /* NEW - Chrome */
+    display: flex; /* NEW, Spec - Opera 12.1, Firefox 20+ */
+    -ms-flex-direction: column;
+    -moz-flex-direction: column;
+    -webkit-flex-direction: column;
+    flex-direction: column;
+}
+
+.head-wrap {
+    background-color: lightblue;
+    height: 120px;
+}
+
+.body-wrap {
+    background-color: #9ACD32;
+    -webkit-box-flex: 1; /* OLD - iOS 6-, Safari 3.1-6 */
+    -moz-box-flex: 1; /* OLD - Firefox 19- */
+    -webkit-flex: 1; /* Chrome */
+    -ms-flex: 1; /* IE 10 */
+    flex: 1; /* NEW, */
+}
+
 .features-boxed {
     color: #313437;
     background-color: #eef4f7
@@ -377,7 +404,6 @@ footer.footer {
         background-color: #ffffff;
         box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.2);
         padding: 30px;
-        /*overflow: hidden;*/
         position: relative;
     }
 
@@ -414,35 +440,6 @@ footer.footer {
         text-align: center;
         color: #2288f9;
     }
-
-/*.counter {
-    background-color: #eef4f7;
-    padding: 20px 0;
-    border-radius: 5px;
-}
-
-.count-title {
-    font-size: 40px;
-    font-weight: normal;
-    margin-top: 10px;
-    margin-bottom: 0;
-    text-align: center;
-}
-
-.count-text {
-    font-size: 13px;
-    font-weight: normal;
-    margin-top: 10px;
-    margin-bottom: 0;
-    text-align: center;
-}*/
-
-.fa-2x {
-    margin: 0 auto;
-    float: none;
-    display: table;
-    color: #1485ee;
-}
 
 .legal {
     margin: 20px 5px 40px 5px;
@@ -497,7 +494,7 @@ footer.footer {
     }
 
 .free #ta_message {
-    height: 90px;
+    height: 110px;
 }
 
 
@@ -519,16 +516,6 @@ td .list-icon {
 .large-num {
     font-size: 3.5rem;
 }
-
-
-/* Test area  - Sidenav */
-/*///////////////////// ESSENTIAL STYLES ////////////////////////*/
-
-/*html, body {
-    height: 100%;
-    overflow-x: hidden;
-    webkit-overflow-scrolling: touch;
-}*/
 
 .sidenav {
     position: absolute;
@@ -552,8 +539,6 @@ td .list-icon {
 /*FOOTER*/
 footer {
     background: #6c757d;
-    /*background: -webkit-linear-gradient(59deg, #3A6073, #16222A);
-    background: linear-gradient(59deg, #3A6073, #16222A);*/
     color: white;
     margin-top: 0px;
 }
@@ -586,7 +571,6 @@ footer {
 }
 
 /* FOOTER SOCIAL ICONS*/
-
 ul.social-network {
     list-style: none;
     display: inline;
@@ -598,24 +582,6 @@ ul.social-network {
         display: inline;
         margin: 0 5px;
     }
-
-/*.social-network a.icoFacebook:hover {
-    background-color: #3B5998;
-}
-
-.social-network a.icoLinkedin:hover {
-    background-color: #007bb7;
-}
-
-    .social-network a.icoFacebook:hover i,
-    .social-network a.icoLinkedin:hover i {
-        color: #fff;
-    }
-
-.social-network a.socialIcon:hover,
-.socialHoverClass {
-    color: #44BCDD;
-}*/
 
 .social-circle li a {
     display: inline-block;
@@ -635,19 +601,6 @@ ul.social-network {
     line-height: 30px;
     text-align: center;
 }
-
-/*.social-circle li a:hover i,
-.triggeredHover {
-    -moz-transform: rotate(360deg);
-    -webkit-transform: rotate(360deg);
-    -ms--transform: rotate(360deg);
-    transform: rotate(360deg);
-    -webkit-transition: all 0.2s;
-    -moz-transition: all 0.2s;
-    -o-transition: all 0.2s;
-    -ms-transition: all 0.2s;
-    transition: all 0.2s;
-}*/
 
 .social-circle i {
     color: #595959;
@@ -729,3 +682,11 @@ ul.social-network {
     border: 1px dashed #dcdcdc;
     margin-bottom: 35px;
 }
+
+.false-link {
+    cursor: default;
+}
+
+    .false-link:hover {
+        cursor: pointer;
+    }

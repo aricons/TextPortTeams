@@ -26,7 +26,7 @@ namespace TextPortCore.Models
         public string Email { get; set; }
 
         [Display(Name = "Time Zone")]
-        public short TimeZoneId { get; set; }
+        public int TimeZoneId { get; set; }
 
         [Display(Name = "Date Created")]
         public DateTime CreateDate { get; set; }
@@ -84,5 +84,7 @@ namespace TextPortCore.Models
         public bool Enabled { get; set; }
 
         public byte ComplimentaryNumber { get; set; }
+
+        public TimeZone TimeZone { get; set; }
     }
 }

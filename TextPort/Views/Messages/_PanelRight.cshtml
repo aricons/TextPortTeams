@@ -1,12 +1,17 @@
 ﻿@model TextPortCore.Models.MessagingContainer
-<div class="col-md-7 message_wrap">
-
-    <div class="row">
-        <div class="col-12 heading_wrap_thin mt-2 d-md-none"></div>
-    </div>
-    <div class="row">
-        <div class="col-12 heading_wrap_b">
-            <h4 id="active_num_title" class="num_title"></h4>
+<div class="col-md-7 mx-0 d-none d-lg-inline" id="pnl-right">
+    <div id="msgs-header" class="row border-bottom pt-2 pb-1">
+        <div class="col-1 d-lg-none">
+            <i class="back-chat-div false-link fa fa-arrow-left fa-big text-primary" title="Back"></i>
+        </div>
+        <div class="col">
+            <h5 id="active_num_title" class="text-primary text-center pl-0 pl-lg-2"></h5>
+            <div id="new-number-panel" class="d-none">
+                <div class="form-group">
+                    <label class="form-label msg-h4">New Recipient</label>
+                    <input type="email" class="form-control" id="new_recipient_number" placeholder="(000) 000-0000">
+                </div>
+            </div>
         </div>
     </div>
     <div class="row mesgs">
@@ -14,61 +19,57 @@
             @Html.Partial("_MessageList", Model)
         </div>
     </div>
-    <div id="msg_area" class="container new_msg_pad">
+    <div id="msg_area">
         <div class="row">
-            <div class="col-12 col-md-10 pr-md-3">
+            <div class="msg-icons-cont border-right align-items-center text-primary">
+                <div class="text-center pt-3 pt-lg-2">
+                    <i id="emoji-sel-button" class="fa fa-image fa-smile-o msg_function_icon"></i>
+                </div>
+                <div class="text-center pt-2 pt-lg-1">
+                    <form action="/messages/UploadFile/" class="dropzone" id="mmsDropzone">
+                        <span class="dz-message"><i class="fa fa-image msg_function_icon"></i></span>
+                    </form>
+                </div>
+            </div>
+            <div class="col px-0 border-right">
                 <textarea id="message_text" class="message_texarea" data-emojiable="true" data-emoji-ta-id="emojipick_1"></textarea>
             </div>
-            <div class="col-12 col-md-2 border-right">
-                <div class="container">
-                    <div class="row">
-                        <div class="col-4 col-md-6">
-                            <i id="emoji-sel-button" class="fa fa-image fa-smile-o msg_function_icon"></i>
-                        </div>
-                        <div class="dz-wrap col-4 col-md-6">
-                            <form action="/messages/UploadFile/" class="dropzone" id="mmsDropzone">
-                                <span class="dz-message"><i class="fa fa-image mms-icon msg_function_icon"></i></span>
-                            </form>
-                        </div>
-                        @if (Model.VirtualNumberCount > 0)
-                        {
-                            <div class="col-4 col-md-12">
-                                <button id="btn_send_message" class="btn btn-primary center-block">Send</button>
-                            </div>
-                        }
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="row border-top bg-light my- py-1">
-            <div id="sms-counter" class="col-12 small">
-                <div class="row">
-                    <div class="col-4 float-left">
-                        Characters: <span class="length"></span> / <span class="remaining"></span>
-                    </div>
-                    <div class="col-4 text-center">
-                        Segments: <span class="messages"></span>
-                    </div>
-                    <div class="col-3 float-right">
-                        <span class="float-right">
-                            Cost: $<span class="cost"></span>
-                        </span>
-                    </div>
-                    <div class="col-1">
-                        <sup>
-                            <button class="btn" style="padding: 2px" data-toggle="popover" title="Message" data-content="" data-html="true">
-                                <i class="fa fa-info-circle text-primary"></i>
-                            </button>
-                        </sup>
-                    </div>
+            <div class="msg-icons-cont align-items-center">
+                <div class="text-center pt-4 pt-lg-3">
+                    @if (Model.VirtualNumberCount > 0)
+                    {
+                        <button id="btn_send_message" class="btn text-primary p-0"><i class="fa fa-paper-plane fa fa-big"></i></button>
+                    }
                 </div>
             </div>
         </div>
     </div>
-    <div id="msg_area_disabled" class="msg_area_disabled text-center alert alert-danger" style="display: none">
-        <p>Messages cannot be sent because your balance is exhausted</p>
-        <p><a href="/account/balance">Top up your account</a></p>
+    <div id="msg-footer" class="row border-top bg-light py-1">
+        <div id="sms-counter" class="col-12 counter-font">
+            <div class="row">
+                <div class="col float-left">
+                    Chars: <span class="length"></span>/<span class="remaining"></span>
+                </div>
+                <div class="col text-center">
+                    Segments: <span class="messages"></span>
+                </div>
+                <div class="col pr-0 float-right">
+                    <span class="float-right">
+                        Cost: $<span class="cost"></span>
+                    </span>
+                </div>
+                <div class="float-right counter-info">
+                    <button class="btn p-0" data-toggle="popover" title="Cost Info" data-content="" data-html="true">
+                        <i class="fa fa-info-circle text-primary"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
+</div>
+<div id="msg_area_disabled" class="msg_area_disabled text-center alert alert-danger" style="display: none">
+    <p>Messages cannot be sent because your balance is exhausted</p>
+    <p><a href="/account/balance">Top up your account</a></p>
 </div>
 <div id="popover-content" class="d-none">
     <ul class="small">

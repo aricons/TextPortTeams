@@ -133,8 +133,10 @@ namespace TextPortCore.Data
                     {(decimal)40.00, "$40.00"},
                     {(decimal)50.00, "$50.00" },
                     {(decimal)75.00, "$75.00" },
-                    {(decimal)100.00, "$100.00" }
-                };
+                    {(decimal)100.00, "$100.00" },
+                    {(decimal)150.00, "$150.00" },
+                    {(decimal)200.00, "$200.00" }
+            };
 
                 List<SelectListItem> periods = creditAmountsDict
                     .OrderBy(p => p.Key)

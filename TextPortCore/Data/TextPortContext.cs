@@ -138,6 +138,8 @@ namespace TextPortCore.Data
                     .IsUnicode(false);
 
                 entity.Property(e => e.ComplimentaryNumber).HasColumnType("byte");
+
+                entity.HasOne<TextPortCore.Models.TimeZone>(e => e.TimeZone).WithOne().HasForeignKey<TextPortCore.Models.TimeZone>(e => e.TimeZoneId);
             });
 
             modelBuilder.Entity<APIApplication>(entity =>
@@ -402,11 +404,6 @@ namespace TextPortCore.Data
                 entity.HasMany(e => e.MMSFiles).WithOne().HasForeignKey(e => e.MessageId);
 
                 entity.HasMany(m => m.MMSFiles).WithOne().IsRequired(false);
-
-                //entity.HasOne(u => u.Role).WithMany().HasForeignKey(u => u.RoleId).IsRequired(true);
-                //.WithRequired()
-                //.HasForeignKey(e => e.Mess);
-
 
                 entity.Property(e => e.AccountId)
                     .HasColumnName("AccountID")

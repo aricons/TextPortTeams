@@ -4,7 +4,6 @@
     inHub.client.messageNotification = function (notifyJson) {
         var notification = $.parseJSON(notifyJson);
         var activeDestinationNumber = '';
-        //debugger;
         // Look for hidActiveDestinationNumber to check whether on messages page. Only display the notification
         // if the destination virtual number matches the ID of the virtual number currintly being viewed.
         var activeDestNum = $("#hidActiveDestinationNumber");

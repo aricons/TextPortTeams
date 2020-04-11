@@ -4,37 +4,25 @@
 {
     if (msg.Direction == (int)TextPortCore.Helpers.MessageDirection.Outbound)
     {
-        <div id="@msg.MessageId" class="msg_item outgoing_msg">
+        <div id="@msg.MessageId" class="msg_item">
             <div class="sent_msg">
                 @foreach (MMSFile mms in msg.MMSFiles)
                 {
-                    <div>
-                        <img src="@MMSUtils.GetMMSFileURL(msg.AccountId, mms.StorageId, mms.FileName)" alt="@mms.FileName" />
-                    </div>
+                    <div><img src="@MMSUtils.GetMMSFileURL(msg.AccountId, mms.StorageId, mms.FileName)" alt="@mms.FileName" /></div>
                 }
-                <p>
-                    @msg.MessageText
-                </p>
-                <span id="td_@msg.MessageId" class="time_date">@string.Format("{0:MMMM dd, yy | hh:mm tt}", msg.TimeStamp)</span>
+                <p>@msg.MessageText</p><span id="td_@msg.MessageId" class="time_date drt">@string.Format("{0:MMMM dd, yy | hh:mm tt}", msg.TimeStamp)</span>
             </div>
         </div>
     }
     else
     {
-        <div id="@msg.MessageId" class="msg_item incoming_msg">
+        <div id="@msg.MessageId" class="msg_item">
             <div class="received_msg">
-                <div class="received_withd_msg">
-                    @foreach (MMSFile mms in msg.MMSFiles)
-                    {
-                        <div>
-                            <img src="@MMSUtils.GetMMSFileURL(msg.AccountId, mms.StorageId, mms.FileName)" alt="@mms.FileName" />
-                        </div>
-                    }
-                    <p>
-                        @msg.MessageText
-                    </p>
-                    <span class="time_date">@string.Format("{0:MMMM dd, yy | hh:mm tt}", msg.TimeStamp)</span>
-                </div>
+                @foreach (MMSFile mms in msg.MMSFiles)
+                {
+                    <div><img src="@MMSUtils.GetMMSFileURL(msg.AccountId, mms.StorageId, mms.FileName)" alt="@mms.FileName" /></div>
+                }
+                <p>@msg.MessageText</p><span class="time_date">@string.Format("{0:MMMM dd, yy | hh:mm tt}", msg.TimeStamp)</span>
             </div>
         </div>
     }

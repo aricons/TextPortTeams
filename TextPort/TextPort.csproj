@@ -549,8 +549,10 @@
     <Content Include="Content\bootstrap-reboot.min.css" />
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\bootstrap.min.css" />
+    <Content Include="Content\css\animate.css" />
     <Content Include="Content\css\api.css" />
     <Content Include="Content\css\emoji.css" />
+    <Content Include="Content\css\emojionearea.min.css" />
     <Content Include="Content\css\jnoty.css" />
     <Content Include="Content\css\messaging.css" />
     <Content Include="Content\css\push.css" />
@@ -848,6 +850,7 @@
     <Content Include="Scripts\dropzone\dropzone.min.js" />
     <Content Include="Scripts\emoji\config.js" />
     <Content Include="Scripts\emoji\emoji-picker.js" />
+    <Content Include="Scripts\emoji\emojionearea.min.js" />
     <Content Include="Scripts\emoji\jquery.emojiarea.js" />
     <Content Include="Scripts\emoji\util.js" />
     <Content Include="Scripts\esm\popper-utils.js" />
@@ -1021,7 +1024,6 @@
     <Content Include="Views\Home\loginm.cshtml" />
     <Content Include="Views\Messages\_SendMessage.cshtml" />
     <Content Include="Views\Messages\_ReceiveMessage.cshtml" />
-    <Content Include="Views\Messages\_RecentsListMobile.cshtml" />
     <Content Include="Views\Messages\_PanelLeft.cshtml" />
     <Content Include="Views\Messages\_PanelLeftMobile.cshtml" />
     <Content Include="Views\Messages\_PanelRight.cshtml" />
@@ -1081,6 +1083,7 @@
     <Content Include="Views\Tools\ip-address-locator.cshtml" />
     <Content Include="Views\Home\test.cshtml" />
     <Content Include="Views\Free\send-text.cshtml" />
+    <Content Include="Views\Messages\Test.cshtml" />
     <None Include="Web.Beta.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

@@ -8,8 +8,7 @@ namespace TextPortCore.Models
         public int? MessageId { get; set; }
         public int StorageId { get; set; }
         public string FileName { get; set; }
-        //public Message Message { get; set; }
-
+        
         public MMSFile()
         {
             this.FileId = 0;

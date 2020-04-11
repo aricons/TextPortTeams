@@ -33,6 +33,19 @@ namespace TextPort.Controllers
             return View();
         }
 
+        [HttpGet]
+        public ActionResult IndexNew()
+        {
+            int accountId = 1;
+            if (accountId > 0)
+            {
+                MessagingContainer mc = new MessagingContainer(accountId);
+                Cookies.WriteBalance(mc.Account.Balance); // Get the updated balance for safety.
+                return View(mc);
+            }
+            return View();
+        }
+
         [Authorize]
         [HttpGet]
         public ActionResult GetRecentToNumbersForDedicatedVirtualNumber(int aid, int vnid)
@@ -79,6 +92,12 @@ namespace TextPort.Controllers
             }
         }
 
+        [HttpGet]
+        public ActionResult Test()
+        {
+            return View();
+        }
+
         // For Google Analytics tracking. Send() and Receive()
         [Authorize]
         [HttpGet]
@@ -120,7 +139,7 @@ namespace TextPort.Controllers
                             {
                                 Messages = { message }
                             };
-                            return PartialView("_MessageList", messageList);
+                            return PartialView("_MessageListNew", messageList);
                         }
 
                         decimal newBalance = 0;

@@ -55,10 +55,10 @@
     <StartupObject>TextPortServices.Program</StartupObject>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestCertificateThumbprint>3B4BB74B5DFEB060B29750F1D49DBD47DD28677A</ManifestCertificateThumbprint>
+    <ManifestCertificateThumbprint>613AB4BBBA6AB99E9BD63A66EC3E003B7A0608E1</ManifestCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestKeyFile>TextPortServices_TemporaryKey.pfx</ManifestKeyFile>
+    <ManifestKeyFile>TextPortServices_1_TemporaryKey.pfx</ManifestKeyFile>
   </PropertyGroup>
   <PropertyGroup>
     <GenerateManifests>true</GenerateManifests>
@@ -215,6 +215,7 @@
       <IsTransformFile>true</IsTransformFile>
     </None>
     <None Include="packages.config" />
+    <None Include="TextPortServices_1_TemporaryKey.pfx" />
     <None Include="TextPortServices_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>

@@ -116,7 +116,7 @@ namespace TextPort.Controllers
 
                                         da.SaveChanges();
 
-                                        string messageHtml = @"<span class=""rcpt"">Delivered</span>";
+                                        string messageHtml = @"<div class=""rcpt"">Delivered</div>";
                                         using (HubFunctions hubFunctions = new HubFunctions())
                                         {
                                             hubFunctions.SendDeliveryReceipt(account.UserName, messageId.ToString(), messageHtml);

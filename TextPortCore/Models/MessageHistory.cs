@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
-
-using Microsoft.EntityFrameworkCore;
 
 using TextPortCore.Data;
 
@@ -10,13 +7,6 @@ namespace TextPortCore.Models
 {
     public class MessageHistory
     {
-        //private readonly TextPortContext _context;
-
-        //public MessageHistory(TextPortContext context)
-        //{
-        //    this._context = context;
-        //}
-
         private string number;
         private List<Message> messages;
 

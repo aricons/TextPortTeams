@@ -53,9 +53,6 @@
                   @:ga('create', 'UA-21685628-1', 'auto'); ga('send', 'pageview');
              }
 
-            //ga('create', 'UA-21685628-1', 'auto');
-            //ga('send', 'pageview');
-
             $('.modal-button').on('click', function () {
                 var url = $(this).data('url');
                 var target = $(this).data('target');
@@ -126,10 +123,6 @@
             $("#balance").html(readCookie("balance"));
         }
     </script>
-    @if (GlobalVariables.Environment.Equals("PRODUCTION"))
-    {
-        @*<script></script>*@
-    }
 </head>
 <body>
     <div id="main-cont" class="container">
@@ -227,7 +220,6 @@
             </div>
         }
         <nav class="sidenav"></nav>
-        <br />
         @RenderBody()
         @if (!User.Identity.IsAuthenticated)
         {

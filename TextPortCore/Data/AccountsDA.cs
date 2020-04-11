@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Linq;
 
+using Microsoft.EntityFrameworkCore;
+
 using TextPortCore.Models;
 using TextPortCore.Helpers;
 
@@ -14,7 +16,7 @@ namespace TextPortCore.Data
         {
             try
             {
-                return _context.Accounts.FirstOrDefault(x => x.AccountId == accountId);
+                return _context.Accounts.Include(x => x.TimeZone).FirstOrDefault(x => x.AccountId == accountId);
             }
             catch (Exception ex)
             {

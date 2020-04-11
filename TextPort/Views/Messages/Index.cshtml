@@ -27,6 +27,7 @@
         scrWidth = window.screen.width;
 
         $('#from_number').on("change", function (e) {
+            clearNewRecipient();
             getRecentsForVirtualNumber(numberToE164($("#from_number option:selected").val()));
         });
 
@@ -58,10 +59,11 @@
 
         setChangeDetect();
         checkBalance();
+        sizePanels();
 
         // Setup emoji picker
         window.emojiPicker = new EmojiPicker({
-            iconSize: '25',
+            iconSize: '21',
             assetsPath: '/content/images/emoji',
             emojiable_selector: '[data-emojiable=true]',
             popupButtonClasses: 'fa fa-smile-o'
@@ -182,13 +184,81 @@
             }
         });
 
+        $('.back-chat-div').on('click', function () {
+            togglePanels('recents');
+            return false;
+        });
+
         $('#message_text').countSms('#sms-counter');
     });
 
-    // This optional function html-encodes messages for display in the page.
-    function htmlEncode(value) {
-        var encodedValue = $('<div />').text(value).html();
-        return encodedValue;
+    function sizePanels() {
+        var height = 0;
+        var bottomMargin = 70;
+        var body = window.document.body;
+        if (window.innerHeight) {
+            height = window.innerHeight;
+        } else if (body.parentElement.clientHeight) {
+            height = body.parentElement.clientHeight;
+        } else if (body && body.clientHeight) {
+            height = body.clientHeight;
+        }
+
+        if ($(window).width() < 992) {
+            bottomMargin = 10;
+        }
+
+        var top = document.getElementById('msg-cont').offsetTop;
+        var plh_height = document.getElementById('recents-header').offsetHeight;
+        var hMsgsHeader = document.getElementById('msgs-header').offsetHeight;
+        var hMsgFooter = document.getElementById('msg-footer').offsetHeight;
+
+        $("#recents").height(height - (top + plh_height + bottomMargin));
+        $("#msg_list").height(height - (top + hMsgsHeader + hMsgFooter + bottomMargin + 75)) // Extra 75px for msg list.
+    }
+
+    function togglePanels(displayType) {
+        clearNewRecipient();
+        if ($(window).width() < 992) {
+            if (displayType == "messages") {
+                $("#pnl-right").toggleClass("d-none").addClass("animated faster slideInRight");
+                $("#pnl-left").toggleClass("d-inline-block");
+            }
+            else {
+                $("#pnl-right").toggleClass("d-none");
+                $("#pnl-left").toggleClass("d-inline-block").addClass("animated faster slideInLeft");
+            }
+        }
+    }
+
+    function enterNewRecipient() {
+        if ($("#new-number-panel").hasClass("d-none")) {
+            togglePanels();
+            $("#msg_list").html('');
+            $("#active_num_title").addClass("d-none");
+            $("#new-number-panel").removeClass("d-none");
+            sizePanels();
+        } else {
+            clearNewRecipient();
+        }
+        clearMessage();
+    }
+
+    function clearNewRecipient() {
+        $("#new-number-panel").addClass("d-none");
+        $("#active_num_title").removeClass("d-none");
+        sizePanels();
+        clearMessage();
+    }
+
+    function clearMessage() {
+        $('#emojipick_1').text('');
+        resetCounter();
+    }
+
+    function resetCounter() {
+        $('#message_text').val('');
+        $('#message_text').change();
     }
 
     function setChangeDetect() {
@@ -203,13 +273,15 @@
             $('.navbar-collapse').collapse('hide');
             $('#recents-btn-icon').removeClass('fa-chevron-up');
             $('#recents-btn-icon').addClass('fa-chevron-down');
+            togglePanels('messages');
+            sizePanels();
         });
     }
 
     function checkSendButtonEligibility() {
         $('#btn_send_message').prop('disabled', true);
         if ($("#hidActiveDestinationNumber").val().length >= 10) {
-            $('#emojipick_1').attr('placeholder', 'Type message to ' + numberToDisplay($("#hidActiveDestinationNumber").val()));
+            $('#emojipick_1').attr('placeholder', 'Message to ' + numberToDisplay($("#hidActiveDestinationNumber").val()));
             if ($('#emojipick_1').html().length >= 1 && $('#emojipick_1').html() != "<br>") {
                 var foo = $('#emojipick_1').html();
                 $('#btn_send_message').prop('disabled', false);
@@ -226,7 +298,7 @@
             calcSegmentCount();
         }
         else {
-            $('#emojipick_1').attr('placeholder', 'Type message');
+            $('#emojipick_1').attr('placeholder', 'Message');
         }
     }
 
@@ -310,7 +382,6 @@
                 alert("Unable to remove file");
             },
             success: function (newInputHTML) {
-                //alert("File deleted OK");
             }
         });
 
@@ -369,7 +440,6 @@
 
                                 // Clear the message area and apply the placeholder
                                 $('#emojipick_1').text('');
-                                //$('#emojipick_1').attr('placeholder', 'Type message to ' + $("#hidActiveDestinationNumber").val());
                             }
                             else {
                                 $("#msg_list").html('');
@@ -385,7 +455,6 @@
                             getBalance();
                             checkBalance();
 
-                            //_gaq.push(['_trackPageview', '/messages/send']);
                             ga('send', 'pageview', '/messages/send');
                         }
                     });
@@ -473,12 +542,10 @@
 <input type="hidden" id="hidSMSCost" value="@Model.Account.SMSSegmentCost" />
 <input type="hidden" id="hidMMSCost" value="@Model.Account.MMSSegmentCost" />
 
-<div class="messages_container">
-    <div class="container">
-        <div class="row">
-            @Html.Partial("_PanelLeft", Model)
-            @Html.Partial("_PanelRight", Model)
-        </div>
+<div id="msg-cont" class="messages_container container">
+    <div class="row">
+        @Html.Partial("_PanelLeft", Model)
+        @Html.Partial("_PanelRight", Model)
     </div>
 </div>
 <div id="modal-new"></div>

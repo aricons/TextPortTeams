@@ -1,0 +1,49 @@
+﻿@using TextPortCore.Helpers
+@using TextPortCore.Models
+@foreach (Message msg in Model.Messages)
+{
+    if (msg.Direction == (int)TextPortCore.Helpers.MessageDirection.Outbound)
+    {
+        <div id="@msg.MessageId" class="message-item outgoing-message">
+            @foreach (MMSFile mms in msg.MMSFiles)
+            {
+                <div>
+                    <img src="@MMSUtils.GetMMSFileURL(msg.AccountId, mms.StorageId, mms.FileName)" alt="@mms.FileName" />
+                </div>
+            }
+            <div class="message-wrap">@msg.MessageText</div>
+            <div class="message-user">
+                @*<figure class="avatar">
+                        <img src="https://via.placeholder.com/100x100.png" alt="image">
+                    </figure>*@
+                <div>
+                    @*<h5>Byrom Guittet OUT</h5>*@
+                    <div class="time">@string.Format("{0:MMMM dd, yy | hh:mm tt}", msg.TimeStamp)
+                    @*<i class="ti-double-check text-info"></i>*@
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div id="@msg.MessageId" class="msg_item message-item">
+            @foreach (MMSFile mms in msg.MMSFiles)
+            {
+                <div>
+                    <img src="@MMSUtils.GetMMSFileURL(msg.AccountId, mms.StorageId, mms.FileName)" alt="@mms.FileName" />
+                </div>
+            }
+            <div class="message-wrap"> @msg.MessageText</div>
+            <div class="message-user">
+                @*<figure class="avatar">
+                    <img src="https://via.placeholder.com/100x100.png" alt="image">
+                </figure>*@
+                <div>
+                    @*<h5>Byrom Guittet IN</h5>*@
+                    <div class="time">@string.Format("{0:MMMM dd, yy | hh:mm tt}", msg.TimeStamp)</div>
+                </div>
+            </div>
+        </div>
+    }
+}

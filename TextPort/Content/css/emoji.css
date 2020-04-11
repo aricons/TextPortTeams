@@ -91,15 +91,15 @@ img.emoji {
 /* RDE: Edit here to change size of message text-area. */
 .emoji-wysiwyg-editor {
     padding: 6px;
-    padding-right: 35px;
+    /*padding-right: 35px;*/
     margin-bottom: 0px;
-    min-height: 90px;
-    height: 92px; /* RDE: Edited */
+    min-height: 64px;
+    height: 64px; /* RDE: Edited */
     max-height: 300px;
     overflow: auto;
-    line-height: 1.2;
+    line-height: 1.1;
     color: #4c4c4c;
-    font-size: 18px;
+    /*font-size: 18px;*/
     border: medium none;
     /*border: 1px solid #d2dbe3;
     border-radius: 2px;*/
@@ -136,9 +136,10 @@ img.emoji {
 .emoji-menu {
     position: absolute;
     top: -230px;
-    right: -50px;
+    left: 0px;
+    /*right: 0px;*/
     z-index: 999;
-    width: 75%;
+    width: 100%;
     overflow: hidden;
     border: 1px #dfdfdf solid;
     -webkit-border-radius: 3px;
