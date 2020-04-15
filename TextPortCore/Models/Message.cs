@@ -14,9 +14,9 @@ namespace TextPortCore.Models
     {
         public int MessageId { get; set; }
 
-        public DateTime TimeStamp { get; set; }
-
         public int AccountId { get; set; }
+
+        public DateTime TimeStamp { get; set; }
 
         public int VirtualNumberId { get; set; }
 
@@ -43,15 +43,13 @@ namespace TextPortCore.Models
 
         public string GatewayMessageId { get; set; }
 
-        public string MmsfileNames { get; set; }
-
         public decimal? CustomerCost { get; set; }
-
-        public DateTime? Delivered { get; set; }
 
         public decimal? Price { get; set; }
 
         public string ProcessingMessage { get; set; }
+
+        public string FailureReason { get; set; }
 
         public DateTime? DeleteFlag { get; set; }
 
@@ -254,6 +252,14 @@ namespace TextPortCore.Models
         public bool Send()
         {
             return MessageRouting.WriteSemaphoreFile(this);
+        }
+
+        public void ConvertTimeStampToLocalTimeZone()
+        {
+            if (this.Account != null)
+            {
+                this.TimeStamp = TimeFunctions.GetUsersLocalTime(this.TimeStamp, this.Account.TimeZoneId);
+            }
         }
 
     }

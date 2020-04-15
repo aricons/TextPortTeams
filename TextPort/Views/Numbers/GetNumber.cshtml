@@ -49,15 +49,6 @@
                         leasePeriodWord += "s";
                     }
 
-                    //var leasePer = $("#LeasePeriod").val();
-                    //var periodName = "month";
-                    //if (leasePer.length) {
-                    //    leasePeriod = parseFloat(leasePer);
-                    //    if (leasePeriod > 1) {
-                    //        periodName = "months";
-                    //    }
-                    //}
-
                     bootbox.confirm({
                         title: "Get " + number + "?",
                         message: "Assign " + number + " to your account for a period of " + leasePeriod + " " + leasePeriodWord + "?<br />Your account will be debited $" + numberCost.formatMoney(),

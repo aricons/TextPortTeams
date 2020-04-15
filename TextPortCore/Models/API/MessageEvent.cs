@@ -52,7 +52,15 @@ namespace TextPortCore.Models.API
             this.To = message.VirtualNumber;
             this.Cost = (message.CustomerCost != null) ? (decimal)message.CustomerCost : 0.015M;
             this.Message = new Message(message);
-            this.Notifications = $"Inbound message received from {message.MobileNumber}.";
+            switch (eventType)
+            {
+                case "message-failed":
+                    this.Notifications = $"Delivery to {message.MobileNumber} falied.";
+                    break;
+                default:
+                    this.Notifications = $"Inbound message received from {message.MobileNumber}.";
+                    break;
+            }
         }
 
         public MessageEvent(bw.BandwidthInboundMessage bwMessage)

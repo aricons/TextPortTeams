@@ -4,6 +4,6 @@
         <p>
             @Model.MessageText
         </p>
-        <span id="td_@Model.MessageId" class="time_date">@string.Format("{0:MMMM dd, yy | hh:mm tt}", Model.TimeStamp)</span>
+        <span id="td_@Model.MessageId" class="time_date">@string.Format("{0:MMMM dd, yy | hh:mm tt}", Model.LocalTimeStamp)</span>
     </div>
 </div>

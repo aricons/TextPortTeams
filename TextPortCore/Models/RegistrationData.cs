@@ -303,18 +303,6 @@ namespace TextPortCore.Models
             set { this.orderingMessage = value; }
         }
 
-        //public decimal BaseNumberCost
-        //{
-        //    get { return this.baseumberCost; }
-        //    set { this.baseNumberCost = value; }
-        //}
-
-        //public decimal BaseSMSCost
-        //{
-        //    get { return this.baseSMSCost; }
-        //    set { this.baseSMSCost = value; }
-        //}
-
         public bool ShowAnnouncementBanner
         {
             get { return this.showAnnouncementBanner; }

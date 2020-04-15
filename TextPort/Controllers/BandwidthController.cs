@@ -13,8 +13,6 @@ using TextPortCore.Integrations.Bandwidth;
 
 namespace TextPort.Controllers
 {
-    //[Route("api/[controller]")]
-    //[ApiController]
     public class BandwidthController : ApiController
     {
         [HttpGet]
@@ -25,7 +23,6 @@ namespace TextPort.Controllers
         }
 
         [HttpGet]
-        //[Route("[action]/{value}")]
         [ActionName("pingval")]
         public string PingVal(string value)
         {
@@ -86,41 +83,19 @@ namespace TextPort.Controllers
                         {
                             using (TextPortDA da = new TextPortDA())
                             {
-                                Message originatingMessage = da.GetMessageByGatewayMessageId(receipt.GatewayMessageId);
-                                if (originatingMessage != null)
+                                Message originalMessage = da.GetMessageByGatewayMessageId(receipt.GatewayMessageId);
+                                if (originalMessage != null)
                                 {
-                                    originatingMessage.QueueStatus = (byte)QueueStatuses.DeliveryConfirmed;
-                                    int messageId = originatingMessage.MessageId;
-                                    Account account = da.GetAccountById(originatingMessage.AccountId);
-                                    if (account != null)
+                                    originalMessage.QueueStatus = (byte)QueueStatuses.DeliveryConfirmed;
+                                    originalMessage.Segments = receipt.SegmentCount;
+
+                                    applyChargesAndUpdateBalance(originalMessage);
+                                    da.SaveChanges();
+
+                                    string messageHtml = @"<div class='rcpt'><i class='fa fa-check'></i>Delivered</div>";
+                                    using (HubFunctions hubFunctions = new HubFunctions())
                                     {
-                                        // Deduct the message cost (base rate * segment count) from the account balance
-                                        int segmentCount = receipt.SegmentCount;
-                                        decimal messageRate = Constants.BaseSMSSegmentCost;
-                                        decimal messageCost = 0;
-
-                                        originatingMessage.Segments = segmentCount;
-
-                                        if (originatingMessage.IsMMS)
-                                        {
-                                            messageRate = (account.MMSSegmentCost > 0) ? account.MMSSegmentCost : Constants.BaseMMSSegmentCost;
-                                        }
-                                        else
-                                        {
-                                            messageRate = (account.SMSSegmentCost > 0) ? account.SMSSegmentCost : Constants.BaseSMSSegmentCost;
-                                        }
-                                       
-                                        messageCost = (messageRate * segmentCount);
-                                        originatingMessage.CustomerCost = messageCost;
-                                        account.Balance -= messageCost;
-
-                                        da.SaveChanges();
-
-                                        string messageHtml = @"<div class=""rcpt"">Delivered</div>";
-                                        using (HubFunctions hubFunctions = new HubFunctions())
-                                        {
-                                            hubFunctions.SendDeliveryReceipt(account.UserName, messageId.ToString(), messageHtml);
-                                        }
+                                        hubFunctions.SendDeliveryReceipt(originalMessage.Account.UserName, originalMessage.MessageId.ToString(), messageHtml);
                                     }
                                 }
                             }
@@ -130,35 +105,34 @@ namespace TextPort.Controllers
                     case "message-failed":
                         using (Bandwidth bw = new Bandwidth())
                         {
-                            Message newMessage = bw.ProcessInboundMessage(bwMessage);
-                            if (newMessage != null)
-                            {
-                                using (TextPortDA da = new TextPortDA())
-                                {
-                                    Account account = da.GetAccountById(newMessage.AccountId);
-                                    if (account != null)
-                                    {
-                                        newMessage.Account = account;
-                                        if (!String.IsNullOrEmpty(account.UserName))
-                                        {
-                                            MessageNotification notification = new MessageNotification(newMessage);
+                            bw.ProcessDeliveryFailure(bwMessage);
+                        }
 
-                                            using (HubFunctions hubFunctions = new HubFunctions())
-                                            {
-                                                hubFunctions.SendInboundMessageNotification(notification);
-                                                if (account.EnableMobileForwarding && !string.IsNullOrEmpty(account.ForwardVnmessagesTo))
-                                                {
-                                                    decimal balance = account.Balance - ((int)newMessage.Segments * Constants.BaseSMSSegmentCost);
-                                                    hubFunctions.SendBalanceUpdate(account.UserName, balance.ToString());
-                                                }
-                                            }
-                                        }
-                                    }
-                                    return Ok();
+                        using (TextPortDA da = new TextPortDA())
+                        {
+                            Message originalMessage = da.GetMessageByGatewayMessageId(bwMessage.message.id);
+                            if (originalMessage != null)
+                            {
+                                CarrierResponseCode rc = da.GetCarrierResponseCode((int)originalMessage.CarrierId, bwMessage.errorCode.ToString());
+
+                                originalMessage.QueueStatus = (byte)QueueStatuses.DeliveryFailed;
+                                originalMessage.FailureReason = rc.Description;
+                                originalMessage.Segments = (bwMessage.message.segmentCount > 0) ? bwMessage.message.segmentCount : 1;
+
+                                if (rc.Billable)
+                                {
+                                    applyChargesAndUpdateBalance(originalMessage);
+                                }
+                                da.SaveChanges();
+
+                                string messageHtml = $"<div class='fail-reason'><i class='fa fa-exclamation-triangle'></i>Failed: {rc.Description}</div>";
+                                using (HubFunctions hubFunctions = new HubFunctions())
+                                {
+                                    hubFunctions.SendDeliveryReceipt(originalMessage.Account.UserName, originalMessage.MessageId.ToString(), messageHtml);
                                 }
                             }
                         }
-                        break;
+                        return Ok();
 
                     default: // Log anything else
                         using (Bandwidth bw = new Bandwidth())
@@ -169,6 +143,28 @@ namespace TextPort.Controllers
                 }
             }
             return NotFound();
+        }
+
+        private bool applyChargesAndUpdateBalance(Message originalMessage)
+        {
+            // Deduct the message cost (base rate * segment count) from the account balance
+            decimal messageRate;
+            decimal messageCost;
+
+            if (originalMessage.IsMMS)
+            {
+                messageRate = (originalMessage.Account.MMSSegmentCost > 0) ? originalMessage.Account.MMSSegmentCost : Constants.BaseMMSSegmentCost;
+            }
+            else
+            {
+                messageRate = (originalMessage.Account.SMSSegmentCost > 0) ? originalMessage.Account.SMSSegmentCost : Constants.BaseSMSSegmentCost;
+            }
+
+            messageCost = (messageRate * (int)originalMessage.Segments);
+            originalMessage.CustomerCost = messageCost;
+            originalMessage.Account.Balance -= messageCost;
+
+            return true;
         }
     }
 }

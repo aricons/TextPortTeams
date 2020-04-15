@@ -4,6 +4,8 @@ namespace TextPortCore.Helpers
 {
     public static class TimeFunctions
     {
+
+
         public static DateTime GetUsersLocalTime(DateTime messageTimeUtc, int timeZoneId)
         {
             TimeZoneInfo usersTimeZone = TimeZoneInfo.FindSystemTimeZoneById(GetTimeZoneNameTimeZoneId(timeZoneId));
@@ -154,12 +156,6 @@ namespace TextPortCore.Helpers
 //Tonga Standard Time	13
 //Samoa Standard Time	13
 //Line Islands Standard Time	14
-
-
-
-
-
-
 
         public static string GetTimeZoneNameTimeZoneId(int timeZoneId)
         {

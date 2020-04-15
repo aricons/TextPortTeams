@@ -25,15 +25,16 @@ namespace TextPortCore.Integrations.Bandwidth
         const int orderCheckPollingCycles = 5; // number of times to check on an order
         const int orderCheckWaitTime = 1500; // milliseconds to wait between each order status check
 
-        private string accountBaseUrl = $"https://dashboard.bandwidth.com/api/accounts/{Constants.Bandwidth.AccountId}";
-        private string messageBaseUrl = $"https://messaging.bandwidth.com/api/v2/users/{Constants.Bandwidth.AccountId}";
+        private string accountBaseUrl = $"https://dashboard.bandwidth.com/api/accounts/{ConfigurationManager.AppSettings["BandwidthAccountId"]}";
+        private string messageBaseUrl = $"https://messaging.bandwidth.com/api/v2/users/{ConfigurationManager.AppSettings["BandwidthAccountId"]}";
 
         private readonly RestClient _client;
 
         public Bandwidth()
         {
             this._client = new RestClient();
-            this._client.Authenticator = new HttpBasicAuthenticator(Constants.Bandwidth.ApiToken, Constants.Bandwidth.ApiSecret);
+            // this._client.Authenticator = new HttpBasicAuthenticator(Constants.Bandwidth.ApiToken, Constants.Bandwidth.ApiSecret);
+            this._client.Authenticator = new HttpBasicAuthenticator(ConfigurationManager.AppSettings["BandwidthApiToken"], ConfigurationManager.AppSettings["BandwidthApiSecret"]);
         }
 
         public List<string> GetVirtualNumbersList(string areaCode, int numbersToReturn, bool tollFree, int page)
@@ -50,7 +51,7 @@ namespace TextPortCore.Integrations.Bandwidth
             try
             {
                 _client.BaseUrl = new Uri(accountBaseUrl);
-                _client.Authenticator = new HttpBasicAuthenticator(Constants.Bandwidth.UserName, ConfigurationManager.AppSettings["BandwidthPassword"]);
+                _client.Authenticator = new HttpBasicAuthenticator(ConfigurationManager.AppSettings["BandwidthUserName"], ConfigurationManager.AppSettings["BandwidthPassword"]);
 
                 string requestString = string.Empty;
                 if (tollFree)
@@ -136,7 +137,7 @@ namespace TextPortCore.Integrations.Bandwidth
             try
             {
                 _client.BaseUrl = new Uri(accountBaseUrl);
-                _client.Authenticator = new HttpBasicAuthenticator(Constants.Bandwidth.UserName, ConfigurationManager.AppSettings["BandwidthPassword"]);
+                _client.Authenticator = new HttpBasicAuthenticator(ConfigurationManager.AppSettings["BandwidthUserName"], ConfigurationManager.AppSettings["BandwidthPassword"]);
 
                 RestRequest request = new RestRequest("/orders", Method.POST)
                 {
@@ -145,7 +146,7 @@ namespace TextPortCore.Integrations.Bandwidth
                 };
                 request.AddHeader("Content-Type", "application/xml; charset=utf-8");
 
-                Order ord = new Order(regData, Constants.Bandwidth.SubAccountId);
+                Order ord = new Order(regData, ConfigurationManager.AppSettings["BandwidthSubAccountId"]);
                 request.AddXmlBody(ord);
 
                 // Disable for development and testing.
@@ -194,7 +195,7 @@ namespace TextPortCore.Integrations.Bandwidth
                 errorDescription = string.Empty;
 
                 _client.BaseUrl = new Uri(accountBaseUrl);
-                _client.Authenticator = new HttpBasicAuthenticator(Constants.Bandwidth.UserName, ConfigurationManager.AppSettings["BandwidthPassword"]);
+                _client.Authenticator = new HttpBasicAuthenticator(ConfigurationManager.AppSettings["BandwidthUserName"], ConfigurationManager.AppSettings["BandwidthPassword"]);
 
                 RestRequest request = new RestRequest($"/orders/{bwOrderid}", Method.GET);
                 request.AddHeader("Content-Type", "application/xml; charset=utf-8");
@@ -233,7 +234,7 @@ namespace TextPortCore.Integrations.Bandwidth
                 processingMessage = string.Empty;
 
                 _client.BaseUrl = new Uri(accountBaseUrl);
-                _client.Authenticator = new HttpBasicAuthenticator(Constants.Bandwidth.UserName, ConfigurationManager.AppSettings["BandwidthPassword"]);
+                _client.Authenticator = new HttpBasicAuthenticator(ConfigurationManager.AppSettings["BandwidthUserName"], ConfigurationManager.AppSettings["BandwidthPassword"]);
 
                 RestRequest request = new RestRequest("/disconnects", Method.POST)
                 {
@@ -504,6 +505,7 @@ namespace TextPortCore.Integrations.Bandwidth
                     case "message-delivered":
                         resultDev = "Delivery receipt received from Bandwidth\r\n";
                         resultDev += "Notification Type: " + receipt.type + "\r\n";
+                        resultDev += "Error Code: " + receipt.errorCode + "\r\n";
                         resultDev += "To virtual number: " + receipt.to + "\r\n";
                         resultDev += "Data Received: " + jsonPayload + "\r\n";
                         resultDev += checkForAPICallback(receipt);
@@ -513,6 +515,7 @@ namespace TextPortCore.Integrations.Bandwidth
                     default:
                         resultDev = "Other notificationreceived from Bandwidth\r\n";
                         resultDev += "Notification Type: " + receipt.type + "\r\n";
+                        resultDev += "Error Code: " + receipt.errorCode + "\r\n";
                         resultDev += "To virtual number: " + receipt.to + "\r\n";
                         resultDev += "Data Received: " + jsonPayload + "\r\n";
                         writeXMLToDisk(resultDev, "BandwidthOTHERReceipt");
@@ -542,6 +545,7 @@ namespace TextPortCore.Integrations.Bandwidth
 
                 string resultDev = "Delivery failure received from Bandwidth\r\n";
                 resultDev += "Notification Type: " + receipt.type + "\r\n";
+                resultDev += "Error Code: " + receipt.errorCode + "\r\n";
                 resultDev += "To virtual number: " + receipt.to + "\r\n";
                 resultDev += "Data Received: " + jsonPayload + "\r\n";
                 resultDev += checkForAPICallback(receipt);
@@ -564,7 +568,7 @@ namespace TextPortCore.Integrations.Bandwidth
             try
             {
                 _client.BaseUrl = new Uri(messageBaseUrl);
-                _client.Authenticator = new HttpBasicAuthenticator(Constants.Bandwidth.ApiToken, Constants.Bandwidth.ApiSecret);
+                _client.Authenticator = new HttpBasicAuthenticator(ConfigurationManager.AppSettings["BandwidthApiToken"], ConfigurationManager.AppSettings["BandwidthApiSecret"]);
 
                 RestRequest request = new RestRequest("/messages", Method.POST)
                 {
@@ -572,7 +576,7 @@ namespace TextPortCore.Integrations.Bandwidth
                 };
                 request.AddHeader("Content-Type", "application/json; charset=utf-8");
 
-                BandwidthOutboundMessage bwMessage = new BandwidthOutboundMessage(message, Constants.Bandwidth.ApplicationId);
+                BandwidthOutboundMessage bwMessage = new BandwidthOutboundMessage(message, ConfigurationManager.AppSettings["BandwidthApplicationId"]);
                 request.AddJsonBody(bwMessage);
 
                 BandwidthMessageResponse response = _client.Execute<BandwidthMessageResponse>(request).Data;

@@ -42,7 +42,13 @@ namespace TextPortCore.Data
         {
             try
             {
-                return _context.Messages.Include(m => m.MMSFiles).Where(x => x.VirtualNumberId == virtualNumberId && x.DeleteFlag == null).OrderByDescending(x => x.TimeStamp).ToList();
+                List<Message> messages = _context.Messages.Include(m => m.MMSFiles).Include(x => x.Account).Where(x => x.VirtualNumberId == virtualNumberId && x.DeleteFlag == null).OrderByDescending(x => x.TimeStamp).ToList();
+
+                foreach (Message m in messages)
+                {
+                    m.ConvertTimeStampToLocalTimeZone();
+                }
+                return messages;
             }
             catch (Exception ex)
             {
@@ -56,15 +62,16 @@ namespace TextPortCore.Data
         {
             try
             {
-                Message msg = _context.Messages.FirstOrDefault(x => x.GatewayMessageId == gatewayMessageId);
+                Message msg = _context.Messages.Include(x => x.Account).FirstOrDefault(x => x.GatewayMessageId == gatewayMessageId);
                 // Get the virtual number.
                 if (msg != null && msg.VirtualNumberId > 0)
                 {
-                    DedicatedVirtualNumber dvn = _context.DedicatedVirtualNumbers.FirstOrDefault(x => x.VirtualNumberId == msg.VirtualNumberId);
-                    if (dvn != null)
-                    {
-                        msg.VirtualNumber = dvn.VirtualNumber;
-                    }
+                    // Not needed.
+                    //DedicatedVirtualNumber dvn = _context.DedicatedVirtualNumbers.FirstOrDefault(x => x.VirtualNumberId == msg.VirtualNumberId);
+                    //if (dvn != null)
+                    //{
+                    //    msg.VirtualNumber = dvn.VirtualNumber;
+                    //}
                 }
                 return msg;
             }
@@ -80,13 +87,18 @@ namespace TextPortCore.Data
         {
             try
             {
-                return _context.Messages.Include(m => m.MMSFiles).Include(m => m.Account)
+                List<Message> messages = _context.Messages.Include(m => m.MMSFiles).Include(m => m.Account)
                     .Where(m => m.AccountId == accountId
                         && m.VirtualNumberId == virtualNumberId
                         && m.MobileNumber == number
                         && m.MessageType != (byte)MessageTypes.Notification
                         && m.DeleteFlag == null).OrderByDescending(x => x.TimeStamp).Take(300).AsEnumerable().Reverse().ToList();
-                //&& m.DeleteFlag == null).OrderBy(x => x.TimeStamp).ToList();
+
+                foreach (Message m in messages)
+                {
+                    m.ConvertTimeStampToLocalTimeZone();
+                }
+                return messages;
             }
             catch (Exception ex)
             {
@@ -100,8 +112,11 @@ namespace TextPortCore.Data
         {
             try
             {
+                Account acct = _context.Accounts.FirstOrDefault(x => x.AccountId == accountId);
+
                 var query = from dvn in _context.DedicatedVirtualNumbers
                             join msg in _context.Messages on dvn.VirtualNumberId equals msg.VirtualNumberId
+                            join acc in _context.Accounts on dvn.AccountId equals acc.AccountId
                             where dvn.AccountId == accountId && dvn.VirtualNumberId == virtualNumberId && msg.DeleteFlag == null && msg.MessageType != (byte)MessageTypes.Notification
                             group msg by msg.MobileNumber into numGroup
                             select new
@@ -110,7 +125,7 @@ namespace TextPortCore.Data
                                 {
                                     Number = numGroup.Key,
                                     MessageId = x.MessageId,
-                                    TimeStamp = x.TimeStamp,
+                                    TimeStamp = TimeFunctions.GetUsersLocalTime(x.TimeStamp, acct.TimeZoneId),
                                     Message = x.MessageText,
                                     IsActiveMessage = false
                                 }).OrderByDescending(x => x.TimeStamp).FirstOrDefault()
@@ -130,6 +145,8 @@ namespace TextPortCore.Data
         {
             try
             {
+                Account acc = _context.Accounts.FirstOrDefault(x => x.AccountId == accountId);
+
                 var query = from m in _context.Messages
                             where m.AccountId == accountId && m.VirtualNumberId == virtualNumberId && m.DeleteFlag == null && m.MessageType != (byte)MessageTypes.Notification
                             group m by m.MobileNumber into numGroup
@@ -139,7 +156,7 @@ namespace TextPortCore.Data
                                 {
                                     Number = numGroup.Key,
                                     MessageId = x.MessageId,
-                                    TimeStamp = x.TimeStamp,
+                                    TimeStamp = TimeFunctions.GetUsersLocalTime(x.TimeStamp, acc.TimeZoneId),
                                     Message = x.MessageText,
                                     IsActiveMessage = false
                                 }).OrderByDescending(x => x.TimeStamp).FirstOrDefault()
@@ -162,6 +179,8 @@ namespace TextPortCore.Data
         {
             try
             {
+                Account acc = _context.Accounts.FirstOrDefault(x => x.AccountId == accountId);
+
                 int page = pParams.Page;
                 int recordsPerPage = pParams.RecordsPerPage;
                 int previousRecordsPerPage = pParams.PreviousRecordsPerPage;
@@ -239,7 +258,7 @@ namespace TextPortCore.Data
                     Direction = mv.Msg.Direction,
                     VirtualNumber = mv.Dvn.VirtualNumber,
                     MobileNumber = mv.Msg.MobileNumber,
-                    TimeStamp = mv.Msg.TimeStamp,
+                    TimeStamp = TimeFunctions.GetUsersLocalTime(mv.Msg.TimeStamp, acc.TimeZoneId),
                     MessageText = mv.Msg.MessageText
                 }).OrderBy(pParams.SortBy, sortDescending).Skip((page - 1) * recordsPerPage).Take(recordsPerPage).ToList();
 
@@ -453,7 +472,8 @@ namespace TextPortCore.Data
             estimatedRemainingBalance = 0;
             try
             {
-                Account acc = _context.Accounts.FirstOrDefault(x => x.AccountId == message.AccountId);
+                Account acc = _context.Accounts.Include(a => a.TimeZone).FirstOrDefault(x => x.AccountId == message.AccountId);
+                message.Account = acc;
                 message.MobileNumber = Utilities.NumberToE164(message.MobileNumber);
 
                 // Check and update the balance if the message is an outbound message

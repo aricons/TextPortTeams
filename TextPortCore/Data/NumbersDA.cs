@@ -50,7 +50,7 @@ namespace TextPortCore.Data
                 {
                     SelectListItem listItem = new SelectListItem();
 
-                    listItem.Text = (purchaseType != "ComplimentaryNumber") ? $"{country.CountryName} - {country.MonthlyRate:C}/month" : $"{country.CountryName}";
+                    listItem.Text = $"{country.CountryName}";
                     listItem.Value = country.VirtualNumberCountryId.ToString();
 
                     countriesList.Add(listItem);

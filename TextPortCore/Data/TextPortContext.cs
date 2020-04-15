@@ -28,6 +28,7 @@ namespace TextPortCore.Data
         public virtual DbSet<BadEmailDomain> BadEmailDomains { get; set; }
         public virtual DbSet<BlockedNumber> BlockedNumbers { get; set; }
         public virtual DbSet<BlogPost> BlogPosts { get; set; }
+        public virtual DbSet<CarrierResponseCode> CarrierResponseCodes { get; set; }
         public virtual DbSet<Contact> Contacts { get; set; }
         public virtual DbSet<DedicatedVirtualNumber> DedicatedVirtualNumbers { get; set; }
         public virtual DbSet<EmailToSMSAddress> EmailToSMSAddresses { get; set; }
@@ -212,6 +213,17 @@ namespace TextPortCore.Data
                 entity.HasKey(e => e.PostId);
 
                 entity.HasIndex(e => e.UrlName);
+            });
+
+            modelBuilder.Entity<CarrierResponseCode>(entity =>
+            {
+                entity.ToTable("CarrierResponseCodes");
+
+                entity.HasKey(e => e.ResponseCodeId);
+
+                entity.HasIndex(e => e.ResponseCodeId);
+
+                entity.HasIndex(e => new { e.CarrierId, e.ResponseCode });
             });
 
             modelBuilder.Entity<Contact>(entity =>
@@ -417,8 +429,6 @@ namespace TextPortCore.Data
 
                 entity.Property(e => e.DeleteFlag).HasColumnType("datetime");
 
-                entity.Property(e => e.Delivered).HasColumnType("datetime");
-
                 entity.Property(e => e.Direction).HasDefaultValueSql("((0))");
 
                 entity.Property(e => e.MessageType).HasDefaultValueSql("((0))");
@@ -443,11 +453,6 @@ namespace TextPortCore.Data
                     .HasColumnName("Message")
                     .IsUnicode(true);
 
-                entity.Property(e => e.MmsfileNames)
-                    .HasColumnName("MMSFileName")
-                    .HasMaxLength(120)
-                    .IsUnicode(false);
-
                 entity.Property(e => e.MobileNumber)
                     .HasMaxLength(30)
                     .IsUnicode(false);
@@ -459,6 +464,10 @@ namespace TextPortCore.Data
                 entity.Property(e => e.Price).HasColumnType("money");
 
                 entity.Property(e => e.ProcessingMessage)
+                    .HasMaxLength(250)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.FailureReason)
                     .HasMaxLength(250)
                     .IsUnicode(false);
 

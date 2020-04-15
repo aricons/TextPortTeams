@@ -3,6 +3,7 @@ using System.IO;
 using System.Net;
 using System.Linq;
 using System.Text;
+using System.Configuration;
 
 namespace TextPortCore.Helpers
 {
@@ -29,8 +30,6 @@ namespace TextPortCore.Helpers
 
             var response = (HttpWebResponse)request.GetResponse();
 
-            //responseString = new StreamReader(response.GetResponseStream()).ReadToEnd();
-
             using (StreamReader sr = new StreamReader(response.GetResponseStream()))
             {
                 responseString = sr.ReadToEnd();
@@ -42,13 +41,13 @@ namespace TextPortCore.Helpers
         public static string GetImageFromURL(string url, int accountId)
         {
             Uri uri = new Uri(url);
-            
+
             string localFileName = $"{RandomString.RandomNumber()}_{uri.Segments.Last()}";
 
             using (WebClient client = new WebClient())
             {
                 client.UseDefaultCredentials = true;
-                client.Credentials = new NetworkCredential(Constants.Bandwidth.ApiToken, Constants.Bandwidth.ApiSecret);
+                client.Credentials = new NetworkCredential(ConfigurationManager.AppSettings["BandwidthApiToken"], ConfigurationManager.AppSettings["BandwidthApiSecret"]);
 
                 byte[] imageBytes = client.DownloadData(uri);
 

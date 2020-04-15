@@ -22,6 +22,7 @@ namespace TextPortCore.Integrations.Bandwidth
         public DateTime time { get; set; }
         public string description { get; set; }
         public string to { get; set; }
+        public int errorCode { get; set; }
         public MessageIn message { get; set; }
 
         public BandwidthInboundMessage()
@@ -31,6 +32,7 @@ namespace TextPortCore.Integrations.Bandwidth
             this.description = string.Empty;
             this.to = string.Empty;
             this.message = new MessageIn();
+            this.errorCode = 0;
         }
     }
 

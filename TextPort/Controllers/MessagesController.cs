@@ -145,14 +145,13 @@ namespace TextPort.Controllers
                         decimal newBalance = 0;
                         if (da.InsertMessage(message, ref newBalance) > 0)
                         {
-                            //Cookies.WriteBalance(newBalance);
-
                             MessageList messageList = new MessageList()
                             {
                                 Messages = { message }
                             };
 
                             message.Send();
+                            message.ConvertTimeStampToLocalTimeZone();
 
                             return PartialView("_MessageList", messageList);
                         }

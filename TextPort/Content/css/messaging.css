@@ -107,6 +107,7 @@ img {
     font-size: 15px;
     color: #464646;
     margin: 0 0 8px 0;
+    font-weight: 600;
 }
 
     .chat_ib h5 span {
@@ -173,20 +174,28 @@ img {
     background: #d4edda;
 }
 
+.bg-fail {
+    background: #dc3545 !important;
+}
+
 .rcpt {
     text-align: right;
     margin-right: 4px;
     color: #28a745;
-    font-size: 0.8rem;
-    font-weight: bold;
+    font-size: 0.7rem;
+    font-weight: 600;
 }
+
+    .rcpt i {
+        color: #28a745 !important;
+    }
 
 .rcpt-fail {
     text-align: right;
     margin-right: 4px;
-    color: #a71d2a;
-    font-size: 0.8rem;
-    font-weight: bold;
+    color: #dc3545;
+    font-size: 0.7rem;
+    font-weight: 600;
 }
 
 .message_wrap {
@@ -218,6 +227,20 @@ img {
         width: 100%;
         text-align: right;
     }
+
+    .sent_msg i {
+        display: inline;
+        color: #dc3545;
+        padding: 5px;
+        font-size: 0.7rem;
+    }
+
+.fail-reason {
+    background: #ffffff;
+    color: #dc3545;
+    font-size: 0.7rem;
+    text-align: right;
+}
 
 .received_msg {
     padding: 0 0 18px 8px;
