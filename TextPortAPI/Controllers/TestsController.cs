@@ -69,7 +69,7 @@ namespace TextPortAPI.Controllers
         /// <response code="400">If an error occurs</response>   
         /// <response code="401">An unauthorized response</response>   
         [HttpGet]
-        [Authorize]
+        [Authorize(Roles = "User")]
         [Route("checkauth/{id}")]
         public IHttpActionResult CheckAuth(string id)
         {
@@ -120,7 +120,7 @@ namespace TextPortAPI.Controllers
         /// <response code="200">A list of MessageResult objects</response>
         /// <response code="400">If an error occurred</response>    
         [HttpPost]
-        [Authorize]
+        [Authorize(Roles = "User")]
         [Route("messagestub/")]
         [SwaggerResponse(HttpStatusCode.OK, "Message confirmation object", typeof(IEnumerable<api.MessageResult>))]
         [SwaggerResponse(HttpStatusCode.BadRequest)]

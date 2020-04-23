@@ -35,7 +35,7 @@ namespace TextPortAPI.Controllers
         /// <response code="200">Returns a list of available numbers</response>
         /// <response code="400">If an error occurred</response>    
         [HttpGet]
-        [Authorize]
+        [Authorize(Roles = "User")]
         [Route("{areaCode}")]
         [SwaggerResponse(HttpStatusCode.OK, "Message confirmation object", typeof(IEnumerable<NumbersResult>))]
         [SwaggerResponse(HttpStatusCode.BadRequest)]
@@ -97,7 +97,7 @@ namespace TextPortAPI.Controllers
         /// <response code="400">If an error occurred</response>
         /// <response code="404">If the requested number cannot be assigned</response>    
         [HttpPost]
-        [Authorize]
+        [Authorize(Roles = "User")]
         [ActionName("Numbers")]
         [Route("")]
         [SwaggerResponse(HttpStatusCode.OK, "Message confirmation object", typeof(IEnumerable<NumberRequestResult>))]
@@ -199,7 +199,7 @@ namespace TextPortAPI.Controllers
         /// <response code="200">Returns a list of numbers assigned to the account</response>
         /// <response code="400">If an error occurred</response>    
         [HttpGet]
-        [Authorize]
+        [Authorize(Roles = "User")]
         [Route("active")]
         [SwaggerResponse(HttpStatusCode.OK, "Message confirmation object", typeof(IEnumerable<NumberDetail>))]
         [SwaggerResponse(HttpStatusCode.BadRequest)]

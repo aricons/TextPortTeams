@@ -111,7 +111,7 @@ namespace TextPort.Controllers
             return null;
         }
 
-        [Authorize]
+        [Authorize(Roles = "User")]
         [HttpGet]
         public ActionResult RegistrationComplete(RegistrationData regData)
         {

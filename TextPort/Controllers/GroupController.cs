@@ -11,7 +11,7 @@ namespace TextPort.Controllers
 {
     public class GroupController : Controller
     {
-        [Authorize]
+        [Authorize(Roles = "User")]
         [HttpGet]
         public ActionResult Index()
         {
@@ -22,7 +22,7 @@ namespace TextPort.Controllers
             return View(groupText);
         }
 
-        [Authorize]
+        [Authorize(Roles = "User")]
         [HttpPost]
         public ActionResult Index(GroupText groupText)
         {
@@ -48,7 +48,7 @@ namespace TextPort.Controllers
                             };
 
                             string result = string.Empty;
-                            if (da.NumberIsBlocked(message.MobileNumber))
+                            if (da.NumberIsBlocked(message.MobileNumber, MessageDirection.Outbound))
                             {
                                 message.MessageText = $"BLOCKED: The recipient at number {message.MobileNumber} has reported abuse from this account abuse and requested their number be blocked. TextPort does not condone the exchange of abusive, harrassing or defamatory messages.";
                                 result = "Failed";
@@ -84,7 +84,7 @@ namespace TextPort.Controllers
             return View(groupText);
         }
 
-        [Authorize]
+        [Authorize(Roles = "User")]
         [HttpGet]
         public ActionResult Getmemberlist(int id)
         {

@@ -1,91 +1,307 @@
 ﻿@model  TextPortCore.Models.FreeTextContainer
 @{
-    ViewData["Title"] = "Send a Text Online for Free | TextPort";
-    ViewData["Description"] = "Send text messages online for free. Try our free online texting tool.";
+    ViewData["Title"] = "Send and Receive Text Messages Online for Free | TextPort";
+    ViewData["Description"] = "Send and receive text messages online. Support for SMS and MMS, emojis, delivery receipts and more.";
     ViewData["Keywords"] = "send free text, send a text online for free, free online texting";
     ViewData["Url"] = "https://textport.com/free/send-text";
 }
 
+<link rel="stylesheet" href="~/content/css/messaging.css">
+<link rel="stylesheet" href="~/content/css/emoji.css">
+<link rel="stylesheet" href="~/Scripts/dropzone/basic.css">
+
+<script src="~/scripts/emoji/config.js"></script>
+<script src="~/scripts/emoji/util.js"></script>
+<script src="~/scripts/emoji/jquery.emojiarea.js"></script>
+<script src="~/scripts/emoji/emoji-picker.js"></script>
+<script src="~/scripts/dropzone/dropzone.js"></script>
+
 <script type="text/javascript">
+
+    var mmsFiles = [];
+    Dropzone.autoDiscover = false;
+
     $(function () {
         $("#MobileNumber").mask('(000) 000-0000');
 
-        $('#ta_message').on('keyup', function (e) {
-            var len = $('#ta_message').val().length;
-            $("#counter").html("Characters: " + len + "/" + (160 - len));
+        $("#btn_send_message").click(function (e) {
+            e.preventDefault();
+            $("#hidMessage").valid();
+            if ($('#form-send-text').valid()) {
+                sendMessage();
+            }
         });
+
+        // Setup emoji picker
+        window.emojiPicker = new EmojiPicker({
+            iconSize: '21',
+            assetsPath: '/content/images/emoji',
+            emojiable_selector: '[data-emojiable=true]',
+            popupButtonClasses: 'fa fa-smile-o'
+        });
+        window.emojiPicker.discover();
+
+        $('#emojipick_1').on("keyup", function (e) {
+            $("#hidMessage").val($('#emojipick_1').text());
+            if (e.keyCode !== 9) {
+                $("#hidMessage").valid();
+            }
+        });
+
+        // Setup dropzone
+        myDropzone = $("#mmsDropzone").dropzone({
+            url: "/free/uploadfile",
+            method: 'POST',
+            addRemoveLinks: true,
+            thumbnailHeight: 30,
+            thumbnailWidth: 30,
+            maxFiles: 20,
+            maxFilesize: 4000,
+            success: function (file) {
+                file.previewElement.parentNode.removeChild(file.previewElement);
+                var fileId = $(file.xhr.response).attr("id");
+                var fileName = file.name.replace(/\s/g, "");
+                mmsFiles.push({ "FileName": fileId + "_" + fileName });
+
+                var lastMessageItem = $('.msg_item:last').attr('id');
+                if (typeof lastMessageItem != 'undefined') {
+                    $("#" + lastMessageItem).after(file.xhr.response);
+                }
+                else {
+                    $("#msg_list").html('');
+                    var msgList = document.getElementById("msg_list");
+                    msgList.insertAdjacentHTML("beforeend", file.xhr.response);
+                }
+
+                $("#msg_list").removeClass('d-none');
+                var ml = $("#msg_list");
+
+                // Animated
+                ml.animate({ scrollTop: ml.prop("scrollHeight") - ml.height() }, 50);
+                addFillIfEmptyMessage();
+            },
+            error: function (file) {
+                alert("Upload error" + file.error);
+            },
+        });
+
+        $('#MobileNumber').on("change", function (e) {
+            if ($("#hidActiveDestinationNumber").val() != $('#MobileNumber').text()) {
+                $("#msg_list").html('');
+            }
+        });
+
+        $("#hidActiveVirtualNumberId").val($("#VirtualNumberId").val());
+
+        // End page load
     });
+
+    function sendMessage() {
+        var message = $("#message_text").val();
+        var fromNumberId = $("#VirtualNumberId").val();
+        var toNumber = $("#MobileNumber").val();
+        var sessionId = $("#SessionId").val();
+        $("#hidActiveDestinationNumber").val(formatE164(toNumber));
+        $("#hidActiveVirtualNumberId").val(fromNumberId);
+
+        if (message != "" || mmsFiles.length > 0) {
+            if (fromNumberId != "") {
+                if (toNumber != "") {
+                    var mmsList = [];
+                    for (i = 0, len = mmsFiles.length; i < len; i++) {
+                        mmsList.push({ "FileName": mmsFiles[i].FileName });
+                    }
+
+                    var messageData = {
+                        VirtualNumberId: fromNumberId,
+                        MobileNumber: toNumber,
+                        SessionId: sessionId,
+                        MessageText: message,
+                        MMSFiles: mmsList
+                    };
+
+                    $.post({
+                        url: '/free/send-text/',
+                        data: JSON.stringify(messageData),
+                        contentType: "application/json",
+                        error: function (jqXHR, textStatus, errorThrown) {
+                            alert(textStatus + ": Failure sending message. " + errorThrown);
+                        },
+                        success: function (newInputHTML) {
+                            $("#msg_list").removeClass('d-none');
+                            $("#msg_list").html('');
+                            var msgList = document.getElementById("msg_list");
+                            msgList.insertAdjacentHTML("beforeend", newInputHTML);
+
+                            var dz = Dropzone.forElement("#mmsDropzone");
+                            dz.files = [];
+                            mmsFiles = [];
+
+                            $('#emojipick_1').text('');
+                            var ml = $("#msg_list");
+                            ml.animate({ scrollTop: ml.prop("scrollHeight") - ml.height() }, 50);
+
+                            $("#hidMessage").val("");
+
+                            ga('send', 'pageview', '/free/send-text');
+                        }
+                    });
+                }
+                else {
+                    alert("No destination number is selected. Make sure a number that the message will be sent to is selected.");
+                }
+            }
+            else {
+                alert("No virtual number is selected. Make sure a number that the message will be sent from is selected.");
+            }
+        }
+        else {
+            alert("No message entered.");
+        }
+    }
+
+    function removeImage(imageId, imageFileName) {
+        mmsFiles = jQuery.grep(mmsFiles, function (a) {
+            return a.UniqueName !== imageFileName;
+        });
+
+        var fileNameParam = { FileName: imageFileName };
+        $.post({
+            url: '/free/deletemmsfile',
+            data: JSON.stringify(fileNameParam),
+            contentType: "application/json",
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert("Unable to remove file");
+            },
+            success: function (newInputHTML) {
+            }
+        });
+
+        document.getElementById(imageId).outerHTML = "";
+        var ml = $("#msg_list");
+        ml.animate({ scrollTop: ml.prop("scrollHeight") - ml.height() }, 50);
+        return false;
+    }
+
+    function addFillIfEmptyMessage() {
+        if ($("#hidMessage").val() == "") {
+            $("#hidMessage").val(" ");
+            $("#hidMessage").valid();
+        }
+    }
+
+    function formatE164(number) {
+        return "1" + number.replace(/\D/g, '');
+    }
+
+    function reCaptchaVerify(response) {
+        $('#hidRecaptcha').val(response);
+        $('#hidRecaptcha').valid();
+    }
+
+    function reCaptchaExpired() {
+        $('#hidRecaptcha').val('');
+        $('#hidRecaptcha').valid();
+    }
 </script>
 
-<div class="free mt-1">
+<div class="free">
     <div class="container">
-        <h1>Send a Free Text</h1>
-        <h2 class="h6 mt-3">
-            Use our free online texting tool to send a free text message to any US mobile number. Text from your computer to mobile phones for free.
-        </h2>
-        <p>
-            This page can be used to send free text messages. To send <i>and</i> receive texts, we invite you to register a <a href="/trial">trial account</a> or <a href="/account/register">full account.</a>
-            A full account allows you to choose your own <a href="/dedicated-phone-numbers">dedicated phone number</a>.
-        </p>
-        <p class="mb-3">To send a text, select a number from the Send From drop-down. Enter the recipient's mobile number. Type your message, then click Send.</p>
+        <div class="row align-items-center main-banner">
+            <div class="col-lg-4">
+                <img class="rounded rounded mx-auto d-block mb-4 mb-lg-0" src="~/Content/images/text-from-computer-512.png" alt="Send SMS and MMS online">
+            </div>
+            <div class="col-lg-7 text-center text-md-left">
+                <h1 class="font-weight-normal">Free Texting Online</h1>
+                <h2>
+                    Send and receive text messages for free to any US mobile number. Text from your computer to mobile phones. Send and receive text (SMS) and picture (MMS) messages online. Add emojis and receive real-time replies and delivery receipts.
+                </h2>
+            </div>
+        </div>
         <div class="row">
             <div class="col-md-6">
-                <div class="well well-sm">
-                    @using (Html.BeginForm("send-text", "free", FormMethod.Post, new { id = "form-send-text" }))
-                    {
-                        @Html.AntiForgeryToken()
-                        @Html.HiddenFor(m => m.Result);
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    @Html.LabelFor(m => m.VirtualNumberId, new { @class = "form-label" })
-                                    @Html.DropDownListFor(m => m.VirtualNumberId, new SelectList(Model.NumbersList, "Value", "Text"), new { @class = "form-control" })
-                                    @Html.ValidationMessageFor(m => m.VirtualNumberId, null, new { @class = "text-danger" })
-                                </div>
-                                <div class="form-group">
-                                    @Html.LabelFor(m => m.MobileNumber, new { @class = "form-label" })
-                                    @Html.TextBoxFor(m => m.MobileNumber, new { @class = "form-control", placeholder = "Mobile number" })
-                                    @Html.ValidationMessageFor(m => m.MobileNumber, null, new { @class = "text-danger" })
-                                </div>
-                                <div class="form-group">
-                                    @Html.LabelFor(m => m.MessageText, new { @class = "form-label" })
-                                    @Html.TextAreaFor(m => m.MessageText, new { @class = "form-control", id = "ta_message", placeholder = "Type your message...", maxlength = "160" })
-                                    @Html.ValidationMessageFor(m => m.MessageText, null, new { @class = "text-danger" })
-                                    <div class="row">
-                                        <div class="col-12 small">
-                                            <div id="counter" class="float-right">Characters: 0/160</div>
+                <div class="card h-100">
+                    <h4 class="card-header">Send a Text</h4>
+                    <div class="card-body">
+                        @using (Html.BeginForm("send-text", "free", FormMethod.Post, new { id = "form-send-text" }))
+                        {
+                            @Html.AntiForgeryToken()
+                            @Html.HiddenFor(m => m.SessionId);
+                            @Html.HiddenFor(m => m.MessageText);
+                            <input type="hidden" id="hidActiveDestinationNumber" />
+                            <input type="hidden" id="hidActiveVirtualNumberId" />
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        @Html.LabelFor(m => m.VirtualNumberId, new { @class = "form-label" })
+                                        @Html.DropDownListFor(m => m.VirtualNumberId, new SelectList(Model.NumbersList, "Value", "Text"), new { @class = "form-control" })
+                                        @Html.ValidationMessageFor(m => m.VirtualNumberId, null, new { @class = "text-danger" })
+                                    </div>
+                                    <div class="form-group">
+                                        @Html.LabelFor(m => m.MobileNumber, new { @class = "form-label" })
+                                        @Html.TextBoxFor(m => m.MobileNumber, new { @class = "form-control", placeholder = "Mobile number" })
+                                        @Html.ValidationMessageFor(m => m.MobileNumber, null, new { @class = "text-danger" })
+                                    </div>
+                                    <div id="msg_list" class="msg_history-f border border-bottom-0 py-2 @(Model.MessageHistory.Count > 0 ? "" : "d-none")">
+                                        @Html.Partial("_MessageList_FreeTextContainer", Model)
+                                    </div>
+                                    <div id="msg_area" class="row border mx-0">
+                                        <div class="msg-icons-cont border-right align-items-center text-primary">
+                                            <div class="text-center pt-3 pt-lg-2">
+                                                <i id="emoji-sel-button" class="fa fa-image fa-smile-o msg_function_icon"></i>
+                                            </div>
+                                            <div class="text-center pt-2 pt-lg-1">
+                                                <div class="dropzone" id="mmsDropzone">
+                                                    <span class="dz-message"><i class="fa fa-image msg_function_icon"></i></span>
+                                                </div>
+                                            </div>
                                         </div>
+                                        <div class="col px-0">
+                                            <textarea id="message_text" class="message_texarea" data-emojiable="true" data-emoji-ta-id="emojipick_1" placeholder="Type your message..."></textarea>
+                                        </div>
+                                    </div>
+                                    <input type="hidden" class="hid-required" id="hidMessage" name="hidMessage" data-val="true" data-val-required="A message is required">
+                                    <span class="text-danger" data-valmsg-replace="true" data-valmsg-for="hidMessage"></span>
+                                </div>
+                            </div>
+                            <br />
+                            <div class="row">
+                                <div class="col-lg-7">
+                                    <div class="g-recaptcha" id="grecaptcha" data-badge="inline" data-callback="reCaptchaVerify" data-expired-callback="reCaptchaExpired" data-sitekey="6Ldl-rQUAAAAALacF1sl4vM1WHQL5OhAYRFdLlnQ"></div>
+                                    <input type="hidden" class="hid-required" name="hidRecaptcha" id="hidRecaptcha" data-val="true" data-val-required="Please complete the reCaptcha">
+                                    <span class="text-danger" data-valmsg-replace="true" data-valmsg-for="hidRecaptcha"></span>
+                                </div>
+                                <div class="col-lg-5 text-center mt-2 mt-lg-0">
+                                    <button type="submit" class="btn btn-primary" id="btn_send_message">Send Text</button>
+                                    <div class="subscript">
+                                        By clicking <i>Send Text</i>, you agree to TextPort's <a href="/terms">Terms of Use</a> and <a href="/privacy">Privacy Policy</a>.
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        if (!string.IsNullOrEmpty(Model.SubmissionMessage))
-                        {
-                            <div>
-                                @if (Model.Result == "OK")
-                                {
-                                    <p class="text-success">@Html.Raw(Model.SubmissionMessage)</p>
-                                }
-                                else
-                                {
-                                    <p class="text-danger">@Html.Raw(Model.SubmissionMessage)</p>
-                                }
-                            </div>
                         }
-                        <div class="row">
-                            <div class="col-lg-7">
-                                <div class="form-group">
-                                    <div class="g-recaptcha" data-sitekey="6Ldl-rQUAAAAALacF1sl4vM1WHQL5OhAYRFdLlnQ"></div>
-                                </div>
-                            </div>
-                            <div class="col-lg-5">
-                                <div class="form-group">
-                                    <button type="submit" class="btn btn-primary float-lg-right" id="btnRequestSupport">Send</button>
-                                </div>
-                            </div>
-                        </div>
-                    }
+                    </div>
                 </div>
+            </div>
+            <div class="col-md-6 mt-4 mt-lg-0">
+                <div class="card h-100">
+                    <h5 class="card-header">How to send and receive text messages online</h5>
+                    <div class="card-body">
+                        <ol class="text-small">
+                            <li>Choose a number to send the text from.</li>
+                            <li>Enter the recipient's mobile number.</li>
+                            <li>Type your text message.</li>
+                            <li>Add emojis or upload pictures (MMS).</li>
+                            <li>Click <i>Send Text</i>.</li>
+                            <li>Delivery receipts and replies appear below your message.</li>
+                            <li>Send up to 4 messages for free and receive unlimited texts per session.</li>
+                            <li>
+                                To send more messages, we invite you to register a <a href="/trial">trial account</a> or a <a href="/account/register">full account.</a>
+                                A full account allows you to choose your own <a href="/dedicated-phone-numbers">dedicated phone number</a>.
+                            </li>
+                        </ol>
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>
@@ -93,3 +309,6 @@
 <br />
 <br />
 <script src='https://www.google.com/recaptcha/api.js'></script>
+<script>
+    $.validator.setDefaults({ ignore: ':hidden:not(".hid-required")' });
+</script>

@@ -18,11 +18,26 @@ namespace TextPort.Hubs
         public void SendInboundMessageNotification(MessageNotification notification)
         {
             _hubContext.Clients.User(notification.UserName).messageNotification(JsonConvert.SerializeObject(notification, Formatting.Indented));
+
+            // If the userName is a GUID, send to the client connection ID because this may be the first instance of
+            // a free texting session, and the user ID may not be set yet.
+            if (notification.UserName.Length == 36)
+            {
+                _hubContext.Clients.Client(notification.UserName).messageNotification(JsonConvert.SerializeObject(notification, Formatting.Indented));
+            }
         }
+
 
         public void SendDeliveryReceipt(string userName, string messageId, string messageHtml)
         {
             _hubContext.Clients.User(userName).deliveryReceipt(messageId, messageHtml);
+
+            // If the userName is a GUID, send to the client connection ID because this may be the first instance of
+            // a free texting session, and the user ID may not be set yet.
+            if (userName.Length == 36)
+            {
+                _hubContext.Clients.Client(userName).deliveryReceipt(messageId, messageHtml);
+            }
         }
 
         public void SendBalanceUpdate(string userName, string balanceText)

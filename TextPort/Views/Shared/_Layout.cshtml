@@ -1,4 +1,5 @@
-﻿<!DOCTYPE html>
+﻿@using TextPortCore.Helpers
+<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8">
@@ -136,7 +137,7 @@
                 </button>
                 <div class="collapse navbar-collapse" id="navbarResponsive">
                     <ul class="navbar-nav ml-auto">
-                        @if (User.Identity.IsAuthenticated)
+                        @if (User.IsInRole("User"))
                         {
                             <li class="nav-item active">
                                 <a class="nav-link" href="/messages">
@@ -211,7 +212,7 @@
                 </div>
             </div>
         </nav>
-        @if (User.Identity.IsAuthenticated)
+        @if (User.IsInRole("User"))
         {
             <div class="row">
                 <div class="col-12">
@@ -221,7 +222,7 @@
         }
         <nav class="sidenav"></nav>
         @RenderBody()
-        @if (!User.Identity.IsAuthenticated)
+        @if (!User.IsInRole("User"))
         {
             <footer class="mainfooter" role="contentinfo">
                 <div class="footer-middle">
@@ -263,6 +264,7 @@
                                         <li><a href="/blog">Blog</a></li>
                                         <li><a href="/terms">Terms of Use</a></li>
                                         <li><a href="/privacy">Privacy Policy</a></li>
+                                        <li><a href="/block">Block Number</a></li>
                                         <li><a href="/">Home</a></li>
                                     </ul>
                                 </div>
@@ -296,7 +298,7 @@
 
     <div id="modal-cont"></div>
     <div id="modal-cont-login"></div>
-    @if (!User.Identity.IsAuthenticated)
+    @if (!User.IsInRole("User"))
     {
         <script type='text/javascript' data-cfasync='false'>window.purechatApi = { l: [], t: [], on: function () { this.l.push(arguments); } }; (function () { var done = false; var script = document.createElement('script'); script.async = true; script.type = 'text/javascript'; script.src = 'https://app.purechat.com/VisitorWidget/WidgetScript'; document.getElementsByTagName('HEAD').item(0).appendChild(script); script.onreadystatechange = script.onload = function (e) { if (!done && (!this.readyState || this.readyState == 'loaded' || this.readyState == 'complete')) { var w = new PCWidget({ c: 'b091137a-773e-4beb-83c0-830ebf96f126', f: true }); done = true; } }; })();</script>
     }

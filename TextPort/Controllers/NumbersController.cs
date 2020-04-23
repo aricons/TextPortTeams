@@ -73,7 +73,7 @@ namespace TextPort.Controllers
             return Json(numbersItems, JsonRequestBehavior.AllowGet);
         }
 
-        [Authorize]
+        [Authorize(Roles = "User")]
         [HttpGet]
         public ActionResult Index()
         {
@@ -93,7 +93,7 @@ namespace TextPort.Controllers
             return View(nc);
         }
 
-        [Authorize]
+        [Authorize(Roles = "User")]
         [HttpGet]
         public ActionResult GetNumber()
         {
@@ -112,7 +112,7 @@ namespace TextPort.Controllers
             return View(regData);
         }
 
-        [Authorize]
+        [Authorize(Roles = "User")]
         [HttpPost]
         public ActionResult GetNumber(RegistrationData regData)
         {
@@ -155,7 +155,7 @@ namespace TextPort.Controllers
             return View("TransactionComplete", regData);
         }
 
-        [Authorize]
+        [Authorize(Roles = "User")]
         [HttpGet]
         public ActionResult RenewNumber(int id)
         {
@@ -176,7 +176,7 @@ namespace TextPort.Controllers
             return View(regData);
         }
 
-        [Authorize]
+        [Authorize(Roles = "User")]
         [HttpPost]
         public ActionResult RenewNumber(RegistrationData regData)
         {
@@ -255,7 +255,7 @@ namespace TextPort.Controllers
             return View("TransactionComplete", regData);
         }
 
-        [Authorize]
+        [Authorize(Roles = "User")]
         [HttpGet]
         public ActionResult ComplimentaryNumber(int id)
         {
@@ -277,7 +277,7 @@ namespace TextPort.Controllers
             return RedirectToAction("Profile", "Account");
         }
 
-        [Authorize]
+        [Authorize(Roles = "User")]
         [HttpPost]
         public JsonResult SetAutoRenew(AutoRenewSettings autoRenewSettings)
         {
@@ -320,7 +320,7 @@ namespace TextPort.Controllers
             return Json(autoRenewSettings, JsonRequestBehavior.AllowGet);
         }
 
-        [Authorize]
+        [Authorize(Roles = "User")]
         [HttpGet]
         public ActionResult NumberHistory(int id)
         {
@@ -329,7 +329,7 @@ namespace TextPort.Controllers
             return PartialView("_NumberHistory", history);
         }
 
-        [Authorize]
+        [Authorize(Roles = "User")]
         [HttpGet]
         public ActionResult ApplyApi(int id)
         {
@@ -340,7 +340,7 @@ namespace TextPort.Controllers
             return PartialView("_ApplyApi", apiApps);
         }
 
-        [Authorize]
+        [Authorize(Roles = "User")]
         [HttpPost]
         public ActionResult ApplyApi(ApiApplicationsContainer apiApps)
         {

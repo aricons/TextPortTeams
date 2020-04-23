@@ -1,6 +1,5 @@
 ﻿$(function () {
     var inHub = $.connection.inboundHub;
-    // Create a function that the hub can call back to display messages.
     inHub.client.messageNotification = function (notifyJson) {
         var notification = $.parseJSON(notifyJson);
         var activeDestinationNumber = '';
@@ -68,8 +67,15 @@
         $("#balance").html(balTxt);
     };
 
-    // Start the hub
-    $.connection.hub.start();
+    // Start the hub.
+    $.connection.hub.start().done(function () {
+        if ($('#SessionId').length) {
+            if ($('#SessionId').val() === "") {
+                $("#SessionId").val($.connection.hub.id);
+            }
+        }
+    });
+
 });
 
 function numberToE164(number) {

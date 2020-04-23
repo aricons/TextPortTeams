@@ -1,15 +1,16 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Web.Mvc;
+using System.Configuration;
 using System.ComponentModel.DataAnnotations;
 
 using TextPortCore.Data;
+using TextPortCore.Helpers;
 
 namespace TextPortCore.Models
 {
     public class FreeTextContainer
     {
-        public int AccountId { get; set; }
-
         public string IPAddress { get; set; }
 
         [Display(Name = "Send From")]
@@ -25,23 +26,41 @@ namespace TextPortCore.Models
         [Required(ErrorMessage = "A message is required")]
         public string MessageText { get; set; }
 
-        public string Result { get; set; }
+        public string SessionId { get; set; }
 
-        public string SubmissionMessage { get; set; }
+        public List<Message> MessageHistory { get; set; }
 
         public IEnumerable<SelectListItem> NumbersList { get; set; }
 
         public FreeTextContainer()
         {
-            this.AccountId = 0;
-            this.VirtualNumberId = 0;
             this.MobileNumber = string.Empty;
             this.MessageText = string.Empty;
-            this.SubmissionMessage = string.Empty;
-            this.Result = "ERROR";
+            this.MessageHistory = new List<Message>();
+            this.SessionId = string.Empty;
 
             using (TextPortDA da = new TextPortDA())
             {
+                this.NumbersList = da.GetFreeNumbersList();
+            }
+        }
+
+        public FreeTextContainer(string sessionId)
+        {
+            int freeTextAccountId = Conversion.StringToIntOrZero(ConfigurationManager.AppSettings["FreeTextAccountId"]);
+
+            this.MobileNumber = string.Empty;
+            this.MessageText = string.Empty;
+            this.SessionId = sessionId;
+
+            using (TextPortDA da = new TextPortDA())
+            {
+                this.MessageHistory = da.GetMessagesForAccountAndSessionId(freeTextAccountId, sessionId);
+                if (this.MessageHistory.Count > 0)
+                {
+                    this.VirtualNumberId = this.MessageHistory.FirstOrDefault().VirtualNumberId;
+                    this.MobileNumber = Utilities.NumberToDisplayFormat(this.MessageHistory.FirstOrDefault().MobileNumber, 22);
+                }
                 this.NumbersList = da.GetFreeNumbersList();
             }
         }

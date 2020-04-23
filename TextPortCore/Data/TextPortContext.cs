@@ -201,7 +201,7 @@ namespace TextPortCore.Data
 
                 entity.HasKey(e => e.BlockID);
 
-                entity.HasIndex(e => e.MobileNumber);
+                entity.HasIndex(e => new { e.MobileNumber, e.Direction });
 
                 entity.Property(e => e.DateRequested).HasColumnType("datetime");
             });
@@ -407,8 +407,6 @@ namespace TextPortCore.Data
 
                 entity.HasIndex(e => e.TimeStamp);
 
-                entity.HasIndex(e => e.UniqueMessageId);
-
                 entity.HasIndex(e => new { e.AccountId, e.MobileNumber });
 
                 entity.Property(e => e.MessageId).HasColumnName("MessageID");
@@ -448,6 +446,8 @@ namespace TextPortCore.Data
 
                 entity.Property(e => e.IsMMS)
                     .IsUnicode(false);
+
+                entity.Property(e => e.SessionId).HasColumnName("UniqueMessageId");
 
                 entity.Property(e => e.MessageText)
                     .HasColumnName("Message")

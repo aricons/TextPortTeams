@@ -11,7 +11,7 @@ namespace TextPort.Controllers
 {
     public class ContactsController : Controller
     {
-        [Authorize]
+        [Authorize(Roles = "User")]
         [HttpGet]
         public ActionResult Index()
         {
@@ -22,7 +22,7 @@ namespace TextPort.Controllers
             return View(cc);
         }
 
-        [Authorize]
+        [Authorize(Roles = "User")]
         [HttpGet]
         public ActionResult AddContact(int id)
         {
@@ -43,7 +43,7 @@ namespace TextPort.Controllers
             }
         }
 
-        [Authorize]
+        [Authorize(Roles = "User")]
         [HttpPost]
         public ActionResult AddMember(Contact newContact)
         {
@@ -69,7 +69,7 @@ namespace TextPort.Controllers
             }
         }
 
-        [Authorize]
+        [Authorize(Roles = "User")]
         [HttpPost]
         public ActionResult DeleteMember(DeleteGroupMemberRequest request)
         {

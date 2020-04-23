@@ -11,7 +11,7 @@ namespace TextPort.Controllers
 {
     public class EmailToSMSController : Controller
     {
-        [Authorize]
+        [Authorize(Roles = "User")]
         [HttpGet]
         public ActionResult Index()
         {
@@ -22,7 +22,7 @@ namespace TextPort.Controllers
             return View(etsc);
         }
 
-        [Authorize]
+        [Authorize(Roles = "User")]
         [HttpGet]
         public ActionResult AddAddress()
         {
@@ -39,7 +39,7 @@ namespace TextPort.Controllers
             }
         }
 
-        [Authorize]
+        [Authorize(Roles = "User")]
         [HttpPost]
         public ActionResult AddAddress(EmailToSMSAddress newAddress)
         {
@@ -63,7 +63,7 @@ namespace TextPort.Controllers
             return null;
         }
 
-        [Authorize]
+        [Authorize(Roles = "User")]
         [HttpPost]
         public ActionResult UpdateAddress(EmailToSMSAddress address)
         {
@@ -88,7 +88,7 @@ namespace TextPort.Controllers
             return null;
         }
 
-        [Authorize]
+        [Authorize(Roles = "User")]
         [HttpPost]
         public ActionResult DeleteAddress(DeleteEmailToSMSAddressRequest deleteRequest)
         {

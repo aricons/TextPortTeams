@@ -320,6 +320,7 @@ namespace TextPortCore.Integrations.Bandwidth
                 {
                     int accountId = 0;
                     int virtualNumberId = 0;
+                    string sessionId = null;
                     string pooledNumberSearchResult = string.Empty;
                     bool isEmailToSMSResponse = false;
 
@@ -347,6 +348,25 @@ namespace TextPortCore.Integrations.Bandwidth
                                 }
                             }
                         }
+                        else if (dvn.NumberType == (byte)NumberTypes.Free)
+                        {
+                            if (bwMessage.message != null)
+                            {
+                                accountId = dvn.AccountId;
+                                virtualNumberId = dvn.VirtualNumberId;
+                                pooledNumberSearchResult = $"The virtual number {bwMessage.to.Replace("+", "")} is a free texting number. Looking for an associated outbound message to get the session ID.\r\n";
+                                Message freeMessage = da.GetOriginatingMessageByVirtualNumberIdAndMobileNumberAndMessageType(dvn.VirtualNumberId, bwMessage.message.from.Replace("+", ""), MessageTypes.FreeTextSend);
+                                if (freeMessage != null)
+                                {
+                                    sessionId = freeMessage.SessionId;
+                                    pooledNumberSearchResult += $"An originating free message was found. The message ID is {freeMessage.MessageId}. The session ID is {freeMessage.SessionId}.\r\n";
+                                }
+                                else
+                                {
+                                    pooledNumberSearchResult += $"An originating free message was not found found. Processing stops.\r\n";
+                                }
+                            }
+                        }
                         else // Regular non-pooled number
                         {
                             accountId = dvn.AccountId;
@@ -354,7 +374,7 @@ namespace TextPortCore.Integrations.Bandwidth
                         }
                     }
 
-                    Message messageIn = new Message(bwMessage, accountId, virtualNumberId);
+                    Message messageIn = new Message(bwMessage, accountId, virtualNumberId, sessionId);
 
                     string result = "Message received from Bandwidth on " + messageIn.TimeStamp.ToString() + "\r\n";
                     result += "Notification Type: " + bwMessage.type + "\r\n";
@@ -363,6 +383,7 @@ namespace TextPortCore.Integrations.Bandwidth
                     result += "Virtual Number ID: " + messageIn.VirtualNumberId.ToString() + "\r\n";
                     result += "Gateway Message ID: " + messageIn.GatewayMessageId + "\r\n";
                     result += "Account Id: " + messageIn.AccountId.ToString() + "\r\n";
+                    result += "Session Id: " + (messageIn.SessionId ?? string.Empty) + "\r\n";
                     result += "Message: " + messageIn.MessageText + "\r\n";
                     result += "Segments: " + messageIn.Segments + "\r\n";
                     if (!string.IsNullOrEmpty(pooledNumberSearchResult))
@@ -374,6 +395,15 @@ namespace TextPortCore.Integrations.Bandwidth
                         result += "Pooled Number Status: Message not sent to a pooled number.\r\n";
                     }
                     result += "Data Received: " + jsonPayload + "\r\n";
+
+                    // Check that the sending number is not in the BlockedNumbers table as an inbound number.
+                    // If a block is found, flush the log and stop processing.
+                    if (da.NumberIsBlocked(messageIn.MobileNumber, MessageDirection.Inbound))
+                    {
+                        result += $"The sending number {messageIn.MobileNumber} was found on the inbound blocked numbers list. Halting any further processing.\r\n";
+                        writeXMLToDisk(result, "BandwidthInboundMessage-BLOCKED");
+                        return null;
+                    }
 
                     decimal newBalance = 0;
                     int messageId = da.InsertMessage(messageIn, ref newBalance);

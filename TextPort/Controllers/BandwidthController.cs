@@ -2,8 +2,6 @@
 using System.Linq;
 using System.Collections.Generic;
 using System.Web.Http;
-using Microsoft.AspNet.SignalR;
-using System.Web.Http.Results;
 
 using TextPort.Hubs;
 using TextPortCore.Data;
@@ -95,7 +93,14 @@ namespace TextPort.Controllers
                                     string messageHtml = @"<div class='rcpt'><i class='fa fa-check'></i>Delivered</div>";
                                     using (HubFunctions hubFunctions = new HubFunctions())
                                     {
-                                        hubFunctions.SendDeliveryReceipt(originalMessage.Account.UserName, originalMessage.MessageId.ToString(), messageHtml);
+                                        if (originalMessage.MessageType == (byte)MessageTypes.FreeTextSend && !String.IsNullOrEmpty(originalMessage.SessionId))
+                                        {
+                                            hubFunctions.SendDeliveryReceipt(getNotificationUserName(originalMessage), originalMessage.MessageId.ToString(), messageHtml);
+                                        }
+                                        else
+                                        {
+                                            hubFunctions.SendDeliveryReceipt(originalMessage.Account.UserName, originalMessage.MessageId.ToString(), messageHtml);
+                                        }
                                     }
                                 }
                             }
@@ -128,7 +133,7 @@ namespace TextPort.Controllers
                                 string messageHtml = $"<div class='fail-reason'><i class='fa fa-exclamation-triangle'></i>Failed: {rc.Description}</div>";
                                 using (HubFunctions hubFunctions = new HubFunctions())
                                 {
-                                    hubFunctions.SendDeliveryReceipt(originalMessage.Account.UserName, originalMessage.MessageId.ToString(), messageHtml);
+                                    hubFunctions.SendDeliveryReceipt(getNotificationUserName(originalMessage), originalMessage.MessageId.ToString(), messageHtml);
                                 }
                             }
                         }
@@ -165,6 +170,18 @@ namespace TextPort.Controllers
             originalMessage.Account.Balance -= messageCost;
 
             return true;
+        }
+
+        private string getNotificationUserName(Message msg)
+        {
+            if (msg.MessageType == (byte)MessageTypes.FreeTextSend && !string.IsNullOrEmpty(msg.SessionId))
+            {
+                return msg.SessionId;
+            }
+            else
+            {
+                return msg.Account.UserName;
+            }
         }
     }
 }

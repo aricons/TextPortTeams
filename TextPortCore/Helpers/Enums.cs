@@ -41,8 +41,10 @@ namespace TextPortCore.Helpers
         Regular = 1,
         [Description("Pooled")]
         Pooled = 2,
+        [Description("Free")]
+        Free = 3,
         [Description("Reserved")]
-        Reserved = 3
+        Reserved = 4
     }
 
     public enum Countries : int

@@ -31,7 +31,7 @@ namespace TextPortAPI.Controllers
         /// <response code="200">A BalanceResult object containing the current balance on the account.</response>
         /// <response code="400">If an error occurred</response>    
         [HttpGet]
-        [Authorize]
+        [Authorize(Roles = "User")]
         [Route("balance")]
         [SwaggerResponse(HttpStatusCode.OK, "Message confirmation object", typeof(BalanceResult))]
         [SwaggerResponse(HttpStatusCode.BadRequest)]

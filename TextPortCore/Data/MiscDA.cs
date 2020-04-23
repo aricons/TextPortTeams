@@ -58,6 +58,49 @@ namespace TextPortCore.Data
         #endregion
 
         #region "Insert Methods"
+
+        public bool AddNumberBlock(BlockRequest blockRequest)
+        {
+            try
+            {
+                BlockedNumber existingBlock = _context.BlockedNumbers.FirstOrDefault(x => x.MobileNumber == blockRequest.MobileNumberE164 && x.Direction == (byte)blockRequest.Direction);
+                if (existingBlock != null)
+                {
+                    blockRequest.SubmissionStatus = RequestStatus.Failed;
+                    blockRequest.SubmissionMessage = $"The number {blockRequest.MobileNumber} is already on the block list.";
+                    return false;
+                }
+
+                BlockedNumber blockedNumber = new BlockedNumber(blockRequest);
+
+                _context.BlockedNumbers.Add(blockedNumber);
+                _context.SaveChanges();
+
+                blockRequest.BlockId = blockedNumber.BlockID;
+
+                if (blockRequest.BlockId > 0)
+                {
+                    blockRequest.SubmissionStatus = RequestStatus.Success;
+                    blockRequest.SubmissionMessage = $"The number {blockRequest.MobileNumber} was successfully added to the block list.";
+                    return true;
+                }
+                else
+                {
+                    blockRequest.SubmissionStatus = RequestStatus.Failed;
+                    blockRequest.SubmissionMessage = $"An error occurred while attempting to add {blockRequest.MobileNumber} to the block list.";
+                    return false;
+                }
+
+            }
+            catch (Exception ex)
+            {
+                ErrorHandling eh = new ErrorHandling();
+                eh.LogException("MiscDA.AddNumberBlock", ex);
+            }
+
+            return false;
+        }
+
         #endregion
 
         #region "Delete Methods"

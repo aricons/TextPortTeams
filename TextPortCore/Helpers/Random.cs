@@ -33,7 +33,7 @@ namespace TextPortCore.Helpers
 
         public static string GenerateRandomTokenNoJ(int length)
         {
-            const string allowedChars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+            const string allowedChars = "0123456789ABCDEFGHIKLMNOPQRSTUVWXYZabcdefghiklmnopqrstuvwxyz";
             char[] chars = new char[length];
             int setLength = allowedChars.Length;
 

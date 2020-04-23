@@ -165,19 +165,19 @@ namespace TextPort.Controllers
         }
 
         [AllowAnonymous]
-        [HttpGet]
-        public ActionResult Test()
-        {
-            return View();
-        }
-
-        [AllowAnonymous]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Contact(SupportRequestModel request)
         {
             CaptchaResponse captchaResponse = ValidateCaptcha(Request["g-recaptcha-response"]);
             return View(processContactOrSupportRequest(request, captchaResponse));
+        }
+
+        [AllowAnonymous]
+        [HttpGet]
+        public ActionResult Test()
+        {
+            return View();
         }
 
         [HttpGet]
@@ -193,6 +193,35 @@ namespace TextPort.Controllers
         {
             CaptchaResponse captchaResponse = ValidateCaptcha(Request["g-recaptcha-response"]);
             return View(processContactOrSupportRequest(request, captchaResponse));
+        }
+
+        [HttpGet]
+        public ActionResult Block()
+        {
+            return View(new BlockRequest());
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Block(BlockRequest request)
+        {
+            CaptchaResponse captchaResponse = ValidateCaptcha(Request["g-recaptcha-response"]);
+
+            if (captchaResponse.Success)
+            {
+                using (TextPortDA da = new TextPortDA())
+                {
+                    da.AddNumberBlock(request);
+                }
+            }
+            else
+            {
+                request.SubmissionStatus = RequestStatus.Failed;
+                request.SubmissionMessage = "Request failed. The Captcha was not validated.";
+            }
+
+            ModelState.Clear();
+            return View(request);
         }
 
         [AllowAnonymous]

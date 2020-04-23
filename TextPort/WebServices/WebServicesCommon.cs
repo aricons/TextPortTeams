@@ -72,7 +72,7 @@ namespace TextPort.WebServices
 
                                                     int messageId = 0;
                                                     decimal newBalance = 0;
-                                                    if (!da.NumberIsBlocked(message.MobileNumber))
+                                                    if (!da.NumberIsBlocked(message.MobileNumber, MessageDirection.Outbound))
                                                     {
                                                         messageId = da.InsertMessage(message, ref newBalance);
                                                         if (messageId > 0)

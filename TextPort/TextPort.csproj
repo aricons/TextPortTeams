@@ -523,11 +523,11 @@
     <Compile Include="Helpers\Extensions.cs" />
     <Compile Include="Helpers\GlobalVariables.cs" />
     <Compile Include="Hubs\HubFunctions.cs" />
-    <Compile Include="Hubs\InboundHubOld.cs" />
     <Compile Include="Hubs\InboundHub.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\IdentityModels.cs" />
     <Compile Include="Models\ManageViewModels.cs" />
+    <Compile Include="Models\UserHubModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
     <Compile Include="WebServices\ITextPortSMS.cs" />
@@ -811,6 +811,10 @@
     <Content Include="Content\images\phone-icon.png" />
     <Content Include="Content\images\reverse-phone-lookup.png" />
     <Content Include="Content\images\temporary-phone-number.png" />
+    <Content Include="Content\images\text-from-computer-256.png" />
+    <Content Include="Content\images\text-from-computer-512.png" />
+    <Content Include="Content\images\text-messaging-256.png" />
+    <Content Include="Content\images\text-messaging-512.png" />
     <Content Include="Content\images\textport-logo-256.png" />
     <Content Include="Content\images\tp_logo_240x54.png" />
     <Content Include="Content\images\user-profile.png" />
@@ -1084,6 +1088,10 @@
     <Content Include="Views\Home\test.cshtml" />
     <Content Include="Views\Free\send-text.cshtml" />
     <Content Include="Views\Messages\Test.cshtml" />
+    <Content Include="Views\Free\_TempImage.cshtml" />
+    <Content Include="Views\Free\_MessageList_FreeTextContainer.cshtml" />
+    <Content Include="Views\Free\_MessageList_FreeTextResult.cshtml" />
+    <Content Include="Views\Home\block.cshtml" />
     <None Include="Web.Beta.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

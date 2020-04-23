@@ -175,6 +175,30 @@ namespace TextPortCore.Data
             return null;
         }
 
+        public List<Message> GetMessagesForAccountAndSessionId(int accountId, string sessionId)
+        {
+            try
+            {
+                List<Message> messages = _context.Messages.Include(m => m.MMSFiles).Include(m => m.Account)
+                    .Where(m => m.AccountId == accountId
+                        && m.SessionId == sessionId
+                        && m.MessageType != (byte)MessageTypes.Notification
+                        && m.DeleteFlag == null).OrderByDescending(x => x.TimeStamp).Take(300).AsEnumerable().Reverse().ToList();
+
+                foreach (Message m in messages)
+                {
+                    m.ConvertTimeStampToLocalTimeZone();
+                }
+                return messages;
+            }
+            catch (Exception ex)
+            {
+                ErrorHandling eh = new ErrorHandling();
+                eh.LogException("MessagesDA.GetMessagesForAccountAndSessionId", ex);
+            }
+            return null;
+        }
+
         public InboxContainer GetInboundMessagesForAccount(int accountId, PagingParameters pParams)
         {
             try
@@ -368,6 +392,25 @@ namespace TextPortCore.Data
             return null;
         }
 
+        public Message GetOriginatingMessageByVirtualNumberIdAndMobileNumberAndMessageType(int virtualNumberId, string mobileNumber, MessageTypes messageType)
+        {
+            try
+            {
+                // This method is used to locate the originating (outbound) message sent from a virtual
+                // number to a specified mobile number for the given message type.
+                return _context.Messages.Where(x => x.VirtualNumberId == virtualNumberId &&
+                                        x.MessageType == (byte)messageType &&
+                                        x.Direction == (byte)MessageDirection.Outbound &&
+                                        x.MobileNumber == mobileNumber).OrderByDescending(x => x.MessageId).FirstOrDefault();
+            }
+            catch (Exception ex)
+            {
+                ErrorHandling eh = new ErrorHandling();
+                eh.LogException("MessagesDA.GetOriginatingMessageByVirtualNumberIdAndMobileNumberAndMessageType", ex);
+            }
+            return null;
+        }
+
         public string GetOriginalSMSToEmailSenderAddressByAccountIdVirtualNumberIdAndMobileNumber(int accountId, int virtualNumberId, string mobileNumber)
         {
             try
@@ -402,10 +445,18 @@ namespace TextPortCore.Data
             return null;
         }
 
-        public bool NumberIsBlocked(string mobileNumber)
+        public bool NumberIsBlocked(string mobileNumber, MessageDirection direction)
         {
-            BlockedNumber bn = _context.BlockedNumbers.FirstOrDefault(x => x.MobileNumber == mobileNumber);
-            return (bn != null);
+            mobileNumber = Utilities.NumberToE164(mobileNumber);
+            BlockedNumber bn = _context.BlockedNumbers.FirstOrDefault(x => x.MobileNumber == mobileNumber && x.Direction == (byte)direction);
+            if (bn != null)
+            {
+                bn.BlockCount++;
+                SaveChanges();
+
+                return true;
+            }
+            return false;
         }
 
         #endregion

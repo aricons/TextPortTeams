@@ -9,7 +9,7 @@ namespace TextPort.Controllers
 {
     public class BlogController : Controller
     {
-        public const int postsToDisplayPerPage = 2;
+        public const int postsToDisplayPerPage = 4;
 
         public ActionResult Index(string page)
         {

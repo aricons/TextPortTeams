@@ -17,7 +17,6 @@ namespace TextPortCore.Helpers
 
             // Messge list item
             string mHtml = $"<div id=\"{msg.MessageId}\" class=\"msg_item\">";
-            //mHtml += $"<div class=\"incoming_msg_img\"><img src=\"/content/images/user-profile.png\" /></div>";
             mHtml += $"<div class=\"received_msg\">";
             foreach (MMSFile mms in msg.MMSFiles)
             {

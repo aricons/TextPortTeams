@@ -19,7 +19,7 @@ namespace TextPort.Controllers
     {
         private int inboxPageSize = 10;
 
-        [Authorize]
+        [Authorize(Roles = "User")]
         [HttpGet]
         public ActionResult Index()
         {
@@ -35,7 +35,7 @@ namespace TextPort.Controllers
             return View();
         }
 
-        [Authorize]
+        [Authorize(Roles = "User")]
         [HttpPost]
         public ActionResult Index(BulkMessages messageData)
         {
@@ -66,7 +66,7 @@ namespace TextPort.Controllers
                                             {
                                                 Message bulkMessage = new Message(message, messageType, accountId, messageData.VirtualNumberId, string.Empty);
 
-                                                if (!da.NumberIsBlocked(bulkMessage.MobileNumber))
+                                                if (!da.NumberIsBlocked(bulkMessage.MobileNumber, MessageDirection.Outbound))
                                                 {
                                                     if (da.InsertMessage(bulkMessage, ref remainingBalance) > 0)
                                                     {
@@ -129,7 +129,7 @@ namespace TextPort.Controllers
             return View(messageData);
         }
 
-        [Authorize]
+        [Authorize(Roles = "User")]
         [HttpGet]
         public ActionResult Inbox()
         {
@@ -150,7 +150,7 @@ namespace TextPort.Controllers
             return View(inboxContainer);
         }
 
-        [Authorize]
+        [Authorize(Roles = "User")]
         [HttpPost]
         public ActionResult GetInboxPage(PagingParameters parameters)
         {
@@ -176,7 +176,7 @@ namespace TextPort.Controllers
             });
         }
 
-        [Authorize]
+        [Authorize(Roles = "User")]
         [HttpPost]
         public ActionResult DeleteInboxMessages(MessageIdList idsList)
         {
@@ -195,7 +195,7 @@ namespace TextPort.Controllers
             });
         }
 
-        [Authorize]
+        [Authorize(Roles = "User")]
         [HttpPost]
         public ActionResult Upload()
         {
@@ -270,7 +270,7 @@ namespace TextPort.Controllers
             return Json("Upload failed. The file format was invalid, or the file could not be read.");
         }
 
-        [Authorize]
+        [Authorize(Roles = "User")]
         [HttpPost]
         public PartialViewResult GridOps(BulkMessages messageData)
         {

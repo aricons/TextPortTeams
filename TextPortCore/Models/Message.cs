@@ -5,6 +5,8 @@ using System.Linq;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
+using Newtonsoft.Json;
+
 using TextPortCore.Helpers;
 using TextPortCore.Integrations.Bandwidth;
 
@@ -39,7 +41,7 @@ namespace TextPortCore.Models
 
         public string VirtualNumber { get; set; }
 
-        public string UniqueMessageId { get; set; }
+        public string SessionId { get; set; }
 
         public string GatewayMessageId { get; set; }
 
@@ -78,7 +80,7 @@ namespace TextPortCore.Models
         {
             // Default outbound message
             this.MessageType = (byte)MessageTypes.Normal;
-            this.Direction = (int)MessageDirection.Outbound;
+            this.Direction = (byte)MessageDirection.Outbound;
             this.CarrierId = (int)Carriers.BandWidth;
             this.QueueStatus = (byte)QueueStatuses.NotProcessed;
             this.Ipaddress = "0.0.0.0";
@@ -103,7 +105,7 @@ namespace TextPortCore.Models
             this.CarrierId = (int)Carriers.BandWidth;
             this.Ipaddress = Utilities.GetUserHostAddress();
             this.VirtualNumberId = virtualNumId;
-            this.Direction = (int)MessageDirection.Outbound;
+            this.Direction = (byte)MessageDirection.Outbound;
             this.CustomerCost = Constants.BaseSMSSegmentCost;
             this.MobileNumber = string.Empty;
             this.GatewayMessageId = string.Empty;
@@ -120,7 +122,7 @@ namespace TextPortCore.Models
             // Bulk outbound message
             this.AccountId = accountId;
             this.MessageType = (byte)msgType;
-            this.Direction = (int)MessageDirection.Outbound;
+            this.Direction = (byte)MessageDirection.Outbound;
             this.QueueStatus = (byte)QueueStatuses.NotProcessed;
             this.CarrierId = (int)Carriers.BandWidth;
             this.CustomerCost = Constants.BaseSMSSegmentCost;
@@ -141,7 +143,7 @@ namespace TextPortCore.Models
             // EmailToSMS gateway outbound message
             this.AccountId = emailToSMSMessage.AccountId;
             this.MessageType = (byte)MessageTypes.EmailToSMS;
-            this.Direction = (int)MessageDirection.Outbound;
+            this.Direction = (byte)MessageDirection.Outbound;
             this.QueueStatus = (byte)QueueStatuses.NotProcessed;
             this.CarrierId = (int)Carriers.BandWidth;
             this.CustomerCost = Constants.BaseSMSSegmentCost;
@@ -164,7 +166,7 @@ namespace TextPortCore.Models
             // API-originated outbound message
             this.AccountId = accountId;
             this.MessageType = (byte)MessageTypes.API;
-            this.Direction = (int)MessageDirection.Outbound;
+            this.Direction = (byte)MessageDirection.Outbound;
             this.QueueStatus = (byte)QueueStatuses.NotProcessed;
             this.CarrierId = (int)Carriers.BandWidth;
             this.CustomerCost = Constants.BaseSMSSegmentCost;
@@ -180,40 +182,20 @@ namespace TextPortCore.Models
             this.MMSFiles = new List<MMSFile>();
         }
 
-        public Message(FreeTextContainer cont)
-        {
-            // Free text outbound message
-            this.AccountId = cont.AccountId;
-            this.MessageType = (byte)MessageTypes.FreeTextSend;
-            this.Direction = (int)MessageDirection.Outbound;
-            this.QueueStatus = (byte)QueueStatuses.NotProcessed;
-            this.CarrierId = (int)Carriers.BandWidth;
-            this.CustomerCost = 0;
-            this.Ipaddress = cont.IPAddress;
-            this.VirtualNumberId = cont.VirtualNumberId;
-            this.MobileNumber = Utilities.NumberToE164(cont.MobileNumber);
-            this.GatewayMessageId = string.Empty;
-            this.TimeStamp = DateTime.UtcNow;
-            this.MessageText = cont.MessageText;
-            this.Segments = Utilities.GetSegmentCount(cont.MessageText);
-            this.IsMMS = false;
-            this.Account = null;
-            this.MMSFiles = new List<MMSFile>();
-        }
-
         // Inbound messages
-        public Message(BandwidthInboundMessage bwMessage, int accountId, int virtualNumberId)
+        public Message(BandwidthInboundMessage bwMessage, int accountId, int virtualNumberId, string sessionId)
         {
             // Inbound from Bandwidth        
             this.MessageType = (byte)MessageTypes.Normal;
             this.CarrierId = (int)Carriers.BandWidth;
             this.QueueStatus = (byte)QueueStatuses.Received;
-            this.Direction = (int)MessageDirection.Inbound;
+            this.Direction = (byte)MessageDirection.Inbound;
             this.CustomerCost = 0;
             this.AccountId = accountId;
             this.Ipaddress = Utilities.GetUserHostAddress();
             this.VirtualNumber = bwMessage.to.Replace("+", "");
             this.VirtualNumberId = virtualNumberId;
+            this.SessionId = sessionId;
             this.TimeStamp = DateTime.UtcNow;
             this.Account = null;
             this.Segments = 1;

@@ -50,6 +50,7 @@
     <Compile Include="Models\AutoRenewSettings.cs" />
     <Compile Include="Models\BadEmailDomain.cs" />
     <Compile Include="Models\BlockedNumber.cs" />
+    <Compile Include="Models\BlockRequest.cs" />
     <Compile Include="Models\BlogPost.cs" />
     <Compile Include="Models\BlogPostsContainer.cs" />
     <Compile Include="Models\BlogRecentPosts.cs" />
@@ -71,6 +72,7 @@
     <Compile Include="Models\ForgotPasswordRequest.cs" />
     <Compile Include="Models\FreeTextContainer.cs" />
     <Compile Include="Models\FreeTextIPAddress.cs" />
+    <Compile Include="Models\FreeTextResult.cs" />
     <Compile Include="Models\Group.cs" />
     <Compile Include="Models\GroupMember.cs" />
     <Compile Include="Models\GroupsContainer.cs" />

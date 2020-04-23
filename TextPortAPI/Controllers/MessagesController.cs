@@ -41,7 +41,7 @@ namespace TextPortAPI.Controllers
         /// <response code="200">A MessageResult object</response>
         /// <response code="400">A MessageResult objecet with details in the ErrorMessage field</response>     
         [HttpPost]
-        [Authorize]
+        [Authorize(Roles = "User")]
         [Route("send")]
         [SwaggerResponse(HttpStatusCode.OK, "Message confirmation object", typeof(IEnumerable<MessageResult>))]
         [SwaggerResponse(HttpStatusCode.BadRequest, "Message confirmation object", typeof(IEnumerable<MessageResult>))]

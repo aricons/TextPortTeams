@@ -11,7 +11,7 @@ namespace TextPort.Controllers
 {
     public class GroupsController : Controller
     {
-        [Authorize]
+        [Authorize(Roles = "User")]
         [HttpGet]
         public ActionResult Index()
         {
@@ -22,7 +22,7 @@ namespace TextPort.Controllers
             return View(gc);
         }
 
-        [Authorize]
+        [Authorize(Roles = "User")]
         [HttpGet]
         public ActionResult Add()
         {
@@ -42,7 +42,7 @@ namespace TextPort.Controllers
             }
         }
 
-        [Authorize]
+        [Authorize(Roles = "User")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Add(Group newGroup)
@@ -63,7 +63,7 @@ namespace TextPort.Controllers
             }
         }
 
-        [Authorize]
+        [Authorize(Roles = "User")]
         [HttpGet]
         public ActionResult AddMember(int id)
         {
@@ -85,7 +85,7 @@ namespace TextPort.Controllers
             }
         }
 
-        [Authorize]
+        [Authorize(Roles = "User")]
         [HttpPost]
         public ActionResult AddMember(GroupMember newMember)
         {
@@ -110,7 +110,7 @@ namespace TextPort.Controllers
             }
         }
 
-        [Authorize]
+        [Authorize(Roles = "User")]
         [HttpPost]
         public ActionResult DeleteMember(DeleteGroupMemberRequest request)
         {

@@ -14,7 +14,7 @@ namespace TextPort.Controllers
 {
     public class MessagesController : Controller
     {
-        [Authorize]
+        [Authorize(Roles = "User")]
         [HttpGet]
         public ActionResult Index()
         {
@@ -46,7 +46,7 @@ namespace TextPort.Controllers
             return View();
         }
 
-        [Authorize]
+        [Authorize(Roles = "User")]
         [HttpGet]
         public ActionResult GetRecentToNumbersForDedicatedVirtualNumber(int aid, int vnid)
         {
@@ -71,7 +71,7 @@ namespace TextPort.Controllers
             }
         }
 
-        [Authorize]
+        [Authorize(Roles = "User")]
         [HttpGet]
         public ActionResult GetMessagesForNumber(int aid, int vnid, string num)
         {
@@ -99,21 +99,21 @@ namespace TextPort.Controllers
         }
 
         // For Google Analytics tracking. Send() and Receive()
-        [Authorize]
+        [Authorize(Roles = "User")]
         [HttpGet]
         public ActionResult Send()
         {
             return PartialView("_SendMessage", new Message() { MessageText = "TextPort sent message placeholder", TimeStamp = DateTime.UtcNow });
         }
 
-        [Authorize]
+        [Authorize(Roles = "User")]
         [HttpGet]
         public ActionResult Receive()
         {
             return PartialView("_ReceiveMessage", new Message() { MessageText = "TextPort received message placeholder", TimeStamp = DateTime.UtcNow });
         }
 
-        [Authorize]
+        [Authorize(Roles = "User")]
         [HttpPost]
         public ActionResult SendMessage([System.Web.Http.FromBody] Message message)
         {
@@ -132,7 +132,7 @@ namespace TextPort.Controllers
                 {
                     using (TextPortDA da = new TextPortDA())
                     {
-                        if (da.NumberIsBlocked(message.MobileNumber))
+                        if (da.NumberIsBlocked(message.MobileNumber, MessageDirection.Outbound))
                         {
                             message.MessageText = $"BLOCKED: The recipient at number {message.MobileNumber} has reported abuse from this account. We have blocked the number at their request. TextPort does not condone the exchange of abusive, harrassing or defamatory messages.";
                             MessageList messageList = new MessageList()
@@ -165,7 +165,7 @@ namespace TextPort.Controllers
             return null;
         }
 
-        [Authorize]
+        [Authorize(Roles = "User")]
         [HttpPost]
         public ActionResult UploadFile(HttpPostedFileBase file)
         {
@@ -196,7 +196,7 @@ namespace TextPort.Controllers
             });
         }
 
-        [Authorize]
+        [Authorize(Roles = "User")]
         [HttpPost]
         public ActionResult DeleteMMSFile([System.Web.Http.FromBody] FileNameParameter fileNameParam)
         {
@@ -229,7 +229,7 @@ namespace TextPort.Controllers
             });
         }
 
-        [Authorize]
+        [Authorize(Roles = "User")]
         [HttpPost]
         public ActionResult DeleteMessagesForNumber(DeleteMessageInfo deleteMessageInfo)
         {
@@ -269,7 +269,7 @@ namespace TextPort.Controllers
             });
         }
 
-        [Authorize]
+        [Authorize(Roles = "User")]
         [HttpPost]
         public ActionResult GetDeletePromptModal(DeleteMessageInfo deleteMessageInfo)
         {
@@ -318,7 +318,7 @@ namespace TextPort.Controllers
             }
         }
 
-        [Authorize]
+        [Authorize(Roles = "User")]
         [HttpGet]
         public ActionResult SignalRTest()
         {

@@ -70,7 +70,7 @@ namespace TextPort.Controllers
             return Json(result);
         }
 
-        [Authorize]
+        [Authorize(Roles = "User")]
         public ActionResult Logout()
         {
             Request.GetOwinContext().Authentication.SignOut();
@@ -336,7 +336,7 @@ namespace TextPort.Controllers
             return PartialView("_RegistrationFailed", regData);
         }
 
-        [Authorize]
+        [Authorize(Roles = "User")]
         [HttpGet]
         public ActionResult Profile()
         {
@@ -349,7 +349,7 @@ namespace TextPort.Controllers
             return View();
         }
 
-        [Authorize]
+        [Authorize(Roles = "User")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Profile(AccountView av)
@@ -373,7 +373,7 @@ namespace TextPort.Controllers
             }
         }
 
-        [Authorize]
+        [Authorize(Roles = "User")]
         [HttpGet]
         public ActionResult Balance()
         {
@@ -386,7 +386,7 @@ namespace TextPort.Controllers
             return View();
         }
 
-        [Authorize]
+        [Authorize(Roles = "User")]
         [HttpGet]
         public ActionResult ProfileRegComplete()
         {
@@ -632,17 +632,17 @@ namespace TextPort.Controllers
         }
 
         [HttpGet]
-        [Authorize]
+        [Authorize(Roles = "User")]
         public ActionResult ChangePassword()
         {
             ChangePasswordRequest request = new ChangePasswordRequest();
-            string accountId = System.Security.Claims.ClaimsPrincipal.Current.FindFirst("AccountId").Value;
+            string accountId = ClaimsPrincipal.Current.FindFirst("AccountId").Value;
             request.AccountId = Convert.ToInt32(accountId);
             return View(request);
         }
 
         [HttpPost]
-        [Authorize]
+        [Authorize(Roles = "User")]
         [ValidateAntiForgeryToken]
         public ActionResult ChangePassword([System.Web.Http.FromBody] ChangePasswordRequest request)
         {
@@ -757,7 +757,7 @@ namespace TextPort.Controllers
         }
 
         [HttpGet]
-        [Authorize]
+        [Authorize(Roles = "User")]
         public ActionResult Test()
         {
             return View();
