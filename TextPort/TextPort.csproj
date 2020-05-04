@@ -556,7 +556,6 @@
     <Content Include="Content\css\jnoty.css" />
     <Content Include="Content\css\messaging.css" />
     <Content Include="Content\css\push.css" />
-    <Content Include="Content\css\Site.css" />
     <Content Include="Content\css\site.min.css" />
     <Content Include="Content\css\styles.css" />
     <Content Include="Content\css\styles.min.css" />

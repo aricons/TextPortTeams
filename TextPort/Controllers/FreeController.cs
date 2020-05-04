@@ -22,11 +22,11 @@ namespace TextPort.Controllers
             FreeTextContainer ftc = null;
             if (User.Identity.IsAuthenticated && !String.IsNullOrEmpty(User.Identity.Name))
             {
-                ftc = new FreeTextContainer(User.Identity.Name);
+                ftc = new FreeTextContainer(User.Identity.Name, Request.UserHostAddress);
             }
             else
             {
-                ftc = new FreeTextContainer();
+                ftc = new FreeTextContainer(Request.UserHostAddress);
             }
             return View(ftc);
         }
@@ -49,7 +49,7 @@ namespace TextPort.Controllers
             // the same user if they leve the page, then come back during the same browser session.
             if (!User.Identity.IsAuthenticated && String.IsNullOrEmpty(User.Identity.Name) && !User.IsInRole("Free"))
             {
-                FreeTextContainer ft = new FreeTextContainer(message.SessionId);
+                FreeTextContainer ft = new FreeTextContainer(message.SessionId, message.Ipaddress);
 
                 List<Claim> claims = new List<Claim> {
                 new Claim("AccountId", freeTextAccountId.ToString(), ClaimValueTypes.Integer),

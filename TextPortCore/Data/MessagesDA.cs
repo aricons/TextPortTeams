@@ -62,18 +62,7 @@ namespace TextPortCore.Data
         {
             try
             {
-                Message msg = _context.Messages.Include(x => x.Account).FirstOrDefault(x => x.GatewayMessageId == gatewayMessageId);
-                // Get the virtual number.
-                if (msg != null && msg.VirtualNumberId > 0)
-                {
-                    // Not needed.
-                    //DedicatedVirtualNumber dvn = _context.DedicatedVirtualNumbers.FirstOrDefault(x => x.VirtualNumberId == msg.VirtualNumberId);
-                    //if (dvn != null)
-                    //{
-                    //    msg.VirtualNumber = dvn.VirtualNumber;
-                    //}
-                }
-                return msg;
+                return _context.Messages.Include(x => x.Account).Include(x => x.VirtualNumber).FirstOrDefault(x => x.GatewayMessageId == gatewayMessageId);
             }
             catch (Exception ex)
             {

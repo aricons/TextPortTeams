@@ -118,7 +118,7 @@ namespace TextPort.Controllers
                             Message originalMessage = da.GetMessageByGatewayMessageId(bwMessage.message.id);
                             if (originalMessage != null)
                             {
-                                CarrierResponseCode rc = da.GetCarrierResponseCode((int)originalMessage.CarrierId, bwMessage.errorCode.ToString());
+                                CarrierResponseCode rc = da.GetCarrierResponseCode((int)originalMessage.DedicatedVirtualNumber.CarrierId, bwMessage.errorCode.ToString());
 
                                 originalMessage.QueueStatus = (byte)QueueStatuses.DeliveryFailed;
                                 originalMessage.FailureReason = rc.Description;

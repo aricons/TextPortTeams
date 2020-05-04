@@ -21,12 +21,41 @@ $(function () {
     });
 
     $("#lnk-show-more").on("click", function (e) {
+        var countryCode = $("#CountryId option:selected").val();
         var areaCode = $('#area-code').val();
-        if (areaCode !== "") {
+        if (countryCode === "1" && areaCode !== "") {
+            page++;
+            getAvailableNumbers(areaCode);
+        }
+        else {
             page++;
             getAvailableNumbers(areaCode);
         }
         return false;
+    });
+
+    $("#CountryId").on("change", function (e) {
+        var countryCode = $("#CountryId option:selected").val();
+        $("#numbers-list").html("");
+        if (countryCode === "1") {
+            $("#lbl-sel-number").text("Search by area code");
+            $("#lbl-sel-number").show();
+            $("#area-code").show();
+        }
+        else {
+            $("#lbl-sel-number").hide();
+            $("#area-code").hide();
+            $("#number-results").show();
+            getAvailableNumbers("");
+        }
+
+        $("#area-code").val('');
+        $("#area-code-result").html('');
+        $("#selected-number").text('');
+        $("#selected-number-wrap").hide();
+        $("#lnk-show-more").hide();
+        $("#number-chooser").show();
+        getLeasePeriodsForCountry();
     });
 
     $("#number-results").hide();
@@ -56,9 +85,11 @@ function getAreaCodeName(areaCode, tollFree) {
 function getAvailableNumbers(areaCode) {
     var url = '/numbers/getavailablenumbers';
     var numbers = "";
+    var countryId = $("#CountryId").val();
 
     $("#spintiller-num").show();
     $.getJSON(url, {
+        countryId: countryId,
         areaCode: areaCode,
         tollFree: false,
         count: numberCount,
@@ -80,8 +111,12 @@ function getAvailableNumbers(areaCode) {
             }
         });
 
+        if (countryId !== "1") {
+            $("#area-code-result").html("<label class='h5'>Available numbers for " + $("#CountryId option:selected").text() + "</label> ");
+        }
         $("#numbers-list").append(numbers);
         $("#spintiller-num").hide();
+        $("#number-results").show();
 
         if (!noAvailableNumbers) {
             $("#lnk-show-more").show();
@@ -95,4 +130,23 @@ function getAvailableNumbers(areaCode) {
             getNumber(number);
         });
     });
+}
+
+function getLeasePeriodsForCountry() {
+    var url = '/numbers/getleaseperiods';
+    var listitems = "";
+    var countryId = $("#CountryId").val();
+    var periodsdd = $('#LeasePeriodCode');
+    periodsdd.find("option").remove();
+
+    $("#spintiller-num").show();
+    $.getJSON(url, {
+        countryId: countryId
+    }, function (response) {
+        $.each(response, function (index, item) {
+            listitems += "<option value='" + item.Value + "'>" + item.Text + "</option>";
+        });
+        periodsdd.append(listitems);
+    });
+    $("#spintiller-num").hide();
 }

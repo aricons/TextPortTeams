@@ -5,8 +5,6 @@ using System.Linq;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-using Newtonsoft.Json;
-
 using TextPortCore.Helpers;
 using TextPortCore.Integrations.Bandwidth;
 
@@ -33,8 +31,6 @@ namespace TextPortCore.Models
 
         [Display(Name = "To")]
         public string MobileNumber { get; set; }
-
-        public int? CarrierId { get; set; }
 
         [Display(Name = "Message")]
         public string MessageText { get; set; }
@@ -63,6 +59,8 @@ namespace TextPortCore.Models
 
         public Account Account { get; set; }
 
+        public DedicatedVirtualNumber DedicatedVirtualNumber { get; set; }
+
         public List<MMSFile> MMSFiles { get; set; } = new List<MMSFile>();
 
         public string NumberBandwidthFormat
@@ -81,7 +79,6 @@ namespace TextPortCore.Models
             // Default outbound message
             this.MessageType = (byte)MessageTypes.Normal;
             this.Direction = (byte)MessageDirection.Outbound;
-            this.CarrierId = (int)Carriers.BandWidth;
             this.QueueStatus = (byte)QueueStatuses.NotProcessed;
             this.Ipaddress = "0.0.0.0";
             this.CustomerCost = 0;
@@ -92,6 +89,7 @@ namespace TextPortCore.Models
             this.Segments = 1;
             this.IsMMS = false;
             this.Account = null;
+            this.DedicatedVirtualNumber = new DedicatedVirtualNumber();
             this.MMSFiles = new List<MMSFile>();
         }
 
@@ -100,9 +98,7 @@ namespace TextPortCore.Models
             // Outbound message for notifications
             this.MessageType = msgType;
             this.AccountId = accId;
-            this.CarrierId = (int)Carriers.BandWidth;
             this.QueueStatus = (byte)QueueStatuses.NotProcessed;
-            this.CarrierId = (int)Carriers.BandWidth;
             this.Ipaddress = Utilities.GetUserHostAddress();
             this.VirtualNumberId = virtualNumId;
             this.Direction = (byte)MessageDirection.Outbound;
@@ -124,7 +120,6 @@ namespace TextPortCore.Models
             this.MessageType = (byte)msgType;
             this.Direction = (byte)MessageDirection.Outbound;
             this.QueueStatus = (byte)QueueStatuses.NotProcessed;
-            this.CarrierId = (int)Carriers.BandWidth;
             this.CustomerCost = Constants.BaseSMSSegmentCost;
             this.Ipaddress = Utilities.GetUserHostAddress();
             this.VirtualNumberId = sourceNumberId;
@@ -145,7 +140,6 @@ namespace TextPortCore.Models
             this.MessageType = (byte)MessageTypes.EmailToSMS;
             this.Direction = (byte)MessageDirection.Outbound;
             this.QueueStatus = (byte)QueueStatuses.NotProcessed;
-            this.CarrierId = (int)Carriers.BandWidth;
             this.CustomerCost = Constants.BaseSMSSegmentCost;
             this.Ipaddress = Utilities.GetUserHostAddress();
             this.VirtualNumberId = emailToSMSMessage.VirtualNumberId;
@@ -168,7 +162,6 @@ namespace TextPortCore.Models
             this.MessageType = (byte)MessageTypes.API;
             this.Direction = (byte)MessageDirection.Outbound;
             this.QueueStatus = (byte)QueueStatuses.NotProcessed;
-            this.CarrierId = (int)Carriers.BandWidth;
             this.CustomerCost = Constants.BaseSMSSegmentCost;
             this.Ipaddress = Utilities.GetUserHostAddress();
             this.VirtualNumberId = virtualNumberId;
@@ -183,11 +176,10 @@ namespace TextPortCore.Models
         }
 
         // Inbound messages
-        public Message(BandwidthInboundMessage bwMessage, int accountId, int virtualNumberId, string sessionId)
+        public Message(BandwidthInboundMessage bwMessage, DedicatedVirtualNumber dvn, int accountId, int virtualNumberId, string sessionId)
         {
             // Inbound from Bandwidth        
             this.MessageType = (byte)MessageTypes.Normal;
-            this.CarrierId = (int)Carriers.BandWidth;
             this.QueueStatus = (byte)QueueStatuses.Received;
             this.Direction = (byte)MessageDirection.Inbound;
             this.CustomerCost = 0;
@@ -199,6 +191,7 @@ namespace TextPortCore.Models
             this.TimeStamp = DateTime.UtcNow;
             this.Account = null;
             this.Segments = 1;
+            this.DedicatedVirtualNumber = dvn;
 
             if (bwMessage.message != null)
             {

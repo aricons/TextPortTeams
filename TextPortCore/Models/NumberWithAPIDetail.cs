@@ -13,7 +13,7 @@ namespace TextPortCore.Models
 
         public int AccountId { get; set; }
 
-        public int VirtualNumberCountryId { get; set; }
+        public int CountryId { get; set; }
 
         public string CountryCode { get; set; }
 
@@ -44,7 +44,7 @@ namespace TextPortCore.Models
         {
             get
             {
-                return Utilities.NumberToDisplayFormat(this.VirtualNumber, this.VirtualNumberCountryId);
+                return Utilities.NumberToDisplayFormat(this.VirtualNumber, this.CountryId);
             }
         }
 
@@ -70,7 +70,7 @@ namespace TextPortCore.Models
             this.IsDefault = false;
             this.NumberType = 0;
             this.VirtualNumber = string.Empty;
-            this.VirtualNumberCountryId = 0;
+            this.CountryId = 1;
             this.VirtualNumberId = 0;
         }
 
@@ -86,7 +86,7 @@ namespace TextPortCore.Models
             this.IsDefault = dvn.IsDefault;
             this.NumberType = dvn.NumberType;
             this.VirtualNumber = dvn.VirtualNumber;
-            this.VirtualNumberCountryId = dvn.VirtualNumberCountryId;
+            this.CountryId = dvn.CountryId;
             this.VirtualNumberId = dvn.VirtualNumberId;
             this.APIApplicationId = dvn.APIApplicationId;
             this.ApiAppName = string.Empty;

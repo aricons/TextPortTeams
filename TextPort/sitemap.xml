@@ -144,6 +144,11 @@
     <priority>0.70</priority>
   </url>
   <url>
+    <loc>https://textport.com/block</loc>
+    <lastmod>2020-04-23T22:52:00+00:00</lastmod>
+    <priority>0.70</priority>
+  </url>
+  <url>
     <loc>https://textport.com/bulk/upload-guidelines</loc>
     <lastmod>2019-12-17T08:07:38+00:00</lastmod>
     <priority>0.64</priority>

@@ -1,6 +1,4 @@
 ﻿using System;
-//using System.Web;
-//using System.Web.Mvc;
 using System.Collections.Generic;
 using System.Web.Script.Serialization;
 
@@ -213,7 +211,6 @@ namespace Testing
                 Message msg = new Message()
                 {
                     AccountId = 1,
-                    CarrierId = 172,
                     MessageText = "Test message text",
                     MobileNumber = "19492339386",
                     VirtualNumberId = 1895,

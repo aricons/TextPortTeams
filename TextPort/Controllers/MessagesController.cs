@@ -124,7 +124,6 @@ namespace TextPort.Controllers
                 message.TimeStamp = DateTime.UtcNow;
                 message.MessageType = (byte)MessageTypes.Normal;
                 message.Direction = (byte)MessageDirection.Outbound;
-                message.CarrierId = (int)Carriers.BandWidth;
                 message.QueueStatus = (byte)QueueStatuses.NotProcessed;
                 message.Ipaddress = Utilities.GetUserHostAddress();
 
@@ -277,19 +276,19 @@ namespace TextPort.Controllers
             {
                 case "VN":
                     deleteMessageInfo.Title = "Delete Messages?";
-                    deleteMessageInfo.Prompt = $"Delete ALL messages for virtual number<br/> {Utilities.NumberToDisplayFormat(deleteMessageInfo.VirtualNumber, 22)}?";
+                    deleteMessageInfo.Prompt = $"Delete ALL messages for virtual number<br/> {Utilities.NumberToDisplayFormat(deleteMessageInfo.VirtualNumber, deleteMessageInfo.CountryId)}?";
                     deleteMessageInfo.SubPrompt = "Warning: This action is permanent. Deleted messages cannot be recovered.";
                     break;
 
                 case "VNAndMobile":
                     deleteMessageInfo.Title = "Delete Messages?";
-                    deleteMessageInfo.Prompt = $"Delete all messages for number {Utilities.NumberToDisplayFormat(deleteMessageInfo.MobileNumber, 22)}?";
+                    deleteMessageInfo.Prompt = $"Delete all messages for number {Utilities.NumberToDisplayFormat(deleteMessageInfo.MobileNumber, deleteMessageInfo.CountryId)}?";
                     deleteMessageInfo.SubPrompt = string.Empty;
                     break;
 
                 default: // Same as VNAndMobile
                     deleteMessageInfo.Title = "Delete Messages?";
-                    deleteMessageInfo.Prompt = $"Delete all messages for number {Utilities.NumberToDisplayFormat(deleteMessageInfo.MobileNumber, 22)}?";
+                    deleteMessageInfo.Prompt = $"Delete all messages for number {Utilities.NumberToDisplayFormat(deleteMessageInfo.MobileNumber, deleteMessageInfo.CountryId)}?";
                     deleteMessageInfo.SubPrompt = string.Empty;
                     break;
             }

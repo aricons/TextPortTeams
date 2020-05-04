@@ -193,6 +193,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Compile>
+    <Compile Include="NexmoTests.cs" />
     <Compile Include="ServicesTests.cs" />
     <Compile Include="WebServiceTests.cs" />
     <Compile Include="UnitTests.cs" />
