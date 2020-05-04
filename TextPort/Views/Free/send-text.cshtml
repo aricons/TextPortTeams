@@ -214,7 +214,7 @@
             <div class="col-lg-7 text-center text-md-left">
                 <h1 class="font-weight-normal">Free Texting Online</h1>
                 <h2>
-                    Send and receive text messages for free to any US mobile number. Text from your computer to mobile phones. Send and receive text (SMS) and picture (MMS) messages online. Add emojis and receive real-time replies and delivery receipts.
+                    Send and receive text messages for free to any US mobile number. Text from your computer to mobile phones. Send and receive text (SMS) and picture (MMS) messages online. Add emojis and receive real-time replies and delivery receipts. No registration necessary.
                 </h2>
             </div>
         </div>
@@ -222,7 +222,7 @@
             <div class="col-md-6">
                 <div class="card h-100">
                     <h4 class="card-header">Send a Text</h4>
-                    <div class="card-body">
+                    <div class="card-body pb-1">
                         @using (Html.BeginForm("send-text", "free", FormMethod.Post, new { id = "form-send-text" }))
                         {
                             @Html.AntiForgeryToken()
@@ -279,6 +279,9 @@
                                 </div>
                             </div>
                         }
+                        <div>
+                            <p class="m-0 pt-1 subscript">IP address: <a href="/tools/ip-address-locator?ip=@Model.IPAddress" title="IP address geolocation info">@Model.IPAddress</a></p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -302,6 +305,20 @@
                     </div>
                 </div>
 
+            </div>
+        </div>
+        <br />
+        <br />
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <h5>Texting Guidelines</h5>
+                <ul class="footnote">
+                    <li>This service supports two-way SMS and MMS to mobile devices on U.S. and Canadian cellular carriers. Destinations outside of this region are not supported.</li>
+                    <li>Your information is secure. TextPort will never sell or distribute information collected as part of this service.</li>
+                    <li>Please be kind. Do not use this service to send hateful, bullying or slanderous messages. We will share IP, timestamp and message information with authorities if a complaint is received.</li>
+                    <li>Your IP Addresss @Model.IPAddress will be logged for each message sent.</li>
+                    <li>For information on receiving validation or confirmation codes see our <a href="/temporary-numbers">temporary phone numbers</a> page. This free service is not designed to receive codes.</li>
+                </ul>
             </div>
         </div>
     </div>

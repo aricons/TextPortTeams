@@ -44,53 +44,11 @@ namespace TextPortCore.Data
             return null;
         }
 
-        public IEnumerable<SelectListItem> GetLeasePeriods()
+        public IEnumerable<SelectListItem> GetLeasePeriods(int countryId)
         {
             try
             {
-                //Dictionary<int, string> leasePeriodsDict = null;
-
-                //if (complimentaryOnly)
-                //{
-                //    leasePeriodsDict = new Dictionary<int, string>()
-                //    {
-                //        {1, "1 Month"}
-                //    };
-                //}
-                //else
-                //{
-                //    leasePeriodsDict = new Dictionary<int, string>()
-                //    {
-                //        {1, "1 Month"},
-                //        {2, "2 Months"},
-                //        {3, "3 Months"},
-                //        {6, "6 Months"},
-                //        {12, "1 Year"},
-                //        {24, "2 Years"}
-                //    };
-                //}
-
-                //List<SelectListItem> periods = leasePeriodsDict
-                //    .OrderBy(p => p.Key)
-                //        .Select(lp =>
-                //        new SelectListItem
-                //        {
-                //            Value = lp.Key.ToString(),
-                //            Text = lp.Value
-                //        }).ToList();
-
-                //if (!complimentaryOnly)
-                //{
-                //    SelectListItem firstItem = new SelectListItem()
-                //    {
-                //        Value = "0",
-                //        Text = "--- select lease period ---"
-                //    };
-
-                //    periods.Insert(0, firstItem);
-                //}
-
-                List<SelectListItem> prices = _context.NumberPricing.Where(n => n.Enabled && n.CountryId == 22)
+                List<SelectListItem> prices = _context.NumberPricing.Where(n => n.Enabled && n.CountryId == countryId)
                 .OrderBy(n => n.SortOrder)
                     .Select(n =>
                     new SelectListItem
@@ -135,7 +93,9 @@ namespace TextPortCore.Data
                     {(decimal)75.00, "$75.00" },
                     {(decimal)100.00, "$100.00" },
                     {(decimal)150.00, "$150.00" },
-                    {(decimal)200.00, "$200.00" }
+                    {(decimal)200.00, "$200.00" },
+                    {(decimal)300.00, "$300.00" },
+                    {(decimal)500.00, "$500.00" }
             };
 
                 List<SelectListItem> periods = creditAmountsDict
@@ -175,7 +135,7 @@ namespace TextPortCore.Data
             return null;
         }
 
-        public IEnumerable<SelectListItem> GetPooledNumbersList()
+        public IEnumerable<SelectListItem> GetPooledNumbersList(int countryId)
         {
             try
             {
@@ -186,7 +146,7 @@ namespace TextPortCore.Data
                     new SelectListItem
                     {
                         Value = pn.VirtualNumber,
-                        Text = $"{Utilities.NumberToDisplayFormat(pn.VirtualNumber, 22)} - {pn.Description}"
+                        Text = $"{Utilities.NumberToDisplayFormat(pn.VirtualNumber, countryId)} - {pn.Description}"
                     }).ToList();
 
                 SelectListItem firstItem = new SelectListItem()
@@ -208,19 +168,28 @@ namespace TextPortCore.Data
             return null;
         }
 
-        public IEnumerable<SelectListItem> GetFreeNumbersList()
+        public IEnumerable<SelectListItem> GetFreeNumbersList(int countryId)
         {
             try
             {
-                List<SelectListItem> freeNumbers = _context.PooledNumbers
-                .Where(pn => pn.IsFreeNumber == true)
-                .OrderBy(pn => pn.VirtualNumber)
-                    .Select(pn =>
-                    new SelectListItem
-                    {
-                        Value = pn.VirtualNumberId.ToString(),
-                        Text = $"{Utilities.NumberToDisplayFormat(pn.VirtualNumber, 22)} - {pn.Description}"
-                    }).ToList();
+                List<SelectListItem> freeNumbers = (from dvn in _context.DedicatedVirtualNumbers
+                                                    join pn in _context.PooledNumbers on dvn.VirtualNumberId equals pn.VirtualNumberId
+                                                    where dvn.NumberType == (byte)NumberTypes.Free && dvn.CountryId == countryId
+                                                    select new SelectListItem
+                                                    {
+                                                        Value = dvn.VirtualNumberId.ToString(),
+                                                        Text = $"{Utilities.NumberToDisplayFormat(pn.VirtualNumber, dvn.CountryId)} - {pn.Description}"
+                                                    }).ToList();
+
+                //List<SelectListItem> freeNumbers = _context.DedicatedVirtualNumbers.Join(_context.PooledNumbers)
+                //.Where(fn => fn.NumberType == (int)NumberTypes.Free)
+                //.OrderBy(pn => pn.VirtualNumber)
+                //    .Select(pn =>
+                //    new SelectListItem
+                //    {
+                //        Value = pn.VirtualNumberId.ToString(),
+                //        Text = $"{Utilities.NumberToDisplayFormat(pn.VirtualNumber, countryId)} - {pn.Description}"
+                //    }).ToList();
 
                 SelectListItem firstItem = new SelectListItem()
                 {
@@ -251,7 +220,7 @@ namespace TextPortCore.Data
                     new SelectListItem
                     {
                         Value = vn.VirtualNumberId.ToString(),
-                        Text = $"{Utilities.NumberToDisplayFormat(vn.VirtualNumber, 22)}"
+                        Text = $"{Utilities.NumberToDisplayFormat(vn.VirtualNumber, vn.CountryId)}"
                     }).ToList();
 
                 SelectListItem firstItem = new SelectListItem()

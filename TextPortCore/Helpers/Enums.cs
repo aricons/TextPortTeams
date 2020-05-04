@@ -50,13 +50,25 @@ namespace TextPortCore.Helpers
     public enum Countries : int
     {
         [Description("United States")]
-        UnitedStates = 22
+        UnitedStates = 1,
+        [Description("United Kingdom")]
+        UnitedKingdom = 44,
+        [Description("Germany")]
+        Germany = 49,
+        [Description("Australia")]
+        Australia = 61,
+        [Description("New Zealand")]
+        NewZealand = 64
     }
 
     public enum Carriers : int
     {
-        [Description("Bandwidth.com")]
-        BandWidth = 172
+        [Description("Bandwidth.")]
+        BandWidth = 1,
+        [Description("InfoBip")]
+        InfoBip = 2,
+        [Description("Nexmo")]
+        Nexmo = 3
     }
 
     public enum QueueStatuses : byte

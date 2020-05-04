@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 using TextPortCore.Helpers;
 
@@ -13,7 +11,9 @@ namespace TextPortCore.Models
 
         public int AccountId { get; set; }
 
-        public int VirtualNumberCountryId { get; set; }
+        public int CountryId { get; set; }
+
+        public int CarrierId { get; set; }
 
         public string CountryCode { get; set; }
 
@@ -64,7 +64,7 @@ namespace TextPortCore.Models
         {
             get
             {
-                return Utilities.NumberToDisplayFormat(this.VirtualNumber, this.VirtualNumberCountryId);
+                return Utilities.NumberToDisplayFormat(this.VirtualNumber, this.CountryId);
             }
         }
 
@@ -76,10 +76,14 @@ namespace TextPortCore.Models
             }
         }
 
+        public Carrier Carrier { get; set; }
+
+        public Country Country { get; set; }
+
         // Constructors
         public DedicatedVirtualNumber()
         {
-            this.VirtualNumberId = 0;
+            this.CarrierId = (int)Carriers.BandWidth;
             this.VirtualNumber = string.Empty;
             this.AccountId = 0;
         }

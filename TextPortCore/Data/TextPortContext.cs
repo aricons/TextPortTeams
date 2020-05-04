@@ -20,6 +20,9 @@ namespace TextPortCore.Data
             var optionsBuilder = new DbContextOptionsBuilder<TextPortContext>();
             optionsBuilder.UseSqlServer(ConfigurationManager.ConnectionStrings["TextPortContext"].ConnectionString);
             //TextPortContext context = new TextPortContext(optionsBuilder.Options);
+
+            // Disable lazy loading.
+            this.ChangeTracker.LazyLoadingEnabled = false;
         }
 
         public virtual DbSet<Account> Accounts { get; set; }
@@ -28,8 +31,10 @@ namespace TextPortCore.Data
         public virtual DbSet<BadEmailDomain> BadEmailDomains { get; set; }
         public virtual DbSet<BlockedNumber> BlockedNumbers { get; set; }
         public virtual DbSet<BlogPost> BlogPosts { get; set; }
+        public virtual DbSet<Carrier> Carriers { get; set; }
         public virtual DbSet<CarrierResponseCode> CarrierResponseCodes { get; set; }
         public virtual DbSet<Contact> Contacts { get; set; }
+        public virtual DbSet<Country> Countries { get; set; }
         public virtual DbSet<DedicatedVirtualNumber> DedicatedVirtualNumbers { get; set; }
         public virtual DbSet<EmailToSMSAddress> EmailToSMSAddresses { get; set; }
         public virtual DbSet<ErrorLogItem> ErrorLog { get; set; }
@@ -43,25 +48,14 @@ namespace TextPortCore.Data
         public virtual DbSet<NumberPrice> NumberPricing { get; set; }
         public virtual DbSet<PurchaseTransaction> PurchaseTransactions { get; set; }
         public virtual DbSet<SupportRequest> SupportRequests { get; set; }
-        public virtual DbSet<VirtualNumberCountry> VirtualNumberCountries { get; set; }
         public virtual DbSet<PooledNumber> PooledNumbers { get; set; }
         public virtual DbSet<Models.TimeZone> TimeZones { get; set; }
         public virtual DbSet<ZipLatLong> ZipLatLongs { get; set; }
 
-        //public static readonly LoggerFactory _loggerFactory = new LoggerFactory(new[] {
-        //    new DebugLoggerProvider((category, level) => category == DbLoggerCategory.Database.Command.Name && level == LogLevel.Debug)
-        //});
-
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-
-            //var loggerFactory = new LoggerFactory();
-            //loggerFactory.AddProvider(new DebugLoggerProvider());
-            //loggerFactory.AddDebug();
-
             if (!optionsBuilder.IsConfigured)
             {
-                //optionsBuilder.UseLoggerFactory(loggerFactory);
                 optionsBuilder.UseSqlServer(ConfigurationManager.ConnectionStrings["TextPortContext"].ConnectionString);
             }
         }
@@ -140,7 +134,7 @@ namespace TextPortCore.Data
 
                 entity.Property(e => e.ComplimentaryNumber).HasColumnType("byte");
 
-                entity.HasOne<TextPortCore.Models.TimeZone>(e => e.TimeZone).WithOne().HasForeignKey<TextPortCore.Models.TimeZone>(e => e.TimeZoneId);
+                entity.HasOne(e => e.TimeZone).WithOne().HasForeignKey<TextPortCore.Models.TimeZone>(e => e.TimeZoneId);
             });
 
             modelBuilder.Entity<APIApplication>(entity =>
@@ -215,6 +209,16 @@ namespace TextPortCore.Data
                 entity.HasIndex(e => e.UrlName);
             });
 
+            modelBuilder.Entity<Carrier>(entity =>
+            {
+                entity.ToTable("Carriers");
+
+                entity.HasKey(e => e.CarrierId);
+
+                // Probably don't need this. Leave out for simplicity. Keep as an example.
+                //entity.HasMany(e => e.Countries).WithOne(e => e.Carrier).HasForeignKey(e => e.CarrierId).IsRequired();
+            });
+
             modelBuilder.Entity<CarrierResponseCode>(entity =>
             {
                 entity.ToTable("CarrierResponseCodes");
@@ -259,6 +263,39 @@ namespace TextPortCore.Data
                     .IsUnicode(false);
             });
 
+            modelBuilder.Entity<Country>(entity =>
+            {
+                entity.ToTable("Countries");
+
+                entity.HasKey(e => e.CountryId);
+
+                entity.HasIndex(e => e.CountryName);
+
+                entity.HasIndex(e => e.SortOrder);
+
+                entity.Property(e => e.CountryAlphaCode)
+                    .IsRequired()
+                    .HasMaxLength(2)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.CountryName)
+                    .IsRequired()
+                    .HasMaxLength(30)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.CountryPhoneCode)
+                    .IsRequired()
+                    .HasMaxLength(4)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Provider)
+                    .IsRequired()
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.HasOne(e => e.Carrier).WithMany(e => e.Countries).HasForeignKey(e => e.CarrierId).IsRequired();
+            });
+
             modelBuilder.Entity<DedicatedVirtualNumber>(entity =>
             {
                 entity.ToTable("DedicatedVirtualNumbers");
@@ -301,6 +338,10 @@ namespace TextPortCore.Data
                     .IsRequired()
                     .HasMaxLength(20)
                     .IsUnicode(false);
+
+                entity.HasOne(e => e.Carrier).WithOne().HasForeignKey<Carrier>(e => e.CarrierId);
+
+                entity.HasOne(e => e.Country).WithOne().HasForeignKey<Country>(e => e.CountryId);
             });
 
             modelBuilder.Entity<EmailToSMSAddress>(entity =>
@@ -411,19 +452,13 @@ namespace TextPortCore.Data
 
                 entity.Property(e => e.MessageId).HasColumnName("MessageID");
 
-                entity.HasMany(e => e.MMSFiles).WithOne().HasForeignKey(e => e.MessageId);
+                entity.HasMany(e => e.MMSFiles).WithOne().HasForeignKey(e => e.MessageId).IsRequired(false);
 
-                entity.HasMany(m => m.MMSFiles).WithOne().IsRequired(false);
+                //entity.HasMany(m => m.MMSFiles).WithOne().IsRequired(false);
 
-                entity.Property(e => e.AccountId)
-                    .HasColumnName("AccountID")
-                    .HasDefaultValueSql("((0))");
+                entity.Property(e => e.AccountId).HasColumnName("AccountID");
 
-                entity.Property(e => e.VirtualNumberId)
-                    .HasColumnName("VirtualNumberID")
-                    .HasDefaultValueSql("((0))");
-
-                entity.Property(e => e.CarrierId).HasColumnName("CarrierID");
+                entity.Property(e => e.VirtualNumberId).HasColumnName("VirtualNumberID");
 
                 entity.Property(e => e.DeleteFlag).HasColumnType("datetime");
 
@@ -636,39 +671,6 @@ namespace TextPortCore.Data
                 entity.Property(e => e.Utcoffset)
                     .HasColumnName("UTCOffset")
                     .HasColumnType("decimal(5, 2)");
-            });
-
-            modelBuilder.Entity<VirtualNumberCountry>(entity =>
-            {
-                entity.ToTable("VirtualNumberCountries");
-
-                entity.HasKey(e => e.VirtualNumberCountryId);
-
-                entity.HasIndex(e => e.CountryName);
-
-                entity.Property(e => e.BaseCost).HasColumnType("money");
-
-                entity.Property(e => e.CountryAlphaCode)
-                    .IsRequired()
-                    .HasMaxLength(2)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.CountryName)
-                    .IsRequired()
-                    .HasMaxLength(30)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.CountryPhoneCode)
-                    .IsRequired()
-                    .HasMaxLength(4)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.MonthlyRate).HasColumnType("money");
-
-                entity.Property(e => e.Provider)
-                    .IsRequired()
-                    .HasMaxLength(10)
-                    .IsUnicode(false);
             });
 
             modelBuilder.Entity<ZipLatLong>(entity =>

@@ -71,7 +71,7 @@
                 </div>
             </div>
             <div class="card-body">
-                <table class="table">
+                <table class="table table-sm">
                     <thead>
                         <tr>
                             <td colspan="6">
@@ -81,6 +81,7 @@
                         </tr>
                         <tr class="bg-primary">
                             <th scope="col" class="text-white">Number</th>
+                            <th scope="col" class="text-white">Country</th>
                             <th scope="col" class="text-white">Purchased</th>
                             <th scope="col" class="text-white">Expires</th>
                             <th scope="col" class="text-white">Active</th>
@@ -108,6 +109,7 @@
                             rowId++;
                             <tr class="@bgClass">
                                 <td><a href="#" class="modal-button" data-toggle="modal" data-target="#modal-cont" data-url="/numbers/numberhistory/@vn.VirtualNumberId">@vn.NumberDisplayFormat</a></td>
+                                <td>@String.Format("{0:yyyy-MM-dd}", vn.CountryCode)</td>
                                 <td>@String.Format("{0:yyyy-MM-dd}", vn.CreateDate)</td>
                                 <td>@String.Format("{0:yyyy-MM-dd}", vn.ExpirationDate)</td>
                                 @if (!vn.Cancelled)

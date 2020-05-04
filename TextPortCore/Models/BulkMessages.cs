@@ -108,8 +108,16 @@ namespace TextPortCore.Models
         public string MessageText { get; set; }
         public string ProcessingStatus { get; set; }
         public string ProcessingResult { get; set; }
+        public decimal SegmentCost { get; set; }
+        public int SegmentCount
+        {
+            get
+            {
+                return Utilities.GetSegmentCount(this.MessageText);
+            }
+        }
 
-        public bool Validate()
+        public bool Validate(ref decimal currentBalance)
         {
             this.ProcessingStatus = "OK";
             string message = string.Empty;
@@ -129,6 +137,12 @@ namespace TextPortCore.Models
             if (String.IsNullOrEmpty(this.MessageText))
             {
                 message = "The message is empty.";
+            }
+
+            currentBalance -= (this.SegmentCost * this.SegmentCount);
+            if (currentBalance <= 0)
+            {
+                message = "Insufficient balance to send message.";
             }
 
             this.ProcessingResult = message;

@@ -135,18 +135,6 @@ namespace TextPort.Controllers
         {
             int accountId = Utilities.GetAccountIdFromClaim(ClaimsPrincipal.Current);
             InboxContainer inboxContainer = new InboxContainer();
-
-            //if (accountId > 0)
-            //{
-            //    using (TextPortDA da = new TextPortDA())
-            //    {
-            //        inboxContainer = da.GetInboundMessagesForAccount(accountId, new PagingParameters());
-            //    }
-            //}
-
-            //IPagedList<InboxMessage> pageMessages = new StaticPagedList<InboxMessage>(inboxContainer.Messages, inboxContainer.CurrentPage + 1, 5, inboxContainer.MessageCount);
-            //return View(pageMessages);
-
             return View(inboxContainer);
         }
 
@@ -204,8 +192,6 @@ namespace TextPort.Controllers
             if (accountId > 0)
             {
                 string fileName = Request.Headers["X-File-Name"];
-                //string fileType = Request.Headers["X-File-Type"];
-                //int fileSize = Convert.ToInt32(Request.Headers["X-File-Size"]);
 
                 Stream fileContent = Request.InputStream;
 
@@ -238,30 +224,37 @@ namespace TextPort.Controllers
                         BulkMessages bm = new BulkMessages(accountId, 0);
                         bm.SubmitType = "UPLOAD";
                         bm.ProcessingState = "PENDING";
-
-                        if (dt.Rows.Count > 0)
+                        
+                        using (TextPortDA da = new TextPortDA())
                         {
-                            foreach (DataRow dr in dt.Rows)
+                            Account account = da.GetAccountById(accountId);
+                            decimal balance = account.Balance;
+                           
+                            if (dt.Rows.Count > 0)
                             {
-                                string number = dr[0].ToString();
-                                string message = dr[1].ToString();
-
-                                BulkMessageItem messageItem = new BulkMessageItem()
+                                foreach (DataRow dr in dt.Rows)
                                 {
-                                    Number = Utilities.StripLeading1(Utilities.StripNumber(number)),
-                                    MessageText = message,
-                                };
+                                    string number = dr[0].ToString();
+                                    string message = dr[1].ToString();
 
-                                if (!messageItem.Validate())
-                                {
-                                    bm.ProcessingState = "UPLOAD FILE ERRORS";
+                                    BulkMessageItem messageItem = new BulkMessageItem()
+                                    {
+                                        Number = Utilities.StripLeading1(Utilities.StripNumber(number)),
+                                        MessageText = message,
+                                        SegmentCost = account.SMSSegmentCost
+                                    };
+
+                                    if (!messageItem.Validate(ref balance))
+                                    {
+                                        bm.ProcessingState = "UPLOAD FILE ERRORS";
+                                    }
+
+                                    bm.Messages.Add(messageItem);
                                 }
 
-                                bm.Messages.Add(messageItem);
+                                Response.StatusCode = 200;
+                                return PartialView("_MessageList", bm);
                             }
-
-                            Response.StatusCode = 200;
-                            return PartialView("_MessageList", bm);
                         }
                     }
                 }

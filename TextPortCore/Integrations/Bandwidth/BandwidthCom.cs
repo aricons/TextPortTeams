@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Net;
 using System.Linq;
 using System.Collections.Generic;
 using System.Threading;
@@ -33,13 +32,12 @@ namespace TextPortCore.Integrations.Bandwidth
         public Bandwidth()
         {
             this._client = new RestClient();
-            // this._client.Authenticator = new HttpBasicAuthenticator(Constants.Bandwidth.ApiToken, Constants.Bandwidth.ApiSecret);
             this._client.Authenticator = new HttpBasicAuthenticator(ConfigurationManager.AppSettings["BandwidthApiToken"], ConfigurationManager.AppSettings["BandwidthApiSecret"]);
         }
 
         public List<string> GetVirtualNumbersList(string areaCode, int numbersToReturn, bool tollFree, int page)
         {
-            List<String> numbersOut = new List<String>();
+            List<string> numbersOut = new List<string>();
 
             // Don't fetch any more than 6 pages.
             if (page > 6)
@@ -374,7 +372,7 @@ namespace TextPortCore.Integrations.Bandwidth
                         }
                     }
 
-                    Message messageIn = new Message(bwMessage, accountId, virtualNumberId, sessionId);
+                    Message messageIn = new Message(bwMessage, dvn, accountId, virtualNumberId, sessionId);
 
                     string result = "Message received from Bandwidth on " + messageIn.TimeStamp.ToString() + "\r\n";
                     result += "Notification Type: " + bwMessage.type + "\r\n";
@@ -428,7 +426,7 @@ namespace TextPortCore.Integrations.Bandwidth
                                 result += $"Inbound message detected as response to an Email-to-SMS message. Sending email reply to {originatingEmailToSMSEmailAddress}. ";
                                 string body = Rendering.RenderEmailToSMSResponseEmail(messageIn, originatingEmailToSMSEmailAddress);
 
-                                EmailMessage email = new EmailMessage(originatingEmailToSMSEmailAddress, $"TextPort - New Message From {Utilities.NumberToDisplayFormat(messageIn.MobileNumber, 22)}", body);
+                                EmailMessage email = new EmailMessage(originatingEmailToSMSEmailAddress, $"TextPort - New Message From {Utilities.NumberToDisplayFormat(messageIn.MobileNumber, messageIn.DedicatedVirtualNumber.CountryId)}", body);
                                 result += (email.Send()) ? "Email-to-SMS response notification email sent successfully.\r\n" : "Email send failed.\r\n";
                             }
 
@@ -440,7 +438,7 @@ namespace TextPortCore.Integrations.Bandwidth
                                     result += $"Email forwarding enabled. Sending notification to {account.NotificationsEmailAddress}. ";
                                     string body = Rendering.RenderMessageInEmail(messageIn);
 
-                                    EmailMessage email = new EmailMessage(account.NotificationsEmailAddress, $"TextPort - New Message From {Utilities.NumberToDisplayFormat(messageIn.MobileNumber, 22)}", body);
+                                    EmailMessage email = new EmailMessage(account.NotificationsEmailAddress, $"TextPort - New Message From {Utilities.NumberToDisplayFormat(messageIn.MobileNumber, messageIn.DedicatedVirtualNumber.CountryId)}", body);
                                     result += (email.Send()) ? "Email sent successfully.\r\n" : "Email send failed.\r\n";
                                 }
 
@@ -457,7 +455,7 @@ namespace TextPortCore.Integrations.Bandwidth
                                         {
                                             result += $"Balance is {account.Balance:C}. OK. ";
                                             // Send the message from the same virtual number on which it was received.
-                                            string msg = $"TextPort message received from {Utilities.NumberToDisplayFormat(messageIn.MobileNumber, 22)}:{nl}";
+                                            string msg = $"TextPort message received from {Utilities.NumberToDisplayFormat(messageIn.MobileNumber, messageIn.DedicatedVirtualNumber.CountryId)}:{nl}";
                                             msg += $"{messageIn.MessageText}";
 
                                             Message notificationMessage = new Message(account.AccountId, (byte)MessageTypes.Notification, messageIn.VirtualNumberId, msg);

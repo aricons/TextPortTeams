@@ -11,6 +11,7 @@ using TextPortCore.Data;
 using TextPortCore.Models;
 using TextPortCore.Helpers;
 using TextPortCore.Integrations.Bandwidth;
+using TextPortCore.Integrations.Nexmo;
 
 namespace TextPort.Controllers
 {
@@ -44,30 +45,87 @@ namespace TextPort.Controllers
 
         [AllowAnonymous]
         [HttpGet]
-        public JsonResult GetAvailableNumbers(string areaCode, bool tollFree, int count, int page)
+        public JsonResult GetLeasePeriods(int countryId)
+        {
+            IEnumerable<SelectListItem> leasePeriods = new List<SelectListItem>();
+
+            using (TextPortDA da = new TextPortDA())
+            {
+                leasePeriods = da.GetLeasePeriods(countryId);
+            }
+            return Json(leasePeriods, JsonRequestBehavior.AllowGet);
+        }
+
+        [AllowAnonymous]
+        [HttpGet]
+        public JsonResult GetAvailableNumbers(int countryId, string areaCode, bool tollFree, int count, int page)
         {
             List<SelectListItem> numbersItems = new List<SelectListItem>();
 
-            using (Bandwidth bw = new Bandwidth())
+            int carrierId = 0;
+            using (TextPortDA da = new TextPortDA())
             {
-                List<string> numbers = bw.GetVirtualNumbersList(areaCode, count, tollFree, page);
-                if (numbers.Any())
-                {
-                    if (numbers.FirstOrDefault().Equals("No more numbers"))
-                    {
-                        numbersItems.Add(new SelectListItem() { Text = "No more numbers", Value = string.Empty });
-                        return Json(numbersItems, JsonRequestBehavior.AllowGet);
-                    }
+                Carrier carrier = da.GetCarrierForCountry(countryId);
+                carrierId = carrier.CarrierId;
+            }
 
-                    foreach (string number in numbers)
+            switch (carrierId)
+            {
+                case (int)Carriers.BandWidth:
+                    using (Bandwidth bw = new Bandwidth())
                     {
-                        numbersItems.Add(new SelectListItem() { Text = Utilities.NumberToDisplayFormat(number, 22), Value = number });
+                        List<string> numbers = bw.GetVirtualNumbersList(areaCode, count, tollFree, page);
+                        if (numbers.Any())
+                        {
+                            if (numbers.FirstOrDefault().Equals("No more numbers"))
+                            {
+                                numbersItems.Add(new SelectListItem() { Text = "No more numbers", Value = string.Empty });
+                                return Json(numbersItems, JsonRequestBehavior.AllowGet);
+                            }
+
+                            foreach (string number in numbers)
+                            {
+                                numbersItems.Add(new SelectListItem() { Text = Utilities.NumberToDisplayFormat(number, countryId), Value = number });
+                            }
+                        }
+                        else
+                        {
+                            numbersItems.Add(new SelectListItem() { Text = "No available numbers", Value = string.Empty });
+                        }
                     }
-                }
-                else
-                {
-                    numbersItems.Add(new SelectListItem() { Text = "No available numbers", Value = string.Empty });
-                }
+                    break;
+
+                case (int)Carriers.InfoBip:
+                    numbersItems.Add(new SelectListItem() { Text = Utilities.NumberToDisplayFormat("1234432345", countryId), Value = "1234432345" });
+                    numbersItems.Add(new SelectListItem() { Text = Utilities.NumberToDisplayFormat("5432765434", countryId), Value = "5432765434" });
+                    numbersItems.Add(new SelectListItem() { Text = Utilities.NumberToDisplayFormat("2312776309", countryId), Value = "2312776309" });
+                    numbersItems.Add(new SelectListItem() { Text = Utilities.NumberToDisplayFormat("3224456832", countryId), Value = "3224456832" });
+                    numbersItems.Add(new SelectListItem() { Text = Utilities.NumberToDisplayFormat("9988543232", countryId), Value = "9988543232" });
+                    break;
+
+                case (int)Carriers.Nexmo:
+                    using (Nexmo nexmo = new Nexmo())
+                    {
+                        List<string> numbers = nexmo.GetVirtualNumbersList(countryId, count, page);
+                        if (numbers.Any())
+                        {
+                            if (numbers.FirstOrDefault().Equals("No more numbers"))
+                            {
+                                numbersItems.Add(new SelectListItem() { Text = "No more numbers", Value = string.Empty });
+                                return Json(numbersItems, JsonRequestBehavior.AllowGet);
+                            }
+
+                            foreach (string number in numbers)
+                            {
+                                numbersItems.Add(new SelectListItem() { Text = Utilities.NumberToDisplayFormat(number, countryId), Value = number });
+                            }
+                        }
+                        else
+                        {
+                            numbersItems.Add(new SelectListItem() { Text = "No available numbers", Value = string.Empty });
+                        }
+                    }
+                    break;
             }
 
             return Json(numbersItems, JsonRequestBehavior.AllowGet);
@@ -98,16 +156,6 @@ namespace TextPort.Controllers
         public ActionResult GetNumber()
         {
             int accountId = Utilities.GetAccountIdFromClaim(ClaimsPrincipal.Current);
-
-            using (TextPortDA da = new TextPortDA())
-            {
-                Account acc = da.GetAccountById(accountId);
-                if (acc.ComplimentaryNumber == (byte)ComplimentaryNumberStatus.Eligible)
-                {
-                    return RedirectToAction("ComplimentaryNumber", new { id = accountId.ToString() });
-                }
-            }
-
             RegistrationData regData = new RegistrationData("VirtualNumber", accountId);
             return View(regData);
         }
@@ -129,7 +177,8 @@ namespace TextPort.Controllers
                 {
                     using (Bandwidth bw = new Bandwidth())
                     {
-                        if (bw.PurchaseVirtualNumber(regData))
+                        //if (bw.PurchaseVirtualNumber(regData))
+                        if (true)
                         {
                             if (da.AddNumberToAccount(regData))
                             {

@@ -16,7 +16,7 @@ namespace TextPortCore.Data
             short npa = 0;
             short nxx = 0;
             string thousands = string.Empty;
-            string displayNumber = Utilities.NumberToDisplayFormat($"1{phoneNumber}", 22);
+            string displayNumber = Utilities.NumberToDisplayFormat($"1{phoneNumber}", (int)Countries.UnitedStates);
 
             try
             {

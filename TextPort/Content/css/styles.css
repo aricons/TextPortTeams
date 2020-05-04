@@ -690,3 +690,7 @@ ul.social-network {
     .false-link:hover {
         cursor: pointer;
     }
+
+.footnote {
+    font-size: 0.8rem;
+}

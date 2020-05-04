@@ -146,14 +146,24 @@ namespace TextPortCore.Helpers
                 if (!string.IsNullOrEmpty(number))
                 {
                     localNumber = Regex.Replace(number, @"\D", "");
-                    //if (localNumber.StartsWith("1"))
-                    //{
-                    //    localNumber = localNumber.Substring(1);
-                    //}
+                    switch (countryId)
+                    {
+                        case (int)Countries.UnitedStates:
+                            //if (localNumber.StartsWith("1"))
+                            //{
+                            //    localNumber = localNumber.Substring(1);
+                            //}
+                            // With leading "1".
+                            //localNumber = $"{localNumber.Substring(0, 1)} ({localNumber.Substring(1, 3)}) {localNumber.Substring(4, 3)}-{localNumber.Substring(7)}";
+                            return $"({localNumber.Substring(1, 3)}) {localNumber.Substring(4, 3)}-{localNumber.Substring(7)}";
 
-                    // With leading "1".
-                    //localNumber = $"{localNumber.Substring(0, 1)} ({localNumber.Substring(1, 3)}) {localNumber.Substring(4, 3)}-{localNumber.Substring(7)}";
-                    localNumber = $"({localNumber.Substring(1, 3)}) {localNumber.Substring(4, 3)}-{localNumber.Substring(7)}";
+                        case (int)Countries.UnitedKingdom:
+                            // 7911 123456
+                            return $"{localNumber.Substring(1, 4)} {localNumber.Substring(4)}";
+
+                        default:
+                            return localNumber;
+                    }
                 }
             }
             catch (Exception ex)

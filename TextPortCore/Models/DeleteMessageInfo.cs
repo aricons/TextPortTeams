@@ -7,6 +7,7 @@ namespace TextPortCore.Models
         public string DeleteType { get; set; }
         public int AccountId { get; set; }
         public int VirtualNumberId { get; set; }
+        public int CountryId { get; set; }
         public string VirtualNumber { get; set; }
         public string MobileNumber { get; set; }
         public int MessageId { get; set; }
@@ -20,6 +21,7 @@ namespace TextPortCore.Models
             this.DeleteType = string.Empty;
             this.AccountId = 0;
             this.VirtualNumberId = 0;
+            this.CountryId = 0;
             this.MobileNumber = string.Empty;
             this.VirtualNumber = string.Empty;
             this.MessageId = 0;

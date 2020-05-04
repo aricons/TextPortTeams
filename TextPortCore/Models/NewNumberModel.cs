@@ -10,7 +10,7 @@ namespace TextPortCore.Models
 {
     public class NewNumberModel
     {
-        private int numberCountryId;
+        private int countryId;
         private string areaCode;
         private string virtualNumber;
         private string numberProvider;
@@ -45,10 +45,10 @@ namespace TextPortCore.Models
 
         [Required(ErrorMessage = "A country must be selected")]
         [Display(Name = "Country")]
-        public int NumberCountryId
+        public int CountryId
         {
-            get { return this.numberCountryId; }
-            set { this.numberCountryId = value; }
+            get { return this.countryId; }
+            set { this.countryId = value; }
         }
 
         [Required(ErrorMessage = "A lease period is required")]
@@ -100,7 +100,7 @@ namespace TextPortCore.Models
 
         public string PayPalCustom
         {
-            get { return string.Format("VMN|{0}|{1}|{2}|{3}|{4}", this.accountId, this.FullNumber, this.numberCountryId, this.leasePeriod, this.creditCount); }
+            get { return string.Format("VMN|{0}|{1}|{2}|{3}|{4}", this.accountId, this.FullNumber, this.CountryId, this.leasePeriod, this.creditCount); }
         }
 
         public int AccountId
@@ -115,7 +115,7 @@ namespace TextPortCore.Models
             set { this.success = value; }
         }
 
-        public IEnumerable<SelectListItem> CountriesList { get; set; }
+        public List<Country> CountriesList { get; set; }
 
         public IEnumerable<SelectListItem> NumbersList { get; set; }
 
@@ -162,8 +162,8 @@ namespace TextPortCore.Models
             // Initialize number countries drop-down
             using (TextPortDA da = new TextPortDA())
             {
-                this.CountriesList = da.GetNumberCountriesList(string.Empty);
-                this.LeasePeriodsList = da.GetLeasePeriods();
+                this.CountriesList = da.GetCountriesList();
+                this.LeasePeriodsList = da.GetLeasePeriods((int)Countries.UnitedStates);
             }
         }
 

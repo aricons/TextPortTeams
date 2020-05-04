@@ -12,7 +12,7 @@ namespace TextPortCore.Helpers
         {
             // Recents list item
             string rHtml = "<div class=\"chat_people\"><div class=\"chat_ib\">";
-            rHtml += $"<h5>{Utilities.NumberToDisplayFormat(msg.MobileNumber, 22)}<span class=\"chat_date\">{msg.TimeStamp:MMMM dd, yy | hh:mm tt}</span></h5>";
+            rHtml += $"<h5>{Utilities.NumberToDisplayFormat(msg.MobileNumber, msg.DedicatedVirtualNumber.CountryId)}<span class=\"chat_date\">{msg.TimeStamp:MMMM dd, yy | hh:mm tt}</span></h5>";
             rHtml += $"<p>{msg.MessageText}</p></div></div>";
 
             // Messge list item

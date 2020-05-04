@@ -47,7 +47,7 @@ namespace TextPortCore.Models
                 {
                     if (!string.IsNullOrEmpty(this.Account.ForwardVnmessagesTo))
                     {
-                        this.Account.ForwardVnmessagesTo = Utilities.NumberToDisplayFormat(this.Account.ForwardVnmessagesTo, 22);
+                        this.Account.ForwardVnmessagesTo = Utilities.NumberToDisplayFormat(this.Account.ForwardVnmessagesTo, (int)Countries.UnitedStates);
                     }
                 }
             }

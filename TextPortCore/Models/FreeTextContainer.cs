@@ -17,7 +17,7 @@ namespace TextPortCore.Models
         [Required(ErrorMessage = "You must select a number to send the message from")]
         public int VirtualNumberId { get; set; }
 
-        [Display(Name = "Mobile Number")]
+        [Display(Name = "To Mobile Number")]
         [Required(ErrorMessage = "A destination number is required")]
         [RegularExpression(@"^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$", ErrorMessage = "Not a valid phone number")]
         public string MobileNumber { get; set; }
@@ -26,14 +26,18 @@ namespace TextPortCore.Models
         [Required(ErrorMessage = "A message is required")]
         public string MessageText { get; set; }
 
+        public int CountryId { get; set; }
+
         public string SessionId { get; set; }
 
         public List<Message> MessageHistory { get; set; }
 
         public IEnumerable<SelectListItem> NumbersList { get; set; }
 
-        public FreeTextContainer()
+        public FreeTextContainer(string ipAddress)
         {
+            this.IPAddress = ipAddress;
+            this.CountryId = (int)Countries.UnitedStates;
             this.MobileNumber = string.Empty;
             this.MessageText = string.Empty;
             this.MessageHistory = new List<Message>();
@@ -41,14 +45,14 @@ namespace TextPortCore.Models
 
             using (TextPortDA da = new TextPortDA())
             {
-                this.NumbersList = da.GetFreeNumbersList();
+                this.NumbersList = da.GetFreeNumbersList(this.CountryId);
             }
         }
 
-        public FreeTextContainer(string sessionId)
+        public FreeTextContainer(string sessionId, string ipAddress)
         {
             int freeTextAccountId = Conversion.StringToIntOrZero(ConfigurationManager.AppSettings["FreeTextAccountId"]);
-
+            this.IPAddress = ipAddress;
             this.MobileNumber = string.Empty;
             this.MessageText = string.Empty;
             this.SessionId = sessionId;
@@ -59,9 +63,9 @@ namespace TextPortCore.Models
                 if (this.MessageHistory.Count > 0)
                 {
                     this.VirtualNumberId = this.MessageHistory.FirstOrDefault().VirtualNumberId;
-                    this.MobileNumber = Utilities.NumberToDisplayFormat(this.MessageHistory.FirstOrDefault().MobileNumber, 22);
+                    this.MobileNumber = Utilities.NumberToDisplayFormat(this.MessageHistory.FirstOrDefault().MobileNumber, this.CountryId);
                 }
-                this.NumbersList = da.GetFreeNumbersList();
+                this.NumbersList = da.GetFreeNumbersList(this.CountryId);
             }
         }
 

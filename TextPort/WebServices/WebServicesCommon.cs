@@ -64,7 +64,6 @@ namespace TextPort.WebServices
                                                         MobileNumber = Utilities.NumberToE164(messageRequest.MobileNumber),
                                                         MessageText = messageRequest.MessageText,
                                                         Ipaddress = requestorIpAddress,
-                                                        CarrierId = (int)Carriers.BandWidth,
                                                         IsMMS = false,
                                                         TimeStamp = DateTime.UtcNow,
                                                         VirtualNumberId = virtualNumberId

@@ -25,7 +25,7 @@ namespace TextPortServices.Processes
 
             getInterMessageWaitTimes();
 
-            switch (message.CarrierId)
+            switch (message.DedicatedVirtualNumber.CarrierId)
             {
                 //case "Nexmo":
                 //    returnValue = Nexmo.RouteMessageViaNexmoGateway(ref message, "INTERNATIONAL");

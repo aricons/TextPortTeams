@@ -30,36 +30,44 @@ namespace TextPortCore.Data
             return "Invalid area code";
         }
 
-        public List<SelectListItem> GetNumberCountriesList(string purchaseType)
+        //public List<SelectListItem> GetCountriesList(string purchaseType)
+        //{
+        //    List<SelectListItem> countriesList = new List<SelectListItem>();
+
+        //    try
+        //    {
+        //        List<Country> vncs = new List<Country>();
+        //        vncs = _context.Countries.Where(x => x.Enabled == true).OrderBy(x => x.SortOrder).ToList();
+
+        //        foreach (Country country in vncs)
+        //        {
+        //            SelectListItem listItem = new SelectListItem();
+        //            listItem.Text = $"{country.CountryName}";
+        //            listItem.Value = country.CountryId.ToString();
+
+        //            countriesList.Add(listItem);
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        ErrorHandling eh = new ErrorHandling();
+        //        eh.LogException("NumbersDA.GetCountriesList", ex);
+        //    }
+        //    return countriesList;
+        //}
+
+        public List<Country> GetCountriesList()
         {
-            List<SelectListItem> countriesList = new List<SelectListItem>();
+            List<Country> countriesList = new List<Country>();
 
             try
             {
-                List<VirtualNumberCountry> vncs = new List<VirtualNumberCountry>();
-                if (purchaseType == "ComplimentaryNumber")
-                {
-                    vncs = _context.VirtualNumberCountries.Where(x => x.Enabled == true && x.VirtualNumberCountryId != 23).OrderBy(x => x.CountryName).ToList();
-                }
-                else
-                {
-                    vncs = _context.VirtualNumberCountries.Where(x => x.Enabled == true).OrderBy(x => x.CountryName).ToList();
-                }
-
-                foreach (VirtualNumberCountry country in vncs)
-                {
-                    SelectListItem listItem = new SelectListItem();
-
-                    listItem.Text = $"{country.CountryName}";
-                    listItem.Value = country.VirtualNumberCountryId.ToString();
-
-                    countriesList.Add(listItem);
-                }
+                return _context.Countries.Where(x => x.Enabled == true).OrderBy(x => x.SortOrder).ToList();
             }
             catch (Exception ex)
             {
                 ErrorHandling eh = new ErrorHandling();
-                eh.LogException("NumbersDA.GetNumberCountriesList", ex);
+                eh.LogException("NumbersDA.GetCountriesList", ex);
             }
             return countriesList;
         }
@@ -459,7 +467,8 @@ namespace TextPortCore.Data
                     AccountId = rd.AccountId,
                     CancellationFailureCount = 0,
                     Cancelled = false,
-                    CountryCode = rd.NumberCountryId.ToString(),
+                    CarrierId = rd.CarrierId,
+                    CountryCode = rd.CountryId.ToString(),
                     NumberType = (byte)rd.NumberType,
                     CreateDate = DateTime.Now,
                     ExpirationDate = expirationDate,
@@ -468,14 +477,12 @@ namespace TextPortCore.Data
                     Fee = rd.NumberCost,
                     LeasePeriod = rd.LeasePeriod,
                     LeasePeriodType = rd.LeasePeriodType,
-                    Provider = rd.NumberProvider,
                     ReminderFailureCount = 0,
                     RenewalCount = 0,
                     SevenDayReminderSent = sevenDayRenewalReminderDate,
                     TwoDayReminderSent = twoDayRenewalReminderDate,
                     VirtualNumber = rd.VirtualNumber,
-                    VirtualNumberCountryId = rd.NumberCountryId,
-                    VirtualNumberId = 0
+                    CountryId = rd.CountryId,
                 };
 
                 _context.DedicatedVirtualNumbers.Add(number);
@@ -505,7 +512,8 @@ namespace TextPortCore.Data
                     AccountId = actReq.AccountId,
                     CancellationFailureCount = 0,
                     Cancelled = false,
-                    CountryCode = "22",
+                    CountryCode = "2",
+                    CarrierId = 1,
                     NumberType = (byte)NumberTypes.Pooled,
                     CreateDate = DateTime.Now,
                     ExpirationDate = expirationDate,
@@ -517,7 +525,7 @@ namespace TextPortCore.Data
                     SevenDayReminderSent = null,
                     TwoDayReminderSent = null,
                     VirtualNumber = actReq.VirtualNumber,
-                    VirtualNumberCountryId = 22,
+                    CountryId = (int)Countries.UnitedStates,
                     VirtualNumberId = 0
                 };
 

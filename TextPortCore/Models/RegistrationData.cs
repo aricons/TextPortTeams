@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Web.Mvc;
@@ -17,12 +16,12 @@ namespace TextPortCore.Models
         private string password;
         private string confirmPassword;
         private bool chooseNumberNow;
-        private int numberCountryId;
+        private int countryId;
         private string areaCode;
         private string tollFreePrefix;
         private string virtualNumber;
         private int virtualNumberId;
-        private string numberProvider;
+        private int carrierId;
         private string productDescription;
         private string leasePeriodCode;
         private string leasePeriodType;
@@ -37,7 +36,6 @@ namespace TextPortCore.Models
         private string completionMessage;
         private string orderingMessage;
         private decimal numberCost;
-        //private decimal baseSMSCost;
         private bool showAnnouncementBanner;
         private string accountValidationKey;
         private string ipAddress;
@@ -134,7 +132,7 @@ namespace TextPortCore.Models
 
         public string NumberDisplayFormat
         {
-            get { return Utilities.NumberToDisplayFormat(this.virtualNumber, 22); }
+            get { return Utilities.NumberToDisplayFormat(this.virtualNumber, this.CountryId); }
         }
 
         public int VirtualNumberId
@@ -143,12 +141,12 @@ namespace TextPortCore.Models
             set { this.virtualNumberId = value; }
         }
 
-        [Required(ErrorMessage = "A number type must be selected")]
-        [Display(Name = "Number Type")]
-        public int NumberCountryId
+        [Required(ErrorMessage = "A country must be selected")]
+        [Display(Name = "Country")]
+        public int CountryId
         {
-            get { return this.numberCountryId; }
-            set { this.numberCountryId = value; }
+            get { return this.countryId; }
+            set { this.countryId = value; }
         }
 
         [Required(ErrorMessage = "A lease period is required")]
@@ -189,10 +187,10 @@ namespace TextPortCore.Models
             }
         }
 
-        public string NumberProvider
+        public int CarrierId
         {
-            get { return this.numberProvider; }
-            set { this.numberProvider = value; }
+            get { return this.carrierId; }
+            set { this.carrierId = value; }
         }
 
         [Display(Name = "Account balance")]
@@ -240,7 +238,7 @@ namespace TextPortCore.Models
                         return string.Format("CREDIT|{0}|{1:N2}", this.accountId, this.creditPurchaseAmount);
 
                     default:
-                        return string.Format("VMN|{0}|{1}|{2}|{3}|{4}", this.accountId, this.VirtualNumber, this.numberCountryId, this.leasePeriod, this.creditPurchaseAmount);
+                        return string.Format("VMN|{0}|{1}|{2}|{3}|{4}", this.accountId, this.VirtualNumber, this.CountryId, this.leasePeriod, this.creditPurchaseAmount);
                 }
             }
         }
@@ -339,7 +337,7 @@ namespace TextPortCore.Models
             set { this.accountEnabled = value; }
         }
 
-        public IEnumerable<SelectListItem> CountriesList { get; set; }
+        public List<Country> CountriesList { get; set; }
 
         public IEnumerable<SelectListItem> NumbersList { get; set; }
 
@@ -362,7 +360,7 @@ namespace TextPortCore.Models
             this.TollFreePrefix = string.Empty;
             this.VirtualNumber = string.Empty;
             this.VirtualNumberId = 0;
-            this.NumberProvider = "Bandwidth";
+            this.CarrierId = (int)Carriers.BandWidth;
             this.LeasePeriodType = "M";
             this.LeasePeriod = 0;
             this.CreditCurrentBalance = 0;
@@ -374,8 +372,6 @@ namespace TextPortCore.Models
             this.CompletionTitle = string.Empty;
             this.CompletionMessage = string.Empty;
             this.OrderingMessage = string.Empty;
-            //this.BaseNumberCost = 0; // Constants.BaseNumberCost;
-            //this.BaseSMSCost = 0; // Constants.BaseSMSSegmentCost;
             this.ShowAnnouncementBanner = false;
             this.FreeTrial = false;
             this.AccountEnabled = false;
@@ -383,7 +379,7 @@ namespace TextPortCore.Models
             this.IPAddress = string.Empty;
             this.BrowserType = string.Empty;
             this.NumberType = NumberTypes.Regular;
-            this.NumberCountryId = (int)Countries.UnitedStates;
+            this.CountryId = (int)Countries.UnitedStates;
 
             // Initialize the numbers drop-down.
             List<SelectListItem> numbers = new List<SelectListItem>();
@@ -401,8 +397,7 @@ namespace TextPortCore.Models
             this.AreaCode = string.Empty;
             this.TollFreePrefix = string.Empty;
             this.VirtualNumber = string.Empty;
-            this.VirtualNumberId = 0;
-            this.NumberProvider = "Bandwidth";
+            this.CarrierId = (int)Carriers.BandWidth;
             this.CreditCurrentBalance = 0;
             this.CreditPurchaseAmount = 0;
             this.Status = "Pending";
@@ -418,7 +413,7 @@ namespace TextPortCore.Models
             this.IPAddress = string.Empty;
             this.BrowserType = string.Empty;
             this.NumberType = NumberTypes.Regular;
-            this.NumberCountryId = (int)Countries.UnitedStates;
+            this.CountryId = (int)Countries.UnitedStates;
 
             if (purcType == "ComplimentaryNumber")
             {
@@ -454,8 +449,8 @@ namespace TextPortCore.Models
             // Initialize number countries drop-down
             using (TextPortDA da = new TextPortDA())
             {
-                this.CountriesList = da.GetNumberCountriesList(this.PurchaseType);
-                this.LeasePeriodsList = da.GetLeasePeriods();
+                this.CountriesList = da.GetCountriesList();
+                this.LeasePeriodsList = da.GetLeasePeriods((int)Countries.UnitedStates);
                 this.CreditAmountsList = da.GetCreditAmounts(purcType);
                 this.TollFreeAreaCodesList = da.GetTollFreeAreaCodes();
 
@@ -471,7 +466,7 @@ namespace TextPortCore.Models
                 {
                     this.LeasePeriodType = "M";
                     this.LeasePeriod = 15;
-                    this.NumbersList = da.GetPooledNumbersList();
+                    this.NumbersList = da.GetPooledNumbersList(this.CountryId);
                 }
             }
         }
