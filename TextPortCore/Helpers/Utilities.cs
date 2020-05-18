@@ -159,7 +159,8 @@ namespace TextPortCore.Helpers
 
                         case (int)Countries.UnitedKingdom:
                             // 7911 123456
-                            return $"{localNumber.Substring(1, 4)} {localNumber.Substring(4)}";
+                            //return $"{localNumber.Substring(1, 4)} {localNumber.Substring(4)}";
+                            return $"{localNumber.Substring(2)}"; // Remove leading "44";
 
                         default:
                             return localNumber;

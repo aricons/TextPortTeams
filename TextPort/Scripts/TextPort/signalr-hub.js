@@ -78,17 +78,22 @@
 
 });
 
-function numberToE164(number) {
-    return number.replace("\D", "");
+function numberToE164(countryCode, number) {
+    return countryCode + number.replace("\D", "");
 }
 
-function numberToDisplay(number) {
+function numberToDisplay(number, countryCode) {
     if (number.length >= 1) {
-        if (number.substr(0, 1) === "1") {
-            return '(' + number.substr(1, 3) + ') ' + number.substr(4, 3) + '-' + number.substr(7, 4);
+        if (countryCode === "1") {
+            if (number.substr(0, 1) === "1") {
+                return '(' + number.substr(1, 3) + ') ' + number.substr(4, 3) + '-' + number.substr(7, 4);
+            }
+            else {
+                return '(' + number.substr(0, 3) + ') ' + number.substr(3, 3) + '-' + number.substr(6, 4);
+            }
         }
         else {
-            return '(' + number.substr(0, 3) + ') ' + number.substr(3, 3) + '-' + number.substr(6, 4);
+            return number;
         }
     }
     return "";

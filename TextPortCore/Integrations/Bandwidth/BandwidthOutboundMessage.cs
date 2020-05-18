@@ -26,21 +26,17 @@ namespace TextPortCore.Integrations.Bandwidth
             this.to = String.Empty;
             this.text = String.Empty;
             this.media = null;
-            //this.callbackUrl = ConfigurationManager.AppSettings["BandwidthComCallbackUrl"];
         }
 
-        //public BandwidthOutboundMessage(string fromNumber, string toNumber, string message)
         public BandwidthOutboundMessage(Message msg, string appId)
         {
-            this.from = msg.NumberBandwidthFormat;
+            this.from = msg.DedicatedVirtualNumber.VirtualNumber;
             this.to = msg.MobileNumber;
             this.text = msg.MessageText;
             this.applicationId = appId;
             this.tag = $"Account {msg.AccountId}";
-            //this.callbackUrl = ConfigurationManager.AppSettings["BandwidthComCallbackUrl"];
             if (msg.MMSFiles != null && msg.MMSFiles.Count > 0)
             {
-                //List<string> mmsFileNames = JsonConvert.DeserializeObject<List<string>>(msg.MmsfileNames);
                 this.media = new List<string>();
                 foreach (MMSFile mmsFile in msg.MMSFiles)
                 {

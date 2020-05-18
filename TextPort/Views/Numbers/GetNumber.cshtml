@@ -85,10 +85,11 @@
     });
 
     function getNumber(number) {
+        var countryCode = $("#CountryId option:selected").val();
         $("#lbl-sel-number").text("Selected number");
         $("#lbl-sel-number").show();
-        $("#selected-number").text(numberToDisplay(number));
-        $("#VirtualNumber").val("1" + numberToE164(number));
+        $("#selected-number").text(numberToDisplay(number, countryCode));
+        $("#VirtualNumber").val(numberToE164(countryCode, number));
         $("#selected-number-wrap").show();
         $("#number-chooser").hide(500);
         $("#number-picker").hide(500);

@@ -14,8 +14,7 @@ using Newtonsoft.Json;
 using TextPortCore.Data;
 using TextPortCore.Models;
 using TextPortCore.Helpers;
-using TextPortCore.Integrations.APICallback;
-using API = TextPortCore.Models.API;
+using TextPortCore.Integrations.Common;
 
 namespace TextPortCore.Integrations.Bandwidth
 {
@@ -24,8 +23,8 @@ namespace TextPortCore.Integrations.Bandwidth
         const int orderCheckPollingCycles = 5; // number of times to check on an order
         const int orderCheckWaitTime = 1500; // milliseconds to wait between each order status check
 
-        private string accountBaseUrl = $"https://dashboard.bandwidth.com/api/accounts/{ConfigurationManager.AppSettings["BandwidthAccountId"]}";
-        private string messageBaseUrl = $"https://messaging.bandwidth.com/api/v2/users/{ConfigurationManager.AppSettings["BandwidthAccountId"]}";
+        private readonly string accountBaseUrl = $"https://dashboard.bandwidth.com/api/accounts/{ConfigurationManager.AppSettings["BandwidthAccountId"]}";
+        private readonly string messageBaseUrl = $"https://messaging.bandwidth.com/api/v2/users/{ConfigurationManager.AppSettings["BandwidthAccountId"]}";
 
         private readonly RestClient _client;
 
@@ -283,313 +282,319 @@ namespace TextPortCore.Integrations.Bandwidth
             }
         }
 
-        public Message ProcessInboundMessage(BandwidthInboundMessage bwMessage)
-        {
-            string jsonPayload = string.Empty;
-            try
-            {
-                string resultMessage = String.Empty;
-                string forwardVNMessagesTo = String.Empty;
-                string userName = String.Empty;
-                jsonPayload = JsonConvert.SerializeObject(bwMessage);
+        //public Message ProcessInboundMessage(BandwidthInboundMessage bwMessage)
+        //{
+        //    IntegrationMessageIn messageIn = new IntegrationMessageIn(bwMessage);
+        //    return  InboundMessageProcessing.ProcessInboundMessage(messageIn);
+        //}
 
-                if (bwMessage.type == "message-failed")
-                {
-                    // Switch the from and to fields.
-                    string tempTo = bwMessage.to;
-                    bwMessage.to = bwMessage.message.from;
-                    bwMessage.message.from = tempTo;
+        //public Message ProcessInboundMessage(BandwidthInboundMessage bwMessage)
+        //{
+        //    string jsonPayload = string.Empty;
+        //    try
+        //    {
+        //        string resultMessage = String.Empty;
+        //        string forwardVNMessagesTo = String.Empty;
+        //        string userName = String.Empty;
+        //        jsonPayload = JsonConvert.SerializeObject(bwMessage);
 
-                    if (!string.IsNullOrEmpty(bwMessage.description))
-                    {
-                        switch (bwMessage.description)
-                        {
-                            case "rejected-spam-detected":
-                                bwMessage.message.text = $"DELIVERY FAILURE. Reason: {bwMessage.description}. The destination provider for number {tempTo.Replace("+", "")} detected this message as spam: {bwMessage.message.text}";
-                                break;
-                            default:
-                                bwMessage.message.text = $"DELIVERY FAILURE. Reason: {bwMessage.description}. Destination number: {tempTo.Replace("+", "")}. Message: {bwMessage.message.text}";
-                                break;
-                        }
-                    }
-                }
+        //        if (bwMessage.type == "message-failed")
+        //        {
+        //            // Switch the from and to fields.
+        //            string tempTo = bwMessage.to;
+        //            bwMessage.to = bwMessage.message.from;
+        //            bwMessage.message.from = tempTo;
 
-                using (TextPortDA da = new TextPortDA())
-                {
-                    int accountId = 0;
-                    int virtualNumberId = 0;
-                    string sessionId = null;
-                    string pooledNumberSearchResult = string.Empty;
-                    bool isEmailToSMSResponse = false;
+        //            if (!string.IsNullOrEmpty(bwMessage.description))
+        //            {
+        //                switch (bwMessage.description)
+        //                {
+        //                    case "rejected-spam-detected":
+        //                        bwMessage.message.text = $"DELIVERY FAILURE. Reason: {bwMessage.description}. The destination provider for number {tempTo.Replace("+", "")} detected this message as spam: {bwMessage.message.text}";
+        //                        break;
+        //                    default:
+        //                        bwMessage.message.text = $"DELIVERY FAILURE. Reason: {bwMessage.description}. Destination number: {tempTo.Replace("+", "")}. Message: {bwMessage.message.text}";
+        //                        break;
+        //                }
+        //            }
+        //        }
 
-                    DedicatedVirtualNumber dvn = null;
+        //        using (TextPortDA da = new TextPortDA())
+        //        {
+        //            int accountId = 0;
+        //            int virtualNumberId = 0;
+        //            string sessionId = null;
+        //            string pooledNumberSearchResult = string.Empty;
+        //            bool isEmailToSMSResponse = false;
 
-                    dvn = da.GetVirtualNumberByNumber(bwMessage.to.Replace("+", ""), true);
-                    if (dvn != null)
-                    {
-                        // First check whether this number is a free trial pool number. If so, perform and additional lookup for an outgoing 
-                        // message with a destination number that matches the sending number of the message being received.
-                        if (dvn.NumberType == (byte)NumberTypes.Pooled)
-                        {
-                            if (bwMessage.message != null)
-                            {
-                                dvn = da.GetVirtualNumberByNumberAndOriginatingMobileNumber(bwMessage.to.Replace("+", ""), bwMessage.message.from.Replace("+", ""));
-                                if (dvn != null)
-                                {
-                                    accountId = dvn.AccountId;
-                                    virtualNumberId = dvn.VirtualNumberId;
-                                    pooledNumberSearchResult = $"A pooled number match on virtual number {bwMessage.to.Replace("+", "")} and mobile number {bwMessage.message.from.Replace("+", "")} was made.";
-                                }
-                                else
-                                {
-                                    pooledNumberSearchResult = pooledNumberSearchResult = $"A pooled match search failed on virtual number {bwMessage.to.Replace("+", "")} and mobile number {bwMessage.message.from.Replace("+", "")}.";
-                                }
-                            }
-                        }
-                        else if (dvn.NumberType == (byte)NumberTypes.Free)
-                        {
-                            if (bwMessage.message != null)
-                            {
-                                accountId = dvn.AccountId;
-                                virtualNumberId = dvn.VirtualNumberId;
-                                pooledNumberSearchResult = $"The virtual number {bwMessage.to.Replace("+", "")} is a free texting number. Looking for an associated outbound message to get the session ID.\r\n";
-                                Message freeMessage = da.GetOriginatingMessageByVirtualNumberIdAndMobileNumberAndMessageType(dvn.VirtualNumberId, bwMessage.message.from.Replace("+", ""), MessageTypes.FreeTextSend);
-                                if (freeMessage != null)
-                                {
-                                    sessionId = freeMessage.SessionId;
-                                    pooledNumberSearchResult += $"An originating free message was found. The message ID is {freeMessage.MessageId}. The session ID is {freeMessage.SessionId}.\r\n";
-                                }
-                                else
-                                {
-                                    pooledNumberSearchResult += $"An originating free message was not found found. Processing stops.\r\n";
-                                }
-                            }
-                        }
-                        else // Regular non-pooled number
-                        {
-                            accountId = dvn.AccountId;
-                            virtualNumberId = dvn.VirtualNumberId;
-                        }
-                    }
+        //            DedicatedVirtualNumber dvn = null;
 
-                    Message messageIn = new Message(bwMessage, dvn, accountId, virtualNumberId, sessionId);
+        //            dvn = da.GetVirtualNumberByNumber(bwMessage.to.Replace("+", ""), true);
+        //            if (dvn != null)
+        //            {
+        //                // First check whether this number is a free trial pool number. If so, perform and additional lookup for an outgoing 
+        //                // message with a destination number that matches the sending number of the message being received.
+        //                if (dvn.NumberType == (byte)NumberTypes.Pooled)
+        //                {
+        //                    if (bwMessage.message != null)
+        //                    {
+        //                        dvn = da.GetVirtualNumberByNumberAndOriginatingMobileNumber(bwMessage.to.Replace("+", ""), bwMessage.message.from.Replace("+", ""));
+        //                        if (dvn != null)
+        //                        {
+        //                            accountId = dvn.AccountId;
+        //                            virtualNumberId = dvn.VirtualNumberId;
+        //                            pooledNumberSearchResult = $"A pooled number match on virtual number {bwMessage.to.Replace("+", "")} and mobile number {bwMessage.message.from.Replace("+", "")} was made.";
+        //                        }
+        //                        else
+        //                        {
+        //                            pooledNumberSearchResult = pooledNumberSearchResult = $"A pooled match search failed on virtual number {bwMessage.to.Replace("+", "")} and mobile number {bwMessage.message.from.Replace("+", "")}.";
+        //                        }
+        //                    }
+        //                }
+        //                else if (dvn.NumberType == (byte)NumberTypes.Free)
+        //                {
+        //                    if (bwMessage.message != null)
+        //                    {
+        //                        accountId = dvn.AccountId;
+        //                        virtualNumberId = dvn.VirtualNumberId;
+        //                        pooledNumberSearchResult = $"The virtual number {bwMessage.to.Replace("+", "")} is a free texting number. Looking for an associated outbound message to get the session ID.\r\n";
+        //                        Message freeMessage = da.GetOriginatingMessageByVirtualNumberIdAndMobileNumberAndMessageType(dvn.VirtualNumberId, bwMessage.message.from.Replace("+", ""), MessageTypes.FreeTextSend);
+        //                        if (freeMessage != null)
+        //                        {
+        //                            sessionId = freeMessage.SessionId;
+        //                            pooledNumberSearchResult += $"An originating free message was found. The message ID is {freeMessage.MessageId}. The session ID is {freeMessage.SessionId}.\r\n";
+        //                        }
+        //                        else
+        //                        {
+        //                            pooledNumberSearchResult += $"An originating free message was not found found. Processing stops.\r\n";
+        //                        }
+        //                    }
+        //                }
+        //                else // Regular non-pooled number
+        //                {
+        //                    accountId = dvn.AccountId;
+        //                    virtualNumberId = dvn.VirtualNumberId;
+        //                }
+        //            }
 
-                    string result = "Message received from Bandwidth on " + messageIn.TimeStamp.ToString() + "\r\n";
-                    result += "Notification Type: " + bwMessage.type + "\r\n";
-                    result += "From mobile number: " + messageIn.MobileNumber + "\r\n";
-                    result += "To virtual number: " + messageIn.VirtualNumber + "\r\n";
-                    result += "Virtual Number ID: " + messageIn.VirtualNumberId.ToString() + "\r\n";
-                    result += "Gateway Message ID: " + messageIn.GatewayMessageId + "\r\n";
-                    result += "Account Id: " + messageIn.AccountId.ToString() + "\r\n";
-                    result += "Session Id: " + (messageIn.SessionId ?? string.Empty) + "\r\n";
-                    result += "Message: " + messageIn.MessageText + "\r\n";
-                    result += "Segments: " + messageIn.Segments + "\r\n";
-                    if (!string.IsNullOrEmpty(pooledNumberSearchResult))
-                    {
-                        result += "Pooled Number Status: " + pooledNumberSearchResult + "\r\n";
-                    }
-                    else
-                    {
-                        result += "Pooled Number Status: Message not sent to a pooled number.\r\n";
-                    }
-                    result += "Data Received: " + jsonPayload + "\r\n";
+        //            Message messageIn = new Message(bwMessage, dvn, accountId, virtualNumberId, sessionId);
 
-                    // Check that the sending number is not in the BlockedNumbers table as an inbound number.
-                    // If a block is found, flush the log and stop processing.
-                    if (da.NumberIsBlocked(messageIn.MobileNumber, MessageDirection.Inbound))
-                    {
-                        result += $"The sending number {messageIn.MobileNumber} was found on the inbound blocked numbers list. Halting any further processing.\r\n";
-                        writeXMLToDisk(result, "BandwidthInboundMessage-BLOCKED");
-                        return null;
-                    }
+        //            string result = "Message received from Bandwidth on " + messageIn.TimeStamp.ToString() + "\r\n";
+        //            result += "Notification Type: " + bwMessage.type + "\r\n";
+        //            result += "From mobile number: " + messageIn.MobileNumber + "\r\n";
+        //            result += "To virtual number: " + messageIn.VirtualNumber + "\r\n";
+        //            result += "Virtual Number ID: " + messageIn.VirtualNumberId.ToString() + "\r\n";
+        //            result += "Gateway Message ID: " + messageIn.GatewayMessageId + "\r\n";
+        //            result += "Account Id: " + messageIn.AccountId.ToString() + "\r\n";
+        //            result += "Session Id: " + (messageIn.SessionId ?? string.Empty) + "\r\n";
+        //            result += "Message: " + messageIn.MessageText + "\r\n";
+        //            result += "Segments: " + messageIn.Segments + "\r\n";
+        //            if (!string.IsNullOrEmpty(pooledNumberSearchResult))
+        //            {
+        //                result += "Pooled Number Status: " + pooledNumberSearchResult + "\r\n";
+        //            }
+        //            else
+        //            {
+        //                result += "Pooled Number Status: Message not sent to a pooled number.\r\n";
+        //            }
+        //            result += "Data Received: " + jsonPayload + "\r\n";
 
-                    decimal newBalance = 0;
-                    int messageId = da.InsertMessage(messageIn, ref newBalance);
-                    result += (messageId > 0) ? $"Message successfully added to messages table.{Environment.NewLine}" : $"Failure adding message to messages table.{Environment.NewLine}";
+        //            // Check that the sending number is not in the BlockedNumbers table as an inbound number.
+        //            // If a block is found, flush the log and stop processing.
+        //            if (da.NumberIsBlocked(messageIn.MobileNumber, MessageDirection.Inbound))
+        //            {
+        //                result += $"The sending number {messageIn.MobileNumber} was found on the inbound blocked numbers list. Halting any further processing.\r\n";
+        //                InboundMessageProcessing.WriteXMLToDisk(result, "BandwidthInboundMessage-BLOCKED");
+        //                return null;
+        //            }
 
-                    // Check for forwarding and email-to-SMS message responses
-                    if (messageIn.AccountId > 0)
-                    {
-                        string nl = Environment.NewLine;
-                        Account account = da.GetAccountById(messageIn.AccountId);
-                        if (account != null)
-                        {
-                            messageIn.Account = account;
+        //            decimal newBalance = 0;
+        //            int messageId = da.InsertMessage(messageIn, ref newBalance);
+        //            result += (messageId > 0) ? $"Message successfully added to messages table.{Environment.NewLine}" : $"Failure adding message to messages table.{Environment.NewLine}";
 
-                            // Check to see if this message is a response to an email-to-sms message.
-                            // If so, send an email notification back to that address.
-                            string originatingEmailToSMSEmailAddress = da.GetOriginalSMSToEmailSenderAddressByAccountIdVirtualNumberIdAndMobileNumber(messageIn.AccountId, messageIn.VirtualNumberId, messageIn.MobileNumber);
-                            if (!string.IsNullOrEmpty(originatingEmailToSMSEmailAddress))
-                            {
-                                isEmailToSMSResponse = true;
+        //            // Check for forwarding and email-to-SMS message responses
+        //            if (messageIn.AccountId > 0)
+        //            {
+        //                string nl = Environment.NewLine;
+        //                Account account = da.GetAccountById(messageIn.AccountId);
+        //                if (account != null)
+        //                {
+        //                    messageIn.Account = account;
 
-                                result += $"Inbound message detected as response to an Email-to-SMS message. Sending email reply to {originatingEmailToSMSEmailAddress}. ";
-                                string body = Rendering.RenderEmailToSMSResponseEmail(messageIn, originatingEmailToSMSEmailAddress);
+        //                    // Check to see if this message is a response to an email-to-sms message.
+        //                    // If so, send an email notification back to that address.
+        //                    string originatingEmailToSMSEmailAddress = da.GetOriginalSMSToEmailSenderAddressByAccountIdVirtualNumberIdAndMobileNumber(messageIn.AccountId, messageIn.VirtualNumberId, messageIn.MobileNumber);
+        //                    if (!string.IsNullOrEmpty(originatingEmailToSMSEmailAddress))
+        //                    {
+        //                        isEmailToSMSResponse = true;
 
-                                EmailMessage email = new EmailMessage(originatingEmailToSMSEmailAddress, $"TextPort - New Message From {Utilities.NumberToDisplayFormat(messageIn.MobileNumber, messageIn.DedicatedVirtualNumber.CountryId)}", body);
-                                result += (email.Send()) ? "Email-to-SMS response notification email sent successfully.\r\n" : "Email send failed.\r\n";
-                            }
+        //                        result += $"Inbound message detected as response to an Email-to-SMS message. Sending email reply to {originatingEmailToSMSEmailAddress}. ";
+        //                        string body = Rendering.RenderEmailToSMSResponseEmail(messageIn, originatingEmailToSMSEmailAddress);
 
-                            if (!isEmailToSMSResponse)
-                            {
-                                // Check for email forwarding.
-                                if (account.EnableEmailNotifications && !string.IsNullOrEmpty(account.NotificationsEmailAddress))
-                                {
-                                    result += $"Email forwarding enabled. Sending notification to {account.NotificationsEmailAddress}. ";
-                                    string body = Rendering.RenderMessageInEmail(messageIn);
+        //                        EmailMessage email = new EmailMessage(originatingEmailToSMSEmailAddress, $"TextPort - New Message From {Utilities.NumberToDisplayFormat(messageIn.MobileNumber, messageIn.DedicatedVirtualNumber.CountryId)}", body);
+        //                        result += (email.Send()) ? "Email-to-SMS response notification email sent successfully.\r\n" : "Email send failed.\r\n";
+        //                    }
 
-                                    EmailMessage email = new EmailMessage(account.NotificationsEmailAddress, $"TextPort - New Message From {Utilities.NumberToDisplayFormat(messageIn.MobileNumber, messageIn.DedicatedVirtualNumber.CountryId)}", body);
-                                    result += (email.Send()) ? "Email sent successfully.\r\n" : "Email send failed.\r\n";
-                                }
+        //                    if (!isEmailToSMSResponse)
+        //                    {
+        //                        // Check for email forwarding.
+        //                        if (account.EnableEmailNotifications && !string.IsNullOrEmpty(account.NotificationsEmailAddress))
+        //                        {
+        //                            result += $"Email forwarding enabled. Sending notification to {account.NotificationsEmailAddress}. ";
+        //                            string body = Rendering.RenderMessageInEmail(messageIn);
 
-                                // Check for mobile forwarding.
-                                if (account.EnableMobileForwarding && !string.IsNullOrEmpty(account.ForwardVnmessagesTo))
-                                {
-                                    // Make sure the virtual number receiving the message and the forwarding number aren't the same, to avoid pushing a notification
-                                    // to the same number from which it came and creating a loop.
-                                    if (messageIn.VirtualNumber != account.ForwardVnmessagesTo)
-                                    {
-                                        result += $"SMS forwarding enabled. Sending notification to {account.ForwardVnmessagesTo}. ";
-                                        // Check whether the user has a credit balance
-                                        if (account.Balance > 0.10M)
-                                        {
-                                            result += $"Balance is {account.Balance:C}. OK. ";
-                                            // Send the message from the same virtual number on which it was received.
-                                            string msg = $"TextPort message received from {Utilities.NumberToDisplayFormat(messageIn.MobileNumber, messageIn.DedicatedVirtualNumber.CountryId)}:{nl}";
-                                            msg += $"{messageIn.MessageText}";
+        //                            EmailMessage email = new EmailMessage(account.NotificationsEmailAddress, $"TextPort - New Message From {Utilities.NumberToDisplayFormat(messageIn.MobileNumber, messageIn.DedicatedVirtualNumber.CountryId)}", body);
+        //                            result += (email.Send()) ? "Email sent successfully.\r\n" : "Email send failed.\r\n";
+        //                        }
 
-                                            Message notificationMessage = new Message(account.AccountId, (byte)MessageTypes.Notification, messageIn.VirtualNumberId, msg);
-                                            notificationMessage.MobileNumber = account.ForwardVnmessagesTo;
+        //                        // Check for mobile forwarding.
+        //                        if (account.EnableMobileForwarding && !string.IsNullOrEmpty(account.ForwardVnmessagesTo))
+        //                        {
+        //                            // Make sure the virtual number receiving the message and the forwarding number aren't the same, to avoid pushing a notification
+        //                            // to the same number from which it came and creating a loop.
+        //                            if (messageIn.VirtualNumber != account.ForwardVnmessagesTo)
+        //                            {
+        //                                result += $"SMS forwarding enabled. Sending notification to {account.ForwardVnmessagesTo}. ";
+        //                                // Check whether the user has a credit balance
+        //                                if (account.Balance > 0.10M)
+        //                                {
+        //                                    result += $"Balance is {account.Balance:C}. OK. ";
+        //                                    // Send the message from the same virtual number on which it was received.
+        //                                    string msg = $"TextPort message received from {Utilities.NumberToDisplayFormat(messageIn.MobileNumber, messageIn.DedicatedVirtualNumber.CountryId)}:{nl}";
+        //                                    msg += $"{messageIn.MessageText}";
 
-                                            decimal newBalance2 = 0;
-                                            da.InsertMessage(notificationMessage, ref newBalance2);
-                                            result += (notificationMessage.Send()) ? "SMS sent successfully.\r\n" : "SMS send failed.\r\n";
-                                        }
-                                        else
-                                        {
-                                            result += $"Insufficient balance: {account.Balance:C}. SMS not sent.\r\n";
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
+        //                                    Message notificationMessage = new Message(account.AccountId, (byte)MessageTypes.Notification, messageIn.VirtualNumberId, msg);
+        //                                    notificationMessage.MobileNumber = account.ForwardVnmessagesTo;
 
-                    // Check for API forwarding
-                    if (dvn != null)
-                    {
-                        if (dvn.APIApplicationId != null && dvn.APIApplicationId > 0)
-                        {
-                            result += $"An API application ID {dvn.APIApplicationId} was found for number {dvn.VirtualNumber}." + "\r\n";
-                            APIApplication apiApp = da.GetAPIApplicationById((int)dvn.APIApplicationId);
-                            if (apiApp != null)
-                            {
-                                result += $"API application name is {apiApp.ApplicationName}." + "\r\n";
-                                if (!string.IsNullOrEmpty(apiApp.CallbackURL))
-                                {
-                                    string callbackProcessingMessage = string.Empty;
+        //                                    decimal newBalance2 = 0;
+        //                                    da.InsertMessage(notificationMessage, ref newBalance2);
+        //                                    result += (notificationMessage.Send()) ? "SMS sent successfully.\r\n" : "SMS send failed.\r\n";
+        //                                }
+        //                                else
+        //                                {
+        //                                    result += $"Insufficient balance: {account.Balance:C}. SMS not sent.\r\n";
+        //                                }
+        //                            }
+        //                        }
+        //                    }
+        //                }
+        //            }
 
-                                    result += $"A callback URL was found. URL: {apiApp.CallbackURL}. Processing API callback." + "\r\n";
+        //            // Check for API forwarding
+        //            if (dvn != null)
+        //            {
+        //                if (dvn.APIApplicationId != null && dvn.APIApplicationId > 0)
+        //                {
+        //                    result += $"An API application ID {dvn.APIApplicationId} was found for number {dvn.VirtualNumber}." + "\r\n";
+        //                    APIApplication apiApp = da.GetAPIApplicationById((int)dvn.APIApplicationId);
+        //                    if (apiApp != null)
+        //                    {
+        //                        result += $"API application name is {apiApp.ApplicationName}." + "\r\n";
+        //                        if (!string.IsNullOrEmpty(apiApp.CallbackURL))
+        //                        {
+        //                            string callbackProcessingMessage = string.Empty;
 
-                                    API.MessageEvent msgEvent = new API.MessageEvent(messageIn, bwMessage.type);
+        //                            result += $"A callback URL was found. URL: {apiApp.CallbackURL}. Processing API callback." + "\r\n";
 
-                                    if (CallbackProcessor.ProcessAPICallback(apiApp, msgEvent, ref callbackProcessingMessage))
-                                    {
-                                        result += "API callback successful.";
-                                    }
-                                    else
-                                    {
-                                        result += "API callback failed.";
-                                    }
-                                }
-                            }
-                        }
-                    }
+        //                            API.MessageEvent msgEvent = new API.MessageEvent(messageIn, bwMessage.type);
 
-                    writeXMLToDisk(result, "BandwidthInboundMessage");
+        //                            if (CallbackProcessor.ProcessAPICallback(apiApp, msgEvent, ref callbackProcessingMessage))
+        //                            {
+        //                                result += "API callback successful.";
+        //                            }
+        //                            else
+        //                            {
+        //                                result += "API callback failed.";
+        //                            }
+        //                        }
+        //                    }
+        //                }
+        //            }
 
-                    return messageIn;
-                }
-            }
-            catch (Exception ex)
-            {
-                string resultErr = $"An error occurred in BandwidthCom.ProcessInboundMessage(). Message: {ex.ToString()}";
-                writeXMLToDisk($"{resultErr}. Payload received: {jsonPayload}", "Error_InboundMessage");
+        //            InboundMessageProcessing.WriteXMLToDisk(result, "BandwidthInboundMessage");
 
-                EventLogging.WriteEventLogEntry(resultErr, System.Diagnostics.EventLogEntryType.Error);
-            }
-            return null;
-        }
+        //            return messageIn;
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        string resultErr = $"An error occurred in BandwidthCom.ProcessInboundMessage(). Message: {ex.ToString()}";
+        //        InboundMessageProcessing.WriteXMLToDisk($"{resultErr}. Payload received: {jsonPayload}", "Error_InboundMessage");
 
-        public bool ProcessDeliveryReceipt(BandwidthInboundMessage receipt)
-        {
-            try
-            {
-                string jsonPayload = JsonConvert.SerializeObject(receipt);
-                string resultDev = string.Empty;
+        //        EventLogging.WriteEventLogEntry(resultErr, System.Diagnostics.EventLogEntryType.Error);
+        //    }
+        //    return null;
+        //}
 
-                switch (receipt.type)
-                {
-                    case "message-delivered":
-                        resultDev = "Delivery receipt received from Bandwidth\r\n";
-                        resultDev += "Notification Type: " + receipt.type + "\r\n";
-                        resultDev += "Error Code: " + receipt.errorCode + "\r\n";
-                        resultDev += "To virtual number: " + receipt.to + "\r\n";
-                        resultDev += "Data Received: " + jsonPayload + "\r\n";
-                        resultDev += checkForAPICallback(receipt);
-                        writeXMLToDisk(resultDev, "BandwidthDeliveryReceipt");
-                        break;
+        //public bool ProcessDeliveryReceipt(BandwidthInboundMessage receipt)
+        //{
+        //    try
+        //    {
+        //        string jsonPayload = JsonConvert.SerializeObject(receipt);
+        //        string resultDev = string.Empty;
 
-                    default:
-                        resultDev = "Other notificationreceived from Bandwidth\r\n";
-                        resultDev += "Notification Type: " + receipt.type + "\r\n";
-                        resultDev += "Error Code: " + receipt.errorCode + "\r\n";
-                        resultDev += "To virtual number: " + receipt.to + "\r\n";
-                        resultDev += "Data Received: " + jsonPayload + "\r\n";
-                        writeXMLToDisk(resultDev, "BandwidthOTHERReceipt");
-                        break;
-                }
+        //        switch (receipt.type)
+        //        {
+        //            case "message-delivered":
+        //                resultDev = "Delivery receipt received from Bandwidth\r\n";
+        //                resultDev += "Notification Type: " + receipt.type + "\r\n";
+        //                resultDev += "Error Code: " + receipt.errorCode + "\r\n";
+        //                resultDev += "To virtual number: " + receipt.to + "\r\n";
+        //                resultDev += "Data Received: " + jsonPayload + "\r\n";
+        //                resultDev +=  checkForAPICallback(receipt);
+        //                InboundMessageProcessing.WriteXMLToDisk(resultDev, "BandwidthDeliveryReceipt");
+        //                break;
 
-                return true;
-            }
-            catch (Exception ex)
-            {
-                string resultErr = $"An error occurred in BandwidthCom.ProcessDeliveryReceipt(). Message: {ex.ToString()}";
-                writeXMLToDisk(resultErr, "Error_ProcessDeliveryReceipt");
+        //            default:
+        //                resultDev = "Other notificationreceived from Bandwidth\r\n";
+        //                resultDev += "Notification Type: " + receipt.type + "\r\n";
+        //                resultDev += "Error Code: " + receipt.errorCode + "\r\n";
+        //                resultDev += "To virtual number: " + receipt.to + "\r\n";
+        //                resultDev += "Data Received: " + jsonPayload + "\r\n";
+        //                InboundMessageProcessing.WriteXMLToDisk(resultDev, "BandwidthOTHERReceipt");
+        //                break;
+        //        }
 
-                EventLogging.WriteEventLogEntry(resultErr, System.Diagnostics.EventLogEntryType.Error);
-            }
-            return false;
-        }
+        //        return true;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        string resultErr = $"An error occurred in BandwidthCom.ProcessDeliveryReceipt(). Message: {ex.ToString()}";
+        //        InboundMessageProcessing.WriteXMLToDisk(resultErr, "Error_ProcessDeliveryReceipt");
 
-        public bool ProcessDeliveryFailure(BandwidthInboundMessage receipt)
-        {
-            try
-            {
-                string resultMessage = String.Empty;
-                string forwardVNMessagesTo = String.Empty;
-                string userName = String.Empty;
-                string jsonPayload = JsonConvert.SerializeObject(receipt);
+        //        EventLogging.WriteEventLogEntry(resultErr, System.Diagnostics.EventLogEntryType.Error);
+        //    }
+        //    return false;
+        //}
 
-                string resultDev = "Delivery failure received from Bandwidth\r\n";
-                resultDev += "Notification Type: " + receipt.type + "\r\n";
-                resultDev += "Error Code: " + receipt.errorCode + "\r\n";
-                resultDev += "To virtual number: " + receipt.to + "\r\n";
-                resultDev += "Data Received: " + jsonPayload + "\r\n";
-                resultDev += checkForAPICallback(receipt);
-                writeXMLToDisk(resultDev, "BandwidthDeliveryFailure");
+        //public bool ProcessDeliveryFailure(BandwidthInboundMessage receipt)
+        //{
+        //    try
+        //    {
+        //        string resultMessage = String.Empty;
+        //        string forwardVNMessagesTo = String.Empty;
+        //        string userName = String.Empty;
+        //        string jsonPayload = JsonConvert.SerializeObject(receipt);
 
-                return true;
-            }
-            catch (Exception ex)
-            {
-                string resultErr = $"An error occurred in BandwidthCom.ProcessDeliveryFailure(). Message: {ex.ToString()}";
-                writeXMLToDisk(resultErr, "Error_ProcessDeliveryFailure");
+        //        string resultDev = "Delivery failure received from Bandwidth\r\n";
+        //        resultDev += "Notification Type: " + receipt.type + "\r\n";
+        //        resultDev += "Error Code: " + receipt.errorCode + "\r\n";
+        //        resultDev += "To virtual number: " + receipt.to + "\r\n";
+        //        resultDev += "Data Received: " + jsonPayload + "\r\n";
+        //        resultDev += InboundMessageProcessing.CheckForAPICallback(receipt);
+        //        InboundMessageProcessing.WriteXMLToDisk(resultDev, "BandwidthDeliveryFailure");
 
-                EventLogging.WriteEventLogEntry(resultErr, System.Diagnostics.EventLogEntryType.Error);
-            }
-            return false;
-        }
+        //        return true;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        string resultErr = $"An error occurred in BandwidthCom.ProcessDeliveryFailure(). Message: {ex.ToString()}";
+        //        InboundMessageProcessing.WriteXMLToDisk(resultErr, "Error_ProcessDeliveryFailure");
+
+        //        EventLogging.WriteEventLogEntry(resultErr, System.Diagnostics.EventLogEntryType.Error);
+        //    }
+        //    return false;
+        //}
 
         public bool RouteMessageViaBandwidthDotComGateway(Message message)
         {
@@ -635,96 +640,96 @@ namespace TextPortCore.Integrations.Bandwidth
             return false;
         }
 
-        private string checkForAPICallback(BandwidthInboundMessage bwMessage)
-        {
-            string result = string.Empty;
-            DedicatedVirtualNumber dvn = null;
+        //private string CheckForAPICallback(BandwidthInboundMessage bwMessage)
+        //{
+        //    string result = string.Empty;
+        //    DedicatedVirtualNumber dvn = null;
 
-            try
-            {
-                using (TextPortDA da = new TextPortDA())
-                {
-                    dvn = da.GetVirtualNumberByNumber(bwMessage.message.from.Replace("+", ""), true);
-                    if (dvn != null)
-                    {
-                        // Check for a pooled number
-                        if (dvn.NumberType == (byte)NumberTypes.Pooled)
-                        {
-                            if (bwMessage.message != null)
-                            {
-                                dvn = da.GetVirtualNumberByNumberAndOriginatingMobileNumber(bwMessage.message.from.Replace("+", ""), bwMessage.to.Replace("+", ""));
-                                if (dvn != null)
-                                {
-                                    result += $"A pooled number match on virtual number {bwMessage.message.from.Replace("+", "")} and mobile number {bwMessage.to.Replace("+", "")} was made.";
-                                }
-                                else
-                                {
-                                    result += $"A pooled match search failed on virtual number {bwMessage.message.from.Replace("+", "")} and mobile number {bwMessage.to.Replace("+", "")}.";
-                                }
-                            }
-                        }
+        //    try
+        //    {
+        //        using (TextPortDA da = new TextPortDA())
+        //        {
+        //            dvn = da.GetVirtualNumberByNumber(bwMessage.message.from.Replace("+", ""), true);
+        //            if (dvn != null)
+        //            {
+        //                // Check for a pooled number
+        //                if (dvn.NumberType == (byte)NumberTypes.Pooled)
+        //                {
+        //                    if (bwMessage.message != null)
+        //                    {
+        //                        dvn = da.GetVirtualNumberByNumberAndOriginatingMobileNumber(bwMessage.message.from.Replace("+", ""), bwMessage.to.Replace("+", ""));
+        //                        if (dvn != null)
+        //                        {
+        //                            result += $"A pooled number match on virtual number {bwMessage.message.from.Replace("+", "")} and mobile number {bwMessage.to.Replace("+", "")} was made.";
+        //                        }
+        //                        else
+        //                        {
+        //                            result += $"A pooled match search failed on virtual number {bwMessage.message.from.Replace("+", "")} and mobile number {bwMessage.to.Replace("+", "")}.";
+        //                        }
+        //                    }
+        //                }
 
-                        if (dvn != null)
-                        {
-                            if (dvn.APIApplicationId != null && dvn.APIApplicationId > 0)
-                            {
-                                result += $"An API application ID {dvn.APIApplicationId} was found for number {dvn.VirtualNumber}." + "\r\n";
-                                APIApplication apiApp = da.GetAPIApplicationById((int)dvn.APIApplicationId);
-                                if (apiApp != null)
-                                {
-                                    result += $"API application name is {apiApp.ApplicationName}." + "\r\n";
-                                    if (!string.IsNullOrEmpty(apiApp.CallbackURL))
-                                    {
-                                        string callbackProcessingMessage = string.Empty;
+        //                if (dvn != null)
+        //                {
+        //                    if (dvn.APIApplicationId != null && dvn.APIApplicationId > 0)
+        //                    {
+        //                        result += $"An API application ID {dvn.APIApplicationId} was found for number {dvn.VirtualNumber}." + "\r\n";
+        //                        APIApplication apiApp = da.GetAPIApplicationById((int)dvn.APIApplicationId);
+        //                        if (apiApp != null)
+        //                        {
+        //                            result += $"API application name is {apiApp.ApplicationName}." + "\r\n";
+        //                            if (!string.IsNullOrEmpty(apiApp.CallbackURL))
+        //                            {
+        //                                string callbackProcessingMessage = string.Empty;
 
-                                        result += $"A callback URL was found. URL: {apiApp.CallbackURL}. Processing API callback." + "\r\n";
+        //                                result += $"A callback URL was found. URL: {apiApp.CallbackURL}. Processing API callback." + "\r\n";
 
-                                        API.MessageEvent msgEvent = new API.MessageEvent(bwMessage);
+        //                                API.MessageEvent msgEvent = new API.MessageEvent(bwMessage);
 
-                                        if (CallbackProcessor.ProcessAPICallback(apiApp, msgEvent, ref callbackProcessingMessage))
-                                        {
-                                            result += "API callback successful.";
-                                        }
-                                        else
-                                        {
-                                            result += "API callback failed.";
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                result += $"Exception in Bandwidth.checkForAPICallback(). Message: {ex.Message}";
-                EventLogging.WriteEventLogEntry(ex.ToString(), System.Diagnostics.EventLogEntryType.Error);
-            }
-            return result;
-        }
+        //                                if (CallbackProcessor.ProcessAPICallback(apiApp, msgEvent, ref callbackProcessingMessage))
+        //                                {
+        //                                    result += "API callback successful.";
+        //                                }
+        //                                else
+        //                                {
+        //                                    result += "API callback failed.";
+        //                                }
+        //                            }
+        //                        }
+        //                    }
+        //                }
+        //            }
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        result += $"Exception in Bandwidth.checkForAPICallback(). Message: {ex.Message}";
+        //        EventLogging.WriteEventLogEntry(ex.ToString(), System.Diagnostics.EventLogEntryType.Error);
+        //    }
+        //    return result;
+        //}
 
-        private void writeXMLToDisk(string xmlData, string filePrefix)
-        {
-            StreamWriter xmlFile;
+        //private void writeXMLToDisk(string xmlData, string filePrefix)
+        //{
+        //    StreamWriter xmlFile;
 
-            string baseFolder = ConfigurationManager.AppSettings["APILogFiles"];
-            string fileName = $"{baseFolder}{filePrefix}_{DateTime.Now:yyyy-MM-ddThh-mm-ss}.txt";
+        //    string baseFolder = ConfigurationManager.AppSettings["APILogFiles"];
+        //    string fileName = $"{baseFolder}{filePrefix}_{DateTime.Now:yyyy-MM-ddThh-mm-ss}.txt";
 
-            try
-            {
-                using (xmlFile = new StreamWriter(fileName, true))
-                {
-                    xmlFile.WriteLine(xmlData);
-                    xmlFile.Flush();
-                    xmlFile.Close();
-                }
-            }
-            catch (Exception ex)
-            {
-                string foo = ex.Message;
-            }
-        }
+        //    try
+        //    {
+        //        using (xmlFile = new StreamWriter(fileName, true))
+        //        {
+        //            xmlFile.WriteLine(xmlData);
+        //            xmlFile.Flush();
+        //            xmlFile.Close();
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        string foo = ex.Message;
+        //    }
+        //}
 
         #region "Disposal"
 

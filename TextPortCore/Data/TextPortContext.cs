@@ -288,11 +288,6 @@ namespace TextPortCore.Data
                     .HasMaxLength(4)
                     .IsUnicode(false);
 
-                entity.Property(e => e.Provider)
-                    .IsRequired()
-                    .HasMaxLength(10)
-                    .IsUnicode(false);
-
                 entity.HasOne(e => e.Carrier).WithMany(e => e.Countries).HasForeignKey(e => e.CarrierId).IsRequired();
             });
 
@@ -325,10 +320,10 @@ namespace TextPortCore.Data
 
                 entity.Property(e => e.Fee).HasColumnType("money");
 
-                entity.Property(e => e.Provider)
-                    .IsRequired()
-                    .HasMaxLength(10)
-                    .IsUnicode(false);
+                //entity.Property(e => e.Provider)
+                //    .IsRequired()
+                //    .HasMaxLength(10)
+                //    .IsUnicode(false);
 
                 entity.Property(e => e.SevenDayReminderSent).HasColumnType("datetime");
 
@@ -339,9 +334,11 @@ namespace TextPortCore.Data
                     .HasMaxLength(20)
                     .IsUnicode(false);
 
-                entity.HasOne(e => e.Carrier).WithOne().HasForeignKey<Carrier>(e => e.CarrierId);
+                entity.HasOne(e => e.Carrier).WithOne();
 
-                entity.HasOne(e => e.Country).WithOne().HasForeignKey<Country>(e => e.CountryId);
+                entity.HasOne(e => e.Country).WithOne(); //.HasForeignKey<Country>(e => e.CountryId);
+
+                entity.HasOne(e => e.Account).WithMany();
             });
 
             modelBuilder.Entity<EmailToSMSAddress>(entity =>

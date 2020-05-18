@@ -23,7 +23,7 @@ namespace TextPortCore.Models
         [Display(Name = "Number")]
         public string VirtualNumber { get; set; }
 
-        public string Provider { get; set; }
+        //public string Provider { get; set; }
 
         public string LeasePeriodType { get; set; }
 
@@ -76,6 +76,8 @@ namespace TextPortCore.Models
             }
         }
 
+        public Account Account { get; set; }
+
         public Carrier Carrier { get; set; }
 
         public Country Country { get; set; }
@@ -94,7 +96,6 @@ namespace TextPortCore.Models
             this.VirtualNumber = expData.VirtualNumber;
             this.AccountId = expData.AccountID;
             this.CountryCode = expData.CountryCode;
-            this.Provider = expData.Provider;
             this.ExpirationDate = expData.ExpirationDate;
         }
     }

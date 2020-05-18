@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 
 using core = TextPortCore.Models;
-using bw = TextPortCore.Integrations.Bandwidth;
+using intCommon = TextPortCore.Integrations.Common;
 
 namespace TextPortCore.Models.API
 {
@@ -35,11 +35,11 @@ namespace TextPortCore.Models.API
             this.MessageText = messageIn.MessageText;
         }
 
-        public Message(bw.BandwidthInboundMessage bwMessage)
+        public Message(intCommon.IntegrationMessageIn integrationMessageIn)
         {
-            this.From = bwMessage.message.from;
-            this.To = bwMessage.to;
-            this.MessageText = bwMessage.message.text;
+            this.From = integrationMessageIn.From;
+            this.To = integrationMessageIn.To;
+            this.MessageText = integrationMessageIn.Message;
         }
     }
 }

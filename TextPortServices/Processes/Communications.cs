@@ -5,19 +5,14 @@ using System.Configuration;
 using TextPortCore.Models;
 using TextPortCore.Helpers;
 using TextPortCore.Integrations.Bandwidth;
+using TextPortCore.Integrations.Nexmo;
 
 namespace TextPortServices.Processes
 {
     public class Communications
     {
-        //private readonly TextPortContext _context;
         private int emailInterMessageWaitMs = 250;
         private int bandwidthInterMessageWaitMs = 1000;
-
-        //public Communications(TextPortContext context)
-        //{
-        //    this._context = context;
-        //}
 
         public bool GenerateAndSendMessage(Message message)
         {
@@ -27,11 +22,6 @@ namespace TextPortServices.Processes
 
             switch (message.DedicatedVirtualNumber.CarrierId)
             {
-                //case "Nexmo":
-                //    returnValue = Nexmo.RouteMessageViaNexmoGateway(ref message, "INTERNATIONAL");
-                //    Thread.Sleep(nexmoInterMessageWaitMs);
-                //    break;
-
                 case (int)Carriers.BandWidth:
                     using (Bandwidth bw = new Bandwidth())
                     {
@@ -40,6 +30,13 @@ namespace TextPortServices.Processes
                     Thread.Sleep(bandwidthInterMessageWaitMs);
                     break;
 
+                case (int)Carriers.Nexmo:
+                    using (Nexmo nexmo = new Nexmo())
+                    {
+                        returnValue = nexmo.RouteMessageViaNexmoGateway(message);
+                        Thread.Sleep(bandwidthInterMessageWaitMs);
+                        break;
+                    }
                 //case "InfoBip":
                 //    returnValue = InfoBip.InfoBip.RouteMessageViaInfoBipGateway(ref message);
                 //    Thread.Sleep(nexmoInterMessageWaitMs);

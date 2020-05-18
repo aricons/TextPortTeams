@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 using TextPortCore.Helpers;
-using TextPortCore.Integrations.Bandwidth;
+using TextPortCore.Integrations.Common;
 
 namespace TextPortCore.Models
 {
@@ -61,7 +61,7 @@ namespace TextPortCore.Models
 
         public DedicatedVirtualNumber DedicatedVirtualNumber { get; set; }
 
-        public List<MMSFile> MMSFiles { get; set; } = new List<MMSFile>();
+        public List<MMSFile> MMSFiles { get; set; } //= new List<MMSFile>();
 
         public string NumberBandwidthFormat
         {
@@ -89,8 +89,8 @@ namespace TextPortCore.Models
             this.Segments = 1;
             this.IsMMS = false;
             this.Account = null;
-            this.DedicatedVirtualNumber = new DedicatedVirtualNumber();
-            this.MMSFiles = new List<MMSFile>();
+            this.DedicatedVirtualNumber = null;// new DedicatedVirtualNumber();
+            this.MMSFiles = null; // new List<MMSFile>();
         }
 
         public Message(int accId, byte msgType, int virtualNumId, string msgText)
@@ -110,7 +110,7 @@ namespace TextPortCore.Models
             this.Segments = Utilities.GetSegmentCount(msgText);
             this.IsMMS = false;
             this.Account = null;
-            this.MMSFiles = new List<MMSFile>();
+            this.MMSFiles = null; // new List<MMSFile>();
         }
 
         public Message(BulkMessageItem bulkMessage, MessageTypes msgType, int accountId, int sourceNumberId, string sourceNumber)
@@ -130,7 +130,7 @@ namespace TextPortCore.Models
             this.Segments = Utilities.GetSegmentCount(bulkMessage.MessageText);
             this.IsMMS = false;
             this.Account = null;
-            this.MMSFiles = new List<MMSFile>();
+            this.MMSFiles = null; // new List<MMSFile>();
         }
 
         public Message(EmailToSMSMessage emailToSMSMessage, string destinationNumber)
@@ -151,7 +151,7 @@ namespace TextPortCore.Models
             this.IsMMS = false;
             this.Account = null;
             this.EmailToSMSAddressId = emailToSMSMessage.AddressId;
-            this.MMSFiles = new List<MMSFile>();
+            this.MMSFiles = null; // new List<MMSFile>();
         }
 
 
@@ -172,52 +172,48 @@ namespace TextPortCore.Models
             this.Segments = Utilities.GetSegmentCount(apiMessage.MessageText);
             this.IsMMS = false;
             this.Account = null;
-            this.MMSFiles = new List<MMSFile>();
+            this.MMSFiles = null; // new List<MMSFile>();
         }
 
         // Inbound messages
-        public Message(BandwidthInboundMessage bwMessage, DedicatedVirtualNumber dvn, int accountId, int virtualNumberId, string sessionId)
+        public Message(IntegrationMessageIn integrationMessageIn, DedicatedVirtualNumber dvn, string sessionId)
         {
-            // Inbound from Bandwidth        
+            // Inbound from carrier        
             this.MessageType = (byte)MessageTypes.Normal;
             this.QueueStatus = (byte)QueueStatuses.Received;
             this.Direction = (byte)MessageDirection.Inbound;
             this.CustomerCost = 0;
-            this.AccountId = accountId;
+            this.DedicatedVirtualNumber = dvn;
+            this.Account = dvn.Account;
+            this.AccountId = dvn.AccountId;
             this.Ipaddress = Utilities.GetUserHostAddress();
-            this.VirtualNumber = bwMessage.to.Replace("+", "");
-            this.VirtualNumberId = virtualNumberId;
+            this.VirtualNumber = integrationMessageIn.To;
+            this.VirtualNumberId = dvn.VirtualNumberId;
             this.SessionId = sessionId;
             this.TimeStamp = DateTime.UtcNow;
-            this.Account = null;
             this.Segments = 1;
-            this.DedicatedVirtualNumber = dvn;
+            this.MobileNumber = integrationMessageIn.From;
+            this.GatewayMessageId = integrationMessageIn.CarrierMessageId;
+            this.MessageText = integrationMessageIn.Message;
+            this.Segments = (integrationMessageIn.SegmentCount == 0) ? 1 : integrationMessageIn.SegmentCount;
+            this.IsMMS = false;
+            this.MMSFiles = new List<MMSFile>();
 
-            if (bwMessage.message != null)
+            if (integrationMessageIn.Media != null && integrationMessageIn.Media.Count > 0)
             {
-                this.MobileNumber = bwMessage.message.from.Replace("+", "");
-                this.GatewayMessageId = bwMessage.message.id;
-                this.MessageText = bwMessage.message.text;
-                this.Segments = (bwMessage.message.segmentCount == 0) ? 1 : bwMessage.message.segmentCount;
-                this.IsMMS = false;
-                this.MMSFiles = new List<MMSFile>();
-
-                if (bwMessage.message.media != null && bwMessage.message.media.Count > 0)
+                this.IsMMS = true;
+                foreach (string mediaItem in integrationMessageIn.Media)
                 {
-                    this.IsMMS = true;
-                    foreach (string mediaItem in bwMessage.message.media)
+                    if (!mediaItem.EndsWith(".smil", StringComparison.CurrentCultureIgnoreCase) && !mediaItem.EndsWith("smil.xml", StringComparison.CurrentCultureIgnoreCase))
                     {
-                        if (!mediaItem.EndsWith(".smil", StringComparison.CurrentCultureIgnoreCase) && !mediaItem.EndsWith("smil.xml", StringComparison.CurrentCultureIgnoreCase))
-                        {
-                            string localFileName = WebFunctions.GetImageFromURL(mediaItem, this.AccountId);
+                        string localFileName = WebFunctions.GetImageFromURL(mediaItem, this.AccountId);
 
-                            if (!string.IsNullOrEmpty(localFileName))
+                        if (!string.IsNullOrEmpty(localFileName))
+                        {
+                            this.MMSFiles.Add(new MMSFile()
                             {
-                                this.MMSFiles.Add(new MMSFile()
-                                {
-                                    FileName = localFileName
-                                });
-                            }
+                                FileName = localFileName
+                            });
                         }
                     }
                 }

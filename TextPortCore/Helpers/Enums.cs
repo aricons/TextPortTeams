@@ -35,6 +35,18 @@ namespace TextPortCore.Helpers
         FreeTextSend = 9
     }
 
+    public enum EventTypes : byte
+    {
+        [Description("Unknown")]
+        Unknown = 0,
+        [Description("MessageReceived")]
+        MessageReceived = 1,
+        [Description("MessageDelivered")]
+        MessageDelivered = 2,
+        [Description("MessageFailed")]
+        MessageFailed = 3
+    }
+
     public enum NumberTypes : byte
     {
         [Description("Regular")]

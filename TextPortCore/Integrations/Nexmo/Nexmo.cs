@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Net;
+using System.Linq;
 using System.Collections.Generic;
 using System.Configuration;
 
 using RestSharp;
+using RestSharp.Serialization.Json;
 
 using Newtonsoft.Json;
 
@@ -57,17 +60,10 @@ namespace TextPortCore.Integrations.Nexmo
 
                 NexmoNumberSearchResult result = _client.Execute<NexmoNumberSearchResult>(request).Data;
 
-                int resultNumber = 1;
-                int startAtRecord = (numbersToReturn * (page - 1)) + 1;
                 foreach (NexmoNumber number in result.numbers)
                 {
-                    if (resultNumber >= startAtRecord)
-                    {
-                        numberList.Add(number.msisdn);
-                    }
-                    resultNumber++;
+                    numberList.Add(number.msisdn);
                 }
-
             }
             catch (Exception ex)
             {
@@ -77,45 +73,135 @@ namespace TextPortCore.Integrations.Nexmo
             return numberList;
         }
 
-        //public static bool PurchaseVirtualNumber(string countryCode, string virtualNumber)
+        public bool PurchaseVirtualNumber(RegistrationData regData)
+        {
+            try
+            {
+                string countryAlphaCode;
+                using (TextPortDA da = new TextPortDA())
+                {
+                    countryAlphaCode = da.GetCountryByCountryId(regData.CountryId).CountryAlphaCode;
+                }
+
+                string url = $"{baseUrl}/number/buy/";
+
+                RestRequest request = new RestRequest(url, Method.POST);
+                request.AddHeader("Content-Type", "application/x-www-form-urlencoded");
+
+                PurchaseNumber numberToPurchase = new PurchaseNumber(countryAlphaCode, regData.VirtualNumber);
+                request.AddParameter("api_key", nexmoApiKey, ParameterType.GetOrPost);
+                request.AddParameter("api_secret", nexmoApiSecret, ParameterType.GetOrPost);
+                request.AddParameter("country", numberToPurchase.country, ParameterType.GetOrPost);
+                request.AddParameter("msisdn", numberToPurchase.msisdn, ParameterType.GetOrPost);
+
+                // Disable for development and testing. Uncomment return true line.
+                // return true;
+                IRestResponse response = _client.Execute(request);
+
+                if (response.StatusCode == HttpStatusCode.OK)
+                {
+                    NexmoResponse nexResp = new JsonDeserializer().Deserialize<NexmoResponse>(response);
+                    if (nexResp != null)
+                    {
+                        return nexResp.error_code == "200" ? true : false;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                regData.OrderingMessage = $"Failure ordering number {regData.VirtualNumber}. Exception: {ex.ToString()}. ";
+                EventLogging.WriteEventLogEntry("An error occurred in BandwidthCom.placeOrderForNumber(). Message: " + ex.ToString(), System.Diagnostics.EventLogEntryType.Error);
+            }
+            return false;
+        }
+
+        public bool RouteMessageViaNexmoGateway(Message message)
+        {
+            try
+            {
+                string url = $"{baseUrl}/sms/json";
+
+                RestRequest request = new RestRequest(url, Method.POST);
+                request.AddHeader("Content-Type", "application/x-www-form-urlencoded");
+
+                request.AddParameter("api_key", nexmoApiKey, ParameterType.GetOrPost);
+                request.AddParameter("api_secret", nexmoApiSecret, ParameterType.GetOrPost);
+                request.AddParameter("from", message.DedicatedVirtualNumber.VirtualNumber);
+                request.AddParameter("to", message.MobileNumber);
+                request.AddParameter("text", message.MessageText);
+
+                IRestResponse response = _client.Execute(request);
+
+                if (response.StatusCode == HttpStatusCode.OK)
+                {
+                    using (TextPortDA da = new TextPortDA())
+                    {
+                        NexmoMessageAck ack = new JsonDeserializer().Deserialize<NexmoMessageAck>(response);
+                        if (ack != null && ack.messages.Any())
+                        {
+                            NexmoMessageAckDetails details = ack.messages.FirstOrDefault();
+                            if (!string.IsNullOrEmpty(details.message_id))
+                            {
+                                da.UpdateMessageWithGatewayMessageId(message.MessageId, details.message_id, 1, QueueStatuses.SentToProvider, "Message delivered to Nexmo gateway. ");
+                                return true;
+                            }
+                        }
+                        else
+                        {
+                            message.ProcessingMessage += "Message delivery to Bandwidth gateway failed. Response processing failure. ";
+                            da.UpdateMessageWithGatewayMessageId(message.MessageId, null, 0, QueueStatuses.SendToProviderFailed, message.ProcessingMessage);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                message.ProcessingMessage += "Bandwidth gateway delivery failed. Exception: " + ex.Message + ". ";
+                message.QueueStatus = (byte)QueueStatuses.InternalFailure;
+                EventLogging.WriteEventLogEntry("An error occurred in RouteMessageViaBandwidthDotComGateway. Message: " + ex.ToString(), System.Diagnostics.EventLogEntryType.Error);
+            }
+            return false;
+        }
+
+        //public bool ProcessDeliveryReceipt(NexmoDeliveryReceipt receipt)
         //{
         //    try
         //    {
-        //        string nexmoUrl = "http://rest.nexmo.com/number/buy/" + nexmoKey + "/" + nexmoSecret + "/" + countryCode + "/" + virtualNumber;
+        //        string jsonPayload = JsonConvert.SerializeObject(receipt);
+        //        string resultDev = string.Empty;
 
-        //        return (postDataWithNumericReturn(nexmoUrl) == HttpStatusCode.OK) ? true : false;
-        //    }
-        //    catch (Exception)
-        //    {
-        //        return false;
-        //    }
-        //}
-
-        //private static List<string> processNexmoNumbersResponse(string inputXml)
-        //{
-        //    List<string> numberList = new List<string>();
-
-        //    try
-        //    {
-        //        XElement response = XElement.Parse(inputXml);
-
-        //        IEnumerable<XElement> numbers =
-        //        from number in response.Elements("numbers").Elements("msisdn").ToList()
-        //        select number;
-
-        //        foreach (XElement item in numbers)
+        //        switch (receipt.Status)
         //        {
-        //            numberList.Add(item.Value);
+        //            case "delivered":
+        //                resultDev = "Delivery receipt received from Nexmo\r\n";
+        //                resultDev += "Notification Type: " + receipt.Status + "\r\n";
+        //                resultDev += "Error Code: " + receipt.ErrCode + "\r\n";
+        //                resultDev += "To virtual number: " + receipt.To + "\r\n";
+        //                resultDev += "Data Received: " + jsonPayload + "\r\n";
+        //                resultDev += checkForAPICallback(receipt);
+        //                WriteXMLToDisk(resultDev, "NexmoDeliveryReceipt");
+        //                break;
+
+        //            default:
+        //                resultDev = "Other notificationreceived from Nexmo\r\n";
+        //                resultDev += "Notification Type: " + receipt.Status + "\r\n";
+        //                resultDev += "Error Code: " + receipt.ErrCode + "\r\n";
+        //                resultDev += "To virtual number: " + receipt.To + "\r\n";
+        //                resultDev += "Data Received: " + jsonPayload + "\r\n";
+        //                writeXMLToDisk(resultDev, "NexmoOTHERReceipt");
+        //                break;
         //        }
+
+        //        return true;
         //    }
-        //    catch (Exception)
+        //    catch (Exception ex)
         //    {
-        //        numberList = new List<string>()
-        //        {
-        //           "No numbers available"
-        //        };
+        //        string resultErr = $"An error occurred in Nexmo.ProcessDeliveryReceipt(). Message: {ex.ToString()}";
+        //        writeXMLToDisk(resultErr, "Error_ProcessDeliveryReceipt");
+
+        //        EventLogging.WriteEventLogEntry(resultErr, System.Diagnostics.EventLogEntryType.Error);
         //    }
-        //    return numberList;
+        //    return false;
         //}
 
         #region "Disposal"

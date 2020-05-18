@@ -1,8 +1,9 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 
+using TextPortCore.Helpers;
 using core = TextPortCore.Models;
-using bw = TextPortCore.Integrations.Bandwidth;
+using intCommon = TextPortCore.Integrations.Common;
 
 namespace TextPortCore.Models.API
 {
@@ -43,9 +44,9 @@ namespace TextPortCore.Models.API
             this.Notifications = string.Empty;
         }
 
-        public MessageEvent(core.Message message, string eventType)
+        public MessageEvent(core.Message message, EventTypes eventType)
         {
-            this.EventType = eventType;
+            this.EventType = getAPIEventCodeFromEventType(eventType);
             this.Time = DateTime.Now;
             this.MessageId = message.MessageId;
             this.From = message.MobileNumber;
@@ -54,7 +55,7 @@ namespace TextPortCore.Models.API
             this.Message = new Message(message);
             switch (eventType)
             {
-                case "message-failed":
+                case EventTypes.MessageFailed:
                     this.Notifications = $"Delivery to {message.MobileNumber} falied.";
                     break;
                 default:
@@ -63,16 +64,33 @@ namespace TextPortCore.Models.API
             }
         }
 
-        public MessageEvent(bw.BandwidthInboundMessage bwMessage)
+        public MessageEvent(intCommon.IntegrationMessageIn integrationMessageIn)
         {
-            this.EventType = bwMessage.type;
+            this.EventType = getAPIEventCodeFromEventType(integrationMessageIn.EventType);
             this.Time = DateTime.Now;
             this.MessageId = 0;
-            this.From = bwMessage.message.from;
-            this.To = bwMessage.to;
+            this.From = integrationMessageIn.From;
+            this.To = integrationMessageIn.To;
             this.Cost = 0;
-            this.Message = new Message(bwMessage);
-            this.Notifications = $"{bwMessage.type} received from {bwMessage.to}.";
+            this.Message = new Message(integrationMessageIn);
+            this.Notifications = $"{integrationMessageIn.EventType} received from {integrationMessageIn.To}.";
+        }
+
+        private string getAPIEventCodeFromEventType(EventTypes eventType)
+        {
+            switch (eventType)
+            {
+                case EventTypes.MessageReceived:
+                    return "message-received";
+
+                case Helpers.EventTypes.MessageDelivered:
+                    return "message-delivered";
+
+                case Helpers.EventTypes.MessageFailed:
+                    return "message-failed";
+            }
+
+            return "unknown-event";
         }
     }
 }

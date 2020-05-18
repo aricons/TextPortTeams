@@ -26,11 +26,7 @@ namespace Testing
         [TestMethod]
         public void ProcessOutboundMessage()
         {
-            int messageId = 10168643;
-
-            //var optionsBuilder = new DbContextOptionsBuilder<TextPortContext>();
-            //optionsBuilder.UseSqlServer(ConfigurationManager.ConnectionStrings["TextPortContext"].ConnectionString);
-            //TextPortContext context = new TextPortContext(optionsBuilder.Options);
+            int messageId = 10169018;
 
             using (TextPortDA da = new TextPortDA())
             {

@@ -28,7 +28,7 @@
 
         $('#from_number').on("change", function (e) {
             clearNewRecipient();
-            getRecentsForVirtualNumber(numberToE164($("#from_number option:selected").val()));
+            getRecentsForVirtualNumber($("#from_number option:selected").val());
         });
 
         $('#btn_send_message').on("click", function (e) {
@@ -164,7 +164,7 @@
                     data: $('#form-delete-for-number').serialize(),
                     success: function (data) {
                         $('#modal-del > .modal').modal('hide');
-                        getRecentsForVirtualNumber(numberToE164($("#from_number option:selected").val()));
+                        getRecentsForVirtualNumber($("#from_number option:selected").val());
                         return false;
                     }
                 });

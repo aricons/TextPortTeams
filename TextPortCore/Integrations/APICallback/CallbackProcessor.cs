@@ -27,12 +27,14 @@ namespace TextPortCore.Integrations.APICallback
 
             client.AddDefaultHeader("Content-type", "application/json");
 
-            var request = new RestRequest(apiApp.CallbackURL, Method.POST);
-            request.RequestFormat = DataFormat.Json;
+            var request = new RestRequest(apiApp.CallbackURL, Method.POST)
+            {
+                RequestFormat = DataFormat.Json
+            };
 
             request.AddJsonBody(msgEvent);
 
-            IRestResponse response = client.Execute(request);
+            client.Execute(request);
 
             return true;
         }

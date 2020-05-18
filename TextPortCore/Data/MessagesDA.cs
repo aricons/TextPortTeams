@@ -18,17 +18,8 @@ namespace TextPortCore.Data
         {
             try
             {
-                Message msg = _context.Messages.Include(m => m.MMSFiles).Where(x => x.MessageId == messageId).FirstOrDefault();
-                // Get the virtual number.
-                if (msg.VirtualNumberId > 0)
-                {
-                    DedicatedVirtualNumber dvn = _context.DedicatedVirtualNumbers.FirstOrDefault(x => x.VirtualNumberId == msg.VirtualNumberId);
-                    if (dvn != null)
-                    {
-                        msg.VirtualNumber = dvn.VirtualNumber;
-                    }
-                }
-                return msg;
+                return _context.Messages.Include(m => m.DedicatedVirtualNumber).Include(m => m.MMSFiles).Where(x => x.MessageId == messageId).FirstOrDefault();
+                //.ThenInclude(m => m.Carrier)
             }
             catch (Exception ex)
             {
@@ -62,7 +53,7 @@ namespace TextPortCore.Data
         {
             try
             {
-                return _context.Messages.Include(x => x.Account).Include(x => x.VirtualNumber).FirstOrDefault(x => x.GatewayMessageId == gatewayMessageId);
+                return _context.Messages.Include(x => x.Account).Include(x => x.DedicatedVirtualNumber).FirstOrDefault(x => x.GatewayMessageId == gatewayMessageId);
             }
             catch (Exception ex)
             {
@@ -211,9 +202,11 @@ namespace TextPortCore.Data
                 }
                 bool sortDescending = (sortOrder == "desc");
 
-                InboxContainer inboxContainer = new InboxContainer();
-                inboxContainer.RecordsPerPage = recordsPerPage;
-                inboxContainer.SortOrder = sortOrder;
+                InboxContainer inboxContainer = new InboxContainer()
+                {
+                    RecordsPerPage = recordsPerPage,
+                    SortOrder = sortOrder
+                };
 
                 //inboxContainer.RecordCount = (from msg in _context.Messages
                 //                              join vn in _context.DedicatedVirtualNumbers on msg.VirtualNumberId equals vn.VirtualNumberId
@@ -332,11 +325,11 @@ namespace TextPortCore.Data
             {
                 if (getActiveNumbersOnly)
                 {
-                    return _context.DedicatedVirtualNumbers.FirstOrDefault(x => x.VirtualNumber == virtualNumber && x.Cancelled == false);
+                    return _context.DedicatedVirtualNumbers.Include(x => x.Account).FirstOrDefault(x => x.VirtualNumber == virtualNumber && x.Cancelled == false);
                 }
                 else
                 {
-                    return _context.DedicatedVirtualNumbers.FirstOrDefault(x => x.VirtualNumber == virtualNumber);
+                    return _context.DedicatedVirtualNumbers.Include(x => x.Account).FirstOrDefault(x => x.VirtualNumber == virtualNumber);
                 }
             }
             catch (Exception ex)
@@ -387,7 +380,7 @@ namespace TextPortCore.Data
             {
                 // This method is used to locate the originating (outbound) message sent from a virtual
                 // number to a specified mobile number for the given message type.
-                return _context.Messages.Where(x => x.VirtualNumberId == virtualNumberId &&
+                return _context.Messages.Include(x => x.DedicatedVirtualNumber).ThenInclude(x => x.Account).Where(x => x.VirtualNumberId == virtualNumberId &&
                                         x.MessageType == (byte)messageType &&
                                         x.Direction == (byte)MessageDirection.Outbound &&
                                         x.MobileNumber == mobileNumber).OrderByDescending(x => x.MessageId).FirstOrDefault();
@@ -512,48 +505,34 @@ namespace TextPortCore.Data
             estimatedRemainingBalance = 0;
             try
             {
-                Account acc = _context.Accounts.Include(a => a.TimeZone).FirstOrDefault(x => x.AccountId == message.AccountId);
-                message.Account = acc;
+                //Account acc = _context.Accounts.Include(a => a.TimeZone).FirstOrDefault(x => x.AccountId == message.AccountId);
+                //message.Account = acc;
                 message.MobileNumber = Utilities.NumberToE164(message.MobileNumber);
 
-                // Check and update the balance if the message is an outbound message
-                //if (message.Direction == (int)MessageDirection.Outbound)
-                //{
-                if (acc.Balance > 0)
+                if (message.Account.Balance > 0)
                 {
                     _context.Messages.Add(message);
                     _context.SaveChanges();
 
-                    // Get the customer's messge cost and update the account balance
-                    // Remove this. Update the balance when the delivery receipt is received.
-                    // Don't update the balance when the message is sent.
-                    // A possibility: Deduct one credit when the message is sent. If it's delivered, then check the
-                    // segment count. If it's > 1 then deduct additional credits.
-
-                    if (message.MMSFiles.Count > 0)
+                    if (message.MMSFiles?.Count > 0)
                     {
-                        message.CustomerCost = acc.MMSSegmentCost;
+                        message.CustomerCost = message.Account.MMSSegmentCost;
                     }
                     else
                     {
-                        message.CustomerCost = acc.SMSSegmentCost;
+                        message.CustomerCost = message.Account.SMSSegmentCost;
                     }
 
-                    estimatedRemainingBalance = acc.Balance - ((decimal)message.CustomerCost * (int)message.Segments);
-
-                    //acc.Balance -= (decimal)message.CustomerCost * message.Segments;
-                    //newBalance = acc.Balance;
-                    //_context.SaveChanges();
+                    estimatedRemainingBalance = message.Account.Balance - ((decimal)message.CustomerCost * (int)message.Segments);
 
                     return message.MessageId;
                 }
                 else
                 {
-                    acc.Balance = 0M;
-                    estimatedRemainingBalance = acc.Balance;
+                    message.Account.Balance = 0M;
+                    estimatedRemainingBalance = message.Account.Balance;
                     _context.SaveChanges();
                 }
-                //}
             }
             catch (Exception ex)
             {

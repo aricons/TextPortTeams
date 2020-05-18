@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 using TextPortCore.Helpers;
 
@@ -21,7 +18,7 @@ namespace TextPortCore.Models
         public string UserName { get; set; }
         public int NumberType { get; set; }
         public string CountryCode { get; set; }
-        public string Provider { get; set; }
+        public int CarrierId { get; set; }
         public bool AutoRenew { get; set; }
         public string NotificationType { get; set; }
         public string EmailAction { get; set; }
@@ -74,7 +71,7 @@ namespace TextPortCore.Models
             NumberType = 1;
             VirtualNumberID = 0;
             CountryCode = string.Empty;
-            Provider = string.Empty;
+            CarrierId = 0;
             AutoRenew = false;
             EmailAction = string.Empty;
             Fee = 0;

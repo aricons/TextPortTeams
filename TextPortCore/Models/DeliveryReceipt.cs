@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-using TextPortCore.Integrations.Bandwidth;
+using TextPortCore.Integrations.Common;
 
 namespace TextPortCore.Models
 {
@@ -14,6 +10,8 @@ namespace TextPortCore.Models
         public string GatewayMessageId { get; set; }
         public int SegmentCount { get; set; }
         public string Text { get; set; }
+        public string UserNotificationMessage { get; set; }
+        public HubNotification HubNotification { get; set; }
 
         public DeliveryReceipt()
         {
@@ -21,20 +19,28 @@ namespace TextPortCore.Models
             this.GatewayMessageId = string.Empty;
             this.SegmentCount = 1;
             this.Text = string.Empty;
+            this.UserNotificationMessage = string.Empty;
+            this.HubNotification = new HubNotification();
         }
 
-        public DeliveryReceipt(BandwidthInboundMessage bwMessage)
+        public DeliveryReceipt(IntegrationMessageIn integrationReceipt, HubNotification hubNotification)
         {
-            this.MessageId = 0;
-            this.Text = "Delivered";
-
-            if (bwMessage != null)
+            if (integrationReceipt != null)
             {
-                if (bwMessage.message != null)
+                switch (integrationReceipt.EventType)
                 {
-                    this.GatewayMessageId = bwMessage.message.id;
-                    this.SegmentCount = (bwMessage.message.segmentCount > 0) ? bwMessage.message.segmentCount : 1;
+                    case Helpers.EventTypes.MessageDelivered:
+                        this.Text = "Delivered";
+                        break;
+                    case Helpers.EventTypes.MessageFailed:
+                        this.Text = "Failed";
+                        break;
                 }
+
+                this.GatewayMessageId = integrationReceipt.CarrierMessageId;
+                this.SegmentCount = (integrationReceipt.SegmentCount > 0) ? integrationReceipt.SegmentCount : 1;
+                this.UserNotificationMessage = integrationReceipt.UserNotificationMessage;
+                this.HubNotification = hubNotification;
             }
         }
     }

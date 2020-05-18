@@ -7,6 +7,7 @@ using TextPort.Hubs;
 using TextPortCore.Data;
 using TextPortCore.Models;
 using TextPortCore.Helpers;
+using TextPortCore.Integrations.Common;
 using TextPortCore.Integrations.Bandwidth;
 
 namespace TextPort.Controllers
@@ -28,7 +29,6 @@ namespace TextPort.Controllers
         }
 
         [HttpPost]
-        //[Route("[action]")]
         public IHttpActionResult MessageIn([FromBody] List<BandwidthInboundMessage> messages)
         {
             if (messages != null)
@@ -38,150 +38,108 @@ namespace TextPort.Controllers
                 switch (bwMessage.type)
                 {
                     case "message-received":
-                        using (Bandwidth bw = new Bandwidth())
-                        {
-                            Message newMessage = bw.ProcessInboundMessage(bwMessage);
-                            if (newMessage != null)
-                            {
-                                using (TextPortDA da = new TextPortDA())
-                                {
-                                    Account account = da.GetAccountById(newMessage.AccountId);
-                                    if (account != null)
-                                    {
-                                        newMessage.Account = account;
-                                        if (!String.IsNullOrEmpty(account.UserName))
-                                        {
-                                            MessageNotification notification = new MessageNotification(newMessage);
+                        Message newMessage = CarrierEventProcessing.ProcessInboundMessage(bwMessage);
 
-                                            using (HubFunctions hubFunctions = new HubFunctions())
-                                            {
-                                                hubFunctions.SendInboundMessageNotification(notification);
-                                                if (account.EnableMobileForwarding && !string.IsNullOrEmpty(account.ForwardVnmessagesTo))
-                                                {
-                                                    decimal balance = account.Balance - (Constants.BaseSMSSegmentCost * Utilities.GetSegmentCount(newMessage.MessageText));
-                                                    hubFunctions.SendBalanceUpdate(account.UserName, balance.ToString());
-                                                }
-                                            }
-                                        }
-                                    }
-                                    return Ok();
-                                }
+                        if (newMessage != null)
+                        {
+                            MessageNotification notification = new MessageNotification(newMessage);
+                            using (HubFunctions hubFunctions = new HubFunctions())
+                            {
+                                hubFunctions.SendInboundMessageNotification(notification);
+                                // Dont need to update the balance for received messages.
+                                //if (newMessage.Account.EnableMobileForwarding && !string.IsNullOrEmpty(newMessage.Account.ForwardVnmessagesTo))
+                                //{
+                                //    decimal balance = newMessage.Account.Balance - (Constants.BaseSMSSegmentCost * Utilities.GetSegmentCount(newMessage.MessageText));
+                                //    hubFunctions.SendBalanceUpdate(newMessage.Account.UserName, balance.ToString());
+                                //}
                             }
+                            return Ok();
                         }
                         break;
 
                     case "message-delivered":
-                        using (Bandwidth bw = new Bandwidth())
+                        DeliveryReceipt receipt = CarrierEventProcessing.ProcessDeliveryReceipt(bwMessage);
+                        if (receipt?.HubNotification?.MessageId > 0)
                         {
-                            bw.ProcessDeliveryReceipt(bwMessage);
-                        }
-
-                        DeliveryReceipt receipt = new DeliveryReceipt(bwMessage);
-                        if (!string.IsNullOrEmpty(receipt.GatewayMessageId))
-                        {
-                            using (TextPortDA da = new TextPortDA())
+                            using (HubFunctions hubFunctions = new HubFunctions())
                             {
-                                Message originalMessage = da.GetMessageByGatewayMessageId(receipt.GatewayMessageId);
-                                if (originalMessage != null)
-                                {
-                                    originalMessage.QueueStatus = (byte)QueueStatuses.DeliveryConfirmed;
-                                    originalMessage.Segments = receipt.SegmentCount;
+                                hubFunctions.SendDeliveryReceipt(receipt.HubNotification.HubClientId, receipt.HubNotification.MessageId.ToString(), receipt.HubNotification.NotificationMessage);
 
-                                    applyChargesAndUpdateBalance(originalMessage);
-                                    da.SaveChanges();
-
-                                    string messageHtml = @"<div class='rcpt'><i class='fa fa-check'></i>Delivered</div>";
-                                    using (HubFunctions hubFunctions = new HubFunctions())
-                                    {
-                                        if (originalMessage.MessageType == (byte)MessageTypes.FreeTextSend && !String.IsNullOrEmpty(originalMessage.SessionId))
-                                        {
-                                            hubFunctions.SendDeliveryReceipt(getNotificationUserName(originalMessage), originalMessage.MessageId.ToString(), messageHtml);
-                                        }
-                                        else
-                                        {
-                                            hubFunctions.SendDeliveryReceipt(originalMessage.Account.UserName, originalMessage.MessageId.ToString(), messageHtml);
-                                        }
-                                    }
-                                }
+                                // Need to send a balance update here.
+                                //if (newMessage.Account.EnableMobileForwarding && !string.IsNullOrEmpty(newMessage.Account.ForwardVnmessagesTo))
+                                //{
+                                //    decimal balance = newMessage.Account.Balance - (Constants.BaseSMSSegmentCost * Utilities.GetSegmentCount(newMessage.MessageText));
+                                //    hubFunctions.SendBalanceUpdate(newMessage.Account.UserName, balance.ToString());
+                                //}
                             }
                         }
                         return Ok();
 
+                    //if (!string.IsNullOrEmpty(receipt.GatewayMessageId))
+                    //{
+                    //    using (TextPortDA da = new TextPortDA())
+                    //    {
+                    //        Message originalMessage = da.GetMessageByGatewayMessageId(receipt.GatewayMessageId);
+                    //        if (originalMessage != null)
+                    //        {
+                    //            originalMessage.QueueStatus = (byte)QueueStatuses.DeliveryConfirmed;
+                    //            originalMessage.Segments = receipt.SegmentCount;
+
+                    //            applyChargesAndUpdateBalance(originalMessage);
+                    //            da.SaveChanges();
+
+                    //            string messageHtml = @"<div class='rcpt'><i class='fa fa-check'></i>Delivered</div>";
+                    //            using (HubFunctions hubFunctions = new HubFunctions())
+                    //            {
+                    //                if (originalMessage.MessageType == (byte)MessageTypes.FreeTextSend && !String.IsNullOrEmpty(originalMessage.SessionId))
+                    //                {
+                    //                    hubFunctions.SendDeliveryReceipt(getNotificationUserName(originalMessage), originalMessage.MessageId.ToString(), messageHtml);
+                    //                }
+                    //                else
+                    //                {
+                    //                    hubFunctions.SendDeliveryReceipt(originalMessage.Account.UserName, originalMessage.MessageId.ToString(), messageHtml);
+                    //                }
+                    //            }
+                    //        }
+                    //    }
+                    //}
+                    //return Ok();
+
                     case "message-failed":
-                        using (Bandwidth bw = new Bandwidth())
-                        {
-                            bw.ProcessDeliveryFailure(bwMessage);
-                        }
+                        DeliveryReceipt failureReceipt = CarrierEventProcessing.ProcessDeliveryReceipt(bwMessage);
 
-                        using (TextPortDA da = new TextPortDA())
-                        {
-                            Message originalMessage = da.GetMessageByGatewayMessageId(bwMessage.message.id);
-                            if (originalMessage != null)
-                            {
-                                CarrierResponseCode rc = da.GetCarrierResponseCode((int)originalMessage.DedicatedVirtualNumber.CarrierId, bwMessage.errorCode.ToString());
+                        //using (TextPortDA da = new TextPortDA())
+                        //{
+                        //    Message originalMessage = da.GetMessageByGatewayMessageId(bwMessage.message.id);
+                        //    if (originalMessage != null)
+                        //    {
+                        //        CarrierResponseCode rc = da.GetCarrierResponseCode((int)originalMessage.DedicatedVirtualNumber.CarrierId, bwMessage.errorCode.ToString());
 
-                                originalMessage.QueueStatus = (byte)QueueStatuses.DeliveryFailed;
-                                originalMessage.FailureReason = rc.Description;
-                                originalMessage.Segments = (bwMessage.message.segmentCount > 0) ? bwMessage.message.segmentCount : 1;
+                        //        originalMessage.QueueStatus = (byte)QueueStatuses.DeliveryFailed;
+                        //        originalMessage.FailureReason = rc.Description;
+                        //        originalMessage.Segments = (bwMessage.message.segmentCount > 0) ? bwMessage.message.segmentCount : 1;
 
-                                if (rc.Billable)
-                                {
-                                    applyChargesAndUpdateBalance(originalMessage);
-                                }
-                                da.SaveChanges();
+                        //        if (rc.Billable)
+                        //        {
+                        //            applyChargesAndUpdateBalance(originalMessage);
+                        //        }
+                        //        da.SaveChanges();
 
-                                string messageHtml = $"<div class='fail-reason'><i class='fa fa-exclamation-triangle'></i>Failed: {rc.Description}</div>";
-                                using (HubFunctions hubFunctions = new HubFunctions())
-                                {
-                                    hubFunctions.SendDeliveryReceipt(getNotificationUserName(originalMessage), originalMessage.MessageId.ToString(), messageHtml);
-                                }
-                            }
-                        }
+                        //        string messageHtml = $"<div class='fail-reason'><i class='fa fa-exclamation-triangle'></i>Failed: {rc.Description}</div>";
+                        //        using (HubFunctions hubFunctions = new HubFunctions())
+                        //        {
+                        //            hubFunctions.SendDeliveryReceipt(getNotificationUserName(originalMessage), originalMessage.MessageId.ToString(), messageHtml);
+                        //        }
+                        //    }
+                        //}
                         return Ok();
 
                     default: // Log anything else
-                        using (Bandwidth bw = new Bandwidth())
-                        {
-                            bw.ProcessDeliveryReceipt(bwMessage);
-                        }
+                        //InboundMessageProcessing.ProcessDeliveryReceipt(bwMessage);
                         return Ok();
                 }
             }
             return NotFound();
-        }
-
-        private bool applyChargesAndUpdateBalance(Message originalMessage)
-        {
-            // Deduct the message cost (base rate * segment count) from the account balance
-            decimal messageRate;
-            decimal messageCost;
-
-            if (originalMessage.IsMMS)
-            {
-                messageRate = (originalMessage.Account.MMSSegmentCost > 0) ? originalMessage.Account.MMSSegmentCost : Constants.BaseMMSSegmentCost;
-            }
-            else
-            {
-                messageRate = (originalMessage.Account.SMSSegmentCost > 0) ? originalMessage.Account.SMSSegmentCost : Constants.BaseSMSSegmentCost;
-            }
-
-            messageCost = (messageRate * (int)originalMessage.Segments);
-            originalMessage.CustomerCost = messageCost;
-            originalMessage.Account.Balance -= messageCost;
-
-            return true;
-        }
-
-        private string getNotificationUserName(Message msg)
-        {
-            if (msg.MessageType == (byte)MessageTypes.FreeTextSend && !string.IsNullOrEmpty(msg.SessionId))
-            {
-                return msg.SessionId;
-            }
-            else
-            {
-                return msg.Account.UserName;
-            }
         }
     }
 }

@@ -109,7 +109,7 @@ namespace TextPortServices.Processes
                                 }
                                 else
                                 {
-                                    sendAdminEmailNotification("VnExpirationsPoller", "CheckForAndCancelExpiredNumbers", $"The call to disconnectVirtualNumberFromProvider for provider {expiredNumber.Provider} failed when attempting to cancel the virtual number {expiredNumber.VirtualNumber} with virtual number ID {expiredNumber.VirtualNumberID}.");
+                                    sendAdminEmailNotification("VnExpirationsPoller", "CheckForAndCancelExpiredNumbers", $"The call to disconnectVirtualNumberFromProvider for carrier {expiredNumber.CarrierId} failed when attempting to cancel the virtual number {expiredNumber.VirtualNumber} with virtual number ID {expiredNumber.VirtualNumberID}.");
                                     da.IncrementVirtualNumberCancellationFailureCount(expiredNumber.VirtualNumberID);
                                 }
                             }
@@ -174,7 +174,7 @@ namespace TextPortServices.Processes
                             }
                             else
                             {
-                                sendAdminEmailNotification("VnExpirationsPoller", "CheckForAndCancelAutoRenewNumbersWithInsufficientBalance", $"The call to CheckForAndCancelAutoRenewNumbersWithInsufficientBalance for provider {autoRenewNumber.Provider} failed when attempting to cancel the virtual number {autoRenewNumber.VirtualNumber} with virtual number ID {autoRenewNumber.VirtualNumberID}.");
+                                sendAdminEmailNotification("VnExpirationsPoller", "CheckForAndCancelAutoRenewNumbersWithInsufficientBalance", $"The call to CheckForAndCancelAutoRenewNumbersWithInsufficientBalance for provider {autoRenewNumber.CarrierId} failed when attempting to cancel the virtual number {autoRenewNumber.VirtualNumber} with virtual number ID {autoRenewNumber.VirtualNumberID}.");
                                 da.IncrementVirtualNumberCancellationFailureCount(autoRenewNumber.VirtualNumberID);
                             }
                         }
@@ -189,9 +189,9 @@ namespace TextPortServices.Processes
 
         private static bool disconnectVirtualNumberFromProvider(NumberExpirationData expiredNumber)
         {
-            switch (expiredNumber.Provider)
+            switch (expiredNumber.CarrierId)
             {
-                case "Bandwidth":
+                case (int)Carriers.BandWidth:
                     using (Bandwidth bw = new Bandwidth())
                     {
                         string processingMessage = string.Empty;

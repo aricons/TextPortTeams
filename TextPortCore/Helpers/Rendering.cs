@@ -18,9 +18,12 @@ namespace TextPortCore.Helpers
             // Messge list item
             string mHtml = $"<div id=\"{msg.MessageId}\" class=\"msg_item\">";
             mHtml += $"<div class=\"received_msg\">";
-            foreach (MMSFile mms in msg.MMSFiles)
+            if (msg.MMSFiles != null)
             {
-                mHtml += $"<div><img src=\"{MMSUtils.GetMMSFileURL(msg.AccountId, mms.StorageId, mms.FileName)}\" alt = \"@mms.FileName\" /></div>";
+                foreach (MMSFile mms in msg.MMSFiles)
+                {
+                    mHtml += $"<div><img src=\"{MMSUtils.GetMMSFileURL(msg.AccountId, mms.StorageId, mms.FileName)}\" alt = \"@mms.FileName\" /></div>";
+                }
             }
             mHtml += $"<p>{msg.MessageText}</p>";
             mHtml += $"<span class=\"time_date\">{msg.TimeStamp:MMMM dd, yy | hh:mm tt}</span></div></div>";

@@ -503,6 +503,7 @@
     <Compile Include="Controllers\ContactsController.cs" />
     <Compile Include="Controllers\EmailToSMSController.cs" />
     <Compile Include="Controllers\FreeController.cs" />
+    <Compile Include="Controllers\NexmoController.cs" />
     <Compile Include="Controllers\SmsApiController.cs" />
     <Compile Include="Controllers\ApiSettingsController.cs" />
     <Compile Include="Controllers\BandwidthController.cs" />
@@ -1091,6 +1092,7 @@
     <Content Include="Views\Free\_MessageList_FreeTextContainer.cshtml" />
     <Content Include="Views\Free\_MessageList_FreeTextResult.cshtml" />
     <Content Include="Views\Home\block.cshtml" />
+    <Content Include="Views\Nexmo\_MessageList.cshtml" />
     <None Include="Web.Beta.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

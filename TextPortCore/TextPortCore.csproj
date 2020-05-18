@@ -78,6 +78,7 @@
     <Compile Include="Models\GroupMember.cs" />
     <Compile Include="Models\GroupsContainer.cs" />
     <Compile Include="Models\GroupText.cs" />
+    <Compile Include="Models\HubNotification.cs" />
     <Compile Include="Models\InboxContainer.cs" />
     <Compile Include="Models\IPDataResult.cs" />
     <Compile Include="Models\LoginCredentials.cs" />

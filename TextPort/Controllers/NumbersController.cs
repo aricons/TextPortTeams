@@ -175,32 +175,48 @@ namespace TextPort.Controllers
             {
                 using (TextPortDA da = new TextPortDA())
                 {
-                    using (Bandwidth bw = new Bandwidth())
+                    Carrier carrier = da.GetCarrierForCountry(regData.CountryId);
+                    regData.CarrierId = carrier.CarrierId;
+                    bool purchaseSuccessful = false;
+
+                    switch (regData.CarrierId)
                     {
-                        //if (bw.PurchaseVirtualNumber(regData))
-                        if (true)
-                        {
-                            if (da.AddNumberToAccount(regData))
+                        case (int)Carriers.BandWidth:
+                            using (Bandwidth bw = new Bandwidth())
                             {
-                                regData.CompletionTitle = $"{regData.NumberDisplayFormat} Successfully Assigned";
-                                regData.CompletionMessage = $"The number {regData.NumberDisplayFormat} has been sucessfully assigned to your account for a period of {regData.LeasePeriod} {regData.LeasePeriodWord}.";
-                                regData.Status = "Complete";
-                                regData.Success = true;
+                                purchaseSuccessful = bw.PurchaseVirtualNumber(regData);
+                            }
+                            break;
 
-                                Account acc = da.GetAccountById(regData.AccountId);
-                                if (acc != null)
-                                {
-                                    acc.Balance -= (regData.NumberCost);
-                                    da.SaveChanges();
+                        case (int)Carriers.Nexmo:
+                            using (Nexmo nexmo = new Nexmo())
+                            {
+                                purchaseSuccessful = nexmo.PurchaseVirtualNumber(regData);
+                            }
+                            break;
+                    }
 
-                                    Cookies.WriteBalance(acc.Balance);
-                                }
+                    if (purchaseSuccessful)
+                    {
+                        if (da.AddNumberToAccount(regData))
+                        {
+                            regData.CompletionTitle = $"{regData.NumberDisplayFormat} Successfully Assigned";
+                            regData.CompletionMessage = $"The number {regData.NumberDisplayFormat} has been sucessfully assigned to your account for a period of {regData.LeasePeriod} {regData.LeasePeriodWord}.";
+                            regData.Status = "Complete";
+                            regData.Success = true;
+
+                            Account acc = da.GetAccountById(regData.AccountId);
+                            if (acc != null)
+                            {
+                                acc.Balance -= (regData.NumberCost);
+                                da.SaveChanges();
+
+                                Cookies.WriteBalance(acc.Balance);
                             }
                         }
                     }
                 }
             }
-
             return View("TransactionComplete", regData);
         }
 

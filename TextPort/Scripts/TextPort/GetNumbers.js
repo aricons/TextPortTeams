@@ -49,6 +49,7 @@ $(function () {
             getAvailableNumbers("");
         }
 
+        page = 1;
         $("#area-code").val('');
         $("#area-code-result").html('');
         $("#selected-number").text('');
@@ -86,6 +87,7 @@ function getAvailableNumbers(areaCode) {
     var url = '/numbers/getavailablenumbers';
     var numbers = "";
     var countryId = $("#CountryId").val();
+    var countryName = $("#CountryId option:selected").text();
 
     $("#spintiller-num").show();
     $.getJSON(url, {
@@ -103,10 +105,18 @@ function getAvailableNumbers(areaCode) {
             if (resultCount === 1) {
                 if (item.Text === "No available numbers") {
                     noAvailableNumbers = true;
-                    numbers = "<li><div class='alert alert-warning text-center' role='alert'>Sorry, no available numbers for area code " + areaCode + "</div></li>";
+                    if (countryId === "1") {
+                        numbers = "<li><div class='alert alert-warning text-center' role='alert'>Sorry, no available numbers for area code " + areaCode + "</div></li>";
+                    } else {
+                        numbers = "<li><div class='alert alert-warning text-center' role='alert'>Sorry, no available numbers for " + countryName + "</div></li>";
+                    }
                 } else if (item.Text === "No more numbers") {
                     noAvailableNumbers = true;
-                    numbers = "<li><div class='alert alert-warning text-center mt-2 mr-4' role='alert'>No more numbers for area code " + areaCode + "</div></li>";
+                    if (countryId === "1") {
+                        numbers = "<li><div class='alert alert-warning text-center mt-2 mr-4' role='alert'>No more numbers for area code " + areaCode + "</div></li>";
+                    } else {
+                        numbers = "<li><div class='alert alert-warning text-center mt-2 mr-4' role='alert'>No more numbers for " + countryName + "</div></li>";
+                    }
                 }
             }
         });
