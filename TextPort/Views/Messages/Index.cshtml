@@ -29,6 +29,8 @@
         $('#from_number').on("change", function (e) {
             clearNewRecipient();
             getRecentsForVirtualNumber($("#from_number option:selected").val());
+            $("#active_num_title").html("");
+            $('#emojipick_1').attr('placeholder', '');
         });
 
         $('#btn_send_message').on("click", function (e) {
@@ -44,18 +46,16 @@
 
         $('#new_recipient_number').on("keyup", function (e) {
             var newNumber = $("#new_recipient_number").cleanVal();
-            $("#active_num_title").html(numberToDisplay(newNumber));
             if (newNumber.length >= 10) {
+                newNumber = $("#country-code-label").text().replace('+', '') + newNumber;
                 $("#hidActiveDestinationNumber").val(newNumber);
-                $("#active_num_title").html(numberToDisplay(newNumber));
+                $("#active_num_title").html(numberToDisplay(newNumber, ""));
             }
             else {
                 $("#hidActiveDestinationNumber").val('');
             }
             checkSendButtonEligibility();
         });
-
-        $("#new_recipient_number").mask('(000) 000-0000');
 
         setChangeDetect();
         checkBalance();
@@ -152,7 +152,7 @@
             }
         });
 
-        $("#active_num_title").html(numberToDisplay($("#hidActiveDestinationNumber").val()));
+        $("#active_num_title").html(numberToDisplay($("#hidActiveDestinationNumber").val(), ""));
 
         $('#modal-del').on('shown.bs.modal', function (e) {
             $('#form-delete-for-number').on("submit", function (e) {
@@ -190,6 +190,7 @@
         });
 
         $('#message_text').countSms('#sms-counter');
+        $('#new_recipient_number').val('');
     });
 
     function sizePanels() {
@@ -232,13 +233,32 @@
     }
 
     function enterNewRecipient() {
+        //var masks = ['000-000-0000', '0000-000000'];
         if ($("#new-number-panel").hasClass("d-none")) {
             togglePanels();
             $("#msg_list").html('');
             $("#active_num_title").addClass("d-none");
             $("#new-number-panel").removeClass("d-none");
+            var countryCode = getCountryCodeFromNumber($("#from_number option:selected").attr("data-number"));
+            $("#country-code-label").text("+" + countryCode);
+            $('#emojipick_1').attr('placeholder', '');
+
+            //$("#new_recipient_number").unmask();
+            //$("#new_recipient_number").val('');
+            //if (countryCode === "1") {
+            //    $("#new_recipient_number").attr("placeholder", "000-000-0000");
+            //}
+            //else {
+            //    $("#new_recipient_number").attr("placeholder", "0000-000000");
+            //}
+
+            //var masks = ['000-000-0000', '0000-0000000'];
+            //var mask = (countryCode === "1") ? masks[0] : masks[1];
+            $("#new_recipient_number").mask('000-000-0000');
+
             sizePanels();
-        } else {
+        }
+        else {
             clearNewRecipient();
         }
         clearMessage();
@@ -247,6 +267,7 @@
     function clearNewRecipient() {
         $("#new-number-panel").addClass("d-none");
         $("#active_num_title").removeClass("d-none");
+        $('#emojipick_1').attr('placeholder', '');
         sizePanels();
         clearMessage();
     }
@@ -267,23 +288,22 @@
             $('#' + this.id).removeClass("active_number new_message");
             getMessagesForNumber(number);
             $("#hidActiveDestinationNumber").val(number);
+            $("#active_num_title").html(numberToDisplay(number, ""));
             checkSendButtonEligibility();
-
-            $("#active_num_title").html(numberToDisplay(number));
             $('.navbar-collapse').collapse('hide');
             $('#recents-btn-icon').removeClass('fa-chevron-up');
             $('#recents-btn-icon').addClass('fa-chevron-down');
             togglePanels('messages');
             sizePanels();
+            $('#emojipick_1').attr('placeholder', 'Message to ' + numberToDisplay(number, ""));
         });
     }
 
     function checkSendButtonEligibility() {
         $('#btn_send_message').prop('disabled', true);
-        if ($("#hidActiveDestinationNumber").val().length >= 10) {
-            $('#emojipick_1').attr('placeholder', 'Message to ' + numberToDisplay($("#hidActiveDestinationNumber").val()));
+        if ($("#hidActiveDestinationNumber").val().length >= 8) {
+            $('#emojipick_1').attr('placeholder', 'Message to ' + numberToDisplay($("#hidActiveDestinationNumber").val(), ""));
             if ($('#emojipick_1').html().length >= 1 && $('#emojipick_1').html() != "<br>") {
-                var foo = $('#emojipick_1').html();
                 $('#btn_send_message').prop('disabled', false);
             };
 
@@ -329,6 +349,8 @@
                 if (typeof activeNumberElem != 'undefined') {
                     var newActiveNumber = activeNumberElem.split('_')[1];
                     $("#hidActiveDestinationNumber").val(newActiveNumber);
+                    $("#active_num_title").html(numberToDisplay(newActiveNumber, ""));
+                    $('#emojipick_1').attr('placeholder', 'Message to ' + numberToDisplay(newActiveNumber, ""));
                     getMessagesForNumber(newActiveNumber);
                     setChangeDetect();
                 }
@@ -395,8 +417,8 @@
 
     function sendMessage() {
 
-        if ($("#new_recipient_number").cleanVal() != "") {
-            $("#hidActiveDestinationNumber").val("1" + $("#new_recipient_number").cleanVal());
+        if ($("#new_recipient_number").val() != "") {
+            $("#hidActiveDestinationNumber").val($("#country-code-label").text().replace("+", "") + $("#new_recipient_number").cleanVal());
         }
         var message = $("#message_text").val();
         var fromNumberId = $("#hidActiveVirtualNumberId").val();

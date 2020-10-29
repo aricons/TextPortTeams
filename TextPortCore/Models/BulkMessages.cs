@@ -27,7 +27,8 @@ namespace TextPortCore.Models
         [Display(Name = "Same Message to All Numbers")]
         public bool SameMessageToAllNumbers { get; set; }
 
-        public List<SelectListItem> VirtualNumbers { get; set; }
+        //public List<SelectNumberItem> VirtualNumbers { get; set; }
+        public List<DedicatedVirtualNumber> VirtualNumbers { get; set; }
 
         public List<SelectListItem> MessageCountOptions { get; set; }
 
@@ -50,7 +51,7 @@ namespace TextPortCore.Models
             this.SubmitType = "MANUAL";
             this.Messages = new List<BulkMessageItem>();
             this.MessageCountOptions = new List<SelectListItem>();
-            this.VirtualNumbers = new List<SelectListItem>();
+            this.VirtualNumbers = new List<DedicatedVirtualNumber>();
             this.ProcessingState = string.Empty;
             this.BalanceAlert = string.Empty;
         }
@@ -62,21 +63,22 @@ namespace TextPortCore.Models
             this.SubmitType = "MANUAL";
             this.Messages = new List<BulkMessageItem>();
             this.MessageCountOptions = new List<SelectListItem>();
-            this.VirtualNumbers = new List<SelectListItem>();
+            //this.VirtualNumbers = new List<DedicatedVirtualNumber>();
 
             using (TextPortDA da = new TextPortDA())
             {
                 this.Balance = da.GetAccountBalance(accId);
-
-                List<DedicatedVirtualNumber> dvns = da.GetNumbersForAccount(accId, false);
-                foreach (DedicatedVirtualNumber dvn in dvns)
-                {
-                    this.VirtualNumbers.Add(new SelectListItem()
-                    {
-                        Value = dvn.VirtualNumberId.ToString(),
-                        Text = dvn.NumberDisplayFormat
-                    });
-                };
+                this.VirtualNumbers = da.GetNumbersForAccount(accId, false);
+                //foreach (DedicatedVirtualNumber dvn in dvns)
+                //{
+                //    this.VirtualNumbers.Add(new SelectNumberItem()
+                //    {
+                //        Value = dvn.VirtualNumberId.ToString(),
+                //        Text = dvn.NumberDisplayFormat,
+                //        CountryCode = dvn.Country.CountryAlphaCode,
+                //        ImageUrl = $"/content/images/flags/20px/{dvn.Country.CountryAlphaCode}.png"
+                //    });
+                //};
             }
 
             foreach (int opt in this.gridSizeOptions)

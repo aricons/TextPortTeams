@@ -50,7 +50,8 @@ namespace TextPortAPI.Authorization
                                 List<Claim> claims = new List<Claim> {
                                     new Claim(ClaimTypes.Name, token),
                                     new Claim("AccountId", apiApp.AccountId.ToString(), ClaimValueTypes.Integer),
-                                    new Claim("ApiApplicationId", apiApp.APIApplicationId.ToString(), ClaimValueTypes.Integer)
+                                    new Claim("ApiApplicationId", apiApp.APIApplicationId.ToString(), ClaimValueTypes.Integer),
+                                    new Claim(ClaimTypes.Role, "User")
                                 };
 
                                 ClaimsIdentity identity = new ClaimsIdentity(claims, "ApplicationCookie");
@@ -83,7 +84,7 @@ namespace TextPortAPI.Authorization
             var response = HttpContext.Current.Response;
             if (response.StatusCode == 401)
             {
-                //Addh eaders if authentication failed
+                //Add headers if authentication failed
                 response.Headers.Add("WWW-Authenticate", string.Format("Basic realm=\"{0}\"", ConfigurationManager.AppSettings.Get("auth.realm")));
             }
         }

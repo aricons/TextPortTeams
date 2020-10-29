@@ -77,7 +77,12 @@ namespace TextPortCore.Models
             message.From = new MailAddress(this.From, this.FromName);
             message.To.Add(this.To);
             //For monitoring
-            //message.Bcc.Add("richard@arionconsulting.com");
+
+            string bccAddress = ConfigurationManager.AppSettings["EmailNotificationsBCCAddress"];
+            if (!string.IsNullOrEmpty(bccAddress))
+            {
+                message.Bcc.Add(bccAddress);
+            }
             //message.Bcc.Add("rdegley@gmail.com");
 
             message.Subject = this.Subject;
@@ -89,7 +94,7 @@ namespace TextPortCore.Models
 
             smtpClient.Host = ConfigurationManager.AppSettings["SMTPServer"];
             smtpClient.Port = Convert.ToInt32(ConfigurationManager.AppSettings["SMTPPort"]);
-            smtpClient.EnableSsl = false;
+            smtpClient.EnableSsl = Convert.ToBoolean(ConfigurationManager.AppSettings["SMTPEnableSSL"]);
             smtpClient.Credentials = new NetworkCredential(ConfigurationManager.AppSettings["SMTPUserName"], ConfigurationManager.AppSettings["SMTPPassword"]);
             try
             {

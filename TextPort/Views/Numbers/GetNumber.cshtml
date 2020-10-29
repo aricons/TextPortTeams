@@ -22,7 +22,8 @@
                 var leasePeriodType = "";
                 var leasePeriodWord = "";
                 var leasePeriod = 0;
-                var number = numberToDisplay($("#VirtualNumber").val());
+                var countryCode = $("#CountryId option:selected").val();
+                var number = numberToDisplay($("#VirtualNumber").val(), countryCode);
 
                 leasePeriodValues = $("#LeasePeriodCode").val().split("|");
                 if (number !== "" && leasePeriodValues.length > 2) {

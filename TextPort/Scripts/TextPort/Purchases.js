@@ -159,6 +159,7 @@ function generateProductDescription() {
     var leasePeriodWord = "";
     var leasePeriod = 0;
     var number = $("#VirtualNumber").val();
+    var countryCode = $("#CountryId option:selected").val();
     var numberType = 'TextPort number ';
 
     leasePeriodValues = $("#LeasePeriodCode").val().split("|");
@@ -195,13 +196,13 @@ function generateProductDescription() {
     }
 
     if (purchaseType === "VirtualNumber" || purchaseType === "VirtualNumberSignUp") {
-        productDesctiption = numberType + numberToDisplay(number) + " " + leasePeriod + " " + leasePeriodWord + " lease - $" + numberCost.formatMoney();
+        productDesctiption = numberType + numberToDisplay(number, countryCode) + " " + leasePeriod + " " + leasePeriodWord + " lease - $" + numberCost.formatMoney();
         if (creditAmount > 0) {
             productDesctiption = productDesctiption + ". Plus $" + creditAmount.formatMoney() + " TextPort credit";
         }
     }
     else if (purchaseType === "VirtualNumberRenew") {
-        productDesctiption = numberType + numberToDisplay(number) + " " + leasePeriod + " " + leasePeriodWord + " lease renewal - $" + numberCost.formatMoney();
+        productDesctiption = numberType + numberToDisplay(number, countryCode) + " " + leasePeriod + " " + leasePeriodWord + " lease renewal - $" + numberCost.formatMoney();
         if (creditAmount > 0) {
             productDesctiption = productDesctiption + ". Plus $" + creditAmount.formatMoney() + " TextPort credit";
         }

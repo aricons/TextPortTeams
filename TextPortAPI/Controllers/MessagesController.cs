@@ -139,7 +139,7 @@ namespace TextPortAPI.Controllers
             }
             else
             {
-                msg.From = Utilities.NumberToE164(msg.From);
+                msg.From = Utilities.NumberToE164(msg.From, "1");
                 if (msg.From.Length != 11)
                 {
                     validationMessage = "The From number is invalid.";
@@ -155,7 +155,7 @@ namespace TextPortAPI.Controllers
             }
             else
             {
-                msg.To = Utilities.NumberToE164(msg.To);
+                msg.To = Utilities.NumberToE164(msg.To, "1");
                 if (msg.To.Length != 11)
                 {
                     validationMessage = "The To number is invalid.";

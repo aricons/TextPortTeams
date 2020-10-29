@@ -31,81 +31,79 @@
     });
 </script>
 
-<div class="container">
-    <div class="row">
-        @Html.Partial("_SideMenuBar")
-        <div class="col-12 col-md-10">
-            <div class="card">
-                <div class="card-header">
-                    <h4>Profile - @Model.Account.UserName</h4>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="offset-md-1 col-md-8 col">
-                            @using (Html.BeginForm("Profile", "Account", FormMethod.Post))
+<div class="row">
+    @Html.Partial("_SideMenuBar")
+    <div class="col-12 col-md-10">
+        <div class="card">
+            <div class="card-header">
+                <h4>Profile - @Model.Account.UserName</h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="offset-md-1 col-md-8 col">
+                        @using (Html.BeginForm("Profile", "Account", FormMethod.Post))
+                        {
+                            @Html.AntiForgeryToken()
+                            @Html.HiddenFor(m => m.Account.AccountId)
+                            @Html.HiddenFor(m => m.Account.UserName)
+                            @Html.HiddenFor(m => m.Status)
+                            @Html.HiddenFor(m => m.ConfirmationMessage)
+                            @Html.HiddenFor(m => m.Account.CreateDate)
+                            @Html.HiddenFor(m => m.Account.LastLogin)
+                            <div class="form-group">
+                                @Html.LabelFor(m => m.Account.Email, new { @class = "form-label" })
+                                @Html.TextBoxFor(m => m.Account.Email, new { @class = "form-control", placeholder = "Email address" })
+                                @Html.ValidationMessageFor(m => m.Account.Email, null, new { @class = "text-danger" })
+                            </div>
+                            <div class="form-group">
+                                @Html.LabelFor(m => m.Account.TimeZoneId, new { @class = "form-label" })
+                                @Html.DropDownListFor(x => Model.Account.TimeZoneId, new SelectList(Model.TimeZones, "Value", "Text", Model.Account.TimeZoneId), new { @class = "form-control" })
+                                @Html.ValidationMessageFor(m => m.Account.TimeZoneId, null, new { @class = "text-danger" })
+                            </div>
+                            <div class="form-check">
+                                @Html.CheckBoxFor(x => Model.Account.EnableEmailNotifications, new { @class = "form-check-input" })
+                                @Html.LabelFor(m => m.Account.EnableEmailNotifications, new { @class = "form-check-label" })
+                            </div>
+                            <div class="form-group">
+                                @Html.CustomTextBoxFor(m => m.Account.NotificationsEmailAddress, new { @class = "form-control", placeholder = "Forwarding email address" }, !Model.Account.EnableEmailNotifications)
+                                @Html.ValidationMessageFor(m => m.Account.NotificationsEmailAddress, null, new { @class = "text-danger" })
+                            </div>
+                            <div class="form-check">
+                                @Html.CheckBoxFor(x => Model.Account.EnableMobileForwarding, new { @class = "form-check-input" })
+                                @Html.LabelFor(m => m.Account.EnableMobileForwarding, new { @class = "form-check-label" })
+                            </div>
+                            <div class="form-group">
+                                @Html.CustomTextBoxFor(m => m.Account.ForwardVnmessagesTo, new { @class = "form-control", placeholder = "Forwarding mobile number" }, !Model.Account.EnableMobileForwarding)
+                                @Html.ValidationMessageFor(m => m.Account.ForwardVnmessagesTo, null, new { @class = "text-danger" })
+                            </div>
+                            <div class="form-group">
+                                @Html.LabelFor(m => m.Account.SMSSegmentCost, new { @class = "form-label" })
+                                <label class="col-7 form-label">@String.Format("{0:C3}", Model.Account.SMSSegmentCost)</label>
+                            </div>
+                            <div class="form-group">
+                                @Html.LabelFor(m => m.Account.MMSSegmentCost, new { @class = "form-label" })
+                                <label class="col-7 form-label">@String.Format("{0:C3}", Model.Account.MMSSegmentCost)</label>
+                            </div>
+                            <div class="form-group">
+                                @Html.LabelFor(m => m.Account.CreateDate, new { @class = "form-label" })
+                                <label class="col-7 form-label">@String.Format("{0:yyyy-MM-dd HH:mm}", Model.Account.CreateDate)</label>
+                            </div>
+                            <div class="form-group">
+                                @Html.LabelFor(m => m.Account.LastLogin, new { @class = "form-label" })
+                                <label class="col-7 form-label">@String.Format("{0:yyyy-MM-dd HH:mm}", Model.Account.LastLogin)</label>
+                            </div>
+                            <div class="form-group">
+                                <button name="submit" type="submit" class="btn btn-primary">Update My Profile</button>
+                            </div>
+                            if (Model.Status != RequestStatus.Pending)
                             {
-                                @Html.AntiForgeryToken()
-                                @Html.HiddenFor(m => m.Account.AccountId)
-                                @Html.HiddenFor(m => m.Account.UserName)
-                                @Html.HiddenFor(m => m.Status)
-                                @Html.HiddenFor(m => m.ConfirmationMessage)
-                                @Html.HiddenFor(m => m.Account.CreateDate)
-                                @Html.HiddenFor(m => m.Account.LastLogin)
                                 <div class="form-group">
-                                    @Html.LabelFor(m => m.Account.Email, new { @class = "form-label" })
-                                    @Html.TextBoxFor(m => m.Account.Email, new { @class = "form-control", placeholder = "Email address" })
-                                    @Html.ValidationMessageFor(m => m.Account.Email, null, new { @class = "text-danger" })
-                                </div>
-                                <div class="form-group">
-                                    @Html.LabelFor(m => m.Account.TimeZoneId, new { @class = "form-label" })
-                                    @Html.DropDownListFor(x => Model.Account.TimeZoneId, new SelectList(Model.TimeZones, "Value", "Text", Model.Account.TimeZoneId), new { @class = "form-control" })
-                                    @Html.ValidationMessageFor(m => m.Account.TimeZoneId, null, new { @class = "text-danger" })
-                                </div>
-                                <div class="form-check">
-                                    @Html.CheckBoxFor(x => Model.Account.EnableEmailNotifications, new { @class = "form-check-input" })
-                                    @Html.LabelFor(m => m.Account.EnableEmailNotifications, new { @class = "form-check-label" })
-                                </div>
-                                <div class="form-group">
-                                    @Html.CustomTextBoxFor(m => m.Account.NotificationsEmailAddress, new { @class = "form-control", placeholder = "Forwarding email address" }, !Model.Account.EnableEmailNotifications)
-                                    @Html.ValidationMessageFor(m => m.Account.NotificationsEmailAddress, null, new { @class = "text-danger" })
-                                </div>
-                                <div class="form-check">
-                                    @Html.CheckBoxFor(x => Model.Account.EnableMobileForwarding, new { @class = "form-check-input" })
-                                    @Html.LabelFor(m => m.Account.EnableMobileForwarding, new { @class = "form-check-label" })
-                                </div>
-                                <div class="form-group">
-                                    @Html.CustomTextBoxFor(m => m.Account.ForwardVnmessagesTo, new { @class = "form-control", placeholder = "Forwarding mobile number" }, !Model.Account.EnableMobileForwarding)
-                                    @Html.ValidationMessageFor(m => m.Account.ForwardVnmessagesTo, null, new { @class = "text-danger" })
-                                </div>
-                                <div class="form-group">
-                                    @Html.LabelFor(m => m.Account.SMSSegmentCost, new { @class = "form-label" })
-                                    <label class="col-7 form-label">@String.Format("{0:C3}", Model.Account.SMSSegmentCost)</label>
-                                </div>
-                                <div class="form-group">
-                                    @Html.LabelFor(m => m.Account.MMSSegmentCost, new { @class = "form-label" })
-                                    <label class="col-7 form-label">@String.Format("{0:C3}", Model.Account.MMSSegmentCost)</label>
-                                </div>
-                                <div class="form-group">
-                                    @Html.LabelFor(m => m.Account.CreateDate, new { @class = "form-label" })
-                                    <label class="col-7 form-label">@String.Format("{0:yyyy-MM-dd HH:mm}", Model.Account.CreateDate)</label>
-                                </div>
-                                <div class="form-group">
-                                    @Html.LabelFor(m => m.Account.LastLogin, new { @class = "form-label" })
-                                    <label class="col-7 form-label">@String.Format("{0:yyyy-MM-dd HH:mm}", Model.Account.LastLogin)</label>
-                                </div>
-                                <div class="form-group">
-                                    <button name="submit" type="submit" class="btn btn-primary">Update My Profile</button>
-                                </div>
-                                if (Model.Status != RequestStatus.Pending)
-                                {
-                                    <div class="form-group">
-                                        <div class="alert @(Model.Status == RequestStatus.Success ? "alert-success" : "alert-danger")" role="alert">
-                                            @Model.ConfirmationMessage
-                                        </div>
+                                    <div class="alert @(Model.Status == RequestStatus.Success ? "alert-success" : "alert-danger")" role="alert">
+                                        @Model.ConfirmationMessage
                                     </div>
-                                }
+                                </div>
                             }
-                        </div>
+                        }
                     </div>
                 </div>
             </div>

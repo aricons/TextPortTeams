@@ -12,7 +12,8 @@
     }
 </script>
 
-<div class="row align-items-center main-banner">
+<input type="hidden" id="CountryId" value="1" />
+<div class="row align-items-center main-banner mb-3">
     <div class="col-lg-5">
         <img class="img-fluid rounded mx-auto d-block mb-4 mb-lg-0" src="~/Content/images/temporary-phone-number.png" alt="Temporary Phone Numbers">
     </div>
@@ -25,10 +26,30 @@
         </h2>
     </div>
 </div>
-<div class="card text-white bg-secondary my-5 py-4 text-center sub-banner">
+<div class="bg-secondary">
+    <div class="px-3 py-2 pt-md-4 pb-md-4 mx-auto text-center">
+        <h2 class="text-white">Get a temporary phone number now</h2>
+        <h3 class="lead text-white">
+            Select your own temporary texting number from our large inventory of numbers.
+        </h3>
+    </div>
+    <div class="row pb-3">
+        <div class="col-12">
+            <div class="form-inline justify-content-center">
+                <div class="form-group">
+                    <input type="text" id="area-code" class="form-control form-control-lg ac-input" , placeholder="Area Code" />
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="my-4 bg-light">
+        @Html.Partial("_NumberPicker")
+    </div>
+</div>
+<div class="card bg-light my-5 py-2 text-center sub-banner">
     <div class="card-body">
         <h2>How do disposable numbers work?</h2>
-        <h3 class="text-white m-0">
+        <h3 class="m-0">
             Disposable numbers, also called <strong>burner numbers</strong> are not assigned to a physical mobile device. TextPort maintains a pool of numbers that can be leased for as short as 1 day,
             or extended indefinitely. You pick a number, then use it to send and receive text messages until you're done with it. Disposable numbers allow you to share a number
             and keep your actual number private.
@@ -92,24 +113,4 @@
         </div>
     </div>
 </div>
-<div class="background-lt-gray">
-    <div class="px-3 py-3 pt-md-4 pb-md-4 mx-auto text-center">
-        <h2>Look up disposable numbers</h2>
-        <h3 class="lead">
-            Check for available numbers using our virtual number lookup tool.
-        </h3>
-    </div>
-    <div class="row">
-        <div class="col-12">
-            <div class="form-inline justify-content-center">
-                <div class="form-group">
-                    <input type="text" id="area-code" class="form-control form-control-lg ac-input" , placeholder="Area Code" />
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="ml-3 pl-1">
-        @Html.Partial("_NumberPicker")
-    </div>
-    <br />
-</div>
+

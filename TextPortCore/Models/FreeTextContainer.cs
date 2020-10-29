@@ -53,6 +53,7 @@ namespace TextPortCore.Models
         {
             int freeTextAccountId = Conversion.StringToIntOrZero(ConfigurationManager.AppSettings["FreeTextAccountId"]);
             this.IPAddress = ipAddress;
+            this.CountryId = (int)Countries.UnitedStates;
             this.MobileNumber = string.Empty;
             this.MessageText = string.Empty;
             this.SessionId = sessionId;

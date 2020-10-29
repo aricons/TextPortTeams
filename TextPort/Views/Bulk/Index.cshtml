@@ -10,10 +10,15 @@
 <script type="text/javascript">
     $(function () {
         $('.num_input').mask('(000) 000-0000');
+        $("#VirtualNumberId").val($("#FromNumberId option:selected").val());
 
         $('#MessageLimit').on("change", function (e) {
             $("#SubmitOperation").val("ChangeGridRows");
             AJAXPost();
+        });
+
+        $('#FromNumberId').on("change", function (e) {
+            $("#VirtualNumberId").val($("#FromNumberId option:selected").val());
         });
 
         $('#SameMessageToAllNumbers').on("change", function (e) {
@@ -95,6 +100,7 @@
     @Html.HiddenFor(m => m.AccountId)
     @Html.HiddenFor(m => m.SubmitOperation)
     @Html.HiddenFor(m => m.SubmitType)
+    @Html.HiddenFor(m => m.VirtualNumberId)
 
     if (Model.ProcessingState.Equals("PROCESSED"))
     {
@@ -105,7 +111,14 @@
         <div class="form-row">
             <div class="form-group col-md-3">
                 @Html.LabelFor(m => m.VirtualNumberId, new { @class = "form-label" })
-                @Html.DropDownListFor(x => Model.VirtualNumberId, new SelectList(Model.VirtualNumbers, "Value", "Text", Model.VirtualNumberId), new { @class = "form-control" })
+                <select id="FromNumberId" class="selectpicker form-control">
+                    @foreach (DedicatedVirtualNumber vn in Model.VirtualNumbers)
+                    {
+                        <option value="@vn.VirtualNumberId" data-number="@vn.VirtualNumber" data-content="<img src='@vn.ImageUrl' class='pr-2' />@vn.NumberDisplayFormat"></option>
+
+                        @*<option value="@vn.Value" data-content="<img src='@vn.ImageUrl' />&nbsp;@vn.Text"></option>*@
+                    }
+                </select>
                 @Html.ValidationMessageFor(m => m.VirtualNumberId, null, new { @class = "text-danger" })
             </div>
         </div>

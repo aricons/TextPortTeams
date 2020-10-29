@@ -44,7 +44,7 @@ namespace TextPort.WebServices
                                                 TextPortSMSResponse responseItem = new TextPortSMSResponse()
                                                 {
                                                     ItemNumber = itemCount,
-                                                    MobileNumber = Utilities.NumberToE164(messageRequest.MobileNumber),
+                                                    MobileNumber = Utilities.NumberToE164(messageRequest.MobileNumber, "1"),
                                                     ErrorMessage = String.Empty,
                                                     ProcessingMessage = "Validating message request " + itemCount.ToString() + ". ",
                                                     Result = "Unknown",
@@ -55,16 +55,14 @@ namespace TextPort.WebServices
                                                 {
                                                     responseItem.ProcessingMessage += "Validation completed successfully. ";
 
-                                                    //SelectCarrierIDForCountryAbbrevResult carrierResult = getCarrierIDForCountryAbbreviation(messageRequest.CountryCode);
                                                     Message message = new Message()
                                                     {
                                                         AccountId = accountID,
                                                         MessageType = (byte)messageType,
                                                         Direction = (byte)MessageDirection.Outbound,
-                                                        MobileNumber = Utilities.NumberToE164(messageRequest.MobileNumber),
+                                                        MobileNumber = Utilities.NumberToE164(messageRequest.MobileNumber, "1"),
                                                         MessageText = messageRequest.MessageText,
                                                         Ipaddress = requestorIpAddress,
-                                                        IsMMS = false,
                                                         TimeStamp = DateTime.UtcNow,
                                                         VirtualNumberId = virtualNumberId
                                                     };

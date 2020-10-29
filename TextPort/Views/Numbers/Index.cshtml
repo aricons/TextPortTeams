@@ -71,14 +71,20 @@
                 </div>
             </div>
             <div class="card-body">
+                <div class="row">
+                    <div class="col mb-2 ml-1">
+                        <input id="cbShowAll" type="checkbox" checked="@Model.ShowExpiredNumbers" />
+                        <label>Show expired numbers</label>
+                    </div>
+                </div>
                 <table class="table table-sm">
                     <thead>
-                        <tr>
-                            <td colspan="6">
+                        @*<tr>
+                            <td colspan="8">
                                 <input id="cbShowAll" type="checkbox" checked="@Model.ShowExpiredNumbers" />
                                 <label>Show expired numbers</label>
                             </td>
-                        </tr>
+                        </tr>*@
                         <tr class="bg-primary">
                             <th scope="col" class="text-white">Number</th>
                             <th scope="col" class="text-white">Country</th>

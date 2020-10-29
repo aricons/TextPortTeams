@@ -336,7 +336,7 @@ namespace TextPortCore.Data
 
                 entity.HasOne(e => e.Carrier).WithOne();
 
-                entity.HasOne(e => e.Country).WithOne(); //.HasForeignKey<Country>(e => e.CountryId);
+                entity.HasOne(e => e.Country).WithMany();
 
                 entity.HasOne(e => e.Account).WithMany();
             });

@@ -95,7 +95,10 @@ namespace TextPortCore.Data
                     {(decimal)150.00, "$150.00" },
                     {(decimal)200.00, "$200.00" },
                     {(decimal)300.00, "$300.00" },
-                    {(decimal)500.00, "$500.00" }
+                    {(decimal)400.00, "$400.00" },
+                    {(decimal)500.00, "$500.00" },
+                    {(decimal)750.00, "$750.00" },
+                    {(decimal)1000.00, "$1,000.00" }
             };
 
                 List<SelectListItem> periods = creditAmountsDict

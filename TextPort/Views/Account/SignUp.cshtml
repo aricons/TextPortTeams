@@ -1,4 +1,5 @@
-﻿@model TextPortCore.Models.RegistrationData
+﻿@using TextPortCore.Models
+@model RegistrationData
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
     ViewBag.Title = "TextPort: Sign up for online texting.";
@@ -33,6 +34,7 @@
 
         $("#lnk-change-number").on("click", function (e) {
             $("#number-chooser").toggle(500);
+            $("#number-picker").toggle(500);
         });
 
         var vn = $("#selected-number").text();
@@ -56,12 +58,25 @@
         numberCount = 42;
     });
 
-    function getNumber(number) {
+    //function getNumber(number) {
+    //    $("#lbl-sel-number").text("Selected number");
+    //    $("#selected-number").text(numberToDisplay(number));
+    //    $("#VirtualNumber").val("1" + numberToE164(number));
+    //    $("#selected-number-wrap").show();
+    //    $("#number-chooser").hide(500);
+    //    $("#payment-section").show(500);
+    //    $("#form-signup").validate().element("#VirtualNumber");
+    //}
+
+     function getNumber(number) {
+        var countryCode = $("#CountryId option:selected").val();
         $("#lbl-sel-number").text("Selected number");
-        $("#selected-number").text(numberToDisplay(number));
-        $("#VirtualNumber").val("1" + numberToE164(number));
+        $("#lbl-sel-number").show();
+        $("#selected-number").text(numberToDisplay(number, countryCode));
+        $("#VirtualNumber").val(numberToE164(countryCode, number));
         $("#selected-number-wrap").show();
         $("#number-chooser").hide(500);
+        $("#number-picker").hide(500);
         $("#payment-section").show(500);
         $("#form-signup").validate().element("#VirtualNumber");
     }
@@ -88,7 +103,7 @@
             @Html.HiddenFor(m => m.CompletionMessage)
             @Html.HiddenFor(m => m.NumberType)
             @Html.HiddenFor(m => m.FreeTrial)
-            @Html.HiddenFor(m => m.NumberCountryId)
+            @*@Html.HiddenFor(m => m.CountryId)*@
             @Html.HiddenFor(m => m.VirtualNumber)
             @Html.HiddenFor(m => m.LeasePeriodType)
             @Html.HiddenFor(m => m.LeasePeriod)
@@ -123,6 +138,18 @@
             </div>
             <div class="row">
                 <div class="col-12 offset-md-1 col-md-11">
+
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.CountryId, new { @class = "form-label" })
+                        <select name="CountryId" id="CountryId" class="form-control" data-val="true" data-val-required="A country is required">
+                            @foreach (Country c in Model.CountriesList)
+                            {
+                                <option value="@c.CountryId">@($"{c.CountryName}  (+{c.CountryPhoneCode})")</option>
+                            }
+                        </select>
+                        @Html.ValidationMessageFor(m => m.CountryId, null, new { @class = "text-danger" })
+                    </div>
+
                     <div class="form-group mb-0">
                         <label id="lbl-sel-number" class="form-label pb-1">Select a number (search by area code)</label>
                         <div id="selected-number-wrap">

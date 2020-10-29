@@ -26,7 +26,7 @@ namespace Testing
         [TestMethod]
         public void ProcessOutboundMessage()
         {
-            int messageId = 10169018;
+            int messageId = 12003906;
 
             using (TextPortDA da = new TextPortDA())
             {
@@ -52,7 +52,7 @@ namespace Testing
         [TestMethod]
         public void ParseEmailToSMSGatewayMessage()
         {
-            string fileName = "md50000274792.msg";
+            string fileName = "md50000008242.msg";
             MessageParser.ParseMessage(@"C:\Junk\TextPort\EmailToSMSGateway\" + fileName);
         }
 

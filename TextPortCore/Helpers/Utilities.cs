@@ -76,7 +76,7 @@ namespace TextPortCore.Helpers
 
             try
             {
-                number = Utilities.NumberToE164(number);
+                number = Utilities.NumberToE164(number, "1");
 
                 return Regex.IsMatch(number, @"^[1][0-9]{10}$", RegexOptions.IgnoreCase);
             }
@@ -118,16 +118,27 @@ namespace TextPortCore.Helpers
             return strippedNumber;
         }
 
-        public static string NumberToE164(string number)
+        public static string NumberToE164(string number, string countryCode)
         {
             string globalNumber = string.Empty;
 
             try
             {
-                globalNumber = Regex.Replace(number, @"\D", "");
-                if (!globalNumber.StartsWith("1"))
+                number = Regex.Replace(number, @"\D", "");
+                if (countryCode == "1")
                 {
-                    globalNumber = $"1{globalNumber}";
+                    if (!number.StartsWith("1"))
+                    {
+                        globalNumber = $"1{number}";
+                    }
+                    else
+                    {
+                        globalNumber = number;
+                    }
+                }
+                else
+                {
+                    globalNumber = $"{countryCode}{number}";
                 }
             }
             catch (Exception ex)
@@ -149,21 +160,19 @@ namespace TextPortCore.Helpers
                     switch (countryId)
                     {
                         case (int)Countries.UnitedStates:
-                            //if (localNumber.StartsWith("1"))
-                            //{
-                            //    localNumber = localNumber.Substring(1);
-                            //}
-                            // With leading "1".
-                            //localNumber = $"{localNumber.Substring(0, 1)} ({localNumber.Substring(1, 3)}) {localNumber.Substring(4, 3)}-{localNumber.Substring(7)}";
-                            return $"({localNumber.Substring(1, 3)}) {localNumber.Substring(4, 3)}-{localNumber.Substring(7)}";
+                            return $"+1 {localNumber.Substring(1, 3)}-{localNumber.Substring(4, 3)}-{localNumber.Substring(7)}";
 
                         case (int)Countries.UnitedKingdom:
-                            // 7911 123456
-                            //return $"{localNumber.Substring(1, 4)} {localNumber.Substring(4)}";
-                            return $"{localNumber.Substring(2)}"; // Remove leading "44";
+                            return $"+{localNumber.Substring(0, 2)} {localNumber.Substring(2, 4)} {localNumber.Substring(6)}";
+
+                        case (int)Countries.Australia: // 2-digit country codes
+                        case (int)Countries.Germany:
+                        case (int)Countries.India:
+                        case (int)Countries.NewZealand:
+                            return $"+{localNumber.Substring(0, 2)} {localNumber.Substring(2)}";
 
                         default:
-                            return localNumber;
+                            return $"+{localNumber}";
                     }
                 }
             }

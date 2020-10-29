@@ -43,7 +43,6 @@ namespace TextPort.Controllers
             message.Ipaddress = Request.UserHostAddress;
             message.AccountId = freeTextAccountId;
             message.MessageType = (byte)MessageTypes.FreeTextSend;
-            message.IsMMS = (message.MMSFiles.Count > 0);
 
             // Log the user in using the hub connection ID as the user name. This allows for messages to be sent back to
             // the same user if they leve the page, then come back during the same browser session.
@@ -63,18 +62,21 @@ namespace TextPort.Controllers
 
             FreeTextResult result = new FreeTextResult();
 
-            if (!string.IsNullOrEmpty(message.Ipaddress))
+            if (!string.IsNullOrEmpty(message.Ipaddress) && message?.VirtualNumberId > 0)
             {
                 using (TextPortDA da = new TextPortDA())
                 {
-                    result.Messages = da.GetMessagesForAccountAndRecipient(message.AccountId, message.VirtualNumberId, Utilities.NumberToE164(message.MobileNumber));
+                    message.DedicatedVirtualNumber = da.GetVirtualNumberById(message.VirtualNumberId);
+                    message.MobileNumber = Utilities.NumberToE164(message.MobileNumber, message.DedicatedVirtualNumber.CountryCode);
+
+                    result.Messages = da.GetMessagesForAccountAndRecipient(message.AccountId, message.VirtualNumberId, Utilities.NumberToE164(message.MobileNumber, message.DedicatedVirtualNumber.CountryCode));
 
                     if (!da.NumberIsBlocked(message.MobileNumber, MessageDirection.Outbound))
                     {
                         int requestsFromIP = da.CheckFreeTextCountForIP(message.Ipaddress, freeTextsPerIPLimit);
                         if (requestsFromIP <= freeTextsPerIPLimit)
                         {
-                            int freeTextsSentToNumber = da.CheckFreeSendCountForNumber(message.AccountId, Utilities.NumberToE164(message.MobileNumber));
+                            int freeTextsSentToNumber = da.CheckFreeSendCountForNumber(message.AccountId, Utilities.NumberToE164(message.MobileNumber, message.DedicatedVirtualNumber.CountryCode));
                             if (freeTextsSentToNumber <= freeTextsPerMobileNumberLimit)
                             {
                                 decimal newBalance = 0;
@@ -85,12 +87,12 @@ namespace TextPort.Controllers
                                     message.Send();
                                     result.Messages.Add(message);
                                     result.Status = "OK";
-                                    result.SubmissionMessage = $"Your message was successfully sent to {Utilities.NumberToDisplayFormat(Utilities.NumberToE164(message.MobileNumber), 22)}.";
+                                    result.SubmissionMessage = $"Your message was successfully sent to {Utilities.NumberToDisplayFormat(Utilities.NumberToE164(message.MobileNumber, message.DedicatedVirtualNumber.CountryCode), message.DedicatedVirtualNumber.CountryId)}.";
                                 }
                             }
                             else
                             {
-                                result.Messages.Add(createNotificationMessage(freeTextAccountId, $"Too many texts sent to {Utilities.NumberToDisplayFormat(Utilities.NumberToE164(message.MobileNumber), 22)}. To send more, you can <a href='/trial'>register a trial account</a> or <a href='/account/signup'>sign up for a full account</a>."));
+                                result.Messages.Add(createNotificationMessage(freeTextAccountId, $"Too many texts sent to {Utilities.NumberToDisplayFormat(Utilities.NumberToE164(message.MobileNumber, message.DedicatedVirtualNumber.CountryCode), message.DedicatedVirtualNumber.CountryId)}. To send more, you can <a href='/trial'>register a trial account</a> or <a href='/account/signup'>sign up for a full account</a>."));
                             }
                         }
                         else
@@ -100,7 +102,7 @@ namespace TextPort.Controllers
                     }
                     else
                     {
-                        result.Messages.Add(createNotificationMessage(freeTextAccountId, $"BLOCKED: The recipient at number {Utilities.NumberToDisplayFormat(Utilities.NumberToE164(message.MobileNumber), 22)} has reported abuse. We have blocked the number at their request. TextPort does not condone the exchange of abusive, harrassing or defamatory messages."));
+                        result.Messages.Add(createNotificationMessage(freeTextAccountId, $"BLOCKED: The recipient at number {Utilities.NumberToDisplayFormat(Utilities.NumberToE164(message.MobileNumber, message.DedicatedVirtualNumber.CountryCode), message.DedicatedVirtualNumber.CountryId)} has reported abuse. We have blocked the number at their request. TextPort does not condone the exchange of abusive, harrassing or defamatory messages."));
                     }
                 }
             }

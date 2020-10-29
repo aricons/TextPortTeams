@@ -185,7 +185,7 @@ namespace TextPortCore.Data
                         dbRecord.EnableEmailNotifications = account.EnableEmailNotifications;
                         dbRecord.EnableMobileForwarding = account.EnableMobileForwarding;
                         dbRecord.NotificationsEmailAddress = account.NotificationsEmailAddress;
-                        dbRecord.ForwardVnmessagesTo = Utilities.NumberToE164(account.ForwardVnmessagesTo);
+                        dbRecord.ForwardVnmessagesTo = Utilities.NumberToE164(account.ForwardVnmessagesTo, "1");
                         dbRecord.TimeZoneId = account.TimeZoneId;
                         dbRecord.Email = account.Email;
 

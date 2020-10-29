@@ -14,9 +14,11 @@ namespace TextPortCore.Models
 
         public string Number { get; set; }
 
+        public int CountryId { get; set; }
+
         public string NumberDisplayFormat
         {
-            get { return Utilities.NumberToDisplayFormat(this.Number, 22); }
+            get { return Utilities.NumberToDisplayFormat(this.Number, this.CountryId); }
         }
 
         public string Message { get; set; }

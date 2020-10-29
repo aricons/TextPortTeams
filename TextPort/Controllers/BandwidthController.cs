@@ -46,12 +46,6 @@ namespace TextPort.Controllers
                             using (HubFunctions hubFunctions = new HubFunctions())
                             {
                                 hubFunctions.SendInboundMessageNotification(notification);
-                                // Dont need to update the balance for received messages.
-                                //if (newMessage.Account.EnableMobileForwarding && !string.IsNullOrEmpty(newMessage.Account.ForwardVnmessagesTo))
-                                //{
-                                //    decimal balance = newMessage.Account.Balance - (Constants.BaseSMSSegmentCost * Utilities.GetSegmentCount(newMessage.MessageText));
-                                //    hubFunctions.SendBalanceUpdate(newMessage.Account.UserName, balance.ToString());
-                                //}
                             }
                             return Ok();
                         }
@@ -75,63 +69,8 @@ namespace TextPort.Controllers
                         }
                         return Ok();
 
-                    //if (!string.IsNullOrEmpty(receipt.GatewayMessageId))
-                    //{
-                    //    using (TextPortDA da = new TextPortDA())
-                    //    {
-                    //        Message originalMessage = da.GetMessageByGatewayMessageId(receipt.GatewayMessageId);
-                    //        if (originalMessage != null)
-                    //        {
-                    //            originalMessage.QueueStatus = (byte)QueueStatuses.DeliveryConfirmed;
-                    //            originalMessage.Segments = receipt.SegmentCount;
-
-                    //            applyChargesAndUpdateBalance(originalMessage);
-                    //            da.SaveChanges();
-
-                    //            string messageHtml = @"<div class='rcpt'><i class='fa fa-check'></i>Delivered</div>";
-                    //            using (HubFunctions hubFunctions = new HubFunctions())
-                    //            {
-                    //                if (originalMessage.MessageType == (byte)MessageTypes.FreeTextSend && !String.IsNullOrEmpty(originalMessage.SessionId))
-                    //                {
-                    //                    hubFunctions.SendDeliveryReceipt(getNotificationUserName(originalMessage), originalMessage.MessageId.ToString(), messageHtml);
-                    //                }
-                    //                else
-                    //                {
-                    //                    hubFunctions.SendDeliveryReceipt(originalMessage.Account.UserName, originalMessage.MessageId.ToString(), messageHtml);
-                    //                }
-                    //            }
-                    //        }
-                    //    }
-                    //}
-                    //return Ok();
-
                     case "message-failed":
                         DeliveryReceipt failureReceipt = CarrierEventProcessing.ProcessDeliveryReceipt(bwMessage);
-
-                        //using (TextPortDA da = new TextPortDA())
-                        //{
-                        //    Message originalMessage = da.GetMessageByGatewayMessageId(bwMessage.message.id);
-                        //    if (originalMessage != null)
-                        //    {
-                        //        CarrierResponseCode rc = da.GetCarrierResponseCode((int)originalMessage.DedicatedVirtualNumber.CarrierId, bwMessage.errorCode.ToString());
-
-                        //        originalMessage.QueueStatus = (byte)QueueStatuses.DeliveryFailed;
-                        //        originalMessage.FailureReason = rc.Description;
-                        //        originalMessage.Segments = (bwMessage.message.segmentCount > 0) ? bwMessage.message.segmentCount : 1;
-
-                        //        if (rc.Billable)
-                        //        {
-                        //            applyChargesAndUpdateBalance(originalMessage);
-                        //        }
-                        //        da.SaveChanges();
-
-                        //        string messageHtml = $"<div class='fail-reason'><i class='fa fa-exclamation-triangle'></i>Failed: {rc.Description}</div>";
-                        //        using (HubFunctions hubFunctions = new HubFunctions())
-                        //        {
-                        //            hubFunctions.SendDeliveryReceipt(getNotificationUserName(originalMessage), originalMessage.MessageId.ToString(), messageHtml);
-                        //        }
-                        //    }
-                        //}
                         return Ok();
 
                     default: // Log anything else

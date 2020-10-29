@@ -40,7 +40,7 @@ namespace TextPortCore.Models
 
         public string VirtualNumberE164
         {
-            get { return Utilities.NumberToE164(this.virtualNumber); }
+            get { return Utilities.NumberToE164(this.virtualNumber, this.CountryId.ToString()); }
         }
 
         [Required(ErrorMessage = "A country must be selected")]

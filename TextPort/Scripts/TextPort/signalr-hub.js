@@ -79,21 +79,42 @@
 });
 
 function numberToE164(countryCode, number) {
-    return countryCode + number.replace("\D", "");
+    return number.replace(/\D/g, '');
 }
 
 function numberToDisplay(number, countryCode) {
+    if (countryCode === "") {
+        countryCode = getCountryCodeFromNumber(number);
+    }
+
     if (number.length >= 1) {
         if (countryCode === "1") {
-            if (number.substr(0, 1) === "1") {
-                return '(' + number.substr(1, 3) + ') ' + number.substr(4, 3) + '-' + number.substr(7, 4);
-            }
-            else {
-                return '(' + number.substr(0, 3) + ') ' + number.substr(3, 3) + '-' + number.substr(6, 4);
-            }
+            return '+1 ' + number.substr(1, 3) + ' ' + number.substr(4, 3) + '-' + number.substr(7, 4);
+        }
+        else if (countryCode === "44") {
+            return '+44 ' + number.substr(2, 4) + '-' + number.substr(6);
+        }
+        else if (countryCode.length && countryCode.length === 2) {
+            return "+" + countryCode + " " + number.substr(2);
+        }
+        else if (countryCode.length && countryCode.length === 3) {
+            return "+" + countryCode + " " + number.substr(3);
         }
         else {
-            return number;
+            return "+" + number;
+        }
+    }
+    return "";
+}
+
+function getCountryCodeFromNumber(number) {
+    if (number.length >= 1) {
+        number = number.replace(/\D/g, '');
+        if (number.substr(0, 1) === "1") {
+            return "1";
+        }
+        else {
+            return number.substr(0, 2); // Assumes 2-digit country codes only.
         }
     }
     return "";

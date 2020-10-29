@@ -75,9 +75,9 @@ namespace TextPortCore.Integrations.Common
                         break;
                 }
 
-                if (bwMessage.message.media != null)
+                if (bwMessage.message?.media?.Count > 0)
                 {
-
+                    this.Media = bwMessage.message.media;
                 }
             }
         }

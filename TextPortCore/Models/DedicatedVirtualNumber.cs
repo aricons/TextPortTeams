@@ -76,6 +76,14 @@ namespace TextPortCore.Models
             }
         }
 
+        public string ImageUrl
+        {
+            get
+            {
+                return $"/content/images/flags/20px/{this.Country?.CountryAlphaCode}.png";
+            }
+        }
+
         public Account Account { get; set; }
 
         public Carrier Carrier { get; set; }

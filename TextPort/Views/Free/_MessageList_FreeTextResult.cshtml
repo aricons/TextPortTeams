@@ -15,9 +15,12 @@
             else
             {
                 <div class="sent_msg">
-                    @foreach (MMSFile mms in msg.MMSFiles)
+                    @if (msg.MMSFiles != null)
                     {
-                        <div><img src="@MMSUtils.GetMMSFileURL(msg.AccountId, mms.StorageId, mms.FileName)" alt="@mms.FileName" /></div>
+                        foreach (MMSFile mms in msg.MMSFiles)
+                        {
+                            <div><img src="@MMSUtils.GetMMSFileURL(msg.AccountId, mms.StorageId, mms.FileName)" alt="@mms.FileName" /></div>
+                        }
                     }
                     <p>@msg.MessageText</p>
                     @if (msg.QueueStatus == (byte)QueueStatuses.DeliveryFailed)
@@ -31,9 +34,12 @@
         else
         {
             <div class="received_msg">
-                @foreach (MMSFile mms in msg.MMSFiles)
+                @if (msg.MMSFiles != null)
                 {
-                    <div><img src="@MMSUtils.GetMMSFileURL(msg.AccountId, mms.StorageId, mms.FileName)" alt="@mms.FileName" /></div>
+                    foreach (MMSFile mms in msg?.MMSFiles)
+                    {
+                        <div><img src="@MMSUtils.GetMMSFileURL(msg.AccountId, mms.StorageId, mms.FileName)" alt="@mms.FileName" /></div>
+                    }
                 }
                 <p>@msg.MessageText</p>
                 <span id="td_@msg.MessageId"></span>

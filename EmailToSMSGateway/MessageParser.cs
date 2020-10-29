@@ -67,23 +67,25 @@ namespace EmailToSMSGateway
 
                 // To
                 emailToSMSMessage.ProcessingLog += "Looking for To addresses\r\n";
-                if (mimeMsg.To.Count > 0)
+                if (mimeMsg.Headers["X-Rcpt-To"] != "")
                 {
-                    emailToSMSMessage.ProcessingLog += $"{mimeMsg.To.Count} To addresses found\r\n";
-                    foreach (MailboxAddress toAddr in mimeMsg.To.Mailboxes)
+                    //emailToSMSMessage.ProcessingLog += $"{mimeMsg.To.Count} To addresses found\r\n";
+                    string toAddress = mimeMsg.Headers["X-Rcpt-To"];
+                    emailToSMSMessage.ProcessingLog += $"To address '{toAddress}' found\r\n";
+                    //foreach (MailboxAddress toAddr in mimeMsg.To.Mailboxes)
+                    //{
+                    if (!string.IsNullOrEmpty(toAddress))
                     {
-                        if (!string.IsNullOrEmpty(toAddr.Address))
+                        string mobileNumber = string.Empty;
+                        emailToSMSMessage.To += $"{toAddress};";
+                        emailToSMSMessage.ProcessingLog += $"Parsing To address {toAddress} for mobile number\r\n";
+                        if (getMobileNumberFromToAddress(toAddress, ref mobileNumber))
                         {
-                            string mobileNumber = string.Empty;
-                            emailToSMSMessage.To += $"{toAddr.Address};";
-                            emailToSMSMessage.ProcessingLog += $"Parsing To address {toAddr.Address} for mobile number\r\n";
-                            if (getMobileNumberFromToAddress(toAddr.Address, ref mobileNumber))
-                            {
-                                emailToSMSMessage.ProcessingLog += $"Valid number {mobileNumber} found\r\n";
-                                emailToSMSMessage.DestinationNumbers.Add(mobileNumber);
-                            }
+                            emailToSMSMessage.ProcessingLog += $"Valid number {mobileNumber} found\r\n";
+                            emailToSMSMessage.DestinationNumbers.Add(mobileNumber);
                         }
                     }
+                    //}
                 }
 
                 // Cc
@@ -285,13 +287,32 @@ namespace EmailToSMSGateway
             Match m = rx.Match(namePart);
             if (m.Success)
             {
-                fromNumber = Utilities.NumberToE164(namePart);
+                fromNumber = NumberToE164Temp(namePart, "1");
                 return true;
             }
             else
             {
                 return false;
             }
+        }
+
+        private static string NumberToE164Temp(string number, string countryCode)
+        {
+            string globalNumber = string.Empty;
+
+            try
+            {
+                globalNumber = $"{countryCode}{Regex.Replace(number, @"\D", "")}";
+                if (!globalNumber.StartsWith("1"))
+                {
+                    globalNumber = $"1{globalNumber}";
+                }
+            }
+            catch (Exception ex)
+            {
+                string foo = ex.Message;
+            }
+            return globalNumber;
         }
 
         private static string extractUserNameFromToAddress(string address)

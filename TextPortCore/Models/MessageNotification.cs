@@ -42,7 +42,7 @@ namespace TextPortCore.Models
             }
             this.MobileNumber = msg.MobileNumber;
             this.VirtualNumberId = msg.VirtualNumberId;
-            this.VirtualNumber = msg.VirtualNumber;
+            this.VirtualNumber = msg.DedicatedVirtualNumber.VirtualNumber;
             this.MessageText = msg.MessageText;
             this.SegmentCount = Utilities.GetSegmentCount(this.MessageText);
             this.Htmls = Rendering.RenderMessageIn(msg);

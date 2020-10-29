@@ -2,6 +2,8 @@
 using System.Linq;
 using System.Collections.Generic;
 
+using Microsoft.EntityFrameworkCore;
+
 using TextPortCore.Models;
 using TextPortCore.Helpers;
 
@@ -75,7 +77,7 @@ namespace TextPortCore.Data
         {
             try
             {
-                return _context.DedicatedVirtualNumbers.FirstOrDefault(x => x.VirtualNumberId == virtualNumberId);
+                return _context.DedicatedVirtualNumbers.Include(x => x.Country).FirstOrDefault(x => x.VirtualNumberId == virtualNumberId);
             }
             catch (Exception ex)
             {
@@ -91,11 +93,11 @@ namespace TextPortCore.Data
             {
                 if (includeExpiredNumbers)
                 {
-                    return _context.DedicatedVirtualNumbers.Where(x => x.AccountId == accountId).OrderByDescending(x => x.CreateDate).ToList();
+                    return _context.DedicatedVirtualNumbers.Include(x => x.Country).Where(x => x.AccountId == accountId).OrderBy(x => x.CountryId).ThenByDescending(x => x.CreateDate).ToList();
                 }
                 else
                 {
-                    return _context.DedicatedVirtualNumbers.Where(x => x.AccountId == accountId && x.Cancelled == false).OrderByDescending(x => x.CreateDate).ToList();
+                    return _context.DedicatedVirtualNumbers.Include(x => x.Country).Where(x => x.AccountId == accountId && x.Cancelled == false).OrderBy(x => x.CountryId).ThenByDescending(x => x.CreateDate).ToList();
                 }
             }
             catch (Exception ex)
@@ -511,7 +513,7 @@ namespace TextPortCore.Data
                     AccountId = actReq.AccountId,
                     CancellationFailureCount = 0,
                     Cancelled = false,
-                    CountryCode = "2",
+                    CountryCode = "1",
                     CarrierId = 1,
                     NumberType = (byte)NumberTypes.Pooled,
                     CreateDate = DateTime.Now,

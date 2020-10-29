@@ -36,7 +36,7 @@ namespace TextPortCore.Helpers
             string html = File.ReadAllText($"{ConfigurationManager.AppSettings["EmailTemplatesFolder"]}InboundMessageNotification.html");
             html = html.Replace("{{name}}", msg.Account.UserName);
             html = html.Replace("{{time}}", $"{msg.TimeStamp:MM-dd-yyyy hh:mm tt}");
-            html = html.Replace("{{to_number}}", msg.VirtualNumber);
+            html = html.Replace("{{to_number}}", msg.DedicatedVirtualNumber.VirtualNumber);
             html = html.Replace("{{from_number}}", msg.MobileNumber);
             html = html.Replace("{{message}}", msg.MessageText);
             html = html.Replace("{{copy_year}}", $"{DateTime.Now.Year}");
@@ -50,7 +50,7 @@ namespace TextPortCore.Helpers
             string html = File.ReadAllText($"{ConfigurationManager.AppSettings["EmailTemplatesFolder"]}EmailToSMSResponseNotification.html");
             html = html.Replace("{{name}}", salutationName);
             html = html.Replace("{{time}}", $"{msg.TimeStamp:MM-dd-yyyy hh:mm tt}");
-            html = html.Replace("{{to_number}}", msg.VirtualNumber);
+            html = html.Replace("{{to_number}}", msg.DedicatedVirtualNumber.VirtualNumber);
             html = html.Replace("{{from_number}}", msg.MobileNumber);
             html = html.Replace("{{message}}", msg.MessageText);
             html = html.Replace("{{copy_year}}", $"{DateTime.Now.Year}");

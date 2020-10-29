@@ -126,6 +126,7 @@ namespace TextPort.Controllers
                 message.Direction = (byte)MessageDirection.Outbound;
                 message.QueueStatus = (byte)QueueStatuses.NotProcessed;
                 message.Ipaddress = Utilities.GetUserHostAddress();
+                message.Segments = Utilities.GetSegmentCount(message.MessageText);
 
                 if (message.AccountId > 0)
                 {

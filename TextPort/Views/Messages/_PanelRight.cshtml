@@ -7,9 +7,11 @@
         <div class="col">
             <h5 id="active_num_title" class="text-primary text-center pl-0 pl-lg-2"></h5>
             <div id="new-number-panel" class="d-none">
-                <div class="form-group">
-                    <label class="form-label msg-h4">New Recipient</label>
-                    <input type="email" class="form-control" id="new_recipient_number" placeholder="(000) 000-0000">
+                <label class="form-label text-primary msg-h4">New Recipient</label>
+                <div class="form-row">
+                    <div class="col-1"><label class="form-control form-label" id="country-code-label"></label></div>
+                    <div class="col-11"><input class="form-control col-10" id="new_recipient_number"></div>
+                    @*placeholder="(000) 000-0000"*@
                 </div>
             </div>
         </div>

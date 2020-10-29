@@ -95,7 +95,7 @@ namespace TextPortCore.Integrations.Nexmo
                 request.AddParameter("msisdn", numberToPurchase.msisdn, ParameterType.GetOrPost);
 
                 // Disable for development and testing. Uncomment return true line.
-                // return true;
+                return true;
                 IRestResponse response = _client.Execute(request);
 
                 if (response.StatusCode == HttpStatusCode.OK)

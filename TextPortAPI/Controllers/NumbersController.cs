@@ -119,7 +119,7 @@ namespace TextPortAPI.Controllers
                             return ResponseMessage(Request.CreateResponse(HttpStatusCode.BadRequest, result));
                         }
 
-                        numberRequest.Number = Utilities.NumberToE164(numberRequest.Number);
+                        numberRequest.Number = Utilities.NumberToE164(numberRequest.Number, "1");
                         if (numberRequest.Number.Length != 11)
                         {
                             result.ProcessingMessage = "The number requested is invalid. Please check the length. Numbers should be 10 or 11 digits.";

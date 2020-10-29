@@ -51,6 +51,7 @@ namespace TextPortCore.Integrations.Common
                 log += "From mobile number: " + messageIn.From + "\r\n";
                 log += "To virtual number: " + messageIn.To + "\r\n";
                 log += "Carrier Message ID: " + messageIn.CarrierMessageId + "\r\n";
+                log += "Data Received: " + messageIn.DataFromVendor + "\r\n";
                 log += $"Performing lookup on virtual number {messageIn.To}\r\n";
 
                 using (TextPortDA da = new TextPortDA())
@@ -58,7 +59,7 @@ namespace TextPortCore.Integrations.Common
                     dvn = da.GetVirtualNumberByNumber(messageIn.To, true);
                     if (dvn != null)
                     {
-                        log += $"A match on virtual number {messageIn.To} was found. Virtual number ID is {dvn.VirtualNumber}\r\n";
+                        log += $"A match on virtual number {messageIn.To} was found. Virtual number ID is {dvn.VirtualNumberId}\r\n";
                         // First check whether this number is a free trial pool number. If so, perform and additional lookup for an outgoing 
                         // message with a destination number that matches the sending number of the message being received.
                         if (dvn.NumberType == (byte)NumberTypes.Pooled)
@@ -114,7 +115,6 @@ namespace TextPortCore.Integrations.Common
                     log += "Session Id: " + (tpMsgIn.SessionId ?? string.Empty) + "\r\n";
                     log += "Message: " + tpMsgIn.MessageText + "\r\n";
                     log += "Segments: " + tpMsgIn.Segments + "\r\n";
-                    log += "Data Received: " + messageIn.DataFromVendor + "\r\n";
 
                     // Check that the sending number is not in the BlockedNumbers table as an inbound number.
                     // If a block is found, flush the log and stop processing.
@@ -165,7 +165,7 @@ namespace TextPortCore.Integrations.Common
                         {
                             // Make sure the virtual number receiving the message and the forwarding number aren't the same, to avoid pushing a notification
                             // to the same number from which it came and creating a loop.
-                            if (tpMsgIn.VirtualNumber != account.ForwardVnmessagesTo)
+                            if (dvn.VirtualNumber != account.ForwardVnmessagesTo)
                             {
                                 log += $"SMS forwarding enabled. Sending notification to {account.ForwardVnmessagesTo}. ";
                                 // Check whether the user has a credit balance
@@ -275,8 +275,11 @@ namespace TextPortCore.Integrations.Common
                                     originalMessage.QueueStatus = (byte)QueueStatuses.DeliveryConfirmed;
                                     originalMessage.Segments = receipt.SegmentCount;
 
+                                    logText += "Account Id / Username: " + $"{originalMessage.AccountId} / {originalMessage.Account?.UserName}" + "\r\n";
+                                    logText += "Starting balance: " + $"{originalMessage.Account?.Balance}" + "\r\n";
+
                                     logText += $"Segment count from carrier is {receipt.SegmentCount}\r\n";
-                                    applyChargesAndUpdateBalance(originalMessage, ref logText);
+                                    synchronizeEstimatedAndActualCost(ref originalMessage, receipt.SegmentCount, ref logText);
 
                                     originalMessage.Account.MessageInCount++;
                                     logText += $"Updated message in count for account to {originalMessage.Account.MessageInCount}\r\n";
@@ -308,6 +311,41 @@ namespace TextPortCore.Integrations.Common
                         logText += "Vendor Message Id: " + receipt.CarrierMessageId + "\r\n";
                         logText += "Data Received: " + receipt.DataFromVendor + "\r\n";
                         logText += CheckForAPICallback(receipt);
+
+                        if (!string.IsNullOrEmpty(receipt.CarrierMessageId))
+                        {
+                            logText += $"Locating original message by vendor message ID {receipt.CarrierMessageId}\r\n";
+                            using (TextPortDA da = new TextPortDA())
+                            {
+                                Message originalMessage = da.GetMessageByGatewayMessageId(receipt.CarrierMessageId);
+                                if (originalMessage != null)
+                                {
+                                    logText += $"Original message located. Message ID is {originalMessage.MessageId}\r\n";
+                                    originalMessage.QueueStatus = (byte)QueueStatuses.DeliveryFailed;
+                                    originalMessage.Segments = receipt.SegmentCount;
+
+                                    logText += $"Segment count from carrier is {receipt.SegmentCount}\r\n";
+                                    adjustBalanceForFailure(originalMessage, receipt, ref logText);
+
+                                    originalMessage.Account.MessageInCount++;
+                                    logText += $"Updated message in count for account to {originalMessage.Account.MessageInCount}\r\n";
+                                    logText += $"Saving changes\r\n";
+                                    da.SaveChanges();
+
+                                    hubNotification = new HubNotification()
+                                    {
+                                        MessageId = originalMessage.MessageId,
+                                        NotificationMessage = $"<div class='fail-reason'><i class='fa fa-exclamation-triangle'></i>Failed: {receipt.Description}</div>",
+                                        HubClientId = getNotificationUserName(originalMessage)
+                                    };
+                                    logText += $"Hub notification will be deliverted to hub client ID {hubNotification.HubClientId}\r\n";
+                                }
+                                else
+                                {
+                                    logText += $"An original message with carrier message ID {originalMessage.MessageId} could not be located.\r\n";
+                                }
+                            }
+                        }
                         writeXMLToDisk(logText, $"{receipt.CarrierName}DeliveryFailure");
                         break;
 
@@ -335,35 +373,6 @@ namespace TextPortCore.Integrations.Common
             }
             return null;
         }
-
-        //public static bool ProcessDeliveryFailure(IntegrationDeliveryReceipt receipt)
-        //{
-        //    try
-        //    {
-        //        string resultMessage = String.Empty;
-        //        string forwardVNMessagesTo = String.Empty;
-        //        string userName = String.Empty;
-        //        string jsonPayload = JsonConvert.SerializeObject(receipt);
-
-        //        string resultDev = "Delivery failure received from Bandwidth\r\n";
-        //        resultDev += "Notification Type: " + receipt.type + "\r\n";
-        //        resultDev += "Error Code: " + receipt.errorCode + "\r\n";
-        //        resultDev += "To virtual number: " + receipt.to + "\r\n";
-        //        resultDev += "Data Received: " + jsonPayload + "\r\n";
-        //        resultDev += InboundMessageProcessing.CheckForAPICallback(receipt);
-        //        InboundMessageProcessing.WriteXMLToDisk(resultDev, "BandwidthDeliveryFailure");
-
-        //        return true;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        string resultErr = $"An error occurred in BandwidthCom.ProcessDeliveryFailure(). Message: {ex.ToString()}";
-        //        InboundMessageProcessing.WriteXMLToDisk(resultErr, "Error_ProcessDeliveryFailure");
-
-        //        EventLogging.WriteEventLogEntry(resultErr, System.Diagnostics.EventLogEntryType.Error);
-        //    }
-        //    return false;
-        //}
 
         public static string CheckForAPICallback(IntegrationMessageIn msgIn)
         {
@@ -453,11 +462,14 @@ namespace TextPortCore.Integrations.Common
             }
         }
 
-        private static bool applyChargesAndUpdateBalance(Message originalMessage, ref string logText)
+        private static bool synchronizeEstimatedAndActualCost(ref Message originalMessage, int segmentCount, ref string logText)
         {
-            decimal messageRate;
-            decimal messageCost;
+            if (segmentCount == 0)
+            {
+                segmentCount = 1;
+            }
 
+            decimal messageRate;
             if (originalMessage.IsMMS)
             {
                 messageRate = (originalMessage.Account.MMSSegmentCost > 0) ? originalMessage.Account.MMSSegmentCost : Constants.BaseMMSSegmentCost;
@@ -467,12 +479,44 @@ namespace TextPortCore.Integrations.Common
                 messageRate = (originalMessage.Account.SMSSegmentCost > 0) ? originalMessage.Account.SMSSegmentCost : Constants.BaseSMSSegmentCost;
             }
 
-            logText += $"Starting balance: {originalMessage.Account.Balance}\r\n";
-            messageCost = (messageRate * (int)originalMessage.Segments);
-            logText += $"Message cost: {messageRate:C4} segment rate x {originalMessage.Segments} segments = {messageCost:C4}\r\n";
-            originalMessage.CustomerCost = messageCost;
-            originalMessage.Account.Balance -= messageCost;
-            logText += $"New balance: {originalMessage.Account.Balance}\r\n";
+            decimal originalMessageCost = (originalMessage?.CustomerCost != null) ? (decimal)originalMessage.CustomerCost : 0;
+            decimal actualMessageCost = messageRate * segmentCount;
+
+            logText += $"Pre-calculated message cost: {originalMessageCost}\r\n";
+            logText += $"Actual message cost: {actualMessageCost}\r\n";
+
+            // Only update if actual cost is higher.
+            if (actualMessageCost > originalMessageCost)
+            {
+                decimal costDifferential = actualMessageCost - originalMessageCost;
+                logText += $"Actual message cost {actualMessageCost} is higher then original cost {originalMessageCost} by {costDifferential}. Subtracting differential from balance.\r\n";
+                originalMessage.Segments = segmentCount;
+                originalMessage.CustomerCost = actualMessageCost;
+                originalMessage.Account.Balance -= costDifferential;
+                logText += $"Updated balance: {originalMessage.Account.Balance}\r\n";
+            }
+            else
+            {
+                logText += $"Actual message cost {actualMessageCost} matches originally calculated cost {originalMessageCost}. No cost adjustments.\r\n";
+            }
+
+            return true;
+        }
+
+        private static bool adjustBalanceForFailure(Message originalMessage, IntegrationMessageIn receipt, ref string logText)
+        {
+            // If the failure is valid (not spam), then credit the message cost back to the account
+            decimal originalMessageCost = (originalMessage?.CustomerCost != null) ? (decimal)originalMessage.CustomerCost : 0;
+            if (originalMessageCost > 0)
+            {
+                if (applyCreditForErrorCode(receipt.ErrorCode))
+                {
+                    logText += $"A creditable error code {receipt.ErrorCode} was found. Applying credit ot {originalMessageCost} to account.\r\n";
+                    originalMessage.Account.Balance += originalMessageCost;
+                }
+            }
+
+            logText += $"Account balance: {originalMessage.Account.Balance}\r\n";
 
             return true;
         }
@@ -487,14 +531,20 @@ namespace TextPortCore.Integrations.Common
             {
                 return msg.Account.UserName;
             }
-            //if (originalMessage.MessageType == (byte)MessageTypes.FreeTextSend && !String.IsNullOrEmpty(originalMessage.SessionId))
-            //{
-            //    hubFunctions.SendDeliveryReceipt(getNotificationUserName(originalMessage), originalMessage.MessageId.ToString(), messageHtml);
-            //}
-            //else
-            //{
-            //    hubFunctions.SendDeliveryReceipt(originalMessage.Account.UserName, originalMessage.MessageId.ToString(), messageHtml);
-            //}
+        }
+
+        private static bool applyCreditForErrorCode(string errorCode)
+        {
+            switch (errorCode)
+            {
+                case "1234":
+                case "3456":
+                    return true;
+
+                case "4321": // SPAM codes
+                    return false;
+            }
+            return false;
         }
     }
 }

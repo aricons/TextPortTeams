@@ -70,7 +70,9 @@ namespace TextPortCore.Helpers
         [Description("Australia")]
         Australia = 61,
         [Description("New Zealand")]
-        NewZealand = 64
+        NewZealand = 64,
+        [Description("India")]
+        India = 91
     }
 
     public enum Carriers : int

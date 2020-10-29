@@ -63,13 +63,13 @@ namespace TextPortCore.Models
 
         public List<MMSFile> MMSFiles { get; set; } //= new List<MMSFile>();
 
-        public string NumberBandwidthFormat
-        {
-            get
-            {
-                return Utilities.NumberToBandwidthFormat(this.VirtualNumber);
-            }
-        }
+        //public string NumberBandwidthFormat
+        //{
+        //    get
+        //    {
+        //        return Utilities.NumberToBandwidthFormat(this.VirtualNumber);
+        //    }
+        //}
 
         // Constructors
 
@@ -87,10 +87,10 @@ namespace TextPortCore.Models
             this.TimeStamp = DateTime.UtcNow;
             this.MessageText = string.Empty;
             this.Segments = 1;
-            this.IsMMS = false;
             this.Account = null;
             this.DedicatedVirtualNumber = null;// new DedicatedVirtualNumber();
             this.MMSFiles = null; // new List<MMSFile>();
+            this.IsMMS = false;
         }
 
         public Message(int accId, byte msgType, int virtualNumId, string msgText)
@@ -108,9 +108,9 @@ namespace TextPortCore.Models
             this.TimeStamp = DateTime.UtcNow;
             this.MessageText = msgText;
             this.Segments = Utilities.GetSegmentCount(msgText);
-            this.IsMMS = false;
             this.Account = null;
             this.MMSFiles = null; // new List<MMSFile>();
+            this.IsMMS = false;
         }
 
         public Message(BulkMessageItem bulkMessage, MessageTypes msgType, int accountId, int sourceNumberId, string sourceNumber)
@@ -123,14 +123,14 @@ namespace TextPortCore.Models
             this.CustomerCost = Constants.BaseSMSSegmentCost;
             this.Ipaddress = Utilities.GetUserHostAddress();
             this.VirtualNumberId = sourceNumberId;
-            this.MobileNumber = Utilities.NumberToE164(bulkMessage.Number);
+            this.MobileNumber = Utilities.NumberToE164(bulkMessage.Number, "1");
             this.GatewayMessageId = string.Empty;
             this.TimeStamp = DateTime.UtcNow;
             this.MessageText = bulkMessage.MessageText;
             this.Segments = Utilities.GetSegmentCount(bulkMessage.MessageText);
-            this.IsMMS = false;
             this.Account = null;
             this.MMSFiles = null; // new List<MMSFile>();
+            this.IsMMS = false;
         }
 
         public Message(EmailToSMSMessage emailToSMSMessage, string destinationNumber)
@@ -148,10 +148,10 @@ namespace TextPortCore.Models
             this.TimeStamp = DateTime.UtcNow;
             this.MessageText = emailToSMSMessage.MessageText;
             this.Segments = Utilities.GetSegmentCount(emailToSMSMessage.MessageText);
-            this.IsMMS = false;
             this.Account = null;
             this.EmailToSMSAddressId = emailToSMSMessage.AddressId;
             this.MMSFiles = null; // new List<MMSFile>();
+            this.IsMMS = false;
         }
 
 
@@ -170,9 +170,9 @@ namespace TextPortCore.Models
             this.TimeStamp = DateTime.UtcNow;
             this.MessageText = apiMessage.MessageText;
             this.Segments = Utilities.GetSegmentCount(apiMessage.MessageText);
-            this.IsMMS = false;
             this.Account = null;
             this.MMSFiles = null; // new List<MMSFile>();
+            this.IsMMS = false;
         }
 
         // Inbound messages
@@ -187,7 +187,7 @@ namespace TextPortCore.Models
             this.Account = dvn.Account;
             this.AccountId = dvn.AccountId;
             this.Ipaddress = Utilities.GetUserHostAddress();
-            this.VirtualNumber = integrationMessageIn.To;
+            //this.VirtualNumber = integrationMessageIn.To;
             this.VirtualNumberId = dvn.VirtualNumberId;
             this.SessionId = sessionId;
             this.TimeStamp = DateTime.UtcNow;
@@ -196,7 +196,6 @@ namespace TextPortCore.Models
             this.GatewayMessageId = integrationMessageIn.CarrierMessageId;
             this.MessageText = integrationMessageIn.Message;
             this.Segments = (integrationMessageIn.SegmentCount == 0) ? 1 : integrationMessageIn.SegmentCount;
-            this.IsMMS = false;
             this.MMSFiles = new List<MMSFile>();
 
             if (integrationMessageIn.Media != null && integrationMessageIn.Media.Count > 0)

@@ -92,26 +92,26 @@ namespace TextPortCore.Data
         {
             try
             {
-                Account acct = _context.Accounts.FirstOrDefault(x => x.AccountId == accountId);
-
-                var query = from dvn in _context.DedicatedVirtualNumbers
-                            join msg in _context.Messages on dvn.VirtualNumberId equals msg.VirtualNumberId
-                            join acc in _context.Accounts on dvn.AccountId equals acc.AccountId
+                var query = from msg in _context.Messages
+                            join dvn in _context.DedicatedVirtualNumbers on msg.VirtualNumberId equals dvn.VirtualNumberId
+                            join acc in _context.Accounts on msg.AccountId equals acc.AccountId
                             where dvn.AccountId == accountId && dvn.VirtualNumberId == virtualNumberId && msg.DeleteFlag == null && msg.MessageType != (byte)MessageTypes.Notification
-                            group msg by msg.MobileNumber into numGroup
+                            group new { msg.MessageId, msg.TimeStamp, msg.MessageText, dvn.CountryId, acc.TimeZoneId }
+                            by msg.MobileNumber into numGroup
                             select new
                             {
                                 Message = numGroup.Select(x => new Recent()
                                 {
                                     Number = numGroup.Key,
+                                    CountryId = x.CountryId,
                                     MessageId = x.MessageId,
-                                    TimeStamp = TimeFunctions.GetUsersLocalTime(x.TimeStamp, acct.TimeZoneId),
+                                    TimeStamp = TimeFunctions.GetUsersLocalTime(x.TimeStamp, x.TimeZoneId),
                                     Message = x.MessageText,
                                     IsActiveMessage = false
                                 }).OrderByDescending(x => x.TimeStamp).FirstOrDefault()
                             };
 
-                return query.OrderByDescending(x => x.Message.TimeStamp).Select(x => x.Message).ToList();
+                return query.OrderByDescending(x => x.Message.TimeStamp).Select(x => x.Message).Take(300).ToList();
             }
             catch (Exception ex)
             {
@@ -125,18 +125,20 @@ namespace TextPortCore.Data
         {
             try
             {
-                Account acc = _context.Accounts.FirstOrDefault(x => x.AccountId == accountId);
-
-                var query = from m in _context.Messages
-                            where m.AccountId == accountId && m.VirtualNumberId == virtualNumberId && m.DeleteFlag == null && m.MessageType != (byte)MessageTypes.Notification
-                            group m by m.MobileNumber into numGroup
+                var query = from msg in _context.Messages
+                            join dvn in _context.DedicatedVirtualNumbers on msg.VirtualNumberId equals dvn.VirtualNumberId
+                            join acc in _context.Accounts on msg.AccountId equals acc.AccountId
+                            where msg.AccountId == accountId && msg.VirtualNumberId == virtualNumberId && msg.DeleteFlag == null && msg.MessageType != (byte)MessageTypes.Notification
+                            group new { msg.MessageId, msg.TimeStamp, msg.MessageText, dvn.CountryId, acc.TimeZoneId }
+                            by msg.MobileNumber into numGroup
                             select new
                             {
                                 Message = numGroup.Select(x => new Recent()
                                 {
                                     Number = numGroup.Key,
+                                    CountryId = x.CountryId,
                                     MessageId = x.MessageId,
-                                    TimeStamp = TimeFunctions.GetUsersLocalTime(x.TimeStamp, acc.TimeZoneId),
+                                    TimeStamp = TimeFunctions.GetUsersLocalTime(x.TimeStamp, x.TimeZoneId),
                                     Message = x.MessageText,
                                     IsActiveMessage = false
                                 }).OrderByDescending(x => x.TimeStamp).FirstOrDefault()
@@ -207,11 +209,6 @@ namespace TextPortCore.Data
                     RecordsPerPage = recordsPerPage,
                     SortOrder = sortOrder
                 };
-
-                //inboxContainer.RecordCount = (from msg in _context.Messages
-                //                              join vn in _context.DedicatedVirtualNumbers on msg.VirtualNumberId equals vn.VirtualNumberId
-                //                              where vn.AccountId == accountId && msg.Direction == 1 && msg.DeleteFlag == null && vn.Cancelled == false
-                //                              select msg.MessageId).Count();
 
                 var msgCount = _context.Messages
                    .Join(_context.DedicatedVirtualNumbers, msg => msg.VirtualNumberId, dvn => dvn.VirtualNumberId, (msg, dvn) => new { Msg = msg, Dvn = dvn })
@@ -356,13 +353,7 @@ namespace TextPortCore.Data
                                 msg.MessageType != (byte)MessageTypes.Notification
                             orderby
                                 msg.MessageId descending
-                            select new DedicatedVirtualNumber()
-                            {
-                                AccountId = dvn.AccountId,
-                                VirtualNumber = dvn.VirtualNumber,
-                                VirtualNumberId = dvn.VirtualNumberId,
-                                NumberType = dvn.NumberType
-                            };
+                            select dvn;
 
                 return query.FirstOrDefault();
             }
@@ -429,7 +420,7 @@ namespace TextPortCore.Data
 
         public bool NumberIsBlocked(string mobileNumber, MessageDirection direction)
         {
-            mobileNumber = Utilities.NumberToE164(mobileNumber);
+            mobileNumber = Utilities.NumberToE164(mobileNumber, "1");
             BlockedNumber bn = _context.BlockedNumbers.FirstOrDefault(x => x.MobileNumber == mobileNumber && x.Direction == (byte)direction);
             if (bn != null)
             {
@@ -454,7 +445,6 @@ namespace TextPortCore.Data
                 {
                     message.GatewayMessageId = gatewayMessageId;
                     message.Segments = segmentCount;
-                    message.CustomerCost = 0; // Don't update price until a confirmation of delivery is received.
                     message.QueueStatus = (byte)status;
                     message.ProcessingMessage += processingMessage;
 
@@ -500,37 +490,45 @@ namespace TextPortCore.Data
 
         #region "Insert Methods"
 
-        public int InsertMessage(Message message, ref decimal estimatedRemainingBalance)
+        public int InsertMessage(Message message, ref decimal newBalance)
         {
-            estimatedRemainingBalance = 0;
+            newBalance = 0;
             try
             {
-                //Account acc = _context.Accounts.Include(a => a.TimeZone).FirstOrDefault(x => x.AccountId == message.AccountId);
-                //message.Account = acc;
-                message.MobileNumber = Utilities.NumberToE164(message.MobileNumber);
+                if (message.Account == null)
+                {
+                    Account acc = _context.Accounts.Include(a => a.TimeZone).FirstOrDefault(x => x.AccountId == message.AccountId);
+                    message.Account = acc;
+                }
 
+                message.IsMMS = (message.MMSFiles?.Count > 0);
+
+                // Only insert the message, inbound or outbound if the account has a balance.
                 if (message.Account.Balance > 0)
                 {
+                    // Only update deduct the cost from the balance if the message is outbound.
+                    if (message.Direction == (int)MessageDirection.Outbound)
+                    {
+                        if (message.Segments == null) message.Segments = 1;
+
+                        // Deduct the message cost from the balance now. If the message fails, the cost can be credited back later once a response is received from the provider.
+                        message.CustomerCost = (message.IsMMS) ? message.Account.MMSSegmentCost : message.Account.SMSSegmentCost;
+                        message.CustomerCost *= message.Segments;
+
+                        message.Account.MessageOutCount++;
+                        message.Account.Balance -= (decimal)message.CustomerCost;
+                        newBalance = message.Account.Balance;
+                    }
+
                     _context.Messages.Add(message);
                     _context.SaveChanges();
-
-                    if (message.MMSFiles?.Count > 0)
-                    {
-                        message.CustomerCost = message.Account.MMSSegmentCost;
-                    }
-                    else
-                    {
-                        message.CustomerCost = message.Account.SMSSegmentCost;
-                    }
-
-                    estimatedRemainingBalance = message.Account.Balance - ((decimal)message.CustomerCost * (int)message.Segments);
 
                     return message.MessageId;
                 }
                 else
                 {
                     message.Account.Balance = 0M;
-                    estimatedRemainingBalance = message.Account.Balance;
+                    message.ProcessingMessage = "Insufficient balance";
                     _context.SaveChanges();
                 }
             }

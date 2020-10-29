@@ -44,7 +44,7 @@ namespace TextPort.Controllers
                         {
                             Message message = new Message(groupText.AccountId, (byte)MessageTypes.Group, groupText.VirtualNumberId, groupText.Message)
                             {
-                                MobileNumber = Utilities.NumberToE164(member.MobileNumber)
+                                MobileNumber = member.MobileNumber
                             };
 
                             string result = string.Empty;

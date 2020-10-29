@@ -91,7 +91,7 @@ namespace TextPortCore.Data
         {
             try
             {
-                newMember.MobileNumber = Utilities.NumberToE164(newMember.MobileNumber);
+                newMember.MobileNumber = Utilities.NumberToE164(newMember.MobileNumber, "1");
                 _context.GroupMembers.Add(newMember);
                 _context.SaveChanges();
 
