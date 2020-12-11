@@ -9,42 +9,13 @@ namespace TextPortCore.Models
 {
     public class EmailMessage : IDisposable
     {
-        private string from;
-        private string fromName;
-        private string to;
-        private string subject;
-        private string body;
-
-        public string To
-        {
-            get { return this.to; }
-            set { this.to = value; }
-        }
-
-        public string From
-        {
-            get { return this.from; }
-            set { this.from = value; }
-        }
-
-        public string FromName
-        {
-            get { return this.fromName; }
-            set { this.fromName = value; }
-        }
-
-        public string Subject
-        {
-            get { return this.subject; }
-            set { this.subject = value; }
-        }
-
-        public string Body
-        {
-            get { return this.body; }
-            set { this.body = value; }
-        }
-
+        public string To { get; set; }
+        public string From { get; set; }
+        public string FromName { get; set; }
+        public string ReplyTo { get; set; }
+        public string Subject { get; set; }
+        public string Body { get; set; }
+        
         // Constructors
         public EmailMessage()
         {
@@ -76,6 +47,7 @@ namespace TextPortCore.Models
             MailMessage message = new MailMessage();
             message.From = new MailAddress(this.From, this.FromName);
             message.To.Add(this.To);
+          
             //For monitoring
 
             string bccAddress = ConfigurationManager.AppSettings["EmailNotificationsBCCAddress"];
@@ -84,6 +56,11 @@ namespace TextPortCore.Models
                 message.Bcc.Add(bccAddress);
             }
             //message.Bcc.Add("rdegley@gmail.com");
+
+            if (!string.IsNullOrEmpty(this.ReplyTo))
+            {
+                message.ReplyToList.Add(new MailAddress(this.ReplyTo, this.FromName));
+            }
 
             message.Subject = this.Subject;
             message.IsBodyHtml = isBodyHtml;

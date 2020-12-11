@@ -36,7 +36,6 @@ namespace TextPortCore.Models
 
         public AccountView(int accountId)
         {
-            //this._context = context;
             this.ConfirmationMessage = string.Empty;
             this.Status = RequestStatus.Pending;
             using (TextPortDA da = new TextPortDA())
@@ -47,7 +46,7 @@ namespace TextPortCore.Models
                 {
                     if (!string.IsNullOrEmpty(this.Account.ForwardVnmessagesTo))
                     {
-                        this.Account.ForwardVnmessagesTo = Utilities.NumberToDisplayFormat(this.Account.ForwardVnmessagesTo, (int)Countries.UnitedStates);
+                        this.Account.ForwardVnmessagesTo = Utilities.NumberToBandwidthFormat(this.Account.ForwardVnmessagesTo);
                     }
                 }
             }

@@ -33,6 +33,7 @@ namespace TextPortCore.Data
         public virtual DbSet<BlogPost> BlogPosts { get; set; }
         public virtual DbSet<Carrier> Carriers { get; set; }
         public virtual DbSet<CarrierResponseCode> CarrierResponseCodes { get; set; }
+        public virtual DbSet<CensoredWord> CensoredWords { get; set; }
         public virtual DbSet<Contact> Contacts { get; set; }
         public virtual DbSet<Country> Countries { get; set; }
         public virtual DbSet<DedicatedVirtualNumber> DedicatedVirtualNumbers { get; set; }
@@ -219,6 +220,15 @@ namespace TextPortCore.Data
                 //entity.HasMany(e => e.Countries).WithOne(e => e.Carrier).HasForeignKey(e => e.CarrierId).IsRequired();
             });
 
+            modelBuilder.Entity<CensoredWord>(entity =>
+            {
+                entity.ToTable("CensoredWords");
+
+                entity.HasKey(e => e.Word);
+
+                entity.HasIndex(e => e.Word);
+            });
+
             modelBuilder.Entity<CarrierResponseCode>(entity =>
             {
                 entity.ToTable("CarrierResponseCodes");
@@ -239,28 +249,6 @@ namespace TextPortCore.Data
                 entity.HasIndex(e => e.AccountId);
 
                 entity.HasIndex(e => new { e.AccountId, e.Name });
-
-                entity.Property(e => e.ContactId).HasColumnName("ContactID");
-
-                entity.Property(e => e.AccountId).HasColumnName("AccountID");
-
-                entity.Property(e => e.CarrierId).HasColumnName("CarrierID");
-
-                entity.Property(e => e.DateAdded).HasColumnType("datetime");
-
-                entity.Property(e => e.Email)
-                    .HasMaxLength(40)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.MobileNumber)
-                    .IsRequired()
-                    .HasMaxLength(30)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.Name)
-                    .IsRequired()
-                    .HasMaxLength(30)
-                    .IsUnicode(false);
             });
 
             modelBuilder.Entity<Country>(entity =>
@@ -319,11 +307,6 @@ namespace TextPortCore.Data
                 entity.Property(e => e.APIApplicationId);
 
                 entity.Property(e => e.Fee).HasColumnType("money");
-
-                //entity.Property(e => e.Provider)
-                //    .IsRequired()
-                //    .HasMaxLength(10)
-                //    .IsUnicode(false);
 
                 entity.Property(e => e.SevenDayReminderSent).HasColumnType("datetime");
 
@@ -447,11 +430,13 @@ namespace TextPortCore.Data
 
                 entity.HasIndex(e => new { e.AccountId, e.MobileNumber });
 
-                entity.Property(e => e.MessageId).HasColumnName("MessageID");
+                //entity.HasOne(e => e.Contact).WithOne().IsRequired(false);
+
+                entity.HasOne(e => e.Contact).WithMany().HasForeignKey(e => e.ContactId);
 
                 entity.HasMany(e => e.MMSFiles).WithOne().HasForeignKey(e => e.MessageId).IsRequired(false);
 
-                //entity.HasMany(m => m.MMSFiles).WithOne().IsRequired(false);
+                entity.Property(e => e.MessageId).HasColumnName("MessageID");
 
                 entity.Property(e => e.AccountId).HasColumnName("AccountID");
 

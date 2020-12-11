@@ -2,35 +2,37 @@
 
 <div class="modal-dialog" role="document" id="purchaseModal">
     <div class="modal-content">
-        <div class="modal-header">
-            <h3 class="modal-title" id="addContactLabel">@Model.PurchaseTitle</h3>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">×</span>
-            </button>
-        </div>
-        @Html.AntiForgeryToken()
-        @Html.HiddenFor(m => m.AccountId)
-        @Html.HiddenFor(m => m.PurchaseType)
-        @Html.HiddenFor(m => m.PayPalCustom)
-        @Html.HiddenFor(m => m.VirtualNumberId)
-        @Html.HiddenFor(m => m.CompletionTitle)
-        @Html.HiddenFor(m => m.CompletionMessage)
-        <div class="modal-body">
-            <div class="form-group">
-                <h6 class="text-center">@Model.ProductDescription</h6>
+        <form id="form-pre-purchase">
+            <div class="modal-header">
+                <h3 class="modal-title" id="addContactLabel">@Model.PurchaseTitle</h3>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
             </div>
-            <div class="row">
-                <div class="col-lg-3"></div>
-                <div class="col-lg-3">
-                    <div class="input-group">
-                        <div id="paypal-button-container"></div>
-                    </div>
+            @Html.AntiForgeryToken()
+            @Html.HiddenFor(m => m.AccountId)
+            @Html.HiddenFor(m => m.PayPalCustom)
+            @Html.HiddenFor(m => m.VirtualNumberId)
+            @Html.HiddenFor(m => m.CompletionTitle)
+            @Html.HiddenFor(m => m.CompletionMessage)
+            @Html.HiddenFor(m => m.ProductDescription)
+            <div class="modal-body">
+                <div class="form-group">
+                    <h6 class="text-center">@Model.ProductDescription</h6>
                 </div>
-                <div class="col-lg-1"></div>
+                <div class="row">
+                    <div class="col-lg-3"></div>
+                    <div class="col-lg-3">
+                        <div class="input-group">
+                            <div id="paypal-button-container"></div>
+                        </div>
+                    </div>
+                    <div class="col-lg-1"></div>
+                </div>
             </div>
-        </div>
-        <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-        </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+            </div>
+        </form>
     </div>
 </div>

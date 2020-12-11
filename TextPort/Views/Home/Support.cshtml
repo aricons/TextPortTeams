@@ -8,6 +8,16 @@
 }
 
 <script src='https://www.google.com/recaptcha/api.js'></script>
+<script>
+    $(function () {
+        $('#Category').on("change", function (e) {
+            var selection = $("#Category option:selected").val();
+            if (selection === "Block") {
+                window.location.href = "/block";
+            }
+        });
+    });
+</script>
 
 <div class="contact">
     <div class="container">
@@ -45,6 +55,9 @@
                                     @Html.LabelFor(m => m.ReceivingNumber, new { @class = "form-label" })<span class="sub-note pl-1">(if applicable)</span>
                                     @Html.TextBoxFor(m => m.ReceivingNumber, new { @class = "form-control" })
                                 </div>
+                                <div class="form-group mt-4">
+                                    <a href="/block">I want to block my number</a>
+                                </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
@@ -52,23 +65,20 @@
                                     @Html.TextAreaFor(m => m.Message, new { @class = "form-control", id = "ta_support", placeholder = "Description of the issue or request. Please provide as much supporting information as possible." })
                                     @Html.ValidationMessageFor(m => m.Message, null, new { @class = "text-danger" })
                                 </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6">
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <div class="g-recaptcha pull-right mb-2 pb-2 mb-1" data-sitekey="6Ldl-rQUAAAAALacF1sl4vM1WHQL5OhAYRFdLlnQ"></div>
+                                <div class="row">
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <div class="g-recaptcha pull-right mb-2 pb-2 mb-1" data-sitekey="6Ldl-rQUAAAAALacF1sl4vM1WHQL5OhAYRFdLlnQ"></div>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <button type="submit" class="btn btn-primary pull-right" id="btnRequestSupport">
-                                        Send Request
-                                    </button>
+                                <div class="row">
+                                    <div class="col-12">
+
+                                        <div class="form-group">
+                                            <button type="submit" class="btn btn-primary pull-right" id="btnRequestSupport">Send Request</button>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>

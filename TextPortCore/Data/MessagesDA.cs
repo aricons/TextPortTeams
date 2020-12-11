@@ -67,7 +67,7 @@ namespace TextPortCore.Data
         {
             try
             {
-                List<Message> messages = _context.Messages.Include(m => m.MMSFiles).Include(m => m.Account)
+                List<Message> messages = _context.Messages.Include(m => m.MMSFiles).Include(m => m.Account).Include(m => m.Contact)
                     .Where(m => m.AccountId == accountId
                         && m.VirtualNumberId == virtualNumberId
                         && m.MobileNumber == number
@@ -95,14 +95,18 @@ namespace TextPortCore.Data
                 var query = from msg in _context.Messages
                             join dvn in _context.DedicatedVirtualNumbers on msg.VirtualNumberId equals dvn.VirtualNumberId
                             join acc in _context.Accounts on msg.AccountId equals acc.AccountId
+                            join ctc in _context.Contacts on msg.ContactId equals ctc.ContactId into contacts
+                            from contact in contacts.DefaultIfEmpty()
                             where dvn.AccountId == accountId && dvn.VirtualNumberId == virtualNumberId && msg.DeleteFlag == null && msg.MessageType != (byte)MessageTypes.Notification
-                            group new { msg.MessageId, msg.TimeStamp, msg.MessageText, dvn.CountryId, acc.TimeZoneId }
+                            group new { msg.MessageId, msg.TimeStamp, msg.MessageText, dvn.CountryId, acc.TimeZoneId, contact.ContactId, contact.Name }
                             by msg.MobileNumber into numGroup
                             select new
                             {
                                 Message = numGroup.Select(x => new Recent()
                                 {
                                     Number = numGroup.Key,
+                                    ContactId = x.ContactId ?? 0,
+                                    ContactName = x.Name,
                                     CountryId = x.CountryId,
                                     MessageId = x.MessageId,
                                     TimeStamp = TimeFunctions.GetUsersLocalTime(x.TimeStamp, x.TimeZoneId),
@@ -128,14 +132,18 @@ namespace TextPortCore.Data
                 var query = from msg in _context.Messages
                             join dvn in _context.DedicatedVirtualNumbers on msg.VirtualNumberId equals dvn.VirtualNumberId
                             join acc in _context.Accounts on msg.AccountId equals acc.AccountId
+                            join ctc in _context.Contacts on msg.ContactId equals ctc.ContactId into contacts
+                            from contact in contacts.DefaultIfEmpty()
                             where msg.AccountId == accountId && msg.VirtualNumberId == virtualNumberId && msg.DeleteFlag == null && msg.MessageType != (byte)MessageTypes.Notification
-                            group new { msg.MessageId, msg.TimeStamp, msg.MessageText, dvn.CountryId, acc.TimeZoneId }
+                            group new { msg.MessageId, msg.TimeStamp, msg.MessageText, dvn.CountryId, acc.TimeZoneId, contact.ContactId, contact.Name }
                             by msg.MobileNumber into numGroup
                             select new
                             {
                                 Message = numGroup.Select(x => new Recent()
                                 {
                                     Number = numGroup.Key,
+                                    ContactId = x.ContactId ?? 0,
+                                    ContactName = x.Name,
                                     CountryId = x.CountryId,
                                     MessageId = x.MessageId,
                                     TimeStamp = TimeFunctions.GetUsersLocalTime(x.TimeStamp, x.TimeZoneId),

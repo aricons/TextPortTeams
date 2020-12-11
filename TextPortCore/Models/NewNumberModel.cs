@@ -100,7 +100,7 @@ namespace TextPortCore.Models
 
         public string PayPalCustom
         {
-            get { return string.Format("VMN|{0}|{1}|{2}|{3}|{4}", this.accountId, this.FullNumber, this.CountryId, this.leasePeriod, this.creditCount); }
+            get { return string.Format("VMN|{0}|{1}|{2}|{3}|{4}", this.AccountId, this.FullNumber, this.CountryId, this.LeasePeriod, this.CreditCount); }
         }
 
         public int AccountId

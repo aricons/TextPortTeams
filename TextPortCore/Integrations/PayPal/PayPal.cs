@@ -31,7 +31,7 @@ namespace TextPortCore.Integrations
         public static string SubmitPurchase(PurchaseDetail purchase)
         {
             var client = new RestClient(PayPalAPIUrl);
-            
+
             string accessToken = getAccessToken();
 
             var request = new RestRequest("/v1/payments/payment", Method.POST);

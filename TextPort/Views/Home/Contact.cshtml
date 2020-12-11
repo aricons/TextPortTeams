@@ -8,6 +8,16 @@
 }
 
 <script src='https://www.google.com/recaptcha/api.js'></script>
+<script>
+    $(function () {
+        $('#Category').on("change", function (e) {
+            var selection = $("#Category option:selected").val();
+            if (selection === "Block") {
+                window.location.href = "/block";
+            }
+        });
+    });
+</script>
 
 <div class="contact">
     <div class="container">

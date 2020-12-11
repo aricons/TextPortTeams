@@ -59,6 +59,7 @@
     <Compile Include="Models\Captcha.cs" />
     <Compile Include="Models\Carrier.cs" />
     <Compile Include="Models\CarrierResponseCode.cs" />
+    <Compile Include="Models\CensoredWord.cs" />
     <Compile Include="Models\ChangePasswordRequest.cs" />
     <Compile Include="Models\Contact.cs" />
     <Compile Include="Models\ContactsContainer.cs" />

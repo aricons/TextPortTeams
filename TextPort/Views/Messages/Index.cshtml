@@ -22,8 +22,8 @@
     Dropzone.autoDiscover = false;
     var mmsFiles = [];
 
+    $.ajaxSetup({ cache: false });
     $(function () {
-
         scrWidth = window.screen.width;
 
         $('#from_number').on("change", function (e) {
@@ -55,6 +55,44 @@
                 $("#hidActiveDestinationNumber").val('');
             }
             checkSendButtonEligibility();
+        });
+
+        $('#contact-modal').on('shown.bs.modal', function (e) {
+            var cid = $(e.relatedTarget).attr('data-cid');
+            var number = $(e.relatedTarget).attr('data-num');
+            var url = "";
+            alert(cid);
+            if (cid === "0") {
+                url = "/contacts/add/";
+            }
+            else {
+                url = "/contacts/edit/" + cid;
+            }
+            $.get({
+                url: url,
+                dataType: "html",
+                cache: false,
+                error: function (jqXHR, textStatus, errorThrown) {
+                    alert(textStatus + ": Couldn't load edit form. " + errorThrown);
+                },
+                success: function (editHtml) {
+                    alert(editHtml);
+                    $("#contact-content").html(editHtml);
+                    $.validator.unobtrusive.parse("#form-add");
+
+                    $('#form-add').submit(function (event) {
+                        event.preventDefault();
+                        var $form = $(this);
+                        if ($('#form-add').valid()) {
+                            $.post($form.attr("action"), $form.serialize()).done(function (res) {
+                                $('#contact-modal').modal('hide');
+                            }).fail(function () {
+                                alert("Error applying contact.");
+                            });
+                        };
+                    });
+                }
+            });
         });
 
         setChangeDetect();
@@ -170,6 +208,14 @@
                 });
             });
         });
+
+        $('#apply-contact-modal').on('hidden.bs.modal', '.modal', function (event) {
+            $(this).removeData('bs.modal');
+        });
+
+        // Edit modals
+        initApplyNameModal();
+        initApplyNameModalShow();
 
         $("[data-toggle=popover]").popover({
             html: true,
@@ -357,6 +403,7 @@
                 else {
                     $("#msg_list").html('');
                 }
+                initApplyNameModal();
             }
         })
     }
@@ -556,6 +603,52 @@
 
         return false;
     }
+
+    function initApplyNameModal() {
+        $('.apply-contact-button').on('click', function () {
+            var url = $(this).data('url');
+            var target = $(this).data('target');
+            $.get(url, function (data) {
+                $(target).html(data);
+                $(target + ' > .modal').modal({ keyboard: true }, 'show');
+            });
+        });
+    }
+
+    function initApplyNameModalShow() {
+        $('#apply-contact-modal').on('shown.bs.modal', function (e) {
+            $('#apply-contact-form').submit(function (event) {
+                event.preventDefault();
+            });
+            $.validator.unobtrusive.parse("#apply-contact-form");
+
+            $('#btnApplyContact').on("click", function (e) {
+                if ($("#apply-contact-form").valid()) {
+                    var contactData = {
+                        MobileNumber: $("#MobileNumber").val(),
+                        Name: $("#Name").val()
+                    };
+                    applyContact(contactData);
+                    $('#apply-contact-modal > .modal').modal('hide');
+                }
+            });
+        });
+    }
+
+    function applyContact(contactData) {
+        var url = '/contacts/apply/';
+        $.post({
+            url: url,
+            data: JSON.stringify(contactData),
+            contentType: "application/json",
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert(textStatus + ": Error applying contact. " + errorThrown);
+            },
+            success: function (contacts) {
+                getRecentsForVirtualNumber($("#from_number option:selected").val());
+            }
+        });
+    }
 </script>
 
 <input type="hidden" id="hidActiveVirtualNumberId" value="@Model.ActiveVirtualNumberId" />
@@ -572,4 +665,6 @@
 </div>
 <div id="modal-new"></div>
 <div id="modal-del"></div>
+<div id="apply-contact-modal"></div>
+<div id="edit-contact-modal"></div>
 <div class="clearfix"></div>

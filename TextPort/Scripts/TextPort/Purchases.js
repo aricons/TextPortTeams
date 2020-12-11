@@ -5,14 +5,7 @@
 
     $('#btnContinue').on("click", function (e) {
         if ($("#form-signup").valid()) {
-            generateProductDescription();
-            //var purchaseType = $('#PurchaseType').val();
-            //if (purchaseType === "ComplimentaryNumber") {
-            //    submitPurchase();
-            //}
-            //else {
             showConfirmationModal();
-            //}
         }
     });
 
@@ -43,7 +36,8 @@
         calculateCost();
     });
 
-    $('#purchaseModalCont').on('show.bs.modal', function () {
+    $('#purchaseModalCont').on('shown.bs.modal', function () {
+        //generateProductDescription();
         renderPayPalButton();
     });
 
@@ -62,7 +56,6 @@ function showConfirmationModal() {
         NumberCountryId: $("#NumberCountryId").val(),
         AreaCode: $("#AreaCode").val(),
         VirtualNumber: $("#VirtualNumber").val(),
-        //BaseNumberCost: $("#BaseNumberCost").val(),
         NumberCost: $("#NumberCost").val(),
         PayPalCustom: $('#PayPalCustom').val(),
         VirtualNumberId: $("#VirtualNumberId").val(),
@@ -88,7 +81,6 @@ function showConfirmationModal() {
             $(form).removeData("validator") // Added by jQuery Validate
                 .removeData("unobtrusiveValidation"); // Added by jQuery Unobtrusive Validation
             $.validator.unobtrusive.parse(form);
-
             $('#purchaseModalCont').modal({
                 keyboard: true
             }, 'show');
@@ -119,9 +111,6 @@ function calculateCost() {
     }
 
     availableCredit = parseFloat($("#AvailableCredit").text().replace("$", ""));
-    //leasePeriod = parseFloat($("#LeasePeriod").val());
-    //baseNumberCost = parseFloat($("#BaseNumberCost").val());
-    //numberCost = leasePeriod * baseNumberCost;
     totalCost = numberCost + creditCost;
     remainingCreditAfterPurchase = availableCredit - numberCost; //.toFixed(2);
 
@@ -149,70 +138,79 @@ function calculateCost() {
     }
 }
 
-function generateProductDescription() {
-    var leasePeriodValues = null;
-    var purchaseType = $('#PurchaseType').val();
-    var productDesctiption = '';
-    var numberCost = 0;
-    var creditAmount = 0;
-    var leasePeriodType = "";
-    var leasePeriodWord = "";
-    var leasePeriod = 0;
-    var number = $("#VirtualNumber").val();
-    var countryCode = $("#CountryId option:selected").val();
-    var numberType = 'TextPort number ';
+//function generateProductDescription() {
+//    var leasePeriodValues = null;
+//    var purchaseType = $('#PurchaseType').val();
+//    var accountId = $('#AccountId').val();
+//    var productDesctiption = '';
+//    var numberCost = 0;
+//    var creditAmount = 0;
+//    var leasePeriodType = "";
+//    var leasePeriodWord = "";
+//    var leasePeriod = 0;
+//    var number = $("#VirtualNumber").val();
+//    var countryCode = $("#CountryId option:selected").val();
+//    var numberType = 'TextPort number ';
 
-    leasePeriodValues = $("#LeasePeriodCode").val().split("|");
-    if (leasePeriodValues.length > 2) {
-        leasePeriodType = leasePeriodValues[0];
-        leasePeriod = parseFloat(leasePeriodValues[1]);
-        numberCost = parseFloat(leasePeriodValues[2]);
+//    leasePeriodValues = $("#LeasePeriodCode").val().split("|");
+//    if (leasePeriodValues.length > 2) {
+//        leasePeriodType = leasePeriodValues[0];
+//        leasePeriod = parseFloat(leasePeriodValues[1]);
+//        numberCost = parseFloat(leasePeriodValues[2]);
 
-        switch (leasePeriodType) {
-            case "D":
-                leasePeriodWord = "day";
-                break;
-            case "W":
-                leasePeriodWord = "week";
-                break;
-            case "Y":
-                leasePeriodWord = "year";
-                break;
-            default:
-                leasePeriodWord = "month";
-                break;
-        }
-    }
+//        switch (leasePeriodType) {
+//            case "D":
+//                leasePeriodWord = "day";
+//                break;
+//            case "W":
+//                leasePeriodWord = "week";
+//                break;
+//            case "Y":
+//                leasePeriodWord = "year";
+//                break;
+//            default:
+//                leasePeriodWord = "month";
+//                break;
+//        }
+//    }
 
-    var leasePer = $("#LeasePeriod");
-    if (leasePer.length) {
-        leasePeriod = parseFloat($("#LeasePeriod").val());
-        //baseNumberCost = parseFloat($("#BaseNumberCost").val());
-    }
+//    var leasePer = $("#LeasePeriod");
+//    if (leasePer.length) {
+//        leasePeriod = parseFloat($("#LeasePeriod").val());
+//    }
 
-    var creditPurchaseAmount = $("#CreditPurchaseAmount");
-    if (creditPurchaseAmount.length) {
-        creditAmount = parseFloat($("#CreditPurchaseAmount").val());
-    }
+//    var creditPurchaseAmount = $("#CreditPurchaseAmount");
+//    if (creditPurchaseAmount.length) {
+//        creditAmount = parseFloat($("#CreditPurchaseAmount").val());
+//    }
 
-    if (purchaseType === "VirtualNumber" || purchaseType === "VirtualNumberSignUp") {
-        productDesctiption = numberType + numberToDisplay(number, countryCode) + " " + leasePeriod + " " + leasePeriodWord + " lease - $" + numberCost.formatMoney();
-        if (creditAmount > 0) {
-            productDesctiption = productDesctiption + ". Plus $" + creditAmount.formatMoney() + " TextPort credit";
-        }
-    }
-    else if (purchaseType === "VirtualNumberRenew") {
-        productDesctiption = numberType + numberToDisplay(number, countryCode) + " " + leasePeriod + " " + leasePeriodWord + " lease renewal - $" + numberCost.formatMoney();
-        if (creditAmount > 0) {
-            productDesctiption = productDesctiption + ". Plus $" + creditAmount.formatMoney() + " TextPort credit";
-        }
-    }
-    else if (purchaseType === "Credit") {
-        productDesctiption = "Add " + $("#TotalCost").text() + " TextPort credit";
-    }
+//    if (purchaseType === "VirtualNumber" || purchaseType === "VirtualNumberSignUp") {
+//        productDesctiption = numberType + numberToDisplay(number, countryCode) + " " + leasePeriod + " " + leasePeriodWord + " lease - $" + numberCost.formatMoney();
+//        if (creditAmount > 0) {
+//            productDesctiption = productDesctiption + ". Plus $" + creditAmount.formatMoney() + " TextPort credit";
+//        }
+//    }
+//    else if (purchaseType === "VirtualNumberRenew") {
+//        productDesctiption = numberType + numberToDisplay(number, countryCode) + " " + leasePeriod + " " + leasePeriodWord + " lease renewal - $" + numberCost.formatMoney();
+//        if (creditAmount > 0) {
+//            productDesctiption = productDesctiption + ". Plus $" + creditAmount.formatMoney() + " TextPort credit";
+//        }
+//    }
+//    else if (purchaseType === "Credit") {
+//        productDesctiption = "Add " + $("#TotalCost").text() + " TextPort credit";
+//    }
 
-    $('#ProductDescription').val(productDesctiption);
-}
+//    var payPalCustom = "";
+//    if (purchaseType == "Credit") {
+//        payPalCustom = purchaseType + "|" + accountId + "|" + creditAmount;
+//    }
+//    else {
+//        payPalCustom = "VMN|" + accountId + "|" + number + "|" + countryCode + "|" + leasePeriod + "|" + creditAmount;
+//    }
+
+//    $('#ProductDescription').val(productDesctiption);
+//    $('#PayPalCustom').val(payPalCustom);
+//}
 
 function registration_complete(purchaseType) {
     var url = '/account/profile';
@@ -292,7 +290,6 @@ function renderPayPalButton() {
                         LeasePeriodType: $("#LeasePeriodType").val(),
                         LeasePeriod: $("#LeasePeriod").val(),
                         NumberCost: $("#NumberCost").val(),
-                        //BaseNumberCost: $("#BaseNumberCost").val(),
                         TotalCost: $('#hidTotalCost').val(),
                         PayPalCustom: $('#PayPalCustom').val(),
                         PurchaseTitle: $('#PurchaseTitle').val(),
@@ -342,7 +339,6 @@ function submitPurchase() {
         LeasePeriodType: $("#LeasePeriodType").val(),
         LeasePeriod: $("#LeasePeriod").val(),
         NumberCost: $("#NumberCost").val(),
-        //BaseNumberCost: $("#BaseNumberCost").val(),
         TotalCost: $('#hidTotalCost').val(),
         PayPalCustom: $('#PayPalCustom').val(),
         PurchaseTitle: $('#PurchaseTitle').val(),

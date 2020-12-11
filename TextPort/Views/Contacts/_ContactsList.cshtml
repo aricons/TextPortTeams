@@ -19,9 +19,11 @@
         rowId++;
         <tr class="@bgClass">
             <td>@contact.Name</td>
-            <td>@Utilities.NumberToDisplayFormat(contact.MobileNumber, 22)</td>
+            <td>@Utilities.NumberToDisplayFormat(contact.MobileNumber, 1)</td>
             <td align="center">
-                <button onclick="deleteMember(@contact.ContactId)" class="btn">
+                <button class="btn edit-contact-button" data-target="#edit-contact-modal" data-url="/contacts/edit/@contact.ContactId">
+                    <span class="fa fa-edit fa-lg list-icon" aria-hidden="true"></span>
+                </button> | <button onclick="deleteContact(@contact.ContactId, '@contact.Name')" class="btn">
                     <span class="fa fa-trash fa-lg list-icon" aria-hidden="true"></span>
                 </button>
             </td>

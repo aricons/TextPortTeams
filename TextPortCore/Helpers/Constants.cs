@@ -12,7 +12,7 @@ namespace TextPortCore.Helpers
 
         public static decimal BaseMMSSegmentCost = 0.025M;
 
-        public static decimal InitialBalanceAllocation = 0.50M; // Aproximately 30 messages @ $0.015 each.
+        public static decimal InitialBalanceAllocation = 0M; // Aproximately 30 messages @ $0.015 each.
 
         public static decimal InitialFreeTrialBalanceAllocation = 0.15M; // 20 messages @ $0.015 each.
 

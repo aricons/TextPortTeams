@@ -41,6 +41,10 @@ namespace TextPort.Controllers
                 regData.CompletionMessage = "An error occurred while processing the request. We apologize fo any inconvenience. <a href=\"/home/support\">Please submit a support request to report this issue.</a>";
                 regData.BrowserType = Request.Browser.Type;
                 regData.IPAddress = Request.UserHostAddress;
+                // Hard-code credit purchase amount and account enabled values to override what is sent form the form.
+                // This is done to prevent hacks.
+                regData.CreditPurchaseAmount = (decimal)0.15;
+                regData.AccountEnabled = false;                
 
                 using (TextPortDA da = new TextPortDA())
                 {

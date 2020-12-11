@@ -20,8 +20,8 @@ namespace TextPortCore.Integrations.Bandwidth
 {
     public class Bandwidth : IDisposable
     {
-        const int orderCheckPollingCycles = 5; // number of times to check on an order
-        const int orderCheckWaitTime = 1500; // milliseconds to wait between each order status check
+        const int orderCheckPollingCycles = 12; // number of times to check on an order
+        const int orderCheckWaitTime = 2000; // milliseconds to wait between each order status check
 
         private readonly string accountBaseUrl = $"https://dashboard.bandwidth.com/api/accounts/{ConfigurationManager.AppSettings["BandwidthAccountId"]}";
         private readonly string messageBaseUrl = $"https://messaging.bandwidth.com/api/v2/users/{ConfigurationManager.AppSettings["BandwidthAccountId"]}";

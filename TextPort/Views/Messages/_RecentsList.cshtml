@@ -16,7 +16,7 @@ else
             <div class="chat_people">
                 <div class="chat_ib">
                     <h5>
-                        &zwj;@recent.NumberDisplayFormat<span class="chat_date">@string.Format("{0:MMMM dd, yy | hh:mm tt}", recent.TimeStamp)</span>
+                        @recent.NumberDisplayFormat<span class="chat_date">@string.Format("{0:MMMM dd, yy | hh:mm tt}", recent.TimeStamp)</span><a href="#" class="apply-contact-button ml-2" data-target="#apply-contact-modal" data-url="/contacts/apply/@recent.ContactId?number=@recent.Number"><i class="fa fa-user"></i></a>
                     </h5>
                     <p>@recent.Message</p>
                     <a class="chat_del" href="#" onclick="delMsgsForNum(@recent.Number)"><i class="fa fa-trash fa-lg"></i></a>

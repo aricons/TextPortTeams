@@ -22,7 +22,6 @@ namespace TextPortCore.Models
         private string virtualNumber;
         private int virtualNumberId;
         private int carrierId;
-        private string productDescription;
         private string leasePeriodCode;
         private string leasePeriodType;
         private short leasePeriod;
@@ -201,7 +200,7 @@ namespace TextPortCore.Models
         }
 
         [Required(ErrorMessage = "An amount is required")]
-        [Range(typeof(decimal), "0", "1000", ErrorMessage = "An amount is required")]
+        [Range(typeof(decimal), "1", "1000", ErrorMessage = "An amount is required")]
         [Display(Name = "Amount to Add")]
         public decimal CreditPurchaseAmount
         {
@@ -224,8 +223,7 @@ namespace TextPortCore.Models
 
         public string ProductDescription
         {
-            get { return this.productDescription; }
-            set { this.productDescription = value; }
+            get { return BuildProductDescription(); }
         }
 
         public string PayPalCustom
@@ -235,10 +233,10 @@ namespace TextPortCore.Models
                 switch (this.PurchaseType)
                 {
                     case "Credit":
-                        return string.Format("CREDIT|{0}|{1:N2}", this.accountId, this.creditPurchaseAmount);
+                        return string.Format("CREDIT|{0}|{1:N2}", this.AccountId, this.CreditPurchaseAmount);
 
                     default:
-                        return string.Format("VMN|{0}|{1}|{2}|{3}|{4}", this.accountId, this.VirtualNumber, this.CountryId, this.leasePeriod, this.creditPurchaseAmount);
+                        return string.Format("VMN|{0}|{1}|{2}|{3}|{4}", this.AccountId, this.VirtualNumber, this.CountryId, this.LeasePeriod, this.CreditPurchaseAmount);
                 }
             }
         }
@@ -368,7 +366,6 @@ namespace TextPortCore.Models
             this.AccountId = 0;
             this.Status = "Pending";
             this.Success = false;
-            this.ProductDescription = string.Empty;
             this.CompletionTitle = string.Empty;
             this.CompletionMessage = string.Empty;
             this.OrderingMessage = string.Empty;
@@ -402,7 +399,6 @@ namespace TextPortCore.Models
             this.CreditPurchaseAmount = 0;
             this.Status = "Pending";
             this.Success = false;
-            this.ProductDescription = string.Empty;
             this.CompletionTitle = string.Empty;
             this.CompletionMessage = string.Empty;
             this.OrderingMessage = string.Empty;
@@ -471,5 +467,30 @@ namespace TextPortCore.Models
             }
         }
 
+        private string BuildProductDescription()
+        {
+            string productDescription = string.Empty;
+
+            switch (this.PurchaseType)
+            {
+                case "VirtualNumber":
+                case "VirtualNumberSignUp":
+                case "VirtualNumberRenew":
+                    {
+                        string leaseWord = (purchaseType == "VirtualNumberRenew") ? "lease renewal" : "lease";
+                        productDescription = $"TextPort number {Utilities.NumberToDisplayFormat(this.VirtualNumber, this.CountryId)} {this.LeasePeriod} {this.LeasePeriodWord} {leaseWord} {this.NumberCost:C2}";
+                        if (this.CreditPurchaseAmount > 0)
+                        {
+                            productDescription += $". Plus {this.CreditPurchaseAmount:C2} TextPort credit";
+                        }
+                    }
+                    break;
+                case "Credit":
+                    productDescription = $"Add {this.CreditPurchaseAmount:C2} TextPort credit";
+                    break;
+            }
+
+            return productDescription;
+        }
     }
 }

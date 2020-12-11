@@ -111,13 +111,13 @@ namespace TextPortCore.Data
                         }).ToList();
 
                 string firstItemText = "--- select credit amount ---";
-                string firstitemValue = "-1";
+                string firstitemValue = "0";
 
-                if (purchaseType != "Credit")
-                {
-                    firstitemValue = "0";
-                    firstItemText = "No additional credit";
-                }
+                //if (purchaseType != "Credit")
+                //{
+                //    firstitemValue = "0";
+                //    firstItemText = "No additional credit";
+                //}
 
                 SelectListItem firstItem = new SelectListItem()
                 {
@@ -337,6 +337,7 @@ namespace TextPortCore.Data
                     {
                         {"General", "General question" },
                         {"Feedback", "I want to provide feedback" },
+                        {"Block", "I want to block my number" },
                         {"Abuse", "I want to report abuse" }
                     };
                 }
@@ -347,6 +348,7 @@ namespace TextPortCore.Data
                         {"General", "I have a general question" },
                         {"Feedback", "I want to provide feedback" },
                         {"NotDelivered", "My messages were not delivered" },
+                        {"Block", "I want to block my number" },
                         {"Error", "I received an error" },
                         {"Abuse", "I want to report abuse" }
                     };

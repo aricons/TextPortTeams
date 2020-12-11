@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Security.Claims;
 using System.Web;
 using System.Web.Mvc;
+using System.Configuration;
 using Microsoft.Owin.Security;
 using Newtonsoft.Json;
 
@@ -269,9 +270,11 @@ namespace TextPort.Controllers
 
                         EmailMessage email = new EmailMessage()
                         {
-                            From = request.RequestorEmail,
+                            // Send from support@textport.com so AWS will accept it. Set reply-to to the sender's email address.
+                            From = "support@textport.com",
                             FromName = request.RequestorName,
                             To = "support@textport.com",
+                            ReplyTo = request.RequestorEmail,
                             Subject = $"TextPort {request.RequestType} Request # {supportId}",
                             Body = emailBody
                         };

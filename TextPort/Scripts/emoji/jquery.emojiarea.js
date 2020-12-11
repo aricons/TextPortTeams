@@ -241,18 +241,11 @@
         var $button = $('#emoji-sel-button');
 
         $button.on('click', function (e) {
-            //if (self.emojiMenu.visible) {
-            //    //alert("Hiding");
-            //    self.emojiMenu.hide();
-            //    //self.emojiMenu.show();
-            //} else {
             self.emojiMenu.show(self);
-            //}
         });
 
         this.$button = $button;
         this.$dontHideOnClick = 'emoji-picker';
-        //this.$dontHideOnClick = 'emoji-sel-button';
     };
 
     /*

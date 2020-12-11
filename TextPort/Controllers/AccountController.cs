@@ -104,7 +104,7 @@ namespace TextPort.Controllers
 
                 return View(rd);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 string foo = "error";
             }

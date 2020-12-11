@@ -3,144 +3,168 @@
 @{
     ViewBag.Title = "Contacts";
 }
+<script type="text/javascript" src="~/scripts/bootbox/bootbox.min.js"></script>
 
 <script type="text/javascript">
+    $.ajaxSetup({ cache: false });
     $(function () {
         $('#menu_contacts').addClass("active");
 
-        $('#btn-addcontact').on('click', function () {
-            var url = '/contacts/addcontact/' + $("#CurrentGroupId option:selected").val();
+        // Add modals
+        $('.add-contact-button').on('click', function () {
+            var url = $(this).data('url');
             var target = $(this).data('target');
-
             $.get(url, function (data) {
                 $(target).html(data);
                 $(target + ' > .modal').modal({ keyboard: true }, 'show');
             });
-            return false;
         });
 
-        $('#CurrentGroupId').on("change", function (e) {
-            getGroupMembers($("#CurrentGroupId option:selected").val());
-        });
-
-        $('#modal-cont').on('shown.bs.modal', function (e) {
-            $.validator.unobtrusive.parse("#form-add");
-        });
-
-        $('#modal-cont-member').on('shown.bs.modal', function (e) {
-
-            $('#form-addmember').submit(function (event) {
+        $('#add-contact-modal').on('shown.bs.modal', function (e) {
+            $('#add-contact-form').submit(function (event) {
                 event.preventDefault();
             });
-            $.validator.unobtrusive.parse("#form-addmember");
+            $.validator.unobtrusive.parse("#add-contact-form");
+            $("#MobileNumber").mask('(000) 000-0000');
 
-            $('.num_input').mask('(000) 000-0000');
-
-            $('#btnAddMember').on("click", function (e) {
-                if ($("#form-addmember").valid()) {
-                    var memberData = {
-                        GroupId: 0,
+            $('#btnAddContact').on("click", function (e) {
+                if ($("#add-contact-form").valid()) {
+                    var contactData = {
                         MobileNumber: $("#MobileNumber").val(),
-                        MemberName: $("#MemberName").val()
+                        Name: $("#Name").val()
                     };
-                    addGroupMember(memberData);
-                    $('#member-modal').modal('hide');
+                    addContact(contactData);
+                    $('#add-contact-modal > .modal').modal('hide');
                 }
             });
         });
+
+        // Edit modals
+        initEditModal();
+        initEditModalShow();
     });
 
-    function getContacts() {
-        var url = '/contacts/getcontacts/' + groupId;
-        $.get({
-            url: url,
-            dataType: "html",
-            cache: false,
-            error: function (jqXHR, textStatus, errorThrown) {
-                alert(textStatus + ": Couldn't load form. " + errorThrown);
-            },
-            success: function (newInputHTML) {
-                $("#contacts-list").html('');
-                var msgList = document.getElementById("members-list");
-                msgList.insertAdjacentHTML("beforeend", newInputHTML);
-            }
-        })
+    function initEditModal() {
+        $('.edit-contact-button').on('click', function () {
+            var url = $(this).data('url');
+            var target = $(this).data('target');
+            $.get(url, function (data) {
+                $(target).html(data);
+                $(target + ' > .modal').modal({ keyboard: true }, 'show');
+            });
+        });
     }
 
-    function addGroupMember(memberData) {
-        var url = '/contacts/addcontact/';
-        //memberData.GroupId = $("#CurrentGroupId option:selected").val();
-        $.post({
-            url: url,
-            data: JSON.stringify(memberData),
-            contentType: "application/json",
-            error: function (jqXHR, textStatus, errorThrown) {
-                alert(textStatus + ": Error adding memeber. " + errorThrown);
-            },
-            success: function (newInputHTML) {
-                $("#contacts-list").html(newInputHTML);
-            }
-        })
+    function initEditModalShow() {
+        $('#edit-contact-modal').on('shown.bs.modal', function (e) {
+            $.validator.unobtrusive.parse("#edit-contact-form");
+            $(".num-input").mask('(000) 000-0000');
+
+            $('#edit-contact-form').submit(function (event) {
+                event.preventDefault();
+                if ($("#edit-contact-form").valid()) {
+                    var contactData = {
+                        ContactId: $("#edit-contact-form #ContactId").val(),
+                        MobileNumber: $("#edit-contact-form #MobileNumber").val(),
+                        Name: $("#edit-contact-form #Name").val()
+                    };
+                    editContact(contactData);
+                    $('#edit-contact-modal > .modal').modal('hide');
+                }
+            });
+        });
     }
 
-    function deleteContact(id) {
-
-        var requestData = {
-            GroupId: $("#CurrentGroupId option:selected").val(),
-            MemberId: id
-        };
-
+    function addContact(contactData) {
+        var url = '/contacts/add/';
         $.post({
-            url: '/contacts/deletecontact/',
-            data: JSON.stringify(requestData),
+            url: url,
+            data: JSON.stringify(contactData),
             contentType: "application/json",
             error: function (jqXHR, textStatus, errorThrown) {
-                alert(textStatus + ": Error deleting contact. " + errorThrown);
+                alert(textStatus + ": Error adding contact. " + errorThrown);
             },
-            success: function (newInputHTML) {
-                $("#contacts-list").html(newInputHTML);
+            success: function (contacts) {
+                $("#contacts-list").html(contacts);
+                initEditModal();
             }
-        })
+        });
+    }
+
+    function editContact(contactData) {
+        $.post({
+            url: '/contacts/edit/',
+            data: JSON.stringify(contactData),
+            contentType: "application/json",
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert(textStatus + ": Error editing contact. " + errorThrown);
+            },
+            success: function (contacts) {
+                $("#contacts-list").html(contacts);
+                initEditModal();
+            }
+        });
+    }
+
+    function deleteContact(id, name) {
+        bootbox.confirm({
+            title: "Delete contact?",
+            message: "Are you sure you want delete the contact <b>" + name + "</b>?",
+            buttons: {
+                cancel: {
+                    label: '<i class="fa fa-times"></i> Cancel'
+                },
+                confirm: {
+                    label: '<i class="fa fa-check"></i> Delete'
+                }
+            },
+            callback: function (result) {
+                if (result) {
+
+                    var requestData = {
+                        ContactId: id
+                    };
+
+                    $.post({
+                        url: '/contacts/deletecontact/',
+                        data: JSON.stringify(requestData),
+                        contentType: "application/json",
+                        error: function (jqXHR, textStatus, errorThrown) {
+                            alert(textStatus + ": Error deleting contact. " + errorThrown);
+                        },
+                        success: function (newInputHTML) {
+                            $("#contacts-list").html(newInputHTML);
+                            initEditModal();
+                        }
+                    })
+                }
+            }
+        });
     }
 </script>
 
 <div class="row">
     @Html.Partial("_SideMenuBar")
-    <div class="col-12 col-md-9">
+    <div class="col-12 col-md-10">
         <div class="card">
             <div class="card-header">
                 <div class="row">
                     <div class="col-md-7">
-                        <h4>Contacts</h4>
+                        <h4>My Contacts</h4>
                     </div>
                     <div class="col-md-5 text-right">
-                        <input type="button" class="btn btn-success modal-button" data-toggle="modal" data-target="#modal-cont" data-url="/groups/add" value="Add a Contact" />
+                        <input type="button" class="btn btn-success add-contact-button" data-target="#add-contact-modal" data-url="/contacts/add" value="Add a Contact" />
                     </div>
                 </div>
             </div>
             <div class="card-body">
-                @*<div class="row">
-                    <div>
-                        <div class="form-group">
-                            @Html.LabelFor(m => m.CurrentGroupId, new { @class = "col-10 form-label strong" })
-                            @Html.DropDownListFor(m => m.CurrentGroupId, new SelectList(Model.GroupsList, "Value", "Text", Model.CurrentGroupId), new { @class = "form-control" })
-                        </div>
-                    </div>
-                </div>*@
-                @*<div class="row pt-3 pb-1">
-                    <div class="col-6">Contacts</div>
-                </div>*@
                 <div class="row">
                     <table class="table">
                         <thead>
                             <tr class="bg-primary">
                                 <th scope="col" class="text-white list-header">Name</th>
                                 <th scope="col" class="text-white list-header">Number</th>
-                                <th class="list-icon">
-                                    <button type="button" id="btn-addcontact" class="btn" data-toggle="modal" data-target="#modal-cont-member" data-url="/contacts/addcontact">
-                                        <span class="fa fa-plus-square fa-2x list-icon" aria-hidden="true"></span>
-                                    </button>
-                                </th>
+                                <th scope="col" class="text-white list-header text-center">Edit/Delete</th>
                             </tr>
                         </thead>
                         <tbody id="contacts-list">
@@ -152,4 +176,5 @@
         </div>
     </div>
 </div>
-<div id="modal-cont-member"></div>
+<div id="add-contact-modal"></div>
+<div id="edit-contact-modal"></div>

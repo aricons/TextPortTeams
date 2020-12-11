@@ -1,7 +1,4 @@
 ﻿using System;
-using System.IO;
-using System.Net;
-using System.Linq;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
@@ -19,6 +16,8 @@ namespace TextPortCore.Models
         public DateTime TimeStamp { get; set; }
 
         public int VirtualNumberId { get; set; }
+
+        public int? ContactId { get; set; }
 
         [Display(Name = "In/Out")]
         public byte Direction { get; set; }
@@ -61,15 +60,9 @@ namespace TextPortCore.Models
 
         public DedicatedVirtualNumber DedicatedVirtualNumber { get; set; }
 
-        public List<MMSFile> MMSFiles { get; set; } //= new List<MMSFile>();
+        public Contact Contact { get; set; }
 
-        //public string NumberBandwidthFormat
-        //{
-        //    get
-        //    {
-        //        return Utilities.NumberToBandwidthFormat(this.VirtualNumber);
-        //    }
-        //}
+        public List<MMSFile> MMSFiles { get; set; }
 
         // Constructors
 
@@ -89,6 +82,7 @@ namespace TextPortCore.Models
             this.Segments = 1;
             this.Account = null;
             this.DedicatedVirtualNumber = null;// new DedicatedVirtualNumber();
+            this.Contact = null;
             this.MMSFiles = null; // new List<MMSFile>();
             this.IsMMS = false;
         }
@@ -109,6 +103,7 @@ namespace TextPortCore.Models
             this.MessageText = msgText;
             this.Segments = Utilities.GetSegmentCount(msgText);
             this.Account = null;
+            this.Contact = null;
             this.MMSFiles = null; // new List<MMSFile>();
             this.IsMMS = false;
         }
@@ -129,6 +124,7 @@ namespace TextPortCore.Models
             this.MessageText = bulkMessage.MessageText;
             this.Segments = Utilities.GetSegmentCount(bulkMessage.MessageText);
             this.Account = null;
+            this.Contact = null;
             this.MMSFiles = null; // new List<MMSFile>();
             this.IsMMS = false;
         }
@@ -149,6 +145,7 @@ namespace TextPortCore.Models
             this.MessageText = emailToSMSMessage.MessageText;
             this.Segments = Utilities.GetSegmentCount(emailToSMSMessage.MessageText);
             this.Account = null;
+            this.Contact = null;
             this.EmailToSMSAddressId = emailToSMSMessage.AddressId;
             this.MMSFiles = null; // new List<MMSFile>();
             this.IsMMS = false;
@@ -171,6 +168,7 @@ namespace TextPortCore.Models
             this.MessageText = apiMessage.MessageText;
             this.Segments = Utilities.GetSegmentCount(apiMessage.MessageText);
             this.Account = null;
+            this.Contact = null;
             this.MMSFiles = null; // new List<MMSFile>();
             this.IsMMS = false;
         }
@@ -187,7 +185,6 @@ namespace TextPortCore.Models
             this.Account = dvn.Account;
             this.AccountId = dvn.AccountId;
             this.Ipaddress = Utilities.GetUserHostAddress();
-            //this.VirtualNumber = integrationMessageIn.To;
             this.VirtualNumberId = dvn.VirtualNumberId;
             this.SessionId = sessionId;
             this.TimeStamp = DateTime.UtcNow;

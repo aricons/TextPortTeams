@@ -16,6 +16,20 @@ namespace TextPortCore.Data
         {
             try
             {
+                return _context.Accounts.Include(x => x.TimeZone).FirstOrDefault(x => x.AccountId == accountId && x.Enabled);
+            }
+            catch (Exception ex)
+            {
+                ErrorHandling eh = new ErrorHandling();
+                eh.LogException("AccountsDA.GetAccountById", ex);
+            }
+            return null;
+        }
+
+        public Account GetNonEnabledAccountById(int accountId)
+        {
+            try
+            {
                 return _context.Accounts.Include(x => x.TimeZone).FirstOrDefault(x => x.AccountId == accountId);
             }
             catch (Exception ex)
@@ -62,11 +76,11 @@ namespace TextPortCore.Data
             {
                 if (Utilities.IsValidEmail(userNameOrEmail))
                 {
-                    acc = _context.Accounts.FirstOrDefault(x => x.Email == userNameOrEmail);
+                    acc = _context.Accounts.FirstOrDefault(x => x.Email == userNameOrEmail && x.Enabled);
                 }
                 else
                 {
-                    acc = _context.Accounts.FirstOrDefault(x => x.UserName == userNameOrEmail);
+                    acc = _context.Accounts.FirstOrDefault(x => x.UserName == userNameOrEmail && x.Enabled);
                 }
 
                 if (acc != null)
@@ -253,7 +267,7 @@ namespace TextPortCore.Data
         {
             try
             {
-                Account acc = GetAccountById(accountId);
+                Account acc = GetNonEnabledAccountById(accountId);
                 if (acc != null)
                 {
                     acc.Enabled = flagValue;

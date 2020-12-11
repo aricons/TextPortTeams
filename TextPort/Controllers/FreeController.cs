@@ -9,6 +9,7 @@ using Microsoft.Owin.Security;
 using TextPortCore.Data;
 using TextPortCore.Models;
 using TextPortCore.Helpers;
+using TextPortCore.Components.Censor;
 
 namespace TextPort.Controllers
 {
@@ -31,7 +32,6 @@ namespace TextPort.Controllers
             return View(ftc);
         }
 
-        //[Authorize(Roles = "Free")]
         [HttpPost]
         [ActionName("send-text")]
         public ActionResult SendText([System.Web.Http.FromBody] Message message)
@@ -43,6 +43,10 @@ namespace TextPort.Controllers
             message.Ipaddress = Request.UserHostAddress;
             message.AccountId = freeTextAccountId;
             message.MessageType = (byte)MessageTypes.FreeTextSend;
+
+            // Censor any hate and profanity.
+            Censor censor = new Censor();
+            message.MessageText = censor.CensorText(message.MessageText);
 
             // Log the user in using the hub connection ID as the user name. This allows for messages to be sent back to
             // the same user if they leve the page, then come back during the same browser session.

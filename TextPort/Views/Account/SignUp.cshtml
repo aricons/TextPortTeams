@@ -68,7 +68,7 @@
     //    $("#form-signup").validate().element("#VirtualNumber");
     //}
 
-     function getNumber(number) {
+    function getNumber(number) {
         var countryCode = $("#CountryId option:selected").val();
         $("#lbl-sel-number").text("Selected number");
         $("#lbl-sel-number").show();
@@ -95,12 +95,12 @@
             @Html.AntiForgeryToken()
             @Html.HiddenFor(m => m.NumberCost)
             @Html.HiddenFor(m => m.PurchaseType)
-            @Html.HiddenFor(m => m.PayPalCustom)
-            @Html.HiddenFor(m => m.VirtualNumberId)
+            @*@Html.HiddenFor(m => m.PayPalCustom)*@
+            @*@Html.HiddenFor(m => m.VirtualNumberId)*@
             @Html.HiddenFor(m => m.PurchaseTitle)
-            @Html.HiddenFor(m => m.ProductDescription)
-            @Html.HiddenFor(m => m.CompletionTitle)
-            @Html.HiddenFor(m => m.CompletionMessage)
+            @*@Html.HiddenFor(m => m.ProductDescription)*@
+            @*@Html.HiddenFor(m => m.CompletionTitle)*@
+            @*@Html.HiddenFor(m => m.CompletionMessage)*@
             @Html.HiddenFor(m => m.NumberType)
             @Html.HiddenFor(m => m.FreeTrial)
             @*@Html.HiddenFor(m => m.CountryId)*@
@@ -167,10 +167,10 @@
                             @Html.LabelFor(m => m.LeasePeriodCode, new { @class = "form-label" })
                             @Html.DropDownListFor(m => m.LeasePeriodCode, new SelectList(Model.LeasePeriodsList, "Value", "Text"), new { @class = "col-md-5 form-control" })
                             @Html.ValidationMessageFor(m => m.LeasePeriodCode, null, new { @class = "text-danger" })
-                            <div class="subscript">All new accounts include $0.50 credit, good for approximately 30 messages.</div>
+                            @*<div class="subscript">All new accounts include $0.50 credit, good for approximately 30 messages.</div>*@
                         </div>
                         <div class="form-group">
-                            <label class="form-label">Additional Credit (optional)</label>
+                            <label class="form-label">Texting Credit</label>
                             @Html.DropDownListFor(m => m.CreditPurchaseAmount, new SelectList(Model.CreditAmountsList, "Value", "Text"), new { @class = "col-md-5 form-control" })
                             @Html.ValidationMessageFor(m => m.CreditPurchaseAmount, null, new { @class = "text-danger" })
                         </div>
@@ -188,7 +188,5 @@
         }
     </div>
 </div>
-<div id="purchaseModalCont" class="modal hide fade in">
-</div>
-<div id="postPurchaseModalCont" class="modal hide fade in">
-</div>
+<div id="purchaseModalCont" class="modal hide fade in"></div>
+<div id="postPurchaseModalCont" class="modal hide fade in"></div>

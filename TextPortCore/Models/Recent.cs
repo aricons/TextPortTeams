@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 using TextPortCore.Helpers;
 
@@ -14,11 +12,18 @@ namespace TextPortCore.Models
 
         public string Number { get; set; }
 
+        public int ContactId { get; set; }
+
+        public string ContactName { get; set; }
+
         public int CountryId { get; set; }
 
         public string NumberDisplayFormat
         {
-            get { return Utilities.NumberToDisplayFormat(this.Number, this.CountryId); }
+            get
+            {
+                return (!string.IsNullOrEmpty(this.ContactName)) ? this.ContactName : Utilities.NumberToDisplayFormat(this.Number, this.CountryId);
+            }
         }
 
         public string Message { get; set; }

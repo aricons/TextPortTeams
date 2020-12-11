@@ -1475,6 +1475,10 @@
     <Content Include="Views\Free\_MessageList_FreeTextResult.cshtml" />
     <Content Include="Views\Home\block.cshtml" />
     <Content Include="Views\Nexmo\_MessageList.cshtml" />
+    <Content Include="Views\Home\virtual-phone-numbers.cshtml" />
+    <Content Include="Views\Contacts\_AddContact.cshtml" />
+    <Content Include="Views\Contacts\_EditContact.cshtml" />
+    <Content Include="Views\Contacts\_ApplyContact.cshtml" />
     <None Include="Web.Beta.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
