@@ -69,11 +69,8 @@ namespace EmailToSMSGateway
                 emailToSMSMessage.ProcessingLog += "Looking for To addresses\r\n";
                 if (mimeMsg.Headers["X-Rcpt-To"] != "")
                 {
-                    //emailToSMSMessage.ProcessingLog += $"{mimeMsg.To.Count} To addresses found\r\n";
                     string toAddress = mimeMsg.Headers["X-Rcpt-To"];
                     emailToSMSMessage.ProcessingLog += $"To address '{toAddress}' found\r\n";
-                    //foreach (MailboxAddress toAddr in mimeMsg.To.Mailboxes)
-                    //{
                     if (!string.IsNullOrEmpty(toAddress))
                     {
                         string mobileNumber = string.Empty;
@@ -81,11 +78,21 @@ namespace EmailToSMSGateway
                         emailToSMSMessage.ProcessingLog += $"Parsing To address {toAddress} for mobile number\r\n";
                         if (getMobileNumberFromToAddress(toAddress, ref mobileNumber))
                         {
-                            emailToSMSMessage.ProcessingLog += $"Valid number {mobileNumber} found\r\n";
+                            emailToSMSMessage.ProcessingLog += $"Valid number {mobileNumber} found in To address\r\n";
                             emailToSMSMessage.DestinationNumbers.Add(mobileNumber);
                         }
+                        else
+                        {
+                            // Try getting the number form the subject line.
+                            string subject = mimeMsg.Subject;
+                            emailToSMSMessage.ProcessingLog += $"No number found in the To address. Trying the subject line \"{subject}\"\r\n";
+                            if (getMobileNumberFromSubject(subject, ref mobileNumber))
+                            {
+                                emailToSMSMessage.ProcessingLog += $"Valid number {mobileNumber} found in subject line\r\n";
+                                emailToSMSMessage.DestinationNumbers.Add(mobileNumber);
+                            }
+                        }
                     }
-                    //}
                 }
 
                 // Cc
@@ -112,7 +119,7 @@ namespace EmailToSMSGateway
                 // Check that there is at least one valid destination number.
                 if (emailToSMSMessage.DestinationNumbers.Count == 0)
                 {
-                    emailToSMSMessage.ProcessingLog += "Processing stopped. No valid destination mobile numbers were located in the To or Cc headers\r\n";
+                    emailToSMSMessage.ProcessingLog += "Processing stopped. No valid destination mobile numbers were located in the To, Cc or Subject headers\r\n";
                     return emailToSMSMessage;
                 }
 
@@ -275,7 +282,7 @@ namespace EmailToSMSGateway
             return !string.IsNullOrEmpty(message.MessageText);
         }
 
-        private static bool getMobileNumberFromToAddress(string address, ref string fromNumber)
+        private static bool getMobileNumberFromToAddress(string address, ref string toNumber)
         {
             string namePart = string.Empty;
             string domainPart = string.Empty;
@@ -287,7 +294,7 @@ namespace EmailToSMSGateway
             Match m = rx.Match(namePart);
             if (m.Success)
             {
-                fromNumber = NumberToE164Temp(namePart, "1");
+                toNumber = NumberToE164Temp(namePart);
                 return true;
             }
             else
@@ -296,13 +303,30 @@ namespace EmailToSMSGateway
             }
         }
 
-        private static string NumberToE164Temp(string number, string countryCode)
+        private static bool getMobileNumberFromSubject(string subject, ref string toNumber)
+        {
+            if (!string.IsNullOrWhiteSpace(subject))
+            {
+                subject = new string(subject.Where(c => char.IsDigit(c)).ToArray());
+                string regexNumber = @"^[0-9][0-9][0-9][0-9][0-9][0-9][0-9]";
+                Regex rx = new Regex(regexNumber, RegexOptions.IgnoreCase);
+                Match m = rx.Match(subject);
+                if (m.Success)
+                {
+                    toNumber = NumberToE164Temp(subject);
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private static string NumberToE164Temp(string number)
         {
             string globalNumber = string.Empty;
 
             try
             {
-                globalNumber = $"{countryCode}{Regex.Replace(number, @"\D", "")}";
+                globalNumber = $"{Regex.Replace(number, @"\D", "")}";
                 if (!globalNumber.StartsWith("1"))
                 {
                     globalNumber = $"1{globalNumber}";

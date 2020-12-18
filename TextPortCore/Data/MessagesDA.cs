@@ -509,6 +509,13 @@ namespace TextPortCore.Data
                     message.Account = acc;
                 }
 
+                // Check for a contact association
+                if (message.ContactId == null || message.ContactId == 0)
+                {
+                    int? contactId = _context.Contacts.FirstOrDefault(x => x.AccountId == message.AccountId && x.MobileNumber == message.MobileNumber)?.ContactId;
+                    message.ContactId = (contactId != null) ? contactId : 0;
+                }
+
                 message.IsMMS = (message.MMSFiles?.Count > 0);
 
                 // Only insert the message, inbound or outbound if the account has a balance.

@@ -54,11 +54,6 @@
     <priority>0.80</priority>
   </url>
   <url>
-    <loc>https://textport.com/trial</loc>
-    <lastmod>2019-12-17T08:07:38+00:00</lastmod>
-    <priority>0.80</priority>
-  </url>
-  <url>
     <loc>https://textport.com/api/documentation</loc>
     <lastmod>2019-12-30T08:07:38+00:00</lastmod>
     <priority>0.77</priority>

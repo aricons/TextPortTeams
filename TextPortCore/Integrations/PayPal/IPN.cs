@@ -1,12 +1,11 @@
 ﻿using System;
 using System.IO;
 using System.Configuration;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Collections.Generic;
 
 using TextPortCore.Data;
 using TextPortCore.Models;
+using TextPortCore.Helpers;
 
 namespace TextPortCore.Integrations.PayPal
 {
@@ -113,33 +112,39 @@ namespace TextPortCore.Integrations.PayPal
                             int accountId = int.Parse(customFieldValues[1]);
                             if (customFieldValues.Length >= 3)
                             {
-                                PurchaseTransaction purchaseTrans = new PurchaseTransaction()
-                                {
-                                    PaymentService = "PayPal",
-                                    TransactionId = ipn.TransactionID,
-                                    TransactionDate = DateTime.UtcNow,
-                                    TransactionType = ipn.PaymentStatus,
-                                    ItemPurchased = purchaseType,
-                                    AccountId = accountId,
-                                    ReceiverId = ipn.ReceivedID,
-                                    GrossAmount = ipn.GrossAmount,
-                                    Fee = ipn.Fee
-                                };
-
                                 using (TextPortDA da = new TextPortDA())
                                 {
-                                    da.InsertPurchaseTransaction(purchaseTrans);
+                                    List<PurchaseTransactionDetail> transactionDetails = GetTransactionBreakdown(customFieldValues, ipn);
 
-                                    // If the payment type is eCheck, reverse any credit purchases.
-                                    // Can be applied manually later once the cCheck clears.
-                                    if (accountId > 0)
+                                    foreach (PurchaseTransactionDetail transactionDetail in transactionDetails)
                                     {
-                                        if (ipn.PaymentType.ToLower() == "echeck")
+                                        PurchaseTransaction purchaseTrans = new PurchaseTransaction()
                                         {
-                                            Account acc = da.GetAccountById(accountId);
-                                            acc.Balance -= ipn.GrossAmount;
-                                            da.SaveChanges();
-                                        }
+                                            PaymentService = "PayPal",
+                                            TransactionId = ipn.TransactionID,
+                                            TransactionDate = DateTime.UtcNow,
+                                            TransactionType = ipn.PaymentStatus,
+                                            ReceiverId = ipn.ReceivedID,
+                                            ItemPurchased = transactionDetail.TransactionType,
+                                            Description = transactionDetail.Description,
+                                            AccountId = transactionDetail.AccountId,
+                                            GrossAmount = transactionDetail.Cost,
+                                            Fee = transactionDetail.Fee
+                                        };
+
+                                        da.InsertPurchaseTransaction(purchaseTrans);
+
+                                        // If the payment type is eCheck, reverse any credit purchases.
+                                        // Can be applied manually later once the cCheck clears.
+                                        //if (accountId > 0)
+                                        //{
+                                        //    if (ipn.PaymentType.ToLower() == "echeck")
+                                        //    {
+                                        //        Account acc = da.GetAccountById(accountId);
+                                        //        acc.Balance -= ipn.GrossAmount;
+                                        //        da.SaveChanges();
+                                        //    }
+                                        //}
                                     }
                                 }
 
@@ -254,10 +259,63 @@ namespace TextPortCore.Integrations.PayPal
                 }
                 return returnValue;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                string foo = ex.Message;
                 return false;
             }
+        }
+
+        private List<PurchaseTransactionDetail> GetTransactionBreakdown(string[] customFields, InstantPaymentNotification ipn)
+        {
+            List<PurchaseTransactionDetail> transactionDetails = new List<PurchaseTransactionDetail>();
+            PurchaseCustomField fields = new PurchaseCustomField(customFields);
+
+            switch (fields.TransactionType)
+            {
+                case "VMN":
+                    PurchaseTransactionDetail transactionDetail = new PurchaseTransactionDetail()
+                    {
+                        TransactionType = fields.TransactionType,
+                        AccountId = fields.AccountId,
+                        CountryId = fields.CountryId,
+                    };
+                    transactionDetail.VirtualNumber = fields.VirtualNumber;
+                    transactionDetail.Description = $"Number {fields.VirtualNumber}";
+                    transactionDetail.Description += (!string.IsNullOrEmpty(fields.LeasePeriodWord)) ? $" {fields.LeasePeriod} {fields.LeasePeriodWord} lease" : string.Empty;
+                    transactionDetail.Cost = ipn.GrossAmount - fields.CreditPurchaseAmount;
+                    transactionDetail.Fee = ipn.Fee;
+                    transactionDetails.Add(transactionDetail);
+
+                    // If any credit was purchased, add a separate transaction for that.
+                    if (fields.CreditPurchaseAmount > 0)
+                    {
+                        PurchaseTransactionDetail transactionDetailCredit = new PurchaseTransactionDetail()
+                        {
+                            TransactionType = "CREDIT",
+                            AccountId = fields.AccountId,
+                            CountryId = fields.CountryId,
+                        };
+                        transactionDetailCredit.Description = $"Add {fields.CreditPurchaseAmount:C2} credit";
+                        transactionDetailCredit.Cost = fields.CreditPurchaseAmount;
+                        transactionDetailCredit.Fee = 0;
+                        transactionDetails.Add(transactionDetailCredit);
+                    }
+                    break;
+
+                default: // CREDIT
+                    transactionDetails.Add(new PurchaseTransactionDetail()
+                    {
+                        TransactionType = fields.TransactionType,
+                        AccountId = fields.AccountId,
+                        Cost = ipn.GrossAmount,
+                        Description = $"Add {ipn.GrossAmount:C2} credit",
+                        Fee = ipn.Fee
+                    });
+                    break;
+            }
+
+            return transactionDetails;
         }
 
         private string parseStringField(System.Collections.Specialized.NameValueCollection queryStringParameters, string fieldName)

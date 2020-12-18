@@ -17,8 +17,6 @@ namespace TextPort.Controllers
             //Store the IPN received from PayPal
             LogRequest(Request);
 
-            //Fire and forget verification task
-            //Task.Run(() => 
             VerifyTask(Request);
 
             //Reply back a 200 code
@@ -58,7 +56,6 @@ namespace TextPort.Controllers
             }
             catch (Exception ex)
             {
-                //Capture exception for manual investigation
             }
 
             //ProcessVerificationResponse(verificationResponse);
@@ -66,7 +63,6 @@ namespace TextPort.Controllers
 
         private void LogRequest(HttpRequestBase request)
         {
-            //byte[] param = Request.BinaryRead(HttpContext.Current.Request.ContentLength);
             byte[] param = request.BinaryRead(request.ContentLength);
             string strRequest = Encoding.ASCII.GetString(param);
 

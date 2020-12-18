@@ -18,8 +18,11 @@ namespace TextPortCore.Models
         [Display(Name = "Transaction Type")]
         public string TransactionType { get; set; }
 
-        [Display(Name = "Description")]
+        [Display(Name = "Item Code")]
         public string ItemPurchased { get; set; }
+
+        [Display(Name = "Description")]
+        public string Description { get; set; }
 
         public int AccountId { get; set; }
 

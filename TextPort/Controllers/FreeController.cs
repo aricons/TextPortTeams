@@ -85,7 +85,7 @@ namespace TextPort.Controllers
                             {
                                 decimal newBalance = 0;
 
-                                message.MessageText += "\r\nSent via TextPort.com.";
+                                message.MessageText += $"\r\nSent via TextPort.com from {message.Ipaddress}";
                                 if (da.InsertMessage(message, ref newBalance) > 0)
                                 {
                                     message.Send();
@@ -96,12 +96,12 @@ namespace TextPort.Controllers
                             }
                             else
                             {
-                                result.Messages.Add(createNotificationMessage(freeTextAccountId, $"Too many texts sent to {Utilities.NumberToDisplayFormat(Utilities.NumberToE164(message.MobileNumber, message.DedicatedVirtualNumber.CountryCode), message.DedicatedVirtualNumber.CountryId)}. To send more, you can <a href='/trial'>register a trial account</a> or <a href='/account/signup'>sign up for a full account</a>."));
+                                result.Messages.Add(createNotificationMessage(freeTextAccountId, $"Too many texts sent to {Utilities.NumberToDisplayFormat(Utilities.NumberToE164(message.MobileNumber, message.DedicatedVirtualNumber.CountryCode), message.DedicatedVirtualNumber.CountryId)}. To send more, you can <a href='/account/signup'>sign up for a full account</a>."));
                             }
                         }
                         else
                         {
-                            result.Messages.Add(createNotificationMessage(freeTextAccountId, @"You have exceeded your free texting limit. To send more texts, you can <a href=""/trial"">register a trial account</a> or <a href=""/account/signup"">sign up for a full account</a>."));
+                            result.Messages.Add(createNotificationMessage(freeTextAccountId, @"You have exceeded your free texting limit. To send more texts, <a href=""/account/signup"">sign up for a full account</a>."));
                         }
                     }
                     else

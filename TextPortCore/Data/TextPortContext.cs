@@ -552,33 +552,12 @@ namespace TextPortCore.Data
 
                 entity.Property(e => e.GrossAmount).HasColumnType("money");
 
-                entity.Property(e => e.ItemPurchased)
-                    .IsRequired()
-                    .HasMaxLength(25)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.PaymentService)
-                    .IsRequired()
-                    .HasMaxLength(16)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.ReceiverId)
-                    .IsRequired()
-                    .HasColumnName("ReceiverID")
-                    .HasMaxLength(25)
-                    .IsUnicode(false);
-
                 entity.Property(e => e.TransactionDate).HasColumnType("datetime");
 
                 entity.Property(e => e.TransactionId)
                     .IsRequired()
                     .HasColumnName("TransactionID")
                     .HasMaxLength(25)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.TransactionType)
-                    .IsRequired()
-                    .HasMaxLength(20)
                     .IsUnicode(false);
             });
 

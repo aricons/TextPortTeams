@@ -15,11 +15,11 @@ namespace TextPort
             defaults: new { controller = "messages", action = "index" }
             );
 
-            routes.MapRoute(
-            name: "trial",
-            url: "trial",
-            defaults: new { controller = "trial", action = "index" }
-            );
+            //routes.MapRoute(
+            //name: "trial",
+            //url: "trial",
+            //defaults: new { controller = "trial", action = "index" }
+            //);
 
             routes.MapRoute(
             name: "bulk",
@@ -37,6 +37,12 @@ namespace TextPort
             name: "numbers",
             url: "numbers",
             defaults: new { controller = "numbers", action = "index" }
+            );
+
+            routes.MapRoute(
+            name: "purchases",
+            url: "purchases",
+            defaults: new { controller = "purchases", action = "index" }
             );
 
             routes.MapRoute(

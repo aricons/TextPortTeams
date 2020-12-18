@@ -1,0 +1,63 @@
+﻿@using TextPortCore.Models
+@model PurchasesContainer
+@{
+    ViewBag.Title = "Purchase History";
+}
+
+<script type="text/javascript">
+    $.ajaxSetup({ cache: false });
+    $(function () {
+        $('#menu_purchases').addClass("active");
+    });
+</script>
+
+<div class="row">
+    @Html.Partial("_SideMenuBar")
+    <div class="col-12 col-md-10">
+        <div class="card">
+            <div class="card-header">
+                <div class="row">
+                    <div class="col-md-7">
+                        <h4>Purchase History</h4>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <table class="table table-sm table-striped">
+                        <thead>
+                            <tr class="bg-primary">
+                                <th scope="col" class="text-white list-header">Date</th>
+                                <th scope="col" class="text-white list-header">Payment Method</th>
+                                <th scope="col" class="text-white list-header">Item Code</th>
+                                <th scope="col" class="text-white list-header">Description</th>
+                                <th scope="col" class="text-white list-header text-right">Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody id="purchases-list">
+                            @if (Model.PurchaseTransactions.Count() > 0)
+                            {
+                                foreach (PurchaseTransaction transaction in Model.PurchaseTransactions)
+                                {
+                                    <tr>
+                                        <td>@string.Format("{0:MM-dd-yyyy}", transaction.TransactionDate)</td>
+                                        <td>@transaction.PaymentService</td>
+                                        <td>@transaction.ItemPurchased</td>
+                                        <td>@transaction.Description</td>
+                                        <td class="text-right">@string.Format("{0:C2}", transaction.GrossAmount)</td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="4" class="text-center">No purchases have been made yet</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

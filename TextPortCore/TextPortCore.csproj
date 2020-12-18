@@ -97,6 +97,9 @@
     <Compile Include="Models\NumberWithAPIDetail.cs" />
     <Compile Include="Models\PagingParameters.cs" />
     <Compile Include="Models\PooledNumber.cs" />
+    <Compile Include="Models\PurchaseCustomField.cs" />
+    <Compile Include="Models\PurchasesContainer.cs" />
+    <Compile Include="Models\PurchaseTransactionDetail.cs" />
     <Compile Include="Models\SelectNumberItem.cs" />
     <Compile Include="Models\SupportRequestModel.cs" />
     <Compile Include="Models\TempImage.cs" />

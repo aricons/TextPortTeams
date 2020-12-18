@@ -58,13 +58,6 @@ namespace TextPort.Controllers
                             using (HubFunctions hubFunctions = new HubFunctions())
                             {
                                 hubFunctions.SendDeliveryReceipt(receipt.HubNotification.HubClientId, receipt.HubNotification.MessageId.ToString(), receipt.HubNotification.NotificationMessage);
-
-                                // Need to send a balance update here.
-                                //if (newMessage.Account.EnableMobileForwarding && !string.IsNullOrEmpty(newMessage.Account.ForwardVnmessagesTo))
-                                //{
-                                //    decimal balance = newMessage.Account.Balance - (Constants.BaseSMSSegmentCost * Utilities.GetSegmentCount(newMessage.MessageText));
-                                //    hubFunctions.SendBalanceUpdate(newMessage.Account.UserName, balance.ToString());
-                                //}
                             }
                         }
                         return Ok();

@@ -31,17 +31,6 @@ namespace TextPortCore.Integrations.Common
                 string forwardVNMessagesTo = String.Empty;
                 string userName = String.Empty;
 
-                //if (messageIn.EventType == EventTypes.MessageFailed)
-                //{
-                //    // Switch the from and to fields.
-                //    if (messageIn.CarrierId == Carriers.BandWidth)
-                //    {
-                //        string tempTo = messageIn.To;
-                //        messageIn.To = messageIn.From;
-                //        messageIn.From = tempTo;
-                //    }
-                //}
-
                 string sessionId = null;
                 DedicatedVirtualNumber dvn = null;
 
@@ -261,8 +250,7 @@ namespace TextPortCore.Integrations.Common
                         logText += "To virtual number: " + receipt.To + "\r\n";
                         logText += "Vendor Message Id: " + receipt.CarrierMessageId + "\r\n";
                         logText += "Data Received: " + receipt.DataFromVendor + "\r\n";
-                        logText += CheckForAPICallback(receipt);
-
+                       
                         if (!string.IsNullOrEmpty(receipt.CarrierMessageId))
                         {
                             logText += $"Locating original message by vendor message ID {receipt.CarrierMessageId}\r\n";
@@ -280,6 +268,8 @@ namespace TextPortCore.Integrations.Common
 
                                     logText += $"Segment count from carrier is {receipt.SegmentCount}\r\n";
                                     synchronizeEstimatedAndActualCost(ref originalMessage, receipt.SegmentCount, ref logText);
+
+                                    logText += CheckForAPICallback(receipt, originalMessage);
 
                                     originalMessage.Account.MessageInCount++;
                                     logText += $"Updated message in count for account to {originalMessage.Account.MessageInCount}\r\n";
@@ -310,8 +300,7 @@ namespace TextPortCore.Integrations.Common
                         logText += "To virtual number: " + receipt.To + "\r\n";
                         logText += "Vendor Message Id: " + receipt.CarrierMessageId + "\r\n";
                         logText += "Data Received: " + receipt.DataFromVendor + "\r\n";
-                        logText += CheckForAPICallback(receipt);
-
+                       
                         if (!string.IsNullOrEmpty(receipt.CarrierMessageId))
                         {
                             logText += $"Locating original message by vendor message ID {receipt.CarrierMessageId}\r\n";
@@ -326,6 +315,8 @@ namespace TextPortCore.Integrations.Common
 
                                     logText += $"Segment count from carrier is {receipt.SegmentCount}\r\n";
                                     adjustBalanceForFailure(originalMessage, receipt, ref logText);
+
+                                    logText += CheckForAPICallback(receipt, originalMessage);
 
                                     originalMessage.Account.MessageInCount++;
                                     logText += $"Updated message in count for account to {originalMessage.Account.MessageInCount}\r\n";
@@ -374,7 +365,7 @@ namespace TextPortCore.Integrations.Common
             return null;
         }
 
-        public static string CheckForAPICallback(IntegrationMessageIn msgIn)
+        public static string CheckForAPICallback(IntegrationMessageIn msgIn, Message originalMessage)
         {
             string result = string.Empty;
             DedicatedVirtualNumber dvn = null;
@@ -415,7 +406,7 @@ namespace TextPortCore.Integrations.Common
 
                                         result += $"A callback URL was found. URL: {apiApp.CallbackURL}. Processing API callback." + "\r\n";
 
-                                        API.MessageEvent msgEvent = new API.MessageEvent(msgIn);
+                                        API.MessageEvent msgEvent = new API.MessageEvent(msgIn, originalMessage);
 
                                         if (CallbackProcessor.ProcessAPICallback(apiApp, msgEvent, ref callbackProcessingMessage))
                                         {

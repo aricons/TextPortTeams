@@ -175,13 +175,17 @@ namespace TextPortCore.Models
                 switch (this.LeasePeriodType)
                 {
                     case "D":
-                        return (this.LeasePeriod == 1) ? "day" : "days";
+                        return "day";
+                    //return (this.LeasePeriod <= 2) ? "day" : "days";
                     case "W":
-                        return (this.LeasePeriod == 1) ? "week" : "weeks";
+                        return "week";
+                    //return (this.LeasePeriod <= 3) ? "week" : "weeks";
                     case "Y":
-                        return (this.LeasePeriod == 1) ? "year" : "years";
+                        return "year";
+                    //return (this.LeasePeriod <= 2) ? "year" : "years";
                     default:
-                        return (this.LeasePeriod == 1) ? "month" : "months";
+                        return "month";
+                        //return (this.LeasePeriod <= 2) ? "month" : "months";
                 }
             }
         }
@@ -236,7 +240,7 @@ namespace TextPortCore.Models
                         return string.Format("CREDIT|{0}|{1:N2}", this.AccountId, this.CreditPurchaseAmount);
 
                     default:
-                        return string.Format("VMN|{0}|{1}|{2}|{3}|{4}", this.AccountId, this.VirtualNumber, this.CountryId, this.LeasePeriod, this.CreditPurchaseAmount);
+                        return string.Format("VMN|{0}|{1}|{2}|{3}|{4}|{5}", this.AccountId, this.VirtualNumber, this.CountryId, this.LeasePeriod, this.CreditPurchaseAmount, this.LeasePeriodWord);
                 }
             }
         }

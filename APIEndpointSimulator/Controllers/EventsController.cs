@@ -27,8 +27,8 @@ namespace APIEndpointSimulator.Controllers
             {
                 logText += $"Processing API event: {message.EventType}\r\n";
                 logText += $"Message ID: {message.MessageId}\r\n";
-                logText += $"From: {message.Message.From}\r\n";
-                logText += $"To: {message.Message.To}\r\n";
+                logText += $"From: {message.From}\r\n";
+                logText += $"To: {message.To}\r\n";
                 logText += $"Message: {message.Message.MessageText}\r\n";
                 logText += $"Cost: {message.Cost}\r\n";
                 logText += $"Notifications: {message.Notifications}\r\n";

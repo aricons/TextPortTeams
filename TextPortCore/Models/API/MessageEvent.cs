@@ -50,7 +50,7 @@ namespace TextPortCore.Models.API
             this.Time = DateTime.Now;
             this.MessageId = message.MessageId;
             this.From = message.MobileNumber;
-            this.To = message.VirtualNumber;
+            this.To = message?.DedicatedVirtualNumber?.VirtualNumber;
             this.Cost = (message.CustomerCost != null) ? (decimal)message.CustomerCost : 0.015M;
             this.Message = new Message(message);
             switch (eventType)
@@ -64,15 +64,22 @@ namespace TextPortCore.Models.API
             }
         }
 
-        public MessageEvent(intCommon.IntegrationMessageIn integrationMessageIn)
+        public MessageEvent(intCommon.IntegrationMessageIn integrationMessageIn, core.Message originalMessage)
         {
             this.EventType = getAPIEventCodeFromEventType(integrationMessageIn.EventType);
             this.Time = DateTime.Now;
-            this.MessageId = 0;
+            this.MessageId = originalMessage.MessageId;
             this.From = integrationMessageIn.From;
             this.To = integrationMessageIn.To;
-            this.Cost = 0;
-            this.Message = new Message(integrationMessageIn);
+            this.Cost = originalMessage.CustomerCost ?? 0;
+            if (this.EventType == "message-delivered")
+            {
+                this.Message = new Message(originalMessage);
+            }
+            else
+            {
+                this.Message = new Message(integrationMessageIn);
+            }
             this.Notifications = $"{integrationMessageIn.EventType} received from {integrationMessageIn.To}.";
         }
 
