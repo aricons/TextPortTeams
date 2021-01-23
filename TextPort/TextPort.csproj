@@ -499,13 +499,9 @@
     <Compile Include="App_Start\Startup.Auth.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\AccountController.cs" />
-    <Compile Include="Controllers\BlogController.cs" />
     <Compile Include="Controllers\BulkUploadController.cs" />
-    <Compile Include="Controllers\CoinbaseController.cs" />
     <Compile Include="Controllers\ContactsController.cs" />
     <Compile Include="Controllers\EmailToSMSController.cs" />
-    <Compile Include="Controllers\FreeController.cs" />
-    <Compile Include="Controllers\NexmoController.cs" />
     <Compile Include="Controllers\PurchasesController.cs" />
     <Compile Include="Controllers\SmsApiController.cs" />
     <Compile Include="Controllers\ApiSettingsController.cs" />
@@ -516,9 +512,6 @@
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\MessagesController.cs" />
     <Compile Include="Controllers\NumbersController.cs" />
-    <Compile Include="Controllers\PayPalController.cs" />
-    <Compile Include="Controllers\ToolsController.cs" />
-    <Compile Include="Controllers\TrialController.cs" />
     <Compile Include="DependencyInjection.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -1410,7 +1403,6 @@
     <Content Include="Views\Group\Index.cshtml" />
     <Content Include="Views\Group\_ResultsList.cshtml" />
     <Content Include="Views\Group\_MemberList.cshtml" />
-    <Content Include="Views\Trial\Index.cshtml" />
     <Content Include="Views\Home\loginm.cshtml" />
     <Content Include="Views\Messages\_SendMessage.cshtml" />
     <Content Include="Views\Messages\_ReceiveMessage.cshtml" />
@@ -1430,7 +1422,6 @@
     <Content Include="Views\ApiSettings\_FullApplication.cshtml" />
     <Content Include="Views\Numbers\_ApplyApi.cshtml" />
     <Content Include="Views\Messages\_ConfirmDeleteMessages.cshtml" />
-    <Content Include="Views\Trial\RegistrationComplete.cshtml" />
     <Content Include="Views\Account\Activate.cshtml" />
     <Content Include="Views\Home\virtual-mobile-numbers.cshtml" />
     <Content Include="Views\Home\email-to-sms-gateway.cshtml" />
@@ -1464,19 +1455,9 @@
     <Content Include="Views\Blog\draft.cshtml" />
     <Content Include="Views\Home\temporary-numbers.cshtml" />
     <Content Include="Views\Shared\_NumberPicker.cshtml" />
-    <Content Include="Views\Tools\number-lookup.cshtml" />
-    <Content Include="Views\Tools\test.cshtml" />
-    <Content Include="Views\Tools\_NumberLookupResult.cshtml" />
-    <Content Include="Views\Tools\ip-address-lookup.cshtml" />
-    <Content Include="Views\Tools\_IPLookupResult.cshtml" />
     <Content Include="Views\Home\faq.cshtml" />
-    <Content Include="Views\Tools\ip-address-locator.cshtml" />
     <Content Include="Views\Home\test.cshtml" />
-    <Content Include="Views\Free\send-text.cshtml" />
     <Content Include="Views\Messages\Test.cshtml" />
-    <Content Include="Views\Free\_TempImage.cshtml" />
-    <Content Include="Views\Free\_MessageList_FreeTextContainer.cshtml" />
-    <Content Include="Views\Free\_MessageList_FreeTextResult.cshtml" />
     <Content Include="Views\Home\block.cshtml" />
     <Content Include="Views\Nexmo\_MessageList.cshtml" />
     <Content Include="Views\Home\virtual-phone-numbers.cshtml" />
@@ -1552,7 +1533,7 @@
           <AutoAssignPort>True</AutoAssignPort>
           <DevelopmentServerPort>3952</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
-          <IISUrl>http://localhost:3952/</IISUrl>
+          <IISUrl>http://localhost:3953/</IISUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
           <UseCustomServer>False</UseCustomServer>
           <CustomServerUrl>
