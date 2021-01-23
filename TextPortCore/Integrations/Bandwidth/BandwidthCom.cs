@@ -282,6 +282,102 @@ namespace TextPortCore.Integrations.Bandwidth
             }
         }
 
+        public string ReserveVirtualNumber(string number, ref string processingMessage)
+        {
+            try
+            {
+                string reservationId = string.Empty;
+                processingMessage = string.Empty;
+
+                _client.BaseUrl = new Uri(accountBaseUrl);
+                _client.Authenticator = new HttpBasicAuthenticator(ConfigurationManager.AppSettings["BandwidthUserName"], ConfigurationManager.AppSettings["BandwidthPassword"]);
+
+                RestRequest request = new RestRequest("/tnreservation", Method.POST)
+                {
+                    RequestFormat = DataFormat.Xml,
+                    XmlSerializer = new DotNetXmlSerializer()
+                };
+                request.AddHeader("Content-Type", "application/xml; charset=utf-8");
+
+                Reservation reservation = new Reservation(number);
+                request.AddXmlBody(reservation);
+
+                IRestResponse response = _client.Execute<ReservationResponse>(request);
+
+                if (response.StatusCode == System.Net.HttpStatusCode.Created)
+                {
+                    if (response.Headers != null)
+                    {
+                        Parameter locationHeader = response.Headers.FirstOrDefault(x => x.Name == "Location");
+                        if (locationHeader != null)
+                        {
+                            if (locationHeader.Value != null)
+                            {
+                                reservationId = locationHeader.Value.ToString();
+                                reservationId = reservationId.Substring(reservationId.LastIndexOf('/') + 1);
+                            }
+                        }
+                    }
+                    return reservationId;
+                }
+                else
+                {
+                    processingMessage += "Reservation request failed. ";
+                    return string.Empty;
+                }
+            }
+            catch (Exception ex)
+            {
+                EventLogging.WriteEventLogEntry("An error occurred in BandwidthCom.ReserveVirtualNumber(). Message: " + ex.ToString(), System.Diagnostics.EventLogEntryType.Error);
+                return string.Empty;
+            }
+        }
+
+        public bool AllocateReservedNumber(string reservationId)
+        {
+            try
+            {
+                _client.BaseUrl = new Uri(accountBaseUrl);
+                _client.Authenticator = new HttpBasicAuthenticator(ConfigurationManager.AppSettings["BandwidthUserName"], ConfigurationManager.AppSettings["BandwidthPassword"]);
+
+                RestRequest request = new RestRequest("/tnreservation", Method.POST)
+                {
+                    RequestFormat = DataFormat.Xml,
+                    XmlSerializer = new DotNetXmlSerializer()
+                };
+                request.AddHeader("Content-Type", "application/xml; charset=utf-8");
+
+                Reservation reservation = new Reservation(reservationId);
+                request.AddXmlBody(reservation);
+
+                IRestResponse response = _client.Execute<ReservationResponse>(request);
+
+                if (response.StatusCode == System.Net.HttpStatusCode.Created)
+                {
+                    if (response.Headers != null)
+                    {
+                        Parameter locationHeader = response.Headers.FirstOrDefault(x => x.Name == "Location");
+                        if (locationHeader != null)
+                        {
+                            if (locationHeader.Value != null)
+                            {
+                                reservationId = locationHeader.Value.ToString();
+                                reservationId = reservationId.Substring(reservationId.LastIndexOf('/') + 1);
+                            }
+                        }
+                    }
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                EventLogging.WriteEventLogEntry("An error occurred in BandwidthCom.AllocateReservedNumber(). Message: " + ex.ToString(), System.Diagnostics.EventLogEntryType.Error);
+            }
+
+            return false;
+        }
+
+
         //public Message ProcessInboundMessage(BandwidthInboundMessage bwMessage)
         //{
         //    IntegrationMessageIn messageIn = new IntegrationMessageIn(bwMessage);

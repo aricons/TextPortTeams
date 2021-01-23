@@ -82,7 +82,7 @@ namespace TextPortCore.Data
             {
                 Dictionary<decimal, string> creditAmountsDict = new Dictionary<decimal, string>()
                 {
-                    {(decimal)1.00, "$1.00"},
+                    //{(decimal)1.00, "$1.00"},
                     {(decimal)2.00, "$2.00"},
                     {(decimal)5.00, "$5.00"},
                     {(decimal)10.00, "$10.00"},

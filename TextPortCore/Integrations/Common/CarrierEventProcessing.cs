@@ -244,13 +244,13 @@ namespace TextPortCore.Integrations.Common
                 {
                     case EventTypes.MessageDelivered:
                         logText = $"Delivery receipt received from {receipt.CarrierName}\r\n";
-                        logText += "Notification Type: " + receipt.Description + "\r\n";
+                        logText += "Notification Type: delivered\r\n";
                         logText += "Error Code: " + receipt.ErrorCode + "\r\n";
                         logText += "From mobile number: " + receipt.From + "\r\n";
                         logText += "To virtual number: " + receipt.To + "\r\n";
                         logText += "Vendor Message Id: " + receipt.CarrierMessageId + "\r\n";
                         logText += "Data Received: " + receipt.DataFromVendor + "\r\n";
-                       
+
                         if (!string.IsNullOrEmpty(receipt.CarrierMessageId))
                         {
                             logText += $"Locating original message by vendor message ID {receipt.CarrierMessageId}\r\n";
@@ -271,8 +271,6 @@ namespace TextPortCore.Integrations.Common
 
                                     logText += CheckForAPICallback(receipt, originalMessage);
 
-                                    originalMessage.Account.MessageInCount++;
-                                    logText += $"Updated message in count for account to {originalMessage.Account.MessageInCount}\r\n";
                                     logText += $"Saving changes\r\n";
                                     da.SaveChanges();
 
@@ -294,13 +292,14 @@ namespace TextPortCore.Integrations.Common
 
                     case EventTypes.MessageFailed:
                         logText = $"Delivery failure received from {receipt.CarrierName}\r\n";
-                        logText += "Notification Type: " + receipt.Description + "\r\n";
+                        logText += "Notification Type: failure\r\n";
                         logText += "Error Code: " + receipt.ErrorCode + "\r\n";
+                        logText += "Failure Reason: " + receipt.Description + "\r\n";
                         logText += "From mobile number: " + receipt.From + "\r\n";
                         logText += "To virtual number: " + receipt.To + "\r\n";
                         logText += "Vendor Message Id: " + receipt.CarrierMessageId + "\r\n";
                         logText += "Data Received: " + receipt.DataFromVendor + "\r\n";
-                       
+
                         if (!string.IsNullOrEmpty(receipt.CarrierMessageId))
                         {
                             logText += $"Locating original message by vendor message ID {receipt.CarrierMessageId}\r\n";
@@ -314,12 +313,10 @@ namespace TextPortCore.Integrations.Common
                                     originalMessage.Segments = receipt.SegmentCount;
 
                                     logText += $"Segment count from carrier is {receipt.SegmentCount}\r\n";
-                                    adjustBalanceForFailure(originalMessage, receipt, ref logText);
+                                    processFailure(originalMessage, receipt, ref logText);
 
                                     logText += CheckForAPICallback(receipt, originalMessage);
 
-                                    originalMessage.Account.MessageInCount++;
-                                    logText += $"Updated message in count for account to {originalMessage.Account.MessageInCount}\r\n";
                                     logText += $"Saving changes\r\n";
                                     da.SaveChanges();
 
@@ -342,8 +339,9 @@ namespace TextPortCore.Integrations.Common
 
                     default:
                         logText = $"Other notificationreceived from {receipt.CarrierName}\r\n";
-                        logText += "Notification Type: " + receipt.Description + "\r\n";
+                        logText += "Notification Type: Other/Default\r\n";
                         logText += "Error Code: " + receipt.ErrorCode + "\r\n";
+                        logText += "Failure Reason: " + receipt.Description + "\r\n";
                         logText += "From mobile number: " + receipt.From + "\r\n";
                         logText += "To virtual number: " + receipt.To + "\r\n";
                         logText += "Data Received: " + receipt.DataFromVendor + "\r\n";
@@ -494,15 +492,21 @@ namespace TextPortCore.Integrations.Common
             return true;
         }
 
-        private static bool adjustBalanceForFailure(Message originalMessage, IntegrationMessageIn receipt, ref string logText)
+        private static bool processFailure(Message originalMessage, IntegrationMessageIn receipt, ref string logText)
         {
+            // Log the error reason
+            if (!string.IsNullOrEmpty(receipt.ErrorCode) && !string.IsNullOrEmpty(receipt.Description))
+            {
+                originalMessage.FailureReason = receipt.Description;
+            }
+
             // If the failure is valid (not spam), then credit the message cost back to the account
             decimal originalMessageCost = (originalMessage?.CustomerCost != null) ? (decimal)originalMessage.CustomerCost : 0;
             if (originalMessageCost > 0)
             {
-                if (applyCreditForErrorCode(receipt.ErrorCode))
+                if (shouldIssueCreditForError(receipt.ErrorCode))
                 {
-                    logText += $"A creditable error code {receipt.ErrorCode} was found. Applying credit ot {originalMessageCost} to account.\r\n";
+                    logText += $"A creditable error code {receipt.ErrorCode} was found. Applying credit of {originalMessageCost} to account.\r\n";
                     originalMessage.Account.Balance += originalMessageCost;
                 }
             }
@@ -524,7 +528,7 @@ namespace TextPortCore.Integrations.Common
             }
         }
 
-        private static bool applyCreditForErrorCode(string errorCode)
+        private static bool shouldIssueCreditForError(string errorCode)
         {
             switch (errorCode)
             {

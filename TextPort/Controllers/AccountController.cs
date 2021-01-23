@@ -10,6 +10,7 @@ using TextPort.Helpers;
 using TextPortCore.Models;
 using TextPortCore.Data;
 using TextPortCore.Helpers;
+using TextPortCore.Integrations.Coinbase;
 using TextPortCore.Integrations.Bandwidth;
 
 namespace TextPort.Controllers
@@ -128,7 +129,26 @@ namespace TextPort.Controllers
                             regData.AccountId = da.AddTemporaryAccount(regData);
                             break;
                     }
-                    return PartialView("_Purchase", regData);
+
+                    switch (regData.PurchaseMethod)
+                    {
+                        case "Crypto":
+                            using (Coinbase coinbase = new Coinbase())
+                            {
+                                ChargeResponse chargeResponse = coinbase.CreateCharge(regData);
+                                if (chargeResponse != null)
+                                {
+                                    regData.PaymentUrl = chargeResponse.data.hosted_url;
+                                    regData.PaymentTransactionId = chargeResponse.data.id;
+
+                                    da.UpdateAccountCryptoTransactionDetails(regData);
+                                }
+                            }
+                            return PartialView("_PurchaseCrypto", regData);
+
+                        default:
+                            return PartialView("_Purchase", regData);
+                    }
                 }
             }
             catch (Exception ex)

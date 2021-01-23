@@ -39,6 +39,10 @@ namespace TextPortCore.Integrations.Bandwidth
             this.ExistingTelephoneNumberOrderType = new ExistingTelephoneNumberOrderTypeItem(number);
             this.PartialAllowed = false;
             this.BackOrderRequested = false;
+            if (!string.IsNullOrEmpty(regData.NumberReservationId))
+            {
+                this.ExistingTelephoneNumberOrderType.ReservationIdList = new ReservationIdListItem(regData.NumberReservationId);
+            }
         }
     }
 
@@ -46,6 +50,8 @@ namespace TextPortCore.Integrations.Bandwidth
     public class ExistingTelephoneNumberOrderTypeItem
     {
         public TelephoneNumberItem TelephoneNumberList { get; set; }
+
+        public ReservationIdListItem ReservationIdList { get; set; }
 
         public ExistingTelephoneNumberOrderTypeItem()
         {
@@ -78,4 +84,40 @@ namespace TextPortCore.Integrations.Bandwidth
             this.TelephoneNumber = number;
         }
     }
+
+    [Serializable()]
+    public class ReservationIdListItem
+    {
+        public string ReservationId { get; set; }
+
+        // Default constructor
+        public ReservationIdListItem()
+        {
+            this.ReservationId = string.Empty;
+        }
+
+        // Constructor for a reservation id
+        public ReservationIdListItem(string reservationId)
+        {
+            this.ReservationId = reservationId;
+        }
+    }
+
+    //[Serializable()]
+    //public class ReservationIdItem
+    //{
+    //    public string ReservationId { get; set; }
+
+    //    // Default constructor
+    //    public ReservationIdItem()
+    //    {
+    //        this.ReservationId = string.Empty;
+    //    }
+
+    //    // Constructor for a reservation id
+    //    public ReservationIdItem(string reservationId)
+    //    {
+    //        this.ReservationId = reservationId;
+    //    }
+    //}
 }

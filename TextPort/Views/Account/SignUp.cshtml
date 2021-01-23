@@ -14,6 +14,8 @@
 
 <script type="text/javascript">
 
+    $.validator.setDefaults({ ignore: [] });
+
     $(function () {
         $.ajaxSetup({
             cache: false
@@ -58,16 +60,6 @@
         numberCount = 42;
     });
 
-    //function getNumber(number) {
-    //    $("#lbl-sel-number").text("Selected number");
-    //    $("#selected-number").text(numberToDisplay(number));
-    //    $("#VirtualNumber").val("1" + numberToE164(number));
-    //    $("#selected-number-wrap").show();
-    //    $("#number-chooser").hide(500);
-    //    $("#payment-section").show(500);
-    //    $("#form-signup").validate().element("#VirtualNumber");
-    //}
-
     function getNumber(number) {
         var countryCode = $("#CountryId option:selected").val();
         $("#lbl-sel-number").text("Selected number");
@@ -95,15 +87,9 @@
             @Html.AntiForgeryToken()
             @Html.HiddenFor(m => m.NumberCost)
             @Html.HiddenFor(m => m.PurchaseType)
-            @*@Html.HiddenFor(m => m.PayPalCustom)*@
-            @*@Html.HiddenFor(m => m.VirtualNumberId)*@
             @Html.HiddenFor(m => m.PurchaseTitle)
-            @*@Html.HiddenFor(m => m.ProductDescription)*@
-            @*@Html.HiddenFor(m => m.CompletionTitle)*@
-            @*@Html.HiddenFor(m => m.CompletionMessage)*@
             @Html.HiddenFor(m => m.NumberType)
             @Html.HiddenFor(m => m.FreeTrial)
-            @*@Html.HiddenFor(m => m.CountryId)*@
             @Html.HiddenFor(m => m.VirtualNumber)
             @Html.HiddenFor(m => m.LeasePeriodType)
             @Html.HiddenFor(m => m.LeasePeriod)
@@ -179,7 +165,9 @@
                             <label id="TotalCost"></label>
                         </div>
                         <div class="form-group">
-                            <button id="btnContinue" type="button" class="btn btn-primary">Continue to Payment</button>
+                            <button id="btnContinue" type="button" class="btn btn-primary">Pay with PayPal or Credit Card</button>
+                            <button id="btnContinueCrypto" type="button" class="btn btn-primary">Pay with Bitcoin/Crypto</button>
+                            <div id="txtCrypto" class="subscript ml-0">Crypto-currency transactions require a minimum $5.00 purchase</div>
                         </div>
                     </div>
                 </div>
@@ -189,4 +177,5 @@
     </div>
 </div>
 <div id="purchaseModalCont" class="modal hide fade in"></div>
+<div id="purchaseModalCryptoCont" class="modal hide fade in"></div>
 <div id="postPurchaseModalCont" class="modal hide fade in"></div>

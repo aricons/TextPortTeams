@@ -241,6 +241,32 @@ namespace TextPortCore.Data
             return false;
         }
 
+        public bool UpdateAccountCryptoTransactionDetails(RegistrationData regData)
+        {
+            try
+            {
+                if (regData != null)
+                {
+                    Account acc = _context.Accounts.FirstOrDefault(x => x.AccountId == regData.AccountId);
+                    if (acc != null)
+                    {
+                        acc.PaymentUrl = regData.PaymentUrl;
+                        acc.PaymentTransactionId = regData.PaymentTransactionId;
+                        SaveChanges();
+
+                        return true;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorHandling eh = new ErrorHandling();
+                eh.LogException("AccountDA.UpdateAccountCryptoTransactionDetails", ex);
+            }
+
+            return false;
+        }
+
         public bool SetComplimentaryNumberFlag(int accountId, ComplimentaryNumberStatus flagValue)
         {
             try
@@ -411,6 +437,27 @@ namespace TextPortCore.Data
             try
             {
                 Account existingAccount = _context.Accounts.FirstOrDefault(x => x.AccountId == rd.AccountId);
+                if (existingAccount != null)
+                {
+                    existingAccount.Enabled = true;
+                    _context.SaveChanges();
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorHandling eh = new ErrorHandling();
+                eh.LogException("AccountDA.EnableTemporaryAccount", ex);
+            }
+
+            return false;
+        }
+
+        public bool EnableTemporaryAccount(int accountId)
+        {
+            try
+            {
+                Account existingAccount = _context.Accounts.FirstOrDefault(x => x.AccountId == accountId);
                 if (existingAccount != null)
                 {
                     existingAccount.Enabled = true;

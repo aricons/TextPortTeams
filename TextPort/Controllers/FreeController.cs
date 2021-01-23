@@ -48,6 +48,11 @@ namespace TextPort.Controllers
             Censor censor = new Censor();
             message.MessageText = censor.CensorText(message.MessageText);
 
+            if (message.MessageText.Length > 155)
+            {
+                message.MessageText = message.MessageText.Substring(0, 155);
+            }
+
             // Log the user in using the hub connection ID as the user name. This allows for messages to be sent back to
             // the same user if they leve the page, then come back during the same browser session.
             if (!User.Identity.IsAuthenticated && String.IsNullOrEmpty(User.Identity.Name) && !User.IsInRole("Free"))

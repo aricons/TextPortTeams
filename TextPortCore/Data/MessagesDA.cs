@@ -534,6 +534,10 @@ namespace TextPortCore.Data
                         message.Account.Balance -= (decimal)message.CustomerCost;
                         newBalance = message.Account.Balance;
                     }
+                    else if (message.Direction == (int)MessageDirection.Inbound)
+                    {
+                        message.Account.MessageInCount++;
+                    }
 
                     _context.Messages.Add(message);
                     _context.SaveChanges();

@@ -160,4 +160,22 @@ namespace TextPortCore.Helpers
         [Description("Claimed")]
         Claimed = 3
     }
+
+    public enum TransactionStatus : byte
+    {
+        [Description("Open")]
+        Open = 0,
+        [Description("Created")]
+        Created = 1,
+        [Description("Pending")]
+        Pending = 2,
+        [Description("Confirmed")]
+        Confirmed = 3,
+        [Description("Failed")]
+        Failed = 4,
+        [Description("Delayed")]
+        Delayed = 5,
+        [Description("Resolved")]
+        Resolved = 6
+    }
 }

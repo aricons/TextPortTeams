@@ -1,0 +1,45 @@
+﻿@model TextPortCore.Models.RegistrationData
+<div class="modal-dialog" role="document" id="purchaseModal">
+    <div class="modal-content">
+        <form id="form-pre-purchase">
+            <div class="modal-header">
+                <h3 class="modal-title" id="addContactLabel">Confirm Purchase</h3>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            @Html.AntiForgeryToken()
+            @Html.HiddenFor(m => m.AccountId)
+            @Html.HiddenFor(m => m.PayPalCustom)
+            @Html.HiddenFor(m => m.VirtualNumberId)
+            @Html.HiddenFor(m => m.CompletionTitle)
+            @Html.HiddenFor(m => m.CompletionMessage)
+            @Html.HiddenFor(m => m.ProductDescription)
+            <div class="modal-body">
+                <div class="form-group">
+                    <h6 class="text-center bold">Purchase: @Model.ProductDescription</h6>
+                </div>
+                <div class="row">
+                    <div class="col-12 text-center">
+                        <div class="input-group">
+                            <div id="crypto-purchase-container">
+                                <div class="mx-3">
+                                    <p class="text-small">
+                                        You may pay with Bitcoin or supported Altcoins. Follow the prompts on the proceeding pages to submit your payment.
+                                        Once your payment has been received your number and/or credit will be applied. Payments must be completed within 4 hours.
+                                    </p>
+                                </div>
+                                <div class="mt-2 mb-3">
+                                    <a href="@Model.PaymentUrl" class="btn btn-success">Proceed to Payment</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>

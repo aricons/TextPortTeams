@@ -500,6 +500,8 @@
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\BlogController.cs" />
+    <Compile Include="Controllers\BulkUploadController.cs" />
+    <Compile Include="Controllers\CoinbaseController.cs" />
     <Compile Include="Controllers\ContactsController.cs" />
     <Compile Include="Controllers\EmailToSMSController.cs" />
     <Compile Include="Controllers\FreeController.cs" />
@@ -781,6 +783,7 @@
     <Content Include="Content\images\blog\textport-home-page.png" />
     <Content Include="Content\images\blog\textport-send-sms-online.png" />
     <Content Include="Content\images\bulk-texting-1.png" />
+    <Content Include="Content\images\bulk-texting-screenshot.png" />
     <Content Include="Content\images\bulk\CSVSampleQuoted.jpg" />
     <Content Include="Content\images\bulk\CSVSampleUnQuoted.jpg" />
     <Content Include="Content\images\bulk\ExcelSample1.jpg" />
@@ -1390,7 +1393,7 @@
     <Content Include="Views\Account\ChangePassword.cshtml" />
     <Content Include="Views\Numbers\_NumberHistory.cshtml" />
     <Content Include="Views\Bulk\Index.cshtml" />
-    <Content Include="Views\Bulk\_MessageList.cshtml" />
+    <Content Include="Views\BulkUpload\_MessageList.cshtml" />
     <Content Include="Views\Bulk\EditorTemplates\BulkMessageItem.cshtml" />
     <Content Include="Views\Bulk\_ResultsList.cshtml" />
     <Content Include="Views\Account\Test.cshtml" />
@@ -1416,8 +1419,8 @@
     <Content Include="Views\Messages\_PanelRight.cshtml" />
     <Content Include="Views\Messages\_PanelRightMobile.cshtml" />
     <Content Include="SidebarMenu\sidebar.zip" />
-    <Content Include="Views\Bulk\Upload.cshtml" />
-    <Content Include="Views\Bulk\upload-guidelines.cshtml" />
+    <Content Include="Views\BulkUpload\Upload.cshtml" />
+    <Content Include="Views\BulkUpload\upload-guidelines.cshtml" />
     <Content Include="Views\ApiSettings\Index.cshtml" />
     <Content Include="Views\ApiSettings\_ApplicationsList.cshtml" />
     <Content Include="Views\Bulk\InBox.cshtml" />
@@ -1481,6 +1484,9 @@
     <Content Include="Views\Contacts\_EditContact.cshtml" />
     <Content Include="Views\Contacts\_ApplyContact.cshtml" />
     <Content Include="Views\Purchases\Index.cshtml" />
+    <Content Include="Views\Account\_PurchaseCrypto.cshtml" />
+    <Content Include="Views\BulkUpload\Index.cshtml" />
+    <Content Include="Views\BulkUpload\_ResultsList.cshtml" />
     <None Include="Web.Beta.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

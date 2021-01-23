@@ -10,6 +10,7 @@ using TextPortCore.Models;
 using TextPortCore.Helpers;
 using TextPortCore.Integrations.IPData;
 using TextPortCore.Integrations.Bandwidth;
+using TextPortCore.Integrations.Coinbase;
 using TextPortServices.Processes;
 using EmailToSMSGateway;
 
@@ -349,6 +350,35 @@ namespace Testing
                 TextPortCore.Models.IPData.IPDataResult res = ipd.LookupIP(ipAddress);
 
                 var bar = res;
+            }
+        }
+
+
+        [TestMethod]
+        public void CoinbaseRequestCharge()
+        {
+            //var optionsBuilder = new DbContextOptionsBuilder<TextPortContext>();
+            //optionsBuilder.UseSqlServer(ConfigurationManager.ConnectionStrings["TextPortContext"].ConnectionString);
+            //TextPortContext context = new TextPortContext(optionsBuilder.Options);
+
+            RegistrationData regData = new RegistrationData()
+            {
+                AccountId = 1,
+                NumberCost = 5,
+                TotalCost = (decimal)35,
+                VirtualNumber = "18122692012",
+                LeasePeriod = 1,
+                LeasePeriodType = "M",
+                PurchaseType = "VirtualNumber",
+                VirtualNumberId = 0,
+                CreditPurchaseAmount = (decimal)30,
+            };
+
+            using (Coinbase cb = new Coinbase())
+            {
+                ChargeResponse response = cb.CreateCharge(regData);
+
+                var foo = response;
             }
         }
 

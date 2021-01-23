@@ -207,6 +207,17 @@ namespace TextPortCore.Helpers
             return new string(input.ToCharArray().Where(c => !Char.IsWhiteSpace(c)).ToArray());
         }
 
+        public static bool IsDigitsOnly(string s)
+        {
+            if (s == null || s == "") return false;
+
+            for (int i = 0; i < s.Length; i++)
+                if ((s[i] ^ '0') > 9)
+                    return false;
+
+            return true;
+        }
+
         public static int GetSegmentCount(string messageText)
         {
             if (!string.IsNullOrEmpty(messageText))

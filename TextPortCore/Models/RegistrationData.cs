@@ -11,6 +11,7 @@ namespace TextPortCore.Models
     public class RegistrationData
     {
         private string purchaseType;
+        private string purchaseMethod;
         private string userName;
         private string emailAddress;
         private string password;
@@ -21,6 +22,7 @@ namespace TextPortCore.Models
         private string tollFreePrefix;
         private string virtualNumber;
         private int virtualNumberId;
+        private string numberReservationId;
         private int carrierId;
         private string leasePeriodCode;
         private string leasePeriodType;
@@ -39,6 +41,8 @@ namespace TextPortCore.Models
         private string accountValidationKey;
         private string ipAddress;
         private string browserType;
+        private string paymentUrl;
+        private string paymentTransactionId;
         private bool freeTrial;
         private bool accountEnabled;
         private NumberTypes numberType;
@@ -47,6 +51,12 @@ namespace TextPortCore.Models
         {
             get { return this.purchaseType; }
             set { this.purchaseType = value; }
+        }
+
+        public string PurchaseMethod
+        {
+            get { return this.purchaseMethod; }
+            set { this.purchaseMethod = value; }
         }
 
         [Required(ErrorMessage = "A user name is required")]
@@ -138,6 +148,12 @@ namespace TextPortCore.Models
         {
             get { return this.virtualNumberId; }
             set { this.virtualNumberId = value; }
+        }
+
+        public string NumberReservationId
+        {
+            get { return this.numberReservationId; }
+            set { this.numberReservationId = value; }
         }
 
         [Required(ErrorMessage = "A country must be selected")]
@@ -327,6 +343,18 @@ namespace TextPortCore.Models
             set { this.browserType = value; }
         }
 
+        public string PaymentUrl
+        {
+            get { return this.paymentUrl; }
+            set { this.paymentUrl = value; }
+        }
+
+        public string PaymentTransactionId
+        {
+            get { return this.paymentTransactionId; }
+            set { this.paymentTransactionId = value; }
+        }
+
         public bool FreeTrial
         {
             get { return this.freeTrial; }
@@ -353,6 +381,7 @@ namespace TextPortCore.Models
         public RegistrationData()
         {
             this.PurchaseType = string.Empty;
+            this.PurchaseMethod = "PayPal";
             this.UserName = string.Empty;
             this.Password = string.Empty;
             this.EmailAddress = string.Empty;
@@ -389,6 +418,7 @@ namespace TextPortCore.Models
         public RegistrationData(string purcType, int accId)
         {
             this.PurchaseType = purcType;
+            this.PurchaseMethod = "PayPal";
             this.AccountId = accId;
             this.UserName = string.Empty;
             this.Password = string.Empty;

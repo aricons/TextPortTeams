@@ -171,7 +171,8 @@ namespace TextPort.Controllers
             regData.CompletionTitle = "Number Assignment Failure";
             regData.CompletionMessage = $"An error occurred while attempting to assign the number {regData.VirtualNumber} to your account. Please try again. If the problem persists please contact support.";
 
-            if (!string.IsNullOrEmpty(regData.VirtualNumber) && accountId > 0)
+            // Make sure the number cost is not negative. Prevents against hacks where the NumberCost field is edited to a negative value.
+            if (!string.IsNullOrEmpty(regData.VirtualNumber) && accountId > 0 && regData.NumberCost >= 1)
             {
                 using (TextPortDA da = new TextPortDA())
                 {
@@ -208,7 +209,7 @@ namespace TextPort.Controllers
                             Account acc = da.GetAccountById(regData.AccountId);
                             if (acc != null)
                             {
-                                acc.Balance -= (regData.NumberCost);
+                                acc.Balance -= (Math.Abs(regData.NumberCost));
                                 da.SaveChanges();
 
                                 Cookies.WriteBalance(acc.Balance);

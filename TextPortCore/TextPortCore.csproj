@@ -55,6 +55,7 @@
     <Compile Include="Models\BlogPostsContainer.cs" />
     <Compile Include="Models\BlogRecentPosts.cs" />
     <Compile Include="Models\BulkMessages.cs" />
+    <Compile Include="Models\BulkMessagesUpload.cs" />
     <Compile Include="Models\BulkUpload.cs" />
     <Compile Include="Models\Captcha.cs" />
     <Compile Include="Models\Carrier.cs" />

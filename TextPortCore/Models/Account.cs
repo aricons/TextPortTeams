@@ -85,6 +85,10 @@ namespace TextPortCore.Models
 
         public byte ComplimentaryNumber { get; set; }
 
+        public string PaymentUrl { get; set; }
+
+        public string PaymentTransactionId { get; set; }
+
         public TimeZone TimeZone { get; set; }
     }
 }

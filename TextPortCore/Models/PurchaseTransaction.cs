@@ -1,6 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+
+using TextPortCore.Helpers;
 
 namespace TextPortCore.Models
 {
@@ -11,6 +12,8 @@ namespace TextPortCore.Models
         public string PaymentService { get; set; }
 
         public string TransactionId { get; set; }
+
+        public TransactionStatus Status { get; set; }
 
         [Display(Name = "Transaction Date")]
         public DateTime TransactionDate { get; set; }
@@ -33,5 +36,9 @@ namespace TextPortCore.Models
 
         [Display(Name = "Fee")]
         public decimal Fee { get; set; }
+
+        public string ReservedNumber { get; set; }
+
+        public string NumberReservationId { get; set; }
     }
 }

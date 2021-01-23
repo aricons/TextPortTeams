@@ -15,16 +15,22 @@ namespace TextPort
             defaults: new { controller = "messages", action = "index" }
             );
 
-            //routes.MapRoute(
-            //name: "trial",
-            //url: "trial",
-            //defaults: new { controller = "trial", action = "index" }
-            //);
-
             routes.MapRoute(
             name: "bulk",
             url: "bulk",
             defaults: new { controller = "bulk", action = "index" }
+            );
+
+            routes.MapRoute(
+            name: "bulk-upload",
+            url: "bulk-upload",
+            defaults: new { controller = "bulkupload", action = "index" }
+            );
+
+            routes.MapRoute(
+            name: "bulk-upload-guidelines",
+            url: "bulk-upload/upload-guidelines",
+            defaults: new { controller = "bulkupload", action = "upload-guidelines" }
             );
 
             routes.MapRoute(

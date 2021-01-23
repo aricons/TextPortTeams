@@ -34,6 +34,15 @@ namespace TextPortCore.Models
 
         public List<BulkMessageItem> Messages { get; set; }
 
+        [Required(ErrorMessage = "At least one number is required")]
+        [Display(Name = "Send To")]
+        [Remote(action: "VerifyNumbers", controller: "Bulk")]
+        public string NumbersList { get; set; }
+
+        [Required(ErrorMessage = "A message is required")]
+        [Display(Name = "Message")]
+        public string MessageText { get; set; }
+
         public string SubmitType { get; set; }
 
         public string SubmitOperation { get; set; }
@@ -42,6 +51,8 @@ namespace TextPortCore.Models
 
         public string BalanceAlert { get; set; }
 
+        public Account Account { get; set; }
+
         /* Constructors */
         public BulkMessages()
         {
@@ -49,11 +60,14 @@ namespace TextPortCore.Models
             this.Balance = 0;
             this.MessageLimit = 0;
             this.SubmitType = "MANUAL";
+            this.NumbersList = string.Empty;
+            this.MessageText = string.Empty;
             this.Messages = new List<BulkMessageItem>();
             this.MessageCountOptions = new List<SelectListItem>();
             this.VirtualNumbers = new List<DedicatedVirtualNumber>();
             this.ProcessingState = string.Empty;
             this.BalanceAlert = string.Empty;
+            this.Account = null;
         }
 
         public BulkMessages(int accId, int gridRows)
@@ -62,12 +76,14 @@ namespace TextPortCore.Models
             this.MessageLimit = gridRows;
             this.SubmitType = "MANUAL";
             this.Messages = new List<BulkMessageItem>();
+            this.MessageText = string.Empty;
             this.MessageCountOptions = new List<SelectListItem>();
-            //this.VirtualNumbers = new List<DedicatedVirtualNumber>();
+            this.VirtualNumbers = new List<DedicatedVirtualNumber>();
 
             using (TextPortDA da = new TextPortDA())
             {
-                this.Balance = da.GetAccountBalance(accId);
+                this.Account = da.GetAccountById(accId);
+                this.Balance = this.Account.Balance;
                 this.VirtualNumbers = da.GetNumbersForAccount(accId, false);
                 //foreach (DedicatedVirtualNumber dvn in dvns)
                 //{
@@ -117,6 +133,20 @@ namespace TextPortCore.Models
             {
                 return Utilities.GetSegmentCount(this.MessageText);
             }
+        }
+
+        public BulkMessageItem()
+        {
+            this.ProcessingStatus = "FAIL";
+            this.ProcessingResult = string.Empty;
+        }
+
+        public BulkMessageItem(string number, string messageText)
+        {
+            this.Number = Utilities.NumberToE164(number, "1");
+            this.MessageText = messageText;
+            this.ProcessingStatus = "FAIL";
+            this.ProcessingResult = string.Empty;
         }
 
         public bool Validate(ref decimal currentBalance)
