@@ -1,0 +1,268 @@
+﻿@{
+    ViewData["Title"] = "Frequently Asked Questions | TextPort";
+    ViewData["Description"] = "Frequently asked questions about TextPort's text message service";
+    ViewData["Keywords"] = "faqs about sending text messages, bulk texting, email to sms, sms api";
+    ViewData["Url"] = "https://textport.com/faq";
+}
+
+<div class="contact">
+    <div class="container">
+        <h1>Frequently Asked Questions</h1>
+        <br />
+        <div class="accordion" id="faqs">
+            <div class="card z-depth-0 bordered">
+                <div class="card-header" id="faqHead1">
+                    <h5 class="mb-0">
+                        <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#faq1" aria-expanded="false" aria-controls="faq1">
+                            <h2 class="h5">Who can I send text messages to?</h2>
+                        </button>
+                    </h5>
+                </div>
+                <div id="faq1" class="collapse" aria-labelledby="faqHead1" data-parent="#faqs">
+                    <div class="card-body">
+                        <p>You can send text messages to any mobile device hosted by any North American (U.S. and Canada) mobile provider.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card z-depth-0 bordered">
+                <div class="card-header" id="faqHead2">
+                    <h5 class="mb-0">
+                        <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#faq2" aria-expanded="false" aria-controls="faq2">
+                            <h2 class="h5">Can I receive text messages?</h2>
+                        </button>
+                    </h5>
+                </div>
+                <div id="faq2" class="collapse" aria-labelledby="faqHead2" data-parent="#faqs">
+                    <div class="card-body">
+                        <p>Yes. You can receive texts using TextPort. </p>
+                        <p>
+                            If you use a trial number, you can only receive replies to messages you have already sent.
+                            If you have a full account and have purchased a dedicated number, your contacts can message you without you having initiated a conversation.
+                    </div>
+                </div>
+            </div>
+
+            @*<div class="card z-depth-0 bordered">
+                <div class="card-header" id="faqHead3">
+                    <h5 class="mb-0">
+                        <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#faq3" aria-expanded="false" aria-controls="faq3">
+                            <h2 class="h5">What's included in a TextPort free trial?</h2>
+                        </button>
+                    </h5>
+                </div>
+                <div id="faq3" class="collapse" aria-labelledby="faqHead3" data-parent="#faqs">
+                    <div class="card-body">
+                        <p>Our <a href="/trial">free trial</a> gives you access to all TextPort features, which includes: send texts, receive texts, bulk texting, email-to-sms, and API features.</p>
+                        <p>
+                            We provide you with $0.15 credit and a free dedicated virtual number for 15 days. The credit is good for sending approximately 20 text messages, depending upon length.
+                            Inbound texts are free, so you can receive as many texts as you wish during your trial period.
+                        </p>
+                    </div>
+                </div>
+            </div>*@
+
+            <div class="card z-depth-0 bordered">
+                <div class="card-header" id="faqHead4">
+                    <h5 class="mb-0">
+                        <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#faq4" aria-expanded="false" aria-controls="faq4">
+                            <h2 class="h5">How much does it cost?</h2>
+                        </button>
+                    </h5>
+                </div>
+                <div id="faq4" class="collapse" aria-labelledby="faqHead4" data-parent="#faqs">
+                    <div class="card-body">
+                        <p>The base message cost is $0.015 (1.5 cents) per message segment. On average, you can send approximately 60 text messages for $1.00.</p>
+                        <p>
+                            Notes regarding SMS segments and how pricing is calculated.
+                            <ul>
+                                <li>All SMS Messages, regardless of the source, are comprised of 160-character segments.</li>
+                                <li>Messages longer than 160 characters are split into multiple segments, then stitched back together to form the original message.</li>
+                                <li>A message with 160 characters or less creates one message segment, which would cost $0.015 to send.</li>
+                                <li>Between 161 and 320 characters = 2 segments, so would cost $0.030.
+                                <li>321 to 480 characters = 3 message segments, $0.045, etc.</li>
+                            </ul>
+                        </p>
+                        <p>
+                            Virtual phone number pricing is based upon the duration of the lease. In general, the longer the lease, the more
+                            cost-effective the number becomes.
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Duration</th>
+                                        <th>Cost</th>
+                                    </tr>
+                                </thead>
+                                <tr>
+                                    <td>1 Day</td>
+                                    <td>$1.00</td>
+                                </tr>
+                                <tr>
+                                    <td>2 Days</td>
+                                    <td>$1.50</td>
+                                </tr>
+                                <tr>
+                                    <td>1 Week</td>
+                                    <td>$3.00</td>
+                                </tr>
+                                <tr>
+                                    <td>2 Weeks</td>
+                                    <td>$4.00</td>
+                                </tr>
+                                <tr>
+                                    <td>1 Month</td>
+                                    <td>$5.00</td>
+                                </tr>
+                                <tr>
+                                    <td>2 Months</td>
+                                    <td>$8.00</td>
+                                </tr>
+                                <tr>
+                                    <td>3 Months</td>
+                                    <td>$12.00</td>
+                                </tr>
+                                <tr>
+                                    <td>4 Months</td>
+                                    <td>$16.00</td>
+                                </tr>
+                                <tr>
+                                    <td>5 Months</td>
+                                    <td>$20.00</td>
+                                </tr>
+                                <tr>
+                                    <td>6 Months</td>
+                                    <td>$24.00</td>
+                                </tr>
+                                <tr>
+                                    <td>9 Months</td>
+                                    <td>$40.00</td>
+                                </tr>
+                                <tr>
+                                    <td>1 Year</td>
+                                    <td>$50.00</td>
+                                </tr>
+                                <tr>
+                                    <td>2 Years</td>
+                                    <td>$75.00</td>
+                                </tr>
+                            </table>
+                        </p>
+                        <p>
+                            Messages and numbers can be purchased using TextPort credit. Credit is purchased using any major credit card or PayPal.
+                            Credit can be purchased in any amount starting at $1.00. TextPort is completely pay-as-you-go and your credit will never expire.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card z-depth-0 bordered">
+                <div class="card-header" id="faqHead5">
+                    <h5 class="mb-0">
+                        <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#faq5" aria-expanded="false" aria-controls="faq5">
+                            <h2 class="h5">Can I choose my own number?</h2>
+                        </button>
+                    </h5>
+                </div>
+                <div id="faq5" class="collapse" aria-labelledby="faqHead5" data-parent="#faqs">
+                    <div class="card-body">
+                        <p>Yes. We have thousands of virtual phone numbers available for all U.S. area codes. You can select an area code, then choose a number from our pool of available numbers.</p>
+                        <p>When signing up for a trial, your choice of numbers is limited to our pool of shared numbers.</p>
+                        <p>You can browse available numbers on our <a href="/virtual-phone-numbers#number-lookup">virtual numbers</a> page.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card z-depth-0 bordered">
+                <div class="card-header" id="faqHead6">
+                    <h5 class="mb-0">
+                        <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#faq6" aria-expanded="false" aria-controls="faq6">
+                            <h2 class="h5">Can I send pictures?</h2>
+                        </button>
+                    </h5>
+                </div>
+                <div id="faq6" class="collapse" aria-labelledby="faqHead6" data-parent="#faqs">
+                    <div class="card-body">
+                        <p>Yes. You can send and receive picture messages (MMS) using TextPort.</p>
+                        <p>
+                            To attach a picture to a text, you can choose any JPEG, GIF or PNG picture file on your computer, or choose
+                            from your photo album on your mobile device. Our chat interface provides an image selector.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card z-depth-0 bordered">
+                <div class="card-header" id="faqHead7">
+                    <h5 class="mb-0">
+                        <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#faq7" aria-expanded="false" aria-controls="faq7">
+                            <h2 class="h5">Are my messages private?</h2>
+                        </button>
+                    </h5>
+                </div>
+                <div id="faq7" class="collapse" aria-labelledby="faqHead7" data-parent="#faqs">
+                    <div class="card-body">
+                        <p>
+                            Yes. Always. Your virtual number is simply a number and will not expose your name, location or other personal information.
+                        </p>
+                        <p>
+                            When you delete a message or chain of messages from your account, deletion is permanent. Deleted messages cannot be recovered.
+                            We do this to protect and respect the privacy of our subscribers.
+                        </p>
+                        <p>
+                            TextPort collects only email addresses from its subscribers. We never sell or distribute email addresses to third parties.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card z-depth-0 bordered">
+                <div class="card-header" id="faqHead8">
+                    <h5 class="mb-0">
+                        <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#faq8" aria-expanded="false" aria-controls="faq8">
+                            <h2 class="h5">Can I receive validation codes?</h2>
+                        </button>
+                    </h5>
+                </div>
+                <div id="faq8" class="collapse" aria-labelledby="faqHead8" data-parent="#faqs">
+                    <div class="card-body">
+                        <p>
+                            It depends. TextPort virtual phone numbers are capable of receiving validation, activation and confirmation codes from
+                            most sources, although we cannot guarantee that they can be received from all sources. Some companies will verify
+                            that the number is associated with an actual mobile provider. Since TextPort numbers are virtual, and not associated
+                            with a particular provider, validation codes cannot be sent.
+                        </p>
+                        <p>
+                            Note: You cannot receive validation codes using trial numbers. You must use a dedicated phone number.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card z-depth-0 bordered">
+                <div class="card-header" id="faqHead9">
+                    <h5 class="mb-0">
+                        <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#faq9" aria-expanded="false" aria-controls="faq9">
+                            <h2 class="h5">Can I send messages in bulk?</h2>
+                        </button>
+                    </h5>
+                </div>
+                <div id="faq9" class="collapse" aria-labelledby="faqHead9" data-parent="#faqs">
+                    <div class="card-body">
+                        <p>
+                            Yes. TextPort has a <a href="/bulk-sms">Bulk SMS</a> service that allows you to broadcast text messages
+                            to multiple numbers at once.
+                        </p>
+                        <p>
+                            You may manually enter a list of numbers and messages, or, for larger batches, upload numbers and messages from an Excel or CSV file. If you
+                            want to send the same message to all numbers, there's an option to do that. For more information regarding bulk texting uploads, refer to the <a href="/bulk/upload-guidelines">Bulk SMS Upload Guidelines</a>.
+                        </p>
+                        <p>
+                            Bulk SMS messages are subject to mobile provider spam checks, so be thoughtful when sending messages that could be interpreted as spam.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

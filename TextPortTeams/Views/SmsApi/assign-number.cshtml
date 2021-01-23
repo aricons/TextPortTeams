@@ -1,0 +1,61 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Assign virtual numbers to an SMS API Application | TextPort SMS API";
+    ViewData["Description"] = "TextPort's SMS API allows one or more virtual phone numbers to be assigned to an API application.";
+    ViewData["Keywords"] = "Assign a number to SMS API, assign SMS virtual number to API";
+    ViewData["Url"] = "https://textport.com/api/documentation/assign-number";
+}
+
+<script type="text/javascript">
+    $(function () {
+        $('#menu_setup').addClass("active");
+    });
+</script>
+
+<div class="container">
+    <div class="row">
+        @Html.Partial("_ApiSideMenuBar")
+        <div class="col-12 col-md-9">
+            <div class="card">
+                <div class="card-header">
+                    <h1 class="h4">2. Assign a Number to an Application</h1>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col">
+                            <div class="row">
+                                <div class="col-12">
+                                    <p>
+                                        Click your username in the top-right corner of any TextPort page. Select <strong>Numbers</strong> to display the
+                                        numbers assigned to your account. Locate the number that you wish to associate with the API Application, then click the
+                                        <strong>Apply</strong> link on the far right.
+                                    </p>
+                                </div>
+                                <p>
+                                    <img height="111" src="~/Content/images/numberslist.png" alt="API settings page" class="w-100" />
+                                </p>
+                                <p>
+                                    Clicking the <strong>Apply</strong> link will display this dialog:
+                                </p>
+                                <p>
+                                    <img height="315" src="~/Content/images/assignapiapplication2.png" alt="API assign application dialog" class="w-100" />
+                                </p>
+                                <p>
+                                    Select your new application from the drop-down, then click <strong>Assign Application</strong>. The selected number will now show the API application as shown below.
+                                </p>
+                                <p>
+                                    <img height="95" src="~/Content/images/numberwithappassigned.png" alt="API settings page" class="w-100" />
+                                </p>
+                                <p>
+                                    <strong>Note:</strong> When an API application is assigned to a number, you will still be able to send and receive texts via the regular web interface.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+

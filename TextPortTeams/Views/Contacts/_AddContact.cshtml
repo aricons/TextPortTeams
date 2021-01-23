@@ -1,0 +1,34 @@
+﻿@using TextPortCore.Models
+@model Contact
+<div class="modal fade" role="dialog" id="add-contact-modal-sub">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Add Contact</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            @using (Html.BeginForm("Add", "Contacts", FormMethod.Post, new { id = "add-contact-form" }))
+            {
+                @Html.HiddenFor(m => m.AccountId)
+                <div class="modal-body">
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.Name, new { @class = "form-label" })
+                        @Html.TextBoxFor(m => m.Name, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(m => m.Name, null, new { @class = "text-danger" })
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.MobileNumber, new { @class = "form-label" })
+                        @Html.TextBoxFor(m => m.MobileNumber, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(m => m.MobileNumber, null, new { @class = "text-danger" })
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" id="btnAddContact" class="btn btn-primary">Add Contact</button>
+                </div>
+            }
+        </div>
+    </div>
+</div>

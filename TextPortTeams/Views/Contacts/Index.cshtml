@@ -1,0 +1,180 @@
+﻿@using TextPortCore.Models
+@model ContactsContainer
+@{
+    ViewBag.Title = "Contacts";
+}
+<script type="text/javascript" src="~/scripts/bootbox/bootbox.min.js"></script>
+
+<script type="text/javascript">
+    $.ajaxSetup({ cache: false });
+    $(function () {
+        $('#menu_contacts').addClass("active");
+
+        // Add modals
+        $('.add-contact-button').on('click', function () {
+            var url = $(this).data('url');
+            var target = $(this).data('target');
+            $.get(url, function (data) {
+                $(target).html(data);
+                $(target + ' > .modal').modal({ keyboard: true }, 'show');
+            });
+        });
+
+        $('#add-contact-modal').on('shown.bs.modal', function (e) {
+            $('#add-contact-form').submit(function (event) {
+                event.preventDefault();
+            });
+            $.validator.unobtrusive.parse("#add-contact-form");
+            $("#MobileNumber").mask('(000) 000-0000');
+
+            $('#btnAddContact').on("click", function (e) {
+                if ($("#add-contact-form").valid()) {
+                    var contactData = {
+                        MobileNumber: $("#MobileNumber").val(),
+                        Name: $("#Name").val()
+                    };
+                    addContact(contactData);
+                    $('#add-contact-modal > .modal').modal('hide');
+                }
+            });
+        });
+
+        // Edit modals
+        initEditModal();
+        initEditModalShow();
+    });
+
+    function initEditModal() {
+        $('.edit-contact-button').on('click', function () {
+            var url = $(this).data('url');
+            var target = $(this).data('target');
+            $.get(url, function (data) {
+                $(target).html(data);
+                $(target + ' > .modal').modal({ keyboard: true }, 'show');
+            });
+        });
+    }
+
+    function initEditModalShow() {
+        $('#edit-contact-modal').on('shown.bs.modal', function (e) {
+            $.validator.unobtrusive.parse("#edit-contact-form");
+            $(".num-input").mask('(000) 000-0000');
+
+            $('#edit-contact-form').submit(function (event) {
+                event.preventDefault();
+                if ($("#edit-contact-form").valid()) {
+                    var contactData = {
+                        ContactId: $("#edit-contact-form #ContactId").val(),
+                        MobileNumber: $("#edit-contact-form #MobileNumber").val(),
+                        Name: $("#edit-contact-form #Name").val()
+                    };
+                    editContact(contactData);
+                    $('#edit-contact-modal > .modal').modal('hide');
+                }
+            });
+        });
+    }
+
+    function addContact(contactData) {
+        var url = '/contacts/add/';
+        $.post({
+            url: url,
+            data: JSON.stringify(contactData),
+            contentType: "application/json",
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert(textStatus + ": Error adding contact. " + errorThrown);
+            },
+            success: function (contacts) {
+                $("#contacts-list").html(contacts);
+                initEditModal();
+            }
+        });
+    }
+
+    function editContact(contactData) {
+        $.post({
+            url: '/contacts/edit/',
+            data: JSON.stringify(contactData),
+            contentType: "application/json",
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert(textStatus + ": Error editing contact. " + errorThrown);
+            },
+            success: function (contacts) {
+                $("#contacts-list").html(contacts);
+                initEditModal();
+            }
+        });
+    }
+
+    function deleteContact(id, name) {
+        bootbox.confirm({
+            title: "Delete contact?",
+            message: "Are you sure you want delete the contact <b>" + name + "</b>?",
+            buttons: {
+                cancel: {
+                    label: '<i class="fa fa-times"></i> Cancel'
+                },
+                confirm: {
+                    label: '<i class="fa fa-check"></i> Delete'
+                }
+            },
+            callback: function (result) {
+                if (result) {
+
+                    var requestData = {
+                        ContactId: id
+                    };
+
+                    $.post({
+                        url: '/contacts/deletecontact/',
+                        data: JSON.stringify(requestData),
+                        contentType: "application/json",
+                        error: function (jqXHR, textStatus, errorThrown) {
+                            alert(textStatus + ": Error deleting contact. " + errorThrown);
+                        },
+                        success: function (newInputHTML) {
+                            $("#contacts-list").html(newInputHTML);
+                            initEditModal();
+                        }
+                    })
+                }
+            }
+        });
+    }
+</script>
+
+<div class="row">
+    @Html.Partial("_SideMenuBar")
+    <div class="col-12 col-md-10">
+        <div class="card">
+            <div class="card-header">
+                <div class="row">
+                    <div class="col-md-7">
+                        <h4>My Contacts</h4>
+                    </div>
+                    <div class="col-md-5 text-right">
+                        <input type="button" class="btn btn-success add-contact-button" data-target="#add-contact-modal" data-url="/contacts/add" value="Add a Contact" />
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <table class="table">
+                        <thead>
+                            <tr class="bg-primary">
+                                <th scope="col" class="text-white list-header">Name</th>
+                                <th scope="col" class="text-white list-header">Number</th>
+                                <th scope="col" class="text-white list-header text-center">Edit/Delete</th>
+                            </tr>
+                        </thead>
+                        <tbody id="contacts-list">
+                            @Html.Partial("_ContactsList", Model.Contacts)
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="add-contact-modal"></div>
+<div id="edit-contact-modal"></div>

@@ -1,0 +1,71 @@
+﻿@model TextPortCore.Models.NumberLookupResult
+<table class="table table-striped table-sm">
+    <thead>
+        <tr class="table-primary">
+            <th scope="col">Number</th>
+            <th scope="col">@Model.Number</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model.MatchFound)
+        {
+            <tr>
+                <th scope="row">Carrier</th>
+                <td>@Model.Company</td>
+            </tr>
+            <tr>
+                <th scope="row">City</th>
+                <td>@Model.City</td>
+            </tr>
+            <tr>
+                <th scope="row">State</th>
+                <td>@Model.State</td>
+            </tr>
+            <tr>
+                <th scope="row">County</th>
+                <td>@Model.County</td>
+            </tr>
+            <tr>
+                <th scope="row">Zip Code</th>
+                <td>@Model.Zip</td>
+            </tr>
+            <tr>
+                <th scope="row">Type</th>
+                <td>@Model.PrefixType</td>
+            </tr>
+            <tr>
+                <th scope="row">Rate Center</th>
+                <td>@Model.RateCenter</td>
+            </tr>
+            <tr>
+                <th scope="row">CLLI</th>
+                <td>@Model.CLLI</td>
+            </tr>
+            if (@Model.Latitude != null && Model.Longitude != null)
+            {
+                <tr>
+                    <th scope="row">Latitude</th>
+                    <td>@Model.Latitude</td>
+
+                </tr>
+                <tr>
+                    <th scope="row">Longitude</th>
+                    <td>@Model.Longitude</td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="2">@Model.Message</td>
+            </tr>
+        }
+    </tbody>
+</table>
+<hr />
+@if (Model.MatchFound && Model.Latitude != null && Model.Longitude != null)
+{
+    <div id="map" class="lu-map"></div>
+    <script>setLatLong(@Model.Latitude, @Model.Longitude);</script>
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCVW4VT4EaNv3YamDBlKdTvTng113aD77I&callback=initMap"></script>
+}

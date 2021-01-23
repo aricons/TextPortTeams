@@ -1,0 +1,181 @@
+﻿@using TextPortCore.Models
+@model RegistrationData
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "TextPort: Sign up for online texting.";
+    ViewData["Description"] = "Sign up for TextPort's online texting service. Choose your virtual phone number.";
+
+    ViewData["Url"] = "https://textport.com/account/signup";
+}
+
+<script src="/scripts/TextPort/GetNumbers.js"></script>
+<script src="/scripts/TextPort/Purchases.js"></script>
+<script src="https://www.paypalobjects.com/api/checkout.js"></script>
+
+<script type="text/javascript">
+
+    $.validator.setDefaults({ ignore: [] });
+
+    $(function () {
+        $.ajaxSetup({
+            cache: false
+        });
+
+        $('#AreaCode').on("keyup", function (e) {
+            var areaCode = $(this).val();
+            if (areaCode.length === 3) {
+                getAreaCode(areaCode, false);
+            } else {
+                $("#number-results").hide();
+                $("#area-code-name").text('');
+                $("#numbers-list").html('');
+                $("#selected-number").text('');
+                $("#VirtualNumber").val('');
+            }
+        });
+
+        $("#lnk-change-number").on("click", function (e) {
+            $("#number-chooser").toggle(500);
+            $("#number-picker").toggle(500);
+        });
+
+        var vn = $("#selected-number").text();
+        if (vn !== "") {
+            // number
+            $("#number-chooser").hide();
+            $("#selected-number-wrap").show();
+            //$("#payment-section").show();
+            $("#lbl-sel-number").text("Selected number");
+        }
+        else {
+            // no number
+            $("#lbl-sel-number").text("Select a number (enter an area code)");
+            //$("#payment-section").hide();
+            $("#selected-number-wrap").hide();
+        }
+
+        $("#number-results").hide();
+        $("#AreaCode").mask("000");
+        $("#UserName").focus();
+        numberCount = 42;
+    });
+
+    function getNumber(number) {
+        var countryCode = $("#CountryId option:selected").val();
+        $("#lbl-sel-number").text("Selected number");
+        $("#lbl-sel-number").show();
+        $("#selected-number").text(numberToDisplay(number, countryCode));
+        $("#VirtualNumber").val(numberToE164(countryCode, number));
+        $("#selected-number-wrap").show();
+        $("#number-chooser").hide(500);
+        $("#number-picker").hide(500);
+        $("#payment-section").show(500);
+        $("#form-signup").validate().element("#VirtualNumber");
+    }
+</script>
+
+<div class="card">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-12">
+                <h1 class="h1-sml">Sign Up</h1>
+                <hr>
+            </div>
+        </div>
+        @using (Html.BeginForm("SignUp", "Account", FormMethod.Post, new { id = "form-signup" }))
+        {
+            @Html.AntiForgeryToken()
+            @Html.HiddenFor(m => m.NumberCost)
+            @Html.HiddenFor(m => m.PurchaseType)
+            @Html.HiddenFor(m => m.PurchaseTitle)
+            @Html.HiddenFor(m => m.NumberType)
+            @Html.HiddenFor(m => m.FreeTrial)
+            @Html.HiddenFor(m => m.VirtualNumber)
+            @Html.HiddenFor(m => m.LeasePeriodType)
+            @Html.HiddenFor(m => m.LeasePeriod)
+
+            <input type="hidden" id="hidTotalCost" value="0" />
+            <div class="row">
+                <div class="col-12 offset-md-1 col-md-11">
+                    <div class="form-group">
+                        <h2 class="h6 mb-1">Sign up to receive your own dedicated number and access to TextPort's full range of services.</h2>
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.UserName, new { @class = "form-label" })
+                        @Html.TextBoxFor(m => m.UserName, new { @class = "col-md-5 form-control", placeholder = "User name", maxlength = "20" })
+                        @Html.ValidationMessageFor(m => m.UserName, null, new { @class = "text-danger" })
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.EmailAddress, new { @class = "form-label" })
+                        @Html.TextBoxFor(m => m.EmailAddress, new { @class = "col-md-5 form-control", placeholder = "Email address" })
+                        @Html.ValidationMessageFor(m => m.EmailAddress, null, new { @class = "text-danger" })
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.Password, new { @class = "form-label" })
+                        @Html.TextBoxFor(m => m.Password, new { @class = "col-md-5 form-control", placeholder = "Password", @type = "password", maxlength = "60" })
+                        @Html.ValidationMessageFor(m => m.Password, null, new { @class = "text-danger" })
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.ConfirmPassword, new { @class = "form-label" })
+                        @Html.TextBoxFor(m => m.ConfirmPassword, new { @class = "col-md-5 form-control", placeholder = "Confirm password", @type = "password", maxlength = "60" })
+                        @Html.ValidationMessageFor(m => m.ConfirmPassword, null, new { @class = "text-danger" })
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12 offset-md-1 col-md-11">
+
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.CountryId, new { @class = "form-label" })
+                        <select name="CountryId" id="CountryId" class="form-control" data-val="true" data-val-required="A country is required">
+                            @foreach (Country c in Model.CountriesList)
+                            {
+                                <option value="@c.CountryId">@($"{c.CountryName}  (+{c.CountryPhoneCode})")</option>
+                            }
+                        </select>
+                        @Html.ValidationMessageFor(m => m.CountryId, null, new { @class = "text-danger" })
+                    </div>
+
+                    <div class="form-group mb-0">
+                        <label id="lbl-sel-number" class="form-label pb-1">Select a number (search by area code)</label>
+                        <div id="selected-number-wrap">
+                            <label id="selected-number" class="vn-sel-num">@Model.NumberDisplayFormat</label>
+                            <a id="lnk-change-number" href="#">change</a>
+                        </div>
+                    </div>
+                    <div id="number-chooser">
+                        <input type="text" id="area-code" class="form-control ac-input mb-2" , placeholder="Area Code" />
+                        @Html.Partial("_NumberPicker")
+                    </div>
+                    @Html.ValidationMessageFor(m => m.VirtualNumber, null, new { @class = "text-danger" })
+                    <div id="payment-section">
+                        <div class="form-group">
+                            @Html.LabelFor(m => m.LeasePeriodCode, new { @class = "form-label" })
+                            @Html.DropDownListFor(m => m.LeasePeriodCode, new SelectList(Model.LeasePeriodsList, "Value", "Text"), new { @class = "col-md-5 form-control" })
+                            @Html.ValidationMessageFor(m => m.LeasePeriodCode, null, new { @class = "text-danger" })
+                            @*<div class="subscript">All new accounts include $0.50 credit, good for approximately 30 messages.</div>*@
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Texting Credit</label>
+                            @Html.DropDownListFor(m => m.CreditPurchaseAmount, new SelectList(Model.CreditAmountsList, "Value", "Text"), new { @class = "col-md-5 form-control" })
+                            @Html.ValidationMessageFor(m => m.CreditPurchaseAmount, null, new { @class = "text-danger" })
+                        </div>
+                        <div class="row lower-label">
+                            <label>Total Charge</label>
+                            <label id="TotalCost"></label>
+                        </div>
+                        <div class="form-group">
+                            <button id="btnContinue" type="button" class="btn btn-primary">Pay with PayPal or Credit Card</button>
+                            <button id="btnContinueCrypto" type="button" class="btn btn-primary">Pay with Bitcoin/Crypto</button>
+                            <div id="txtCrypto" class="subscript ml-0">Crypto-currency transactions require a minimum $5.00 purchase</div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        }
+    </div>
+</div>
+<div id="purchaseModalCont" class="modal hide fade in"></div>
+<div id="purchaseModalCryptoCont" class="modal hide fade in"></div>
+<div id="postPurchaseModalCont" class="modal hide fade in"></div>

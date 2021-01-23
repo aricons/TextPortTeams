@@ -1,0 +1,107 @@
+﻿@model BulkMessages
+@using TextPortCore.Models
+@{
+    ViewBag.Title = "Bulk Messaging";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.15/jquery.mask.min.js"></script>
+
+<script type="text/javascript">
+    $(function () {
+        $('.num_input').mask('(000) 000-0000');
+
+        $('#MessageLimit').on("change", function (e) {
+            $("#SubmitOperation").val("ChangeGridRows");
+            AJAXPost();
+        });
+
+        $('#SameMessageToAllNumbers').on("change", function (e) {
+            $("#SubmitOperation").val("SameMessage");
+            AJAXPost();
+        });
+    });
+
+    function AJAXPost() {
+        var $form = $('#form-bulk');
+
+        $.ajax({
+            type: "POST",
+            url: '/bulk/gridops',
+            data: $form.serialize(),
+            cache: false,
+            error: function (xhr, status, error) {
+                alert("Error submitting form: " + error);
+            },
+            success: function (response) {
+                $('#messageGrid').html(response);
+            }
+        });
+
+        getBalance();
+    }
+</script>
+
+<br />
+
+
+
+<h2>Bulk Messaging</h2>
+
+<hr />
+@using (Html.BeginForm("Main", "Bulk", FormMethod.Post, new { id = "form-bulk" }))
+{
+    @Html.HiddenFor(m => m.AccountId)
+    @Html.HiddenFor(m => m.SubmitOperation)
+
+    if (Model.ProcessingState.Equals("PROCESSED"))
+    {
+        @Html.Partial("_ResultsList", Model)
+    }
+    else
+    {
+        <div class="form-row">
+            <div class="form-group col-md-3">
+                @Html.LabelFor(m => m.VirtualNumberId, new { @class = "form-label-md" })
+                @Html.DropDownListFor(x => Model.VirtualNumberId, new SelectList(Model.VirtualNumbers, "Value", "Text", Model.VirtualNumberId), new { @class = "form-control" })
+                @Html.ValidationMessageFor(m => m.VirtualNumberId, null, new { @class = "text-danger" })
+            </div>
+            <div class="form-group col-md-1"></div>
+            <div class="form-group col-md-2">
+                @Html.LabelFor(m => m.MessageLimit, new { @class = "form-label-md" })
+                @Html.DropDownListFor(x => Model.MessageLimit, new SelectList(Model.MessageCountOptions, "Value", "Text", Model.MessageCountOptions), new { @class = "form-control" })
+                @Html.ValidationMessageFor(m => m.MessageLimit, null, new { @class = "text-danger" })
+            </div>
+            <div class="form-group col-md-1"></div>
+            <div class="form-group col-md-3">
+                <label class="form-label-lg">&nbsp;</label>
+                <div class="form-check">
+                    @Html.CheckBoxFor(x => Model.SameMessageToAllNumbers, new { @class = "form-check-input" })
+                    @Html.LabelFor(m => m.SameMessageToAllNumbers, new { @class = "form-check-label" })
+                </div>
+            </div>
+            <div class="form-group col-md-1"></div>
+            <div class="form-group col-md-1">
+                <label class="form-label-md">&nbsp;</label>
+                <button type="submit" class="form-control btn btn-primary">Send</button>
+            </div>
+        </div>
+        <br />
+        if (!string.IsNullOrEmpty(Model.BalanceAlert))
+        {
+            <div>
+                <div class="form-group col-md-12">
+                    <div class="alert alert-danger text-center">
+                        @Model.BalanceAlert&nbsp;<a href="/account/balance/">Top up here</a>
+                    </div>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div id="messageGrid">
+                @Html.Partial("_MessageList", Model)
+            </div>
+        }
+    }
+}

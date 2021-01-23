@@ -1,0 +1,339 @@
+﻿@using TextPortCore.Helpers
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>@ViewData["Title"]</title>
+    <meta name="description" content="@ViewData["Description"]">
+    <meta name="keywords" content="@ViewData["Keywords"]">
+    <meta property="og:title" content="@ViewData["Title"]">
+    <meta property="og:description" content="@ViewData["Description"]">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="@ViewData["Url"]">
+    <meta property="og:site_name" content="TextPort">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no" />
+    <meta name="robots" content="index, follow" />
+    <meta name="author" content="TextPort.com" />
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <meta http-equiv="Content-Script-Type" content="text/javascript" />
+    <meta http-equiv="cache-control" content="no-cache" />
+    <meta http-equiv="expires" content="3600" />
+    <meta property="fb:page_id" content="259179750811667" />
+
+    <link rel="canonical" href="@ViewData["Url"]" />
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic,700italic">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="/content/css/jnoty.css">
+    <link rel="stylesheet" type="text/css" href="~/content/css/styles.css">
+    <link rel="stylesheet" type="text/css" href="~/content/bootstrap-select.min.css">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.16.0/jquery.validate.min.js"></script>
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery.validation.unobtrusive/3.2.6/jquery.validate.unobtrusive.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.15/jquery.mask.min.js"></script>
+    <script type="text/javascript" src="~/scripts/jnoty/jnoty.min.js"></script>
+    <script type="text/javascript" src="~/scripts/bootstrap-select.min.js"></script>
+
+    <script src="~/scripts/jquery.signalR-2.4.1.min.js"></script>
+    <script src="~/signalr/hubs"></script>
+    <script src="~/scripts/textport/signalr-hub.js"></script>
+
+    <script type="text/javascript">
+        $(function () {
+            (function (i, s, o, g, r, a, m) {
+                i['GoogleAnalyticsObject'] = r; i[r] = i[r] || function () {
+                    (i[r].q = i[r].q || []).push(arguments)
+                }, i[r].l = 1 * new Date(); a = s.createElement(o),
+                    m = s.getElementsByTagName(o)[0]; a.async = 1; a.src = g; m.parentNode.insertBefore(a, m)
+            })(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga');
+
+             @if (GlobalVariables.Environment == "PRODUCTION")
+             {
+                  @:ga('create', 'UA-21685628-1', 'auto'); ga('send', 'pageview');
+             }
+
+            $('.modal-button').on('click', function () {
+                var url = $(this).data('url');
+                var target = $(this).data('target');
+
+                $.get(url, function (data) {
+                    $(target).html(data);
+                    $(target + ' > .modal').modal({ keyboard: true }, 'show');
+                });
+                return false;
+            });
+
+            $('#modal-cont-login').on('shown.bs.modal', function (e) {
+                $("#UserNameOrEmail").focus();
+                $('#form-login').submit(function (event) {
+                    event.preventDefault();
+                });
+                $.validator.unobtrusive.parse("#form-login");
+
+                $('#btnSubmitLogin').on("click", function (e) {
+                    if ($("#form-login").valid()) {
+                        validateLogin();
+                    }
+                });
+            });
+
+            getBalance();
+        });
+
+        function validateLogin() {
+            var url = '/account/validatelogin/';
+
+            var creds = {
+                UserNameOrEmail: $("#UserNameOrEmail").val(),
+                LoginPassword: $("#LoginPassword").val()
+            };
+
+            $.ajax({
+                type: 'POST',
+                cache: false,
+                url: url,
+                contentType: 'application/json; charset=utf-8',
+                data: JSON.stringify(creds),
+                success: function (result) {
+                    if (result.success != "true") {
+                        $("#lblMessage").text("");
+                        $("#lblMessage").append(result.response);
+                        $("#loginMessage").toggle();
+                    }
+                    else {
+                        window.location.href = result.response;
+                    }
+                }
+            });
+        }
+
+        function readCookie(name) {
+            var nameEQ = name + "=";
+            var ca = document.cookie.split(';');
+            for (var i = 0; i < ca.length; i++) {
+                var c = ca[i];
+                while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+                if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
+            }
+            return null;
+        }
+
+        function getBalance() {
+            $("#balance").html(readCookie("balance"));
+        }
+    </script>
+</head>
+<body>
+    <div id="main-cont" class="container">
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <div class="container">
+                <a class="navbar-brand" href="/">
+                    <img src="~/Content/images/tp_logo_240x54.png" width="140" alt="TextPort">
+                </a>
+                <button id="nb-toggle" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarResponsive">
+                    <ul class="navbar-nav ml-auto">
+                        @if (User.IsInRole("User") && Request.Path != "/")
+                        {
+                            <li class="nav-item active">
+                                <a class="nav-link" href="/messages">My Messages</a>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Bulk Texting</a>
+                                <div class="dropdown-menu bg-light" aria-labelledby="navbarDropdownMenuLink">
+                                    <a class="dropdown-item" href="/bulk">Express Entry</a>
+                                    <a class="dropdown-item" href="/bulk-upload">Advanced/Upload Data</a>
+                                </div>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/group">Group Texting</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/bulk/inbox">History</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/api">API</a>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">@User.Identity.Name</a>
+                                <div class="dropdown-menu bg-light" aria-labelledby="navbarDropdownMenuLink">
+                                    <a class="dropdown-item" href="/account/profile">Profile</a>
+                                    <a class="dropdown-item" href="/account/balance">Balance</a>
+                                    <a class="dropdown-item" href="/numbers">Numbers</a>
+                                    <a class="dropdown-item" href="/contacts">Contacts</a>
+                                    <a class="dropdown-item" href="/groups">Groups</a>
+                                    <a class="dropdown-item" href="/purchases">Purchases</a>
+                                    <a class="dropdown-item" href="/emailtosms">Email to SMS</a>
+                                    <a class="dropdown-item" href="/apisettings">API Settings</a>
+                                    <div class="dropdown-divider"></div>
+                                    <a class="dropdown-item" href="/home/support">Support</a>
+                                    <div class="dropdown-divider"></div>
+                                    <a class="dropdown-item" href="/account/logout">Log Out</a>
+                                </div>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item active">
+                                <a class="nav-link" href="/">
+                                    Home
+                                    <span class="sr-only">(current)</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/bulk-texting">Bulk Texting</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/email-to-sms-gateway">Email to SMS</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/virtual-phone-numbers">Virtual Numbers</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/api">API</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/blog">Blog</a>
+                            </li>
+                            if (!User.IsInRole("User"))
+                            {
+                                <li class="nav-item">
+                                    @if (Request.Browser.IsMobileDevice)
+                                    {
+                                        <a href='/loginm' class="nav-link">Log In</a>
+                                    }
+                                    else
+                                    {
+                                        <a href='#' id="login-link" class="nav-link modal-button" data-toggle="modal" data-target="#modal-cont-login" data-url="/login">Log In</a>
+                                    }
+                                </li>
+                                <li>
+                                    <a href="/account/signup"><button class="btn btn-primary ml-auto mr-2">Sign Up</button></a>
+                                </li>
+                            }
+                            else
+                            {
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">@User.Identity.Name</a>
+                                    <div class="dropdown-menu bg-light" aria-labelledby="navbarDropdownMenuLink">
+                                        <a class="dropdown-item" href="/messages">My Messages</a>
+                                        <a class="dropdown-item" href="/bulk">Bulk</a>
+                                        <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item" href="/account/profile">Profile</a>
+                                        <a class="dropdown-item" href="/account/balance">Balance</a>
+                                        <a class="dropdown-item" href="/numbers">Numbers</a>
+                                        <a class="dropdown-item" href="/contacts">Contacts</a>
+                                        <a class="dropdown-item" href="/groups">Groups</a>
+                                        <a class="dropdown-item" href="/purchases">Purchases</a>
+                                        <a class="dropdown-item" href="/emailtosms">Email to SMS</a>
+                                        <a class="dropdown-item" href="/apisettings">API Settings</a>
+                                        <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item" href="/home/support">Support</a>
+                                        <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item" href="/account/logout">Log Out</a>
+                                    </div>
+                                </li>
+                            }
+                        }
+                    </ul>
+                </div>
+            </div>
+        </nav>
+        @if (User.IsInRole("User"))
+        {
+            <div class="row">
+                <div class="col-12">
+                    <p class="mt-1 mb-2 text-secondary tp-bal">Balance: $<span id="balance"></span></p>
+                </div>
+            </div>
+        }
+        <nav class="sidenav"></nav>
+        @RenderBody()
+        @if (!User.IsInRole("User") || Request.Path == "/")
+        {
+            <footer class="mainfooter" role="contentinfo">
+                <div class="footer-middle">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-md-4 col-sm-6">
+                                <div class="footer-padxx">
+                                    <h4>About</h4>
+                                    <p>
+                                        Founded in 2011, TextPort is a pioneer of online texting services.
+                                        TextPort expanded to add new services like virtual numbers, bulk texting,
+                                        and a RESTful SMS API. Today, TextPort continues to provide business-class SMS
+                                        services to its growing base of commercial and individual subscribers.
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-sm-6">
+                                <div class="footer-padxx">
+                                    <h4>Products</h4>
+                                    <ul class="list-unstyled">
+                                        <li><a href="/bulk-texting">Bulk SMS</a></li>
+                                        <li><a href="/email-to-sms-gateway">Email to SMS Gateway</a></li>
+                                        <li><a href="/virtual-phone-numbers">Virtual Phone Numbers</a></li>
+                                        <li><a href="/api">SMS API</a></li>
+                                        <li><a href="/temporary-numbers">Temporary Phone Numbers</a></li>
+                                        <li><a href="/">Online Texting</a></li>
+                                        <li><a href="/free/send-text">Send a Free Text</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="col-md-2 col-sm-6">
+                                <div class="footer-pad">
+                                    <h4>Contact</h4>
+                                    <ul class="list-unstyled">
+                                        <li><a href="/faq">FAQs</a></li>
+                                        <li><a href="/support">Support</a></li>
+                                        <li><a href="/contact">Contact</a></li>
+                                        <li><a href="/blog">Blog</a></li>
+                                        <li><a href="/terms">Terms of Use</a></li>
+                                        <li><a href="/privacy">Privacy Policy</a></li>
+                                        <li><a href="/block">Block Number</a></li>
+                                        <li><a href="/">Home</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-sm-6">
+                                <div class="footer-pad">
+                                    <h4>Tools</h4>
+                                    <ul class="list-unstyled">
+                                        <li><a href="/tools/phone-number-lookup">Phone Number Lookup</a></li>
+                                        <li><a href="/tools/ip-address-locator">IP Address Locator</a></li>
+                                    </ul>
+                                    <h4>Social</h4>
+                                    <ul class="social-network social-circle">
+                                        <li><a href="https://www.facebook.com/pages/TextPort/259179750811667" title="Facebook" target="_blank"><i class="fa fa-facebook"></i></a></li>
+                                        <li><a href="https://twitter.com/textport" title="Twitter" target="_blank"><i class="fa fa-twitter"></i></a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-12 copy">
+                                <p class="text-center">&copy; Copyright 2020 - TextPort.com.  All rights reserved.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </footer>
+        }
+    </div>
+
+    <div id="modal-cont"></div>
+    <div id="modal-cont-login"></div>
+    @if (!User.IsInRole("User"))
+    {
+        <script type='text/javascript' data-cfasync='false'>window.purechatApi = { l: [], t: [], on: function () { this.l.push(arguments); } }; (function () { var done = false; var script = document.createElement('script'); script.async = true; script.type = 'text/javascript'; script.src = 'https://app.purechat.com/VisitorWidget/WidgetScript'; document.getElementsByTagName('HEAD').item(0).appendChild(script); script.onreadystatechange = script.onload = function (e) { if (!done && (!this.readyState || this.readyState == 'loaded' || this.readyState == 'complete')) { var w = new PCWidget({ c: 'b091137a-773e-4beb-83c0-830ebf96f126', f: true }); done = true; } }; })();</script>
+    }
+</body>
+</html>
+<script src="~/Scripts/sidenav/sidenav.js"></script>

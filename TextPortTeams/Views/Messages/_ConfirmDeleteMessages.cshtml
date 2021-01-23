@@ -1,0 +1,34 @@
+﻿@using TextPortCore.Models
+@model DeleteMessageInfo
+
+<div class="modal fade" id="ModalDeleteMessagesForNumber" tabindex="-1" role="dialog" aria-labelledby="DeleteMessagesForNumberTitle" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="DeleteMessagesForNumberTitle">@Model.Title</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            @using (Html.BeginForm(Model.Action, "Messages", FormMethod.Post, new { id = "form-delete-for-number" }))
+            {
+                @Html.AntiForgeryToken()
+                @Html.HiddenFor(m => m.DeleteType)
+                @Html.HiddenFor(m => m.VirtualNumberId)
+                @Html.HiddenFor(m => m.VirtualNumber)
+                @Html.HiddenFor(m => m.MobileNumber)
+                <div class="modal-body">
+                    <h5>@Html.Raw(Model.Prompt)</h5>
+                    @if (!string.IsNullOrEmpty(Model.SubPrompt))
+                    {
+                        <p class="text-danger pt-3">@Model.SubPrompt</p>
+                    }
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button id="btn-submit-delete" type="submit" class="btn btn-danger">Delete</button>
+                </div>
+            }
+        </div>
+    </div>
+</div>

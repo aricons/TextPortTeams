@@ -1,0 +1,41 @@
+﻿@using TextPortCore.Models
+@model APIApplication
+@Html.HiddenFor(m => m.APIApplicationId)
+<div class="form-group">
+    @Html.LabelFor(m => m.ApplicationName, new { @class = "form-label" })
+    @Html.TextBoxFor(m => m.ApplicationName, new { @class = "col-10 form-control", maxlength = "80" })
+    @Html.ValidationMessageFor(m => m.ApplicationName, null, new { @class = "text-danger" })
+    <div class="subscript">Name of your application accessing the API.</div>
+</div>
+<div class="form-row disabled">
+    <div class="form-group col-5">
+        @Html.LabelFor(m => m.APIToken, new { @class = "form-label" })
+        @Html.TextBoxFor(m => m.APIToken, new { @class = "form-control", @readonly = "readonly", maxlength = "80" })
+        <div class="subscript">Unique identifier used to authenticate each API call.</div>
+    </div>
+    <div class="form-group col-5">
+        <label class="form-label">API Secret</label><span class="float-right"><button type="button" class="subscript btn btn-link p-0" onclick="generateNewSecret()">Generate new secret</button></span>
+        @Html.TextBoxFor(m => m.APISecret, new { @class = "form-control", @readonly = "readonly", maxlength = "80" })
+        <div class="subscript">Password used to authenticate each request.</div>
+    </div>
+</div>
+<div class="form-row">
+    <div class="form-group col-10">
+        @Html.LabelFor(m => m.CallbackURL, new { @class = "form-label" })
+        @Html.TextBoxFor(m => m.CallbackURL, new { @class = "form-control", maxlength = "250" })
+        <div class="subscript">(Optional) Your endpoint to receive inbound messages and delivery receipts. If left blank, inbound messages and receipts will not be sent.</div>
+    </div>
+</div>
+<div class="form-row">
+    <div class="form-group col-5">
+        @Html.LabelFor(m => m.CallbackUserName, new { @class = "form-label" })
+        @Html.TextBoxFor(m => m.CallbackUserName, new { @class = "form-control", maxlength = "80" })
+        <div class="subscript">(Optional) Username for your callback URL.</div>
+    </div>
+    <div class="form-group col-5">
+        @Html.LabelFor(m => m.CallbackPassword, new { @class = "form-label" })
+        @Html.TextBoxFor(m => m.CallbackPassword, new { @class = "form-control", @type = "password", maxlength = "80" })
+        <span toggle="#CallbackPassword" class="fa fa-fw fa-eye field-icon toggle-password" onclick="togglePwVisibility(this)"></span>
+        <div class="subscript">(Optional) Password for your callback URL.</div>
+    </div>
+</div>

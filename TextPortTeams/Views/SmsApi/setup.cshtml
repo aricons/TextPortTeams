@@ -1,0 +1,68 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Setting up your SMS API | SMS API Setup";
+    ViewData["Description"] = "Easy guide for setting up TextPort's SMS API for sending and receiving text messages";
+    ViewData["Keywords"] = "SMS API setup, SMS API security, SMS API easy setup";
+    ViewData["Url"] = "https://textport.com/api/documentation";
+}
+
+<script type="text/javascript" src="~/content/highlight.pack.js"></script>
+<link rel="stylesheet" type="text/css" href="/content/css/api.css">
+<link rel="stylesheet" type="text/css" href="~/content/highlight/styles/dracula.css">
+
+<script type="text/javascript">
+    $(function () {
+        $('#menu_samples').addClass("active");
+        $('#lang-tab li:first-child a').tab('show')
+    });
+</script>
+
+<div class="container">
+    <div class="row">
+        @Html.Partial("_ApiSideMenuBar")
+        <div class="col-12 col-md-9">
+            <div class="card">
+                <div class="card-header">
+                    <h1 class="h4">SMS API Overview</h1>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col">
+                            <h5>Description</h5>
+                            <p>
+                                The TextPort API is used to send and receive text messages using standard REST calls.
+                                The API is lightweight and designed to be simple and easy to configure.
+                            </p>
+                            <h5>Capabilities</h5>
+                            <p>
+                                <ul>
+                                    <li><a href="/api/documentation/send-message">Send SMS Messages</a></li>
+                                    <li><a href="/api/documentation/message-received">Receive SMS Messages</a></li>
+                                    <li><a href="/api/documentation/delivery-receipt">Get Delivery Receipts</a></li>
+                                    <li><a href="/api/documentation/search-numbers">Search for new numbers</a></li>
+                                    <li><a href="/api/documentation/active-numbers">Get active numbers</a></li>
+                                    <li><a href="/api/documentation/get-number">Purchase numbers</a></li>
+                                    <li><a href="/api/documentation/account-balance">Get account balance</a></li>
+                                </ul>
+                            </p>
+                            <h5>Receiving Inbound Messages</h5>
+                            <p>
+                                Inbound messages can be sent to the callback URL (webhook) that you specify. You can set up a callback URL in the API Settings page.
+                                Each account may have multiple API applications, and each application can have one or more virtual numbers assigned.
+                            </p>
+                            <h5>Base API URL</h5>
+                            <p class="pb-3">https://api.textport.com/v1/</p>
+                            <h5>Security</h5>
+                            <p class="pb-3">The API is protected using Basic Authorization over HTTPS. Basic Authorization requires an API Key and password to be Base64-encoded and added to the Authorization HTTP header. Example: Authorization: Basic MS1vcVk0OUNFRzhzOldqTk1ya2t6ZnFLbnQwV2c1bVdk</p>
+                            <h5>Credentials</h5>
+                            <p class="pb-3">Visit the <a href="/api/documentation/add-application">API Settings</a> page to get your API credentials. TextPort will assign each application an API key and password.</p>
+                            <h5>Basic Test</h5>
+                            <p class="pb-3">Visit the <a href="/api/documentation/add-application">API Settings</a> page to set up credentials. <a href="/api/documentation/ping">Test your connectivity</a> using this basic ping test.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>hljs.initHighlightingOnLoad()</script>

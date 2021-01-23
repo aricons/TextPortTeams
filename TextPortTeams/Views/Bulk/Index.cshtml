@@ -1,0 +1,232 @@
+﻿@model BulkMessages
+@using TextPortCore.Models
+@{
+    ViewBag.Title = "Bulk Text Messaging";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style type="text/css">
+    .num-list {
+        width: 100%;
+        height: 250px;
+        font-size: 0.9rem;
+    }
+
+    .msg-input {
+        width: 100%;
+        height: 150px;
+        font-size: 0.9rem;
+    }
+
+    .results-table td {
+        font-size: 0.8rem;
+        padding: 1px !important;
+    }
+
+    .msg-box {
+        height: 100px;
+    }
+
+    #msg-footer {
+        margin: 3px 35px 0px 0px;
+    }
+</style>
+
+<link rel="stylesheet" href="~/content/css/messaging.css">
+<link rel="stylesheet" href="~/content/css/emoji.css">
+<link rel="stylesheet" href="~/Scripts/dropzone/basic.css">
+
+<script src="~/scripts/emoji/config.js"></script>
+<script src="~/scripts/emoji/util.js"></script>
+<script src="~/scripts/emoji/jquery.emojiarea.js"></script>
+<script src="~/scripts/emoji/emoji-picker.js"></script>
+<script src="~/scripts/dropzone/dropzone.js"></script>
+<script src="~/scripts/textport/segmentcounter.js"></script>
+
+<script type="text/javascript">
+    //Dropzone.autoDiscover = false;
+    var mmsFiles = [];
+    $.validator.setDefaults({ ignore: [] });
+
+    $(function () {
+        $("#VirtualNumberId").val($("#FromNumberId option:selected").val());
+
+        //$('#MessageLimit').on("change", function (e) {
+        //    $("#SubmitOperation").val("ChangeGridRows");
+        //    AJAXPost();
+        //});
+
+        $('#FromNumberId').on("change", function (e) {
+            $("#VirtualNumberId").val($("#FromNumberId option:selected").val());
+        });
+
+        // Setup emoji picker
+        window.emojiPicker = new EmojiPicker({
+            iconSize: '21',
+            assetsPath: '/content/images/emoji',
+            emojiable_selector: '[data-emojiable=true]',
+            popupButtonClasses: 'fa fa-smile-o'
+        });
+        window.emojiPicker.discover();
+
+        //$('#emojipick_1').on("keyup", function (e) {
+        //    checkSendButtonEligibility();
+        //});
+
+        // Setup dropzone
+        //myDropzone = $("#mmsDropzone").dropzone({
+        //    url: "/messages/uploadfile",
+        //    method: 'POST',
+        //    addRemoveLinks: true,
+        //    thumbnailHeight: 30,
+        //    thumbnailWidth: 30,
+        //    maxFiles: 10,
+        //    maxFilesize: 4000,
+        //    success: function (file) {
+        //        file.previewElement.parentNode.removeChild(file.previewElement);
+        //        var fileId = $(file.xhr.response).attr("id");
+        //        var fileName = file.name.replace(/\s/g, "");
+        //        mmsFiles.push({ "UniqueName": fileId + "_" + fileName });
+
+        //        var lastMessageItem = $('.msg_item:last').attr('id');
+        //        if (typeof lastMessageItem != 'undefined') {
+        //            $("#" + lastMessageItem).after(file.xhr.response);
+        //        }
+        //        else {
+        //            $("#msg_list").html('');
+        //            var msgList = document.getElementById("msg_list");
+        //            msgList.insertAdjacentHTML("beforeend", file.xhr.response);
+        //        }
+
+        //        var ml = $("#msg_list");
+
+        //        // Animated
+        //        ml.animate({ scrollTop: ml.prop("scrollHeight") - ml.height() }, 50);
+
+        //        checkSendButtonEligibility();
+        //    },
+        //    error: function (file) {
+        //        alert("Upload error" + file.error);
+        //    },
+        //});
+
+        if ($("#message_text").length) {
+            $('#message_text').countSms('#sms-counter');
+        }
+
+        $("#btn-send").on('click', function () {
+            $("#MessageText").val($("#message_text").val());
+        });
+    });
+</script>
+<div class="w-100">
+    <h3 class="d-inline-block">@((Model.ProcessingState.Equals("PROCESSED")) ? "Bulk Processing Results" : "Send Bulk Texts")</h3>
+    @if (Model.ProcessingState != "PENDING")
+    {
+        <a href="/bulk-upload" class="d-inline-block float-right pt-2"><i class="fa fa-arrow-left pr-2"></i>Return to Message Entry</a>
+    }
+</div>
+<hr />
+@using (Html.BeginForm("index", "bulk", FormMethod.Post, new { id = "form-bulk" }))
+{
+    @Html.HiddenFor(m => m.AccountId)
+    @Html.HiddenFor(m => m.SubmitOperation)
+    @Html.HiddenFor(m => m.SubmitType)
+    @Html.HiddenFor(m => m.VirtualNumberId)
+    @Html.HiddenFor(m => m.MessageText)
+    <input type="hidden" id="hidSMSCost" value="@Model.Account.SMSSegmentCost" />
+    <input type="hidden" id="hidMMSCost" value="@Model.Account.MMSSegmentCost" />
+
+    if (Model.ProcessingState.Equals("PROCESSED"))
+    {
+        @Html.Partial("_ResultsList", Model)
+    }
+    else
+    {
+        <div class="form-group">
+            <div class="row">
+                <div class="col-md-4 px-0">
+                    @Html.LabelFor(m => m.VirtualNumberId, new { @class = "form-label" })
+                    <select id="FromNumberId" class="selectpicker form-control">
+                        @foreach (DedicatedVirtualNumber vn in Model.VirtualNumbers)
+                        {
+                            <option value="@vn.VirtualNumberId" data-number="@vn.VirtualNumber" data-content="<img src='@vn.ImageUrl' class='pr-2' />@vn.NumberDisplayFormat"></option>
+                        }
+                    </select>
+                    @Html.ValidationMessageFor(m => m.VirtualNumberId, null, new { @class = "text-danger" })
+                </div>
+                @*<div class="col-md-4 offset-4 float-right">
+                        <label class="form-label">&nbsp;</label>
+                        <a class="form-control btn btn-primary float-right" href="/bulk-upload">Upload Numbers and Messages</a>
+                    </div>*@
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="form-label">Send To<span class="subscript">(Enter numbers one per line, or separated with a space or comma)</span></div>
+            <div>
+                @Html.TextAreaFor(m => m.NumbersList, new { @class = "form-control num-list numeric-only", rows = "8" })
+                @Html.ValidationMessageFor(m => m.NumbersList, null, new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="form-label">Message</div>
+            <div id="msg_area">
+                <div class="row pl-3">
+                    <div class="col form-control msg-box">
+                        <textarea id="message_text" class="message_texarea" rows="4" data-emojiable="true" data-emoji-ta-id="emojipick_1"></textarea>
+                    </div>
+                    <div class="msg-icons-cont align-items-center text-primary">
+                        <div class="text-center pt-2 pt-lg-2">
+                            <i id="emoji-sel-button" class="fa fa-image fa-smile-o msg_function_icon"></i>
+                        </div>
+                        <div class="text-center pt-2 pt-lg-1">
+                            @*<form action="/messages/UploadFile/" class="dropzone" id="mmsDropzone">
+                                    <span class="dz-message"><i class="fa fa-image msg_function_icon"></i></span>
+                                </form>*@
+                        </div>
+                    </div>
+                </div>
+                @Html.ValidationMessageFor(m => m.MessageText, null, new { @class = "text-danger" })
+            </div>
+            <div id="msg-footer" class="row bg-light py-2">
+                <div id="sms-counter" class="col-12 counter-font">
+                    <div class="row">
+                        <div class="col float-left">
+                            Chars: <span class="length"></span>/<span class="remaining"></span>
+                        </div>
+                        <div class="col text-center">
+                            Segments: <span class="messages"></span>
+                        </div>
+                        <div class="col float-right">
+                            <span class="float-right pr-1">
+                                Cost per message: $<span class="cost"></span>
+                            </span>
+                        </div>
+                        @*<div class="float-right counter-info">
+                                <button class="btn p-0" data-toggle="popover" title="Cost Info" data-content="" data-html="true">
+                                    <i class="fa fa-info-circle text-primary"></i>
+                                </button>
+                            </div>*@
+                    </div>
+                </div>
+            </div>
+        </div>
+        if (Model.VirtualNumbers.Count > 0)
+        {
+            <div class="form-group col-2 pl-0">
+                <button type="submit" id="btn-send" class="form-control btn btn-primary">Send Messages</button>
+            </div>
+        }
+        <br />
+        if (!string.IsNullOrEmpty(Model.BalanceAlert))
+        {
+            <div>
+                <div class="form-group col-md-12">
+                    <div class="alert alert-danger text-center">
+                        @Model.BalanceAlert&nbsp;<a href="/account/balance/">Top up here</a>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+}

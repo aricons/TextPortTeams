@@ -1,0 +1,184 @@
+﻿@using TextPortCore.Models
+@using TextPortCore.Helpers
+@model RegistrationData
+
+@{
+    ViewBag.Title = "Get Number";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script type="text/javascript" src="/scripts/TextPort/GetNumbers.js"></script>
+<script type="text/javascript" src="/scripts/TextPort/Purchases.js"></script>
+<script type="text/javascript" src="/scripts/bootbox/bootbox.min.js"></script>
+
+<script type="text/javascript">
+    $(function () {
+        $('#menu_numbers').addClass("active");
+
+        $('#btnPurchase').click(function (e) {
+            var form = $("#form-get-number");
+            if (form.valid()) {
+
+                var leasePeriodType = "";
+                var leasePeriodWord = "";
+                var leasePeriod = 0;
+                var countryCode = $("#CountryId option:selected").val();
+                var number = numberToDisplay($("#VirtualNumber").val(), countryCode);
+
+                leasePeriodValues = $("#LeasePeriodCode").val().split("|");
+                if (number !== "" && leasePeriodValues.length > 2) {
+                    leasePeriodType = leasePeriodValues[0];
+                    leasePeriod = parseFloat(leasePeriodValues[1]);
+                    numberCost = parseFloat(leasePeriodValues[2]);
+
+                    switch (leasePeriodType) {
+                        case "D":
+                            leasePeriodWord = "day";
+                            break;
+                        case "W":
+                            leasePeriodWord = "week";
+                            break;
+                        case "Y":
+                            leasePeriodWord = "year";
+                            break;
+                        default:
+                            leasePeriodWord = "month";
+                            break;
+                    }
+
+                    if (leasePeriod > 1) {
+                        leasePeriodWord += "s";
+                    }
+
+                    bootbox.confirm({
+                        title: "Get " + number + "?",
+                        message: "Assign " + number + " to your account for a period of " + leasePeriod + " " + leasePeriodWord + "?<br />Your account will be debited $" + numberCost.formatMoney(),
+                        buttons: {
+                            cancel: {
+                                label: '<i class="fa fa-times"></i> Cancel'
+                            },
+                            confirm: {
+                                label: '<i class="fa fa-check"></i> Confirm'
+                            }
+                        },
+                        callback: function (result) {
+                            if (result) {
+                                form.submit();
+                            }
+                        }
+                    })
+                }
+            };
+        });
+
+        $("#lnk-change-number").on("click", function (e) {
+            $("#number-chooser").toggle(500);
+            $("#number-picker").toggle(500);
+        });
+
+        $("#int-number-selector").hide();
+        $("#number-results").hide();
+        $("#selected-number-wrap").hide();
+        $("#AreaCode").mask("000");
+        $("#UserName").focus();
+        $('#form-get-number').validate().settings.ignore = [];
+        numberCount = 35;
+    });
+
+    function getNumber(number) {
+        var countryCode = $("#CountryId option:selected").val();
+        $("#lbl-sel-number").text("Selected number");
+        $("#lbl-sel-number").show();
+        $("#selected-number").text(numberToDisplay(number, countryCode));
+        $("#VirtualNumber").val(numberToE164(countryCode, number));
+        $("#selected-number-wrap").show();
+        $("#number-chooser").hide(500);
+        $("#number-picker").hide(500);
+        $("#payment-section").show(500);
+        $("#form-get-number").validate().element("#VirtualNumber");
+    }
+</script>
+
+<div class="row">
+    @Html.Partial("_SideMenuBar")
+    <div class="col-12 col-md-10">
+        <div class="card">
+            <div class="card-header">
+                <h4>Get a new Number</h4>
+            </div>
+            <div class="card-body">
+                <div class="offset-md-1 col-11">
+                    @using (Html.BeginForm("GetNumber", "Numbers", FormMethod.Post, new { id = "form-get-number" }))
+                    {
+                        @Html.HiddenFor(m => m.NumberCost)
+                        @Html.HiddenFor(m => m.AccountId)
+                        @Html.HiddenFor(m => m.PurchaseType)
+                        @Html.HiddenFor(m => m.PayPalCustom)
+                        @Html.HiddenFor(m => m.VirtualNumberId)
+                        @Html.HiddenFor(m => m.PurchaseTitle)
+                        @Html.HiddenFor(m => m.ProductDescription)
+                        @Html.HiddenFor(m => m.CompletionTitle)
+                        @Html.HiddenFor(m => m.CompletionMessage)
+                        @Html.HiddenFor(m => m.LeasePeriodType)
+                        @Html.HiddenFor(m => m.LeasePeriod)
+                        @Html.HiddenFor(m => m.Success)
+                        @Html.HiddenFor(m => m.Status)
+                        @Html.HiddenFor(m => m.VirtualNumber)
+                        <input type="hidden" id="hidTotalCost" value="0" />
+
+                        <div class="form-group">
+                            @Html.LabelFor(m => m.CountryId, new { @class = "form-label" })
+                            <select name="CountryId" id="CountryId" class="form-control" data-val="true" data-val-required="A country is required">
+                                @foreach (Country c in Model.CountriesList)
+                                {
+                                    <option value="@c.CountryId">@($"{c.CountryName}  (+{c.CountryPhoneCode})")</option>
+                                }
+                            </select>
+                            @Html.ValidationMessageFor(m => m.CountryId, null, new { @class = "text-danger" })
+                        </div>
+                        <div class="form-group mb-0">
+                            <label id="lbl-sel-number" class="form-label pb-1">Search by area code</label>
+                            <div id="selected-number-wrap">
+                                <label id="selected-number" class="vn-sel-num">@Model.NumberDisplayFormat</label>
+                                <a id="lnk-change-number" href="#">change</a>
+                            </div>
+                        </div>
+                        <div id="number-chooser">
+                            <input type="text" id="area-code" class="form-control ac-input mb-2" , placeholder="Area Code" />
+                            @Html.Partial("_NumberPicker")
+                        </div>
+                        @Html.ValidationMessageFor(m => m.VirtualNumber, null, new { @class = "text-danger" })
+                        <div class="form-group pt-3">
+                            @Html.LabelFor(m => m.LeasePeriodCode, new { @class = "form-label" })
+                            @Html.DropDownListFor(m => m.LeasePeriodCode, new SelectList(Model.LeasePeriodsList, "Value", "Text"), new { @class = "col-md-5 form-control" })
+                            @Html.ValidationMessageFor(m => m.LeasePeriodCode, null, new { @class = "text-danger" })
+                        </div>
+                        <div class="row lower-label">
+                            <label>Available Credit</label>
+                            <label id="AvailableCredit">@Formatting.DisplayMoney(Model.CreditCurrentBalance)</label>
+                        </div>
+                        <div class="row lower-label">
+                            <label>Remaining Credit After Purchase</label>
+                            <label id="RemainingCredit"></label>
+                        </div>
+                        <div id="creditOK">
+                            <div class="form-group">
+                                <button id="btnPurchase" type="button" class="btn btn-primary">@(Model.PurchaseType == "ComplimentaryNumber" ? "Select Number" : "Complete Purchase")</button>
+                            </div>
+                        </div>
+                        <div id="creditInsufficient" style="display: none">
+                            <div class="pl-0">
+                                <p class="alert alert-danger text-center">
+                                    Your balance is not sufficient to make this purchase.
+                                    <br />
+                                    <br />
+                                    <a href="/account/balance" class="btn btn-danger" role="button" aria-disabled="true">Top Up Credit</a>
+                                </p>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

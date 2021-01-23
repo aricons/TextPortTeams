@@ -1,0 +1,195 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Collapsible sidebar using Bootstrap 4</title>
+    <!-- Bootstrap CSS CDN -->
+    <link rel="stylesheet" href="/sidebarmenu/external/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">
+    <!-- Our Custom CSS -->
+    <link rel="stylesheet" href="style3.css">
+    <!-- Scrollbar Custom CSS -->
+    <!--<link rel="stylesheet" href="/sidebarmenu/external/jquery.mCustomScrollbar.min.css">-->
+    <!-- Font Awesome JS -->
+    <script defer src="/sidebarmenu/external/solid.js" integrity="sha384-tzzSw1/Vo+0N5UhStP3bvwWPq+uvzCMfrN1fEFe+xBmv1C/AtVX5K0uZtmcHitFZ" crossorigin="anonymous"></script>
+    <script defer src="/sidebarmenu/external/fontawesome.js" integrity="sha384-6OIrr52G08NpOFSZdxxz1xdNSndlD4vdcf/q2myIUVO0VsqaGHJsB0RaBE01VTOY" crossorigin="anonymous"></script>
+</head>
+<body>
+    <div class="wrapper">
+        <!-- Sidebar  -->
+        <nav id="sidebar">
+            <div id="dismiss">
+                <i class="fas fa-arrow-left"></i>
+            </div>
+            <div class="sidebar-header">
+                <h3>Options</h3>
+            </div>
+
+            <ul class="list-unstyled components">
+                <li>
+                    <p>New Recipient</p>
+                    <ul class="list-unstyled" id="numSubmenu">
+                        <li>
+                            <div class="container">
+                                <div class="form-inline">
+                                    <input id="newnum" type="text" class="col-md-8 form-control" placeholder="(000) 000-0000" />
+                                    <i class="col-md-2 ml-0 pl-0 fas fa-arrow-right action-btn"></i>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </li>
+                <!--<ul class="list-unstyled components">-->
+                <!--<p>Send From</p>-->
+                <li>
+                    <a href="#homeSubmenu" data-toggle="collapse" aria-expanded="false">Send From My Number</a>
+                    <ul class="list-unstyled" id="homeSubmenu">
+                        <li>
+                            <a href="#" id="vn_15053501212" class="active-number">(505) 350-1212</a>
+                        </li>
+                        <li>
+                            <a href="#" id="vn_19496481290">(949) 648-1290</a>
+                        </li>
+                        <li>
+                            <a href="#" id="vn_12313506054">(213) 350-6054</a>
+                        </li>
+                        <li>
+                            <a href="#" id="vn_14126441954">(412) 644-1954</a>
+                        </li>
+                    </ul>
+                </li>
+
+                <li>
+                    <!--<a href="#">Recents</a>-->
+                    <a href="#pageSubmenu" data-toggle="collapse" aria-expanded="false">Recents to (505) 909-1212</a>
+                    <ul class="collapse list-unstyled" id="pageSubmenu">
+                        <li>
+                            <a href="#" id="recent_15402311090">(540) 231-1090</a>
+                        </li>
+                        <li>
+                            <a href="#" id="recent_15402311091">(540) 231-1091</a>
+                        </li>
+                        <li>
+                            <a href="#" id="recent_15402311092">(261) 365-5983</a>
+                        </li>
+                        <li>
+                            <a href="#" id="recent_15402311093">(908) 234-9823</a>
+                        </li>
+                        <li>
+                            <a href="#" id="recent_15402311094">(129) 345-9846</a>
+                        </li>
+                        <li>
+                            <a href="#" id="recent_15402311095">(987) 223-9834</a>
+                        </li>
+                        <li>
+                            <a href="#" id="recent_15402311096">(356) 334-7566</a>
+                        </li>
+                        <li>
+                            <a href="#" id="recent_15402311097">(987) 509-9884</a>
+                        </li>
+                        <li>
+                            <a href="#" id="recent_15402311098">(323) 988-9908</a>
+                        </li>
+                        <li>
+                            <a href="#" id="recent_15402311099">(435) 544-9654</a>
+                        </li>
+                        <li>
+                            <a href="#" id="recent_15402311095">(224) 343-9843</a>
+                        </li>
+                        <li>
+                            <a href="#" id="recent_15402311095">(443) 445-9543</a>
+                        </li>
+                        <li>
+                            <a href="#" id="recent_15402311095">(212) 995-9887</a>
+                        </li>
+                        <li>
+                            <a href="#" id="recent_15402311095">(303) 443-3434</a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </nav>
+    </div>
+    <!--<ul class="list-unstyled CTAs">
+        <li>
+            <a href="https://bootstrapious.com/tutorial/files/sidebar.zip" class="download">Download source</a>
+        </li>
+        <li>
+            <a href="https://bootstrapious.com/p/bootstrap-sidebar" class="article">Back to article</a>
+        </li>
+    </ul>-->
+    </nav>
+    <!-- Page Content  -->
+    <div id="content">
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <div class="container-fluid">
+                <button type="button" id="sidebarCollapse" class="btn btn-info">
+                    <i class="fas fa-align-left"></i>
+                    <span>Toggle Sidebar</span>
+                </button>
+                <button class="btn btn-dark d-inline-block d-lg-none ml-auto" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <i class="fas fa-align-justify"></i>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="nav navbar-nav ml-auto">
+                        <li class="nav-item active">
+                            <a class="nav-link" href="#">Page</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Page</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Page</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Page</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+        <h2>Collapsible Sidebar Using Bootstrap 4</h2>
+        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+        <div class="line"></div>
+        <h2>Lorem Ipsum Dolor</h2>
+        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+        <div class="line"></div>
+        <h2>Lorem Ipsum Dolor</h2>
+        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+        <div class="line"></div>
+        <h3>Lorem Ipsum Dolor</h3>
+        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+    </div>
+
+    <div class="overlay"></div>
+    <!-- jQuery CDN - Slim version (=without AJAX) -->
+    <script src="/sidebarmenu/external/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <!-- Popper.JS -->
+    <script src="/sidebarmenu/external/popper.min.js" integrity="sha384-cs/chFZiN24E4KMATLdqdvsezGxaGsi4hLGOzlXwp5UZB1LY//20VyM2taTB4QvJ" crossorigin="anonymous"></script>
+    <!-- Bootstrap JS -->
+    <script src="/sidebarmenu/external/bootstrap.min.js" integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm" crossorigin="anonymous"></script>
+    <!-- jQuery Custom Scroller CDN -->
+    <script src="/sidebarmenu/external/jquery.mCustomScrollbar.concat.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#sidebar").mCustomScrollbar({
+                theme: "minimal"
+            });
+
+            $('#dismiss, .overlay').on('click', function () {
+                $('#sidebar').removeClass('active');
+                $('.overlay').removeClass('active');
+            });
+
+            $('#sidebarCollapse').on('click', function () {
+                $('#sidebar').addClass('active');
+                $('.overlay').addClass('active');
+                $('.collapse.in').toggleClass('in');
+                $('a[aria-expanded=true]').attr('aria-expanded', 'false');
+            });
+        });
+    </script>
+</body>
+</html>

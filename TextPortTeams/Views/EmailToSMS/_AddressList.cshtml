@@ -1,0 +1,43 @@
+﻿@using TextPortCore.Models
+@model EmailToSMSContainer
+
+@if (Model.EmailAddressList.Count() > 0)
+{
+    int rowId = 1;
+    foreach (EmailToSMSAddress address in Model.EmailAddressList)
+    {
+        string bgClass;
+        if (rowId % 2 == 0)
+        {
+            bgClass = "table-primary";
+        }
+        else
+        {
+            bgClass = string.Empty;
+        }
+        rowId++;
+        @Html.HiddenFor(x => address.AddressId)
+        <tr class="@bgClass">
+            <td>@Html.TextBoxFor(x => address.EmailAddress, new { id = "addr_" + address.AddressId, @class = "form-control form-control-sm" })</td>
+            <td>
+                @Html.DropDownListFor(x => address.VirtualNumberId, new SelectList(Model.VirtualNumbersList, "Value", "Text", address.VirtualNumberId), new { id = "vnid_" + address.AddressId, @class = "form-control form-control-sm" })
+            </td>
+            <td align="center">
+                <button onclick="updateAddress(@address.AddressId)" class="btn">
+                    <span class="fa fa-save fa-lg list-icon" aria-hidden="true"></span>
+                </button>
+            </td>
+            <td align="center">
+                <button onclick="deleteAddress(@Model.AccountId, @address.AddressId, '@address.EmailAddress')" class="btn">
+                    <span class="fa fa-trash fa-lg list-icon" aria-hidden="true"></span>
+                </button>
+            </td>
+        </tr>
+    }
+}
+else
+{
+    <tr>
+        <td colspan="4" class="text-center">No addresses have been added</td>
+    </tr>
+}

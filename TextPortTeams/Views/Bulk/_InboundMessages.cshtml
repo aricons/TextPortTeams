@@ -1,0 +1,23 @@
+﻿@using TextPortCore.Models;
+@using TextPortCore.Helpers;
+@model  InboxContainer
+@if (Model.Messages.Count > 0)
+{
+    foreach (InboxMessage message in Model.Messages)
+    {
+        <tr>
+            <td class="text-center"><img src="/content/images/arw-@(message.Direction == 1 ? "recv" : "sent").png"></td>
+            <td class="">@string.Format("{0:MM/dd hh:mm tt}", message.TimeStamp)</td>
+            <td class="">@Utilities.NumberToDisplayFormat(message.MobileNumber, 22)</td>
+            <td class="">@Utilities.NumberToDisplayFormat(message.VirtualNumber, 22)</td>
+            <td>@message.MessageText</td>
+            <td class="text-center"><input id="del_@message.MessageId" type="checkbox" class="cbsel" /></td>
+        </tr>
+    }
+}
+else
+{
+    <tr>
+        <td class="text-center" colspan="6">No messages found</td>
+    </tr>
+}

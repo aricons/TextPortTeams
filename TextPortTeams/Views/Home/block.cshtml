@@ -1,0 +1,65 @@
+﻿@model  TextPortCore.Models.BlockRequest
+@using TextPortCore.Helpers
+@{
+    ViewData["Title"] = "Block a Number | TextPort";
+    ViewData["Description"] = "Block your number from unwanted text messages";
+    ViewData["Keywords"] = "block number from unwanted texts";
+    ViewData["Url"] = "https://textport.com/block";
+}
+
+<script type="text/javascript">
+    $(function () {
+        $("#MobileNumber").mask('(000) 000-0000');
+    });
+</script>
+
+<div class="container contact">
+    <h1>Block a Number</h1>
+    <div class="row">
+        <div class="col-md-5 mt-4">
+            @using (Html.BeginForm("Block", "Home", FormMethod.Post, new { id = "form-block" }))
+            {
+                @Html.AntiForgeryToken()
+                @Html.HiddenFor(m => m.BlockId)
+                <div class="row">
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.MobileNumber, new { @class = "form-label" })
+                        @Html.TextBoxFor(m => m.MobileNumber, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(m => m.MobileNumber, null, new { @class = "text-danger" })
+                    </div>
+                    <div class="form-group">
+                        <div class="g-recaptcha" data-sitekey="6Ldl-rQUAAAAALacF1sl4vM1WHQL5OhAYRFdLlnQ"></div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary" id="btnBlockNumber">Submit Block</button>
+                    </div>
+                </div>
+                if (Model.SubmissionStatus != RequestStatus.Pending)
+                {
+                    <div class="row">
+                        <div class="col-md-10 pt-4">
+                            <div class="form-group">
+                                <div class="alert @(Model.SubmissionStatus == RequestStatus.Success ? "alert-success" : "alert-danger")" role="alert">
+                                    @Html.Raw(Model.SubmissionMessage)
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+        <div class="col-md-7 mt-4">
+            <p>
+                TextPort does not condone the dissemination of spam or harassing texts.
+                If you've received an unwanted text from a TextPort number you may enter your mobile number here. Blocking your number will prevent any messages
+                sent from this site from being delivered to your number.
+            </p>
+            <p>
+                To place a block, simply enter your number and click Submit Block. All block requests are honored immediately, and are permanent.
+            </p>
+        </div>
+    </div>
+</div>
+<script src='https://www.google.com/recaptcha/api.js'></script>

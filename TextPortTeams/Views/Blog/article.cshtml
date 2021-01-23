@@ -1,0 +1,29 @@
+﻿@using TextPortCore.Models
+@model BlogPost
+@{
+    ViewData["Title"] = String.Format("{0} | TextPort", Model.Title);
+    ViewData["Description"] = Model.Description;
+    ViewData["Keywords"] = Model.Keywords;
+    ViewData["Url"] = String.Format("https://textport.com/blog/{0}", Model.UrlName);
+}
+<div class="row">
+    <div class="col-lg-8 mb-lg-3">
+        <h1 class="mt-4">@Model.Title</h1>
+        <p class="lead">by @Model.PostedBy</p>
+        <hr />
+        <p>Posted: @String.Format("{0:MMMM dd, yyyy}", @Model.Date)</p>
+        <hr />
+        <img class="img-responsive mx-auto d-block w-50" src="@Model.ImageUrl" alt="@Model.Title">
+        <hr />
+        @Html.Raw(Model.PostContent)
+        <hr />
+    </div>
+    <div class="col-md-4">
+        <div class="mt-md-5">&nbsp;</div>
+        <div class="mt-md-1">&nbsp;</div>
+        <div class="card my-4">
+            <h5 class="card-header"><a href="/blog">Blog Home</a></h5>
+        </div>
+        @Html.Partial("_recent-articles", new BlogRecentPosts(20))
+    </div>
+</div>

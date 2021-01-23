@@ -1,0 +1,303 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Send a Text Message Using a RESTful API | TextPort SMS API";
+    ViewData["Description"] = "Send text messages from TextPort's easy-to-use SMS API";
+    ViewData["Keywords"] = "SMS API send text, send text message from API, easy SMS API for sending";
+    ViewData["Url"] = "https://textport.com/api/documentation/send-message";
+}
+
+<script type="text/javascript" src="~/content/highlight.pack.js"></script>
+<link rel="stylesheet" type="text/css" href="/content/css/api.css">
+<link rel="stylesheet" type="text/css" href="~/content/highlight/styles/dracula.css">
+
+<script type="text/javascript">
+    $(function () {
+        $('#menu_samples').addClass("active");
+        $('#lang-tab li:first-child a').tab('show')
+    });
+</script>
+
+<div class="container">
+    <div class="row">
+        @Html.Partial("_ApiSideMenuBar")
+        <div class="col-12 col-md-9">
+            <div class="card">
+                <div class="card-header">
+                    <h1 class="h4">Send Messages<span class="float-right">/v1/messages/send</span></h1>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col">
+                            <h5>Description</h5>
+                            <p>
+                                Sends one or more messages.
+                            </p>
+                            <div class="gpbtn-lg mb-4">POST</div>
+                            <h5>Endpoint</h5>
+                            <p class="pb-3">https://api.textport.com/v1/messages/send</p>
+                            <h5>Sample Request Objects</h5>
+                            <ul class="nav nav-tabs" id="payload-tab" role="tablist">
+                                <li class="nav-item">
+                                    <a class="nav-link active" id="json-tab" data-toggle="tab" href="#json" role="tab" aria-controls="json" aria-selected="true">JSON</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="xml-tab" data-toggle="tab" href="#xml" role="tab" aria-controls="xml" aria-selected="false">XML</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="json2-tab" data-toggle="tab" href="#json2" role="tab" aria-controls="json2" aria-selected="true">JSON (Multiple Messages)</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="xml2-tab" data-toggle="tab" href="#xml2" role="tab" aria-controls="xml2" aria-selected="false">XML (Multiple Messages)</a>
+                                </li>
+                            </ul>
+                            <div class="tab-content">
+                                <div class="tab-pane active" id="json" role="tabpanel" aria-labelledby="json-tab">
+                                    <pre><code class="json">[
+    {
+        "From": "12135551212",
+        "To": "13035555323",
+        "MessageText": "Sample message from TextPort SMS API"
+    }
+]</code></pre>
+                                </div>
+                                <div class="tab-pane" id="xml" role="tabpanel" aria-labelledby="xml-tab">
+                                    <pre><code class="xml">&lt;ArrayOfMessage&gt;
+    &lt;Message&gt;
+        &lt;From&gt;12135551212&lt;/From&gt;
+        &lt;To&gt;13035555323&lt;/To&gt;
+        &lt;MessageText&gt;Sample message from TextPort SMS API&lt;/MessageText&gt;
+    &lt;/Message&gt;
+&lt;/ArrayOfMessage&gt;</code></pre>
+                                </div>
+                                <div class="tab-pane" id="json2" role="tabpanel" aria-labelledby="json2-tab">
+                                    <pre><code class="json">[
+    {
+        "From": "12135551212",
+        "To": "13035555323",
+        "MessageText": "FIRST message from TextPort SMS API"
+    },
+    {
+        "From": "12135551212",
+        "To": "13035555323",
+        "MessageText": "SECOND message"
+    },
+    {
+        "From": "12135551212",
+        "To": "13035555323",
+        "MessageText": "THIRD message"
+    }
+]</code></pre>
+                                </div>
+                                <div class="tab-pane" id="xml2" role="tabpanel" aria-labelledby="xml2-tab">
+                                    <pre><code class="xml">&lt;ArrayOfMessage&gt;
+    &lt;Message&gt;
+        &lt;From&gt;12135551212&lt;/From&gt;
+        &lt;To&gt;13035555323&lt;/To&gt;
+        &lt;MessageText&gt;FIRST message from TextPort SMS API&lt;/MessageText&gt;
+    &lt;/Message&gt;
+    &lt;Message&gt;
+        &lt;From&gt;12135551212&lt;/From&gt;
+        &lt;To&gt;13035555323&lt;/To&gt;
+        &lt;MessageText&gt;SECOND message&lt;/MessageText&gt;
+    &lt;/Message&gt;
+    &lt;Message&gt;
+        &lt;From&gt;12135551212&lt;/From&gt;
+        &lt;To&gt;13035555323&lt;/To&gt;
+        &lt;MessageText&gt;THIRD message&lt;/MessageText&gt;
+    &lt;/Message&gt;
+&lt;/ArrayOfMessage&gt;</code></pre>
+                                </div>
+                            </div>
+                            <h5>Code Examples (using JSON payload)</h5>
+                            <ul class="nav nav-tabs" id="lang-tab" role="tablist">
+                                <li class="nav-item">
+                                    <a class="nav-link active" id="html-tab" data-toggle="tab" href="#html" role="tab" aria-controls="html" aria-selected="true">HTML</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="csharp-tab" data-toggle="tab" href="#csharp" role="tab" aria-controls="csharp" aria-selected="false">C# (RestSharp)</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="php-tab" data-toggle="tab" href="#php" role="tab" aria-controls="php" aria-selected="false">PHP</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="curl-tab" data-toggle="tab" href="#curl" role="tab" aria-controls="curl" aria-selected="false">cURL</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="jquery-tab" data-toggle="tab" href="#jquery" role="tab" aria-controls="jquery" aria-selected="false">jQuery</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="python-tab" data-toggle="tab" href="#python" role="tab" aria-controls="python" aria-selected="false">Python</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="ruby-tab" data-toggle="tab" href="#ruby" role="tab" aria-controls="ruby" aria-selected="false">Ruby</a>
+                                </li>
+                            </ul>
+                            <div class="tab-content">
+                                <div class="tab-pane active" id="html" role="tabpanel" aria-labelledby="html-tab">
+                                    <pre><code class="html">POST /v1/messages/send HTTP/1.1
+Host: api.textport.com
+Content-Type: application/json
+Authorization: Basic MS1vcVk0OUNFRzhzOldqTk1ya2t6ZnFLbnQwV2c1bVdk
+[
+    {
+        "From": "12135551212",
+        "To": "13035555323",
+        "MessageText": "Sample text message from TextPort SMS API"
+    }
+]</code></pre>
+                                </div>
+                                <div class="tab-pane" id="csharp" role="tabpanel" aria-labelledby="csharp-tab">
+                                    <pre><code class="csharp">var client = new RestClient("https://api.textport.com/v1/messages/send");
+var request = new RestRequest(Method.POST);
+
+request.AddHeader("Authorization", "Basic MS1vcVk0OUNFRzhzOldqTk1ya2t6ZnFLbnQwV2c1bVdk");
+request.AddHeader("Content-Type", "application/json");
+
+request.AddParameter("undefined", "[\n    {\n        \"From\": \"12135551212\",\n        \"To\": \"13035555323\",\n        \"MessageText\": \"Sample text message from TextPort SMS API\"\n    }\n]", ParameterType.RequestBody);
+
+IRestResponse response = client.Execute(request);</code></pre>
+                                </div>
+                                <div class="tab-pane" id="php" role="tabpanel" aria-labelledby="php-tab">
+                                    <pre><code class="js"><?php
+$request = new HttpRequest();
+$request->setUrl('https://api.textport.com/v1/messages/send');
+$request->setMethod(HTTP_METH_POST);
+
+$request->setHeaders(array(
+    'Authorization' => 'Basic MS1vcVk0OUNFRzhzOldqTk1ya2t6ZnFLbnQwV2c1bVdk',
+    'Content-Type' => 'application/json'
+));
+
+$request->setBody('[
+    {
+        "From": "12135551212",
+        "To": "13035555323",
+        "MessageText": "Sample text message from TextPort SMS API"
+    }
+]');
+
+try {
+    $response = $request->send();
+
+    echo $response->getBody();
+} catch (HttpException $ex) {
+    echo $ex;
+}</code></pre>
+                                </div>
+                                <div class="tab-pane" id="curl" role="tabpanel" aria-labelledby="curl-tab">
+                                    <pre><code class="curl">curl -X POST \
+https://api.textport.com/v1/messages/send \
+-H 'Authorization: Basic MS1vcVk0OUNFRzhzOldqTk1ya2t6ZnFLbnQwV2c1bVdk' \
+-H 'Content-Type: application/json' \
+-d '[
+        {
+            "From": "12135551212",
+            "To": "13035555323",
+            "MessageText": "Sample text message from TextPort SMS API"
+        }
+]'</code></pre>
+                                </div>
+                                <div class="tab-pane" id="jquery" role="tabpanel" aria-labelledby="jquery-tab">
+                                    <pre><code class="jquery">var settings = {
+    "async": true,
+    "crossDomain": true,
+    "url": "https://api.textport.com/v1/messages/send",
+    "method": "POST",
+    "headers": {
+    "Content-Type": "application/json",
+    "Authorization": "Basic MS1vcVk0OUNFRzhzOldqTk1ya2t6ZnFLbnQwV2c1bVdk"
+    },
+    "processData": false,
+    "data": "[\n    {\n        \"From\": \"12135551212\",\n        \"To\": \"13035555323\",\n        \"MessageText\": \"Sample text message from TextPort SMS API\"\n    }\n]"
+}
+
+$.ajax(settings).done(function (response) {
+    console.log(response);
+});</code></pre>
+                                </div>
+                                <div class="tab-pane" id="python" role="tabpanel" aria-labelledby="python-tab">
+                                    <pre><code class="python">import http.client
+
+conn = http.client.HTTPConnection("api,textport,com")
+
+payload = "[\n    {\n        \"From\": \"12135551212\",\n        \"To\": \"13035555323\",\n        \"MessageText\": \"Sample text message from TextPort SMS API\"\n    }\n]"
+
+headers = {
+'Content-Type': "application/json",
+'Authorization': "Basic MS1vcVk0OUNFRzhzOldqTk1ya2t6ZnFLbnQwV2c1bVdk"
+}
+
+conn.request("POST", "v1,messages,send", payload, headers)
+
+res = conn.getresponse()
+data = res.read()
+
+print(data.decode("utf-8"))</code></pre>
+                                </div>
+                                <div class="tab-pane" id="ruby" role="tabpanel" aria-labelledby="ruby-tab">
+                                    <pre><code class="ruby">require 'uri'
+require 'net/http'
+
+url = URI("https://api.textport.com/v1/messages/send")
+
+http = Net::HTTP.new(url.host, url.port)
+
+request = Net::HTTP::Post.new(url)
+request["Content-Type"] = 'application/json'
+request["Authorization"] = 'Basic MS1vcVk0OUNFRzhzOldqTk1ya2t6ZnFLbnQwV2c1bVdk'
+request.body = "[\n    {\n        \"From\": \"12135551212\",\n        \"To\": \"13035555323\",\n        \"MessageText\": \"Sample text message from TextPort SMS API\"\n    }\n]"
+
+response = http.request(request)
+puts response.read_body</code></pre>
+                                </div>
+                            </div>
+                            <h5>Confirmation/Response</h5>
+                            <ul class="nav nav-tabs" id="response-tab" role="tablist">
+                                <li class="nav-item">
+                                    <a class="nav-link active" id="rjson-tab" data-toggle="tab" href="#rjson" role="tab" aria-controls="rjson" aria-selected="true">JSON</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="rxml-tab" data-toggle="tab" href="#rxml" role="tab" aria-controls="rxml" aria-selected="false">XML</a>
+                                </li>
+                            </ul>
+                            <div class="tab-content">
+                                <div class="tab-pane active" id="rjson" role="tabpanel" aria-labelledby="rjson-tab">
+                                    <pre><code class="json">[
+    {
+        "From": "12135551212",
+        "To": "13035555323",
+        "MessageText": "Sample text message from TextPort SMS API",
+        "Status": "OK",
+        "ErrorMessage": "",
+        "MessageId": 1190269079,
+        "Balance": 9.53
+    }
+]</code></pre>
+                                </div>
+                                <div class="tab-pane" id="rxml" role="tabpanel" aria-labelledby="xml-tab">
+                                    <pre><code class="xml">&lt;ArrayOfMessagesResult&gt;
+    &lt;MessagesResult&gt;
+        &lt;From&gt;12135551212&lt;/From&gt;
+        &lt;To&gt;13035555323&lt;/To&gt;
+        &lt;MessageText&gt;Sample message from TextPort SMS API&lt;/MessageText&gt;
+        &lt;Status&gt;OK&lt;/Status&gt;
+        &lt;ErrorMessage /&gt;
+        &lt;MessageId&gt;10269080&lt;/MessageId&gt;
+        &lt;Balance&gt;9.5150&lt;/Balance&gt;
+    &lt;/MessagesResult&gt;
+&lt;/ArrayOfMessagesResult&gt;</code></pre>
+                                </div>
+                            </div>
+                            <p>Note: The default format for response content is JSON. Adding an HTTP header <i>Accept: application/xml</i> will set the response format to XML.</p>
+                            <p>
+                                If you're using C#, refer to this blog post detailing <a href="/blog/how-to-send-text-messages-using-csharp" target="_blank">sending SMS messages using C#</a>.
+                                If using C# with RestSharp, a this post provides an in-depth explanation and full code samples on <a href="/blog/how-to-send-sms-messages-using-restsharp" target="_blank">sending SMS messages using RestSharp</a>.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>hljs.initHighlightingOnLoad()</script>

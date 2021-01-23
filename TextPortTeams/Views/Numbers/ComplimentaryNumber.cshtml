@@ -1,0 +1,105 @@
+﻿@using TextPortCore.Models
+@model RegistrationData
+
+@{
+    ViewBag.Title = "Complimentary / Replacement Number";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script type="text/javascript" src="/Scripts/TextPort/GetNumbers.js"></script>
+<script src="https://www.paypalobjects.com/api/checkout.js"></script>
+
+<div class="row">
+    <div class="col-md-3 ">
+        <div class="list-group ">
+            <a href="/Account/Profile" class="list-group-item list-group-item-action">Profile</a>
+            <a href="/Account/Balance" class="list-group-item list-group-item-action">Balance</a>
+            <a href="/Numbers/" class="list-group-item list-group-item-action active">Numbers</a>
+            <a href="#" class="list-group-item list-group-item-action">Contacts</a>
+            <a href="#" class="list-group-item list-group-item-action">Change Password</a>
+            <a href="#" class="list-group-item list-group-item-action">Delete Account</a>
+        </div>
+    </div>
+    <div class="col-md-9">
+        <div class="card">
+            <div class="card-header">
+                <h4>@((Model.ShowAnnouncementBanner) ? "Complimentary" : "Replacement") Number</h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    @if (Model.ShowAnnouncementBanner)
+                    {
+                        <div class="form-group">
+                            <div class="alert alert-success" role="alert">
+                                <h4>Notice to Our Existing Account Holders</h4>
+                                <p>
+                                    All TextPort accounts now require a virtual number. The methods that allowed us to provide free texting are being phased out by mobile providers.
+                                </p>
+                                <p>
+                                    Because of this, TextPort is offering existing account holders a <b>free number for 30 days</b>, plus credit to send approximately <b>50 free messages.</b>
+                                </p>
+                                <p>
+                                    Use the section below to select the area code and number of your choice. You will <b>not be charged for the number</b>.
+                                    Your number will automatically expire in 30 days, or you have the option to renew it.
+                                </p>
+                            </div>
+                        </div>
+                    }
+                    <div class="offset-1 col-11">
+                        @using (Html.BeginForm("PostPurchase", "Account", FormMethod.Post, new { id = "form-signup" }))
+                        {
+                            @Html.HiddenFor(m => m.NumberCost)
+                            @Html.HiddenFor(m => m.AccountId)
+                            @Html.HiddenFor(m => m.PurchaseType)
+                            @Html.HiddenFor(m => m.PayPalCustom)
+                            @Html.HiddenFor(m => m.VirtualNumberId)
+                            @Html.HiddenFor(m => m.PurchaseTitle)
+                            @Html.HiddenFor(m => m.ProductDescription)
+                            @Html.HiddenFor(m => m.CompletionTitle)
+                            @Html.HiddenFor(m => m.CompletionMessage)
+                            //@Html.HiddenFor(m => m.BaseNumberCost)
+                            //@Html.HiddenFor(m => m.BaseSMSCost)
+                            @Html.HiddenFor(m => m.LeasePeriod)
+                            <input type="hidden" id="hidTotalCost" value="0" />
+
+                            <div class="form-group">
+                                @Html.LabelFor(m => m.NumberCountryId, new { @class = "form-label" })
+                                @Html.DropDownListFor(m => m.NumberCountryId, new SelectList(Model.CountriesList, "Value", "Text"), new { @class = "col-5 form-control" })
+                                @Html.ValidationMessageFor(m => m.NumberCountryId, null, new { @class = "text-danger" })
+                                <p class="subscript">* Number includes credit for 50 text messages.</p>
+                            </div>
+                            <div class="form-group" id="DivAreaCode">
+                                @Html.LabelFor(m => m.AreaCode, new { @class = "form-label" })
+                                <div class="row">
+                                    <div class="col-2">
+                                        @Html.TextBoxFor(m => m.AreaCode, new { @class = "form-control", placeholder = "000" })
+                                    </div>
+                                    <div id="spintiller1" class="spinner-border collapse" role="status">
+                                        <span class="sr-only">Loading...</span>
+                                    </div>
+                                    <div class="col">
+                                        <label id="AreaCodeDescription" class="col-form-label"></label>
+                                    </div>
+                                </div>
+                                @Html.ValidationMessageFor(m => m.AreaCode, null, new { @class = "text-danger" })
+                            </div>
+                            <div class="form-group">
+                                @Html.LabelFor(m => m.VirtualNumber, new { @class = "form-label" })
+                                @Html.DropDownListFor(m => m.VirtualNumber, new SelectList(Model.NumbersList, "Value", "Text"), new { @class = "col-5 form-control" })
+                                @Html.ValidationMessageFor(m => m.VirtualNumber, null, new { @class = "text-danger" })
+                            </div>
+                            <div class="form-group">
+                                <button id="btnContinue" type="button" class="btn btn-primary">Select Number</button>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="purchaseModalCont" class="modal hide fade in" data-url='@Url.Action("Purchase", "Numbers")'>
+</div>
+<div id="postPurchaseModalCont" class="modal hide fade in">
+</div>

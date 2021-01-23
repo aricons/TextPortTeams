@@ -1,0 +1,170 @@
+﻿@using TextPortCore.Models
+
+@model EmailToSMSContainer
+@{
+    ViewBag.Title = "Manage Email to SMS Addresses";
+}
+
+<script type="text/javascript" src="~/scripts/bootbox/bootbox.min.js"></script>
+
+<script type="text/javascript">
+    $(function () {
+        $('#menu_emailtosms').addClass("active");
+
+        $('#modal-cont-emailtosms').on('shown.bs.modal', function (e) {
+
+            $('#form-add-address').submit(function (event) {
+                event.preventDefault();
+            });
+            $.validator.unobtrusive.parse("#form-add-address");
+
+            $('#btnAddAddress').on("click", function (e) {
+                if ($("#form-add-address").valid()) {
+                    var addressData = {
+                        AccountId: $("#AccountId").val(),
+                        EmailAddress: $("#NewAddress_EmailAddress").val(),
+                        VirtualNumberId: $("#NewAddress_VirtualNumberId").val()
+                    };
+                    addAddress(addressData);
+                    $('#email-to-sms-modal').modal('hide');
+                }
+            });
+        });
+    });
+
+    function addAddress(addressData) {
+        var url = '/emailtosms/addaddress/';
+        $.post({
+            url: url,
+            data: JSON.stringify(addressData),
+            contentType: "application/json",
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert(textStatus + ": Error adding email address. " + errorThrown);
+            },
+            success: function (newInputHTML) {
+                $("#address-list").html(newInputHTML);
+            }
+        })
+    }
+
+    function deleteAddress(accId, addId, emailAddress) {
+
+        var requestData = {
+            AccountId: accId,
+            AddressId: addId,
+            EmailAddress: emailAddress
+        };
+
+        bootbox.confirm({
+            title: "Delete address?",
+            message: "Delete the address " + emailAddress + "?",
+            buttons: {
+                cancel: {
+                    label: '<i class="fa fa-times"></i> Cancel'
+                },
+                confirm: {
+                    label: '<i class="fa fa-check"></i> Confirm'
+                }
+            },
+            callback: function (result) {
+                if (result) {
+                    $.post({
+                        url: '/emailtosms/deleteaddress/',
+                        data: JSON.stringify(requestData),
+                        contentType: "application/json",
+                        error: function (jqXHR, textStatus, errorThrown) {
+                            alert(textStatus + ": Error deleting address. " + errorThrown);
+                        },
+                        success: function (newInputHTML) {
+                            $("#address-list").html(newInputHTML);
+                        }
+                    })
+                }
+            }
+        });
+    }
+
+    function updateAddress(id) {
+
+        var requestData = {
+            AddressId: id,
+            AccountId: $("#AccountId").val(),
+            VirtualNumberId: $("#vnid_" + id + " option:selected").val(),
+            EmailAddress: $("#addr_" + id).val()
+        };
+
+        $.post({
+            url: '/emailtosms/updateaddress/',
+            data: JSON.stringify(requestData),
+            contentType: "application/json",
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert(textStatus + ": Error updating address. " + errorThrown);
+            },
+            success: function (newInputHTML) {
+                $("#address-list").html(newInputHTML);
+            }
+        })
+    }
+</script>
+
+<div class="row">
+    @Html.Partial("_SideMenuBar")
+    @Html.HiddenFor(x => x.AccountId)
+    <div class="col-12 col-md-10">
+        <div class="card">
+            <div class="card-header">
+                <div class="row">
+                    <div class="col-md-7">
+                        <h4>Email to SMS Addresses</h4>
+                    </div>
+                    <div class="col-md-5 text-right">
+                        <input type="button" class="btn btn-success modal-button" data-toggle="modal" data-target="#modal-cont-emailtosms" data-url="/emailtosms/addaddress" value="Register an Address" />
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <table class="table">
+                        <thead>
+                            <tr class="bg-primary">
+                                <th scope="col" class="text-white list-header">Email Address</th>
+                                <th scope="col" class="text-white list-header">Virtual Number</th>
+                                <th scope="col" class="text-white list-header text-center">Update</th>
+                                <th scope="col" class="text-white list-header text-center">Remove</th>
+                            </tr>
+                        </thead>
+                        <tbody id="address-list">
+                            @Html.Partial("_AddressList", Model)
+                        </tbody>
+                    </table>
+                </div>
+                <div class="row">
+                    <h5 class="ml-3 mt-3">Usage</h5>
+                    <ol>
+                        <li>Use the green Register an Address button above to add any email addresses that you want to authorize to send texts via email.</li>
+                        <li>From any of the email addresses registered in step 1, send an email to <i>{mobile_number}@@textport.com</i>, where <i>{mobile_number}</i> is the phone number of the message recipient.</li>
+                        <li>In the body of your email, type the text message that you wish to send.</li>
+                        <li>On an empty line immediately under your message, type at least 4 equals or plus signs. Example: ==== or ++++. This marks the end of your message and prevents any signature blocks or footers from being included.</li>
+                    </ol>
+                </div>
+                <div class="row">
+                    <h5 class="ml-3 mt-2">Notes</h5>
+                    <ul>
+                        <li>If you have multiple virtual numbers, each email address registered can be associated with any one of your virtual numbers.</li>
+                        <li>Additional recipients can be entered as either To or Cc addresses.</li>
+                        <li>Subject lines are not required.</li>
+                        <li>TextPort will attempt to automatically remove any signatures and footers from your email, but we strongly recommend adding the ==== or ++++ after your message, as this will ensure that anything after that line will be removed.</li>
+                        <li>Microsoft Outlook may interpret the 4 equals signs (====) as an auto-border. If this occurs, you can disable the feature, or simply use the 4 plus (++++) signs instead.</li>
+                    </ul>
+                </div>
+                <div class="row">
+                    <h5 class="ml-3 mt-2">Sample Message</h5>
+                </div>
+                <div>
+                    <img class="ml-3 mt-4 img-fluid rounded mx-auto d-block border" src="~/Content/images/email-to-sms-gateway-sample.png" />
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="modal-cont-emailtosms"></div>

@@ -1,0 +1,24 @@
+﻿@model TextPortCore.Models.BulkMessages
+<div class="row">
+    <div class="col-md-12">
+        <table class="table table-striped table-sm">
+            <thead>
+                <tr class="bg-primary text-white">
+                    <th class="text-center" scope="col">#</th>
+                    <th class="text-center" scope="col">Status</th>
+                    <th scope="col">Result</th>
+                </tr>
+            </thead>
+            <tbody class="results-table">
+                @for (int i = 0; i < Model.Messages.Count; i++)
+                {
+                    <tr>
+                        <td class="text-center"><label class="form-label font-weight-bold">@((i + 1).ToString())</label></td>
+                        <td class="text-center"><label class="form-label-sm">@Model.Messages[i].ProcessingStatus</label></td>
+                        <td><label class="form-label-sm">@Model.Messages[i].ProcessingResult</label></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

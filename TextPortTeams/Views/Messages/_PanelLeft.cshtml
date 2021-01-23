@@ -1,0 +1,46 @@
+﻿@model TextPortCore.Models.MessagingContainer
+<div id="pnl-left" class="col-lg-5 p-0 d-none d-inline-block">
+    <div id="recents-header">
+        <div class="container border-right p-0">
+            @if (Model.VirtualNumberCount <= 0)
+            {
+                <div class="container mt-4">
+                    <div class="alert alert-primary text-center mt-4">
+                        <h3 class="alert-primary">No Active Numbers</h3>
+                        <p>You don't have any numbers assigned to your account. Click the link below to add a number.</p>
+                        <p><h5><a href="/numbers/getnumber/">Add a Number</a></h5></p>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="row pb-3 p-2">
+                    <div class="col-8 col-lg-7">
+                        <label class="form-label text-primary">My Number</label>
+                        <select id="from_number" class="selectpicker form-control">
+                            @foreach (TextPortCore.Models.DedicatedVirtualNumber number in Model.Numbers)
+                            {
+                                <option value="@number.VirtualNumberId" data-number="@number.VirtualNumber" data-content="<img src='@number.ImageUrl' class='pr-2' />@number.NumberDisplayFormat"></option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-4 col-lg-5">
+                        <span class="form-text float-right pt-4 false-link" onclick="delMsgsForVN()"><i class="fa fa-trash fa-lg text-primary vn-del" title="Delete all messages for this virtual number"></i></span>
+                    </div>
+                </div>
+            }
+            <hr class="d-block p-1 m-0" />
+            <div class="container border-bottom pb-1">
+                <div class="row">
+                    <div class="col-8"><h5 class="text-primary">Messages</h5></div>
+                    <div class="col-4 pr-2">
+                        <i onclick="enterNewRecipient()" class="float-right pt-2 fa fa-edit fa-lg text-primary vn-del false-link" title="New recipient"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="recents" class="inbox_chat pt-md-0 pl-0 border-right">
+        @Html.Partial("_RecentsList", Model.Recents)
+    </div>
+</div>

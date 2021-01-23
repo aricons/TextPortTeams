@@ -1,0 +1,46 @@
+﻿@using TextPortCore.Models
+@using TextPortCore.Helpers
+@model RegistrationData
+
+@{
+    ViewBag.Title = "Transaction Complete";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script type="text/javascript">
+    $(function () {
+        $('#menu_numbers').addClass("active");
+    });
+</script>
+
+<div class="row">
+    @Html.Partial("_SideMenuBar")
+    <div class="col-md-9">
+        <div class="card">
+            <div class="card-header">
+                <h4>@Model.CompletionTitle</h4>
+            </div>
+            <div class="card-body">
+                <div class="row mt-4">
+                    <div class="col-lg-2"></div>
+                    <div class="col-12 col-lg-8">
+                        @if (Model.Success)
+                        {
+                            <p class="alert alert-success text-center">
+                                @Model.CompletionMessage
+                            </p>
+                        }
+                        else
+                        {
+                            <h2>@Model.CompletionTitle</h2>
+                            <p class="alert alert-danger text-center">
+                                @Model.CompletionMessage
+                            </p>
+                        }
+                    </div>
+                    <div class="col-lg-2"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

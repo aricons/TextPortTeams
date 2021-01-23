@@ -1,0 +1,35 @@
+﻿@model TextPortCore.Models.MessagingContainer
+<div class="col-sm-9 pl-0 message_wrap">
+    <div class="mesgs pl-md-2 ml-md-2">
+        <div id="msg_list" class="msg_history_mobile">
+            @Html.Partial("_MessageList", Model)
+        </div>
+    </div>
+    <div id="msg_area" class="container no-gutters new_msg_pad">
+        <div class="row no-gutters">
+            <div class="col-sm-10 border-right"><textarea id="message_text" class="message_texarea" data-emojiable="true" data-emoji-ta-id="emojipick_1"></textarea></div>
+            <div class="col-sm-2 h-100 my-auto text-center send-btn-container">
+                <div>
+                    <button id="btn_send_message" class="btn btn-primary">Send</button>
+                </div>
+            </div>
+        </div>
+        <div class="row no-gutters border-top">
+            <div class="col-sm-4"></div>
+            <div class="dz-wrap col-sm1 h-100 my-auto text-center">
+                <form action="/messages/UploadFile/" class="dropzone" id="mmsDropzone">
+                    <span class="dz-message"><i class="fa fa-image mms-icon msg_function_icon"></i></span>
+                </form>
+            </div>
+            <div class="col-sm-2"></div>
+            <div class="col-sm-1 h-100 my-auto text-center">
+                <i id="emoji-sel-button" class="fa fa-image fa-smile-o msg_function_icon"></i>
+            </div>
+            <div class="col-sm-4"></div>
+        </div>
+    </div>
+    <div id="msg_area_disabled" class="msg_area_disabled text-center alert alert-danger" style="display: none">
+        <p>Messages cannot be sent because your balance is exhausted</p>
+        <p><a href="/account/balance">Top up your account</a></p>
+    </div>
+</div>

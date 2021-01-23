@@ -1,0 +1,36 @@
+﻿@using TextPortCore.Models
+@using TextPortCore.Helpers
+@model Contact
+<div class="modal fade" role="dialog" id="apply-contact-modal-sub">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Name Contact for @Utilities.NumberToDisplayFormat(Model.MobileNumber, 1)</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            @using (Html.BeginForm("Apply", "Contacts", FormMethod.Post, new { id = "apply-contact-form" }))
+            {
+                @Html.HiddenFor(m => m.AccountId)
+                @Html.HiddenFor(m => m.MobileNumber)
+                <div class="modal-body">
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.Name, new { @class = "form-label" })
+                        @Html.TextBoxFor(m => m.Name, new { @class = "form-control", maxlength = "30" })
+                        @Html.ValidationMessageFor(m => m.Name, null, new { @class = "text-danger" })
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="w-100">
+                        <div class="float-left text-small"><a href="/contacts/">Manage Contacts</a></div>
+                        <div class="float-right">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button type="submit" id="btnApplyContact" class="btn btn-primary">Apply Name</button>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>

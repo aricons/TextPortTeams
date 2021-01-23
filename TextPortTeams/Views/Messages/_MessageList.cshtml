@@ -1,0 +1,38 @@
+﻿@using TextPortCore.Helpers
+@using TextPortCore.Models
+@foreach (Message msg in Model.Messages)
+{
+    <div id="@msg.MessageId" class="msg_item">
+        @if (msg.Direction == (int)TextPortCore.Helpers.MessageDirection.Outbound)
+        {
+            <div class="sent_msg">
+                @if (msg.MMSFiles != null)
+                {
+                    foreach (MMSFile mms in msg.MMSFiles)
+                    {
+                        <div><img src="@MMSUtils.GetMMSFileURL(msg.AccountId, mms.StorageId, mms.FileName)" alt="@mms.FileName" /></div>
+                    }
+                }
+                <p>@msg.MessageText</p>
+                @if (msg.QueueStatus == (byte)QueueStatuses.DeliveryFailed)
+                {
+                    <div class="fail-reason"><i class="fa fa-exclamation-triangle"></i>@msg.FailureReason</div>
+                }
+                <span id="td_@msg.MessageId" class="time_date drt">@string.Format("{0:MMMM dd, yy | hh:mm tt}", msg.TimeStamp)</span>
+            </div>
+        }
+        else
+        {
+            <div class="received_msg">
+                @if (msg.MMSFiles != null)
+                {
+                    foreach (MMSFile mms in msg.MMSFiles)
+                    {
+                        <div><img src="@MMSUtils.GetMMSFileURL(msg.AccountId, mms.StorageId, mms.FileName)" alt="@mms.FileName" /></div>
+                    }
+                }
+                <p>@msg.MessageText</p><span class="time_date">@string.Format("{0:MMMM dd, yy | hh:mm tt}", msg.TimeStamp)</span>
+            </div>
+        }
+    </div>
+}

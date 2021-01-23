@@ -1,0 +1,670 @@
+﻿@model TextPortCore.Models.MessagingContainer
+@using TextPortCore.Helpers;
+@{
+    ViewData["Title"] = "My Messages";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<link rel="stylesheet" href="~/content/css/messaging.css">
+<link rel="stylesheet" href="~/content/css/emoji.css">
+<link rel="stylesheet" href="~/Scripts/dropzone/basic.css">
+
+<script src="~/scripts/emoji/config.js"></script>
+<script src="~/scripts/emoji/util.js"></script>
+<script src="~/scripts/emoji/jquery.emojiarea.js"></script>
+<script src="~/scripts/emoji/emoji-picker.js"></script>
+<script src="~/scripts/dropzone/dropzone.js"></script>
+<script src="~/scripts/textport/segmentcounter.js"></script>
+
+<script type="text/javascript">
+
+    var scrWidth = 0;
+    Dropzone.autoDiscover = false;
+    var mmsFiles = [];
+
+    $.ajaxSetup({ cache: false });
+    $(function () {
+        scrWidth = window.screen.width;
+
+        $('#from_number').on("change", function (e) {
+            clearNewRecipient();
+            getRecentsForVirtualNumber($("#from_number option:selected").val());
+            $("#active_num_title").html("");
+            $('#emojipick_1').attr('placeholder', '');
+        });
+
+        $('#btn_send_message').on("click", function (e) {
+            sendMessage();
+        });
+
+        $('#new_recipient_number').on("focus", function (e) {
+            $("#msg_list").html('');
+            $("#active_num_title").html('');
+            $('.chl').removeClass("active_number");
+            checkSendButtonEligibility();
+        });
+
+        $('#new_recipient_number').on("keyup", function (e) {
+            var newNumber = $("#new_recipient_number").cleanVal();
+            if (newNumber.length >= 10) {
+                newNumber = $("#country-code-label").text().replace('+', '') + newNumber;
+                $("#hidActiveDestinationNumber").val(newNumber);
+                $("#active_num_title").html(numberToDisplay(newNumber, ""));
+            }
+            else {
+                $("#hidActiveDestinationNumber").val('');
+            }
+            checkSendButtonEligibility();
+        });
+
+        $('#contact-modal').on('shown.bs.modal', function (e) {
+            var cid = $(e.relatedTarget).attr('data-cid');
+            var number = $(e.relatedTarget).attr('data-num');
+            var url = "";
+            alert(cid);
+            if (cid === "0") {
+                url = "/contacts/add/";
+            }
+            else {
+                url = "/contacts/edit/" + cid;
+            }
+            $.get({
+                url: url,
+                dataType: "html",
+                cache: false,
+                error: function (jqXHR, textStatus, errorThrown) {
+                    alert(textStatus + ": Couldn't load edit form. " + errorThrown);
+                },
+                success: function (editHtml) {
+                    alert(editHtml);
+                    $("#contact-content").html(editHtml);
+                    $.validator.unobtrusive.parse("#form-add");
+
+                    $('#form-add').submit(function (event) {
+                        event.preventDefault();
+                        var $form = $(this);
+                        if ($('#form-add').valid()) {
+                            $.post($form.attr("action"), $form.serialize()).done(function (res) {
+                                $('#contact-modal').modal('hide');
+                            }).fail(function () {
+                                alert("Error applying contact.");
+                            });
+                        };
+                    });
+                }
+            });
+        });
+
+        setChangeDetect();
+        checkBalance();
+        sizePanels();
+
+        // Setup emoji picker
+        window.emojiPicker = new EmojiPicker({
+            iconSize: '21',
+            assetsPath: '/content/images/emoji',
+            emojiable_selector: '[data-emojiable=true]',
+            popupButtonClasses: 'fa fa-smile-o'
+        });
+        window.emojiPicker.discover();
+
+        $('#emojipick_1').on("keyup", function (e) {
+            checkSendButtonEligibility();
+        });
+
+        // Setup dropzone
+        myDropzone = $("#mmsDropzone").dropzone({
+            url: "/messages/uploadfile",
+            method: 'POST',
+            addRemoveLinks: true,
+            thumbnailHeight: 30,
+            thumbnailWidth: 30,
+            maxFiles: 10,
+            maxFilesize: 4000,
+            success: function (file) {
+                file.previewElement.parentNode.removeChild(file.previewElement);
+                var fileId = $(file.xhr.response).attr("id");
+                var fileName = file.name.replace(/\s/g, "");
+                mmsFiles.push({ "UniqueName": fileId + "_" + fileName });
+
+                var lastMessageItem = $('.msg_item:last').attr('id');
+                if (typeof lastMessageItem != 'undefined') {
+                    $("#" + lastMessageItem).after(file.xhr.response);
+                }
+                else {
+                    $("#msg_list").html('');
+                    var msgList = document.getElementById("msg_list");
+                    msgList.insertAdjacentHTML("beforeend", file.xhr.response);
+                }
+
+                var ml = $("#msg_list");
+
+                // Animated
+                ml.animate({ scrollTop: ml.prop("scrollHeight") - ml.height() }, 50);
+
+                checkSendButtonEligibility();
+            },
+            error: function (file) {
+                alert("Upload error" + file.error);
+            },
+        });
+
+        // Scroll to the most-recent message.
+        var ml = $("#msg_list");
+        ml.animate({ scrollTop: ml.prop("scrollHeight") - ml.height() }, 50);
+
+        // Check send button eligibility
+        var emjpick = $('#emojipick_1');
+        checkSendButtonEligibility();
+
+        $('#number-dropdown-toggle').click(function () {
+            if ($('#vn-btn-icon').hasClass('fa-chevron-down')) {
+                $('#vn-btn-icon').removeClass('fa-chevron-down');
+                $('#vn-btn-icon').addClass('fa-chevron-up');
+            }
+            else {
+                $('#vn-btn-icon').removeClass('fa-chevron-up');
+                $('#vn-btn-icon').addClass('fa-chevron-down');
+            }
+        });
+
+        $('#recipient-dropdown-toggle').click(function () {
+            if ($('#recipient-btn-icon').hasClass('fa-chevron-down')) {
+                $('#recipient-btn-icon').removeClass('fa-chevron-down');
+                $('#recipient-btn-icon').addClass('fa-chevron-up');
+            }
+            else {
+                $('#recipient-btn-icon').removeClass('fa-chevron-up');
+                $('#recipient-btn-icon').addClass('fa-chevron-down');
+            }
+        });
+
+        $('#recents-toggle').click(function () {
+            if ($('#recents-btn-icon').hasClass('fa-chevron-down')) {
+                $('#recents-btn-icon').removeClass('fa-chevron-down');
+                $('#recents-btn-icon').addClass('fa-chevron-up');
+            }
+            else {
+                $('#recents-btn-icon').removeClass('fa-chevron-up');
+                $('#recents-btn-icon').addClass('fa-chevron-down');
+            }
+        });
+
+        $("#active_num_title").html(numberToDisplay($("#hidActiveDestinationNumber").val(), ""));
+
+        $('#modal-del').on('shown.bs.modal', function (e) {
+            $('#form-delete-for-number').on("submit", function (e) {
+                e.preventDefault();
+                $.ajax({
+                    url: '/messages/deletemessagesfornumber',
+                    type: 'post',
+                    dataType: 'json',
+                    data: $('#form-delete-for-number').serialize(),
+                    success: function (data) {
+                        $('#modal-del > .modal').modal('hide');
+                        getRecentsForVirtualNumber($("#from_number option:selected").val());
+                        return false;
+                    }
+                });
+            });
+        });
+
+        $('#apply-contact-modal').on('hidden.bs.modal', '.modal', function (event) {
+            $(this).removeData('bs.modal');
+        });
+
+        // Edit modals
+        initApplyNameModal();
+        initApplyNameModalShow();
+
+        $("[data-toggle=popover]").popover({
+            html: true,
+            content: function () {
+                return $('#popover-content').html();
+            }
+        });
+
+        $('html').on('click', function (e) {
+            if (typeof $(e.target).data('original-title') == 'undefined') {
+                $('[data-original-title]').popover('hide');
+            }
+        });
+
+        $('.back-chat-div').on('click', function () {
+            togglePanels('recents');
+            return false;
+        });
+
+        $('#message_text').countSms('#sms-counter');
+        $('#new_recipient_number').val('');
+    });
+
+    function sizePanels() {
+        var height = 0;
+        var bottomMargin = 70;
+        var body = window.document.body;
+        if (window.innerHeight) {
+            height = window.innerHeight;
+        } else if (body.parentElement.clientHeight) {
+            height = body.parentElement.clientHeight;
+        } else if (body && body.clientHeight) {
+            height = body.clientHeight;
+        }
+
+        if ($(window).width() < 992) {
+            bottomMargin = 10;
+        }
+
+        var top = document.getElementById('msg-cont').offsetTop;
+        var plh_height = document.getElementById('recents-header').offsetHeight;
+        var hMsgsHeader = document.getElementById('msgs-header').offsetHeight;
+        var hMsgFooter = document.getElementById('msg-footer').offsetHeight;
+
+        $("#recents").height(height - (top + plh_height + bottomMargin));
+        $("#msg_list").height(height - (top + hMsgsHeader + hMsgFooter + bottomMargin + 75)) // Extra 75px for msg list.
+    }
+
+    function togglePanels(displayType) {
+        clearNewRecipient();
+        if ($(window).width() < 992) {
+            if (displayType == "messages") {
+                $("#pnl-right").toggleClass("d-none").addClass("animated faster slideInRight");
+                $("#pnl-left").toggleClass("d-inline-block");
+            }
+            else {
+                $("#pnl-right").toggleClass("d-none");
+                $("#pnl-left").toggleClass("d-inline-block").addClass("animated faster slideInLeft");
+            }
+        }
+    }
+
+    function enterNewRecipient() {
+        //var masks = ['000-000-0000', '0000-000000'];
+        if ($("#new-number-panel").hasClass("d-none")) {
+            togglePanels();
+            $("#msg_list").html('');
+            $("#active_num_title").addClass("d-none");
+            $("#new-number-panel").removeClass("d-none");
+            var countryCode = getCountryCodeFromNumber($("#from_number option:selected").attr("data-number"));
+            $("#country-code-label").text("+" + countryCode);
+            $('#emojipick_1').attr('placeholder', '');
+
+            //$("#new_recipient_number").unmask();
+            //$("#new_recipient_number").val('');
+            //if (countryCode === "1") {
+            //    $("#new_recipient_number").attr("placeholder", "000-000-0000");
+            //}
+            //else {
+            //    $("#new_recipient_number").attr("placeholder", "0000-000000");
+            //}
+
+            //var masks = ['000-000-0000', '0000-0000000'];
+            //var mask = (countryCode === "1") ? masks[0] : masks[1];
+            $("#new_recipient_number").mask('000-000-0000');
+
+            sizePanels();
+        }
+        else {
+            clearNewRecipient();
+        }
+        clearMessage();
+    }
+
+    function clearNewRecipient() {
+        $("#new-number-panel").addClass("d-none");
+        $("#active_num_title").removeClass("d-none");
+        $('#emojipick_1').attr('placeholder', '');
+        sizePanels();
+        clearMessage();
+    }
+
+    function clearMessage() {
+        $('#emojipick_1').text('');
+        resetCounter();
+    }
+
+    function resetCounter() {
+        $('#message_text').val('');
+        $('#message_text').change();
+    }
+
+    function setChangeDetect() {
+        $('.chl').on("click", function (e) {
+            var number = this.id.split('_')[1];
+            $('#' + this.id).removeClass("active_number new_message");
+            getMessagesForNumber(number);
+            $("#hidActiveDestinationNumber").val(number);
+            $("#active_num_title").html(numberToDisplay(number, ""));
+            checkSendButtonEligibility();
+            $('.navbar-collapse').collapse('hide');
+            $('#recents-btn-icon').removeClass('fa-chevron-up');
+            $('#recents-btn-icon').addClass('fa-chevron-down');
+            togglePanels('messages');
+            sizePanels();
+            $('#emojipick_1').attr('placeholder', 'Message to ' + numberToDisplay(number, ""));
+        });
+    }
+
+    function checkSendButtonEligibility() {
+        $('#btn_send_message').prop('disabled', true);
+        if ($("#hidActiveDestinationNumber").val().length >= 8) {
+            $('#emojipick_1').attr('placeholder', 'Message to ' + numberToDisplay($("#hidActiveDestinationNumber").val(), ""));
+            if ($('#emojipick_1').html().length >= 1 && $('#emojipick_1').html() != "<br>") {
+                $('#btn_send_message').prop('disabled', false);
+            };
+
+            var dz = Dropzone.forElement("#mmsDropzone");
+            if (dz.files.length >= 1) {
+                for (i = 0, len = dz.files.length; i < len; i++) {
+                    if (dz.files[i].accepted == true) {
+                        $('#btn_send_message').prop('disabled', false);
+                    }
+                }
+            }
+            calcSegmentCount();
+        }
+        else {
+            $('#emojipick_1').attr('placeholder', 'Message');
+        }
+    }
+
+    function calcSegmentCount() {
+        var charCount = $('#emojipick_1').html().length;
+            $("#seg-count").html(charCount);
+    }
+
+    function getRecentsForVirtualNumber(virtualNumberId) {
+        $("#hidActiveVirtualNumberId").val(virtualNumberId);
+
+        var url = '@Url.Action("GetRecentToNumbersForDedicatedVirtualNumber", "Messages")';
+        url = url + "?aid=" + @Model.Account.AccountId + "&vnid=" + virtualNumberId;
+
+        $.get({
+            url: url,
+            dataType: "html",
+            cache: false,
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert(textStatus + ": Message data load failed. " + errorThrown);
+            },
+            success: function (newInputHTML) {
+                $("#recents").html('');
+                var recentsList = document.getElementById("recents");
+                recentsList.insertAdjacentHTML("beforeend", newInputHTML);
+
+                var activeNumberElem = $('.active_number:first').attr('id');
+                if (typeof activeNumberElem != 'undefined') {
+                    var newActiveNumber = activeNumberElem.split('_')[1];
+                    $("#hidActiveDestinationNumber").val(newActiveNumber);
+                    $("#active_num_title").html(numberToDisplay(newActiveNumber, ""));
+                    $('#emojipick_1').attr('placeholder', 'Message to ' + numberToDisplay(newActiveNumber, ""));
+                    getMessagesForNumber(newActiveNumber);
+                    setChangeDetect();
+                }
+                else {
+                    $("#msg_list").html('');
+                }
+                initApplyNameModal();
+            }
+        })
+    }
+
+    function getMessagesForNumber(number) {
+
+        $('#new_recipient_number').val('');
+        activeVirtualNumberId = $("#hidActiveVirtualNumberId").val();
+
+        var url = '@Url.Action("GetMessagesForNumber", "Messages")';
+        url = url + "?aid=" + @Model.Account.AccountId + "&vnid=" + activeVirtualNumberId + "&num=" + number;
+        $.get({
+            url: url,
+            dataType: "html",
+            cache: false,
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert(textStatus + ": Couldn't load form. " + errorThrown);
+            },
+            success: function (newInputHTML) {
+                $("#msg_list").html('');
+                var msgList = document.getElementById("msg_list");
+                msgList.insertAdjacentHTML("beforeend", newInputHTML);
+                var ml = $("#msg_list");
+
+                // Animated
+                ml.animate({ scrollTop: ml.prop("scrollHeight") - ml.height() }, 50);
+
+                $('.chl').removeClass("active_number");
+                $('#recent_' + number).addClass("active_number");
+            }
+        })
+    }
+
+    function removeImage(imageId, imageFileName) {
+        mmsFiles = jQuery.grep(mmsFiles, function (a) {
+            return a.UniqueName !== imageFileName;
+        });
+
+        var fileNameParam = { FileName: imageFileName };
+        $.post({
+            url: '@Url.Action("DeleteMMSFile", "Messages")',
+            data: JSON.stringify(fileNameParam),
+            contentType: "application/json",
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert("Unable to remove file");
+            },
+            success: function (newInputHTML) {
+            }
+        });
+
+        document.getElementById(imageId).outerHTML = "";
+        var ml = $("#msg_list");
+        ml.animate({ scrollTop: ml.prop("scrollHeight") - ml.height() }, 50);
+        checkSendButtonEligibility();
+
+        return false;
+    }
+
+    function sendMessage() {
+
+        if ($("#new_recipient_number").val() != "") {
+            $("#hidActiveDestinationNumber").val($("#country-code-label").text().replace("+", "") + $("#new_recipient_number").cleanVal());
+        }
+        var message = $("#message_text").val();
+        var fromNumberId = $("#hidActiveVirtualNumberId").val();
+        var toNumber = $("#hidActiveDestinationNumber").val();
+
+        if (message != "" || mmsFiles.length > 0) {
+            if (fromNumberId != "") {
+                if (toNumber != "") {
+                    // Get MMS files
+                    var mmsList = [];
+                    for (i = 0, len = mmsFiles.length; i < len; i++) {
+                        mmsList.push({ "FileName": mmsFiles[i].UniqueName });
+                    }
+
+                    var messageData = {
+                        VirtualNumberId: $("#hidActiveVirtualNumberId").val(),
+                        MobileNumber: $("#hidActiveDestinationNumber").val(),
+                        MessageText: $("#message_text").val(),
+                        MMSFiles: mmsList
+                    };
+
+                    $.post({
+                        url: '@Url.Action("SendMessage", "Messages")',
+                        data: JSON.stringify(messageData),
+                        contentType: "application/json",
+                        error: function (jqXHR, textStatus, errorThrown) {
+                            alert(textStatus + ": Failure sending message. " + errorThrown);
+                        },
+                        success: function (newInputHTML) {
+                            var lastMessageItem = $('.msg_item:last').attr('id');
+                            if (typeof lastMessageItem != 'undefined') {
+                                $("#" + lastMessageItem).after(newInputHTML);
+
+                                $(".temp_img").remove();
+
+                                // Clear all dropzone files
+                                var dz = Dropzone.forElement("#mmsDropzone");
+                                //dz.removeAllFiles();
+                                dz.files = [];
+                                mmsFiles = [];
+
+                                // Clear the message area and apply the placeholder
+                                $('#emojipick_1').text('');
+                            }
+                            else {
+                                $("#msg_list").html('');
+                                var msgList = document.getElementById("msg_list");
+                                msgList.insertAdjacentHTML("beforeend", newInputHTML);
+                            }
+
+                            var ml = $("#msg_list");
+
+                            // Animated
+                            ml.animate({ scrollTop: ml.prop("scrollHeight") - ml.height() }, 50);
+
+                            getBalance();
+                            checkBalance();
+
+                            ga('send', 'pageview', '/messages/send');
+                        }
+                    });
+                }
+                else {
+                    alert("No destination number is selected. Make sure a number that the message will be sent to is selected.");
+                }
+            }
+            else {
+                alert("No virtual number is selected. Make sure a number that the message will be sent from is selected.");
+            }
+        }
+        else {
+            alert("No message entered.");
+        }
+    }
+
+    function showEmojiPicker() {
+        var ep = $(".emoji_menu");
+        if (ep.visible == false) {
+            ep.visible = true;
+        } else {
+            ep.visible = false;
+        }
+    }
+
+    function checkBalance() {
+        var bal = parseFloat($("#balance").text());
+        if (bal < 0.015) {
+            $('#msg_area').hide();
+            $('#msg_area_disabled').show();
+        }
+    }
+
+    function delMsgsForNum(number) {
+        var delData = {
+            DeleteType: "VNAndMobile",
+            AccountId: 0,
+            VirtualNumberId: $("#hidActiveVirtualNumberId").val(),
+            MobileNumber: number,
+        };
+
+        $.ajax({
+            type: 'POST',
+            cache: false,
+            url: '/messages/getdeletepromptmodal/0',
+            contentType: 'application/json; charset=utf-8',
+            data: JSON.stringify(delData),
+            success: function (result) {
+                $('#modal-del').html(result);
+                $('#modal-del > .modal').modal('show');
+            }
+        });
+
+        return false;
+    }
+
+    function delMsgsForVN() {
+        var delData = {
+            DeleteType: "VN",
+            AccountId: 0,
+            VirtualNumber: numberToE164($("#from_number option:selected").text()),
+            VirtualNumberId: $("#hidActiveVirtualNumberId").val()
+        };
+
+        $.ajax({
+            type: 'POST',
+            cache: false,
+            url: '/messages/getdeletepromptmodal/0',
+            contentType: 'application/json; charset=utf-8',
+            data: JSON.stringify(delData),
+            success: function (result) {
+                $('#modal-del').html(result);
+                $('#modal-del > .modal').modal('show');
+            }
+        });
+
+        return false;
+    }
+
+    function initApplyNameModal() {
+        $('.apply-contact-button').on('click', function () {
+            var url = $(this).data('url');
+            var target = $(this).data('target');
+            $.get(url, function (data) {
+                $(target).html(data);
+                $(target + ' > .modal').modal({ keyboard: true }, 'show');
+            });
+        });
+    }
+
+    function initApplyNameModalShow() {
+        $('#apply-contact-modal').on('shown.bs.modal', function (e) {
+            $('#apply-contact-form').submit(function (event) {
+                event.preventDefault();
+            });
+            $.validator.unobtrusive.parse("#apply-contact-form");
+
+            $('#btnApplyContact').on("click", function (e) {
+                if ($("#apply-contact-form").valid()) {
+                    var contactData = {
+                        MobileNumber: $("#MobileNumber").val(),
+                        Name: $("#Name").val()
+                    };
+                    applyContact(contactData);
+                    $('#apply-contact-modal > .modal').modal('hide');
+                }
+            });
+        });
+    }
+
+    function applyContact(contactData) {
+        var url = '/contacts/apply/';
+        $.post({
+            url: url,
+            data: JSON.stringify(contactData),
+            contentType: "application/json",
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert(textStatus + ": Error applying contact. " + errorThrown);
+            },
+            success: function (contacts) {
+                getRecentsForVirtualNumber($("#from_number option:selected").val());
+            }
+        });
+    }
+</script>
+
+<input type="hidden" id="hidActiveVirtualNumberId" value="@Model.ActiveVirtualNumberId" />
+<input type="hidden" id="hidActiveDestinationNumber" value="@Model.ActiveDestinationNumber" />
+<input type="hidden" id="hidBalance" value="@Model.Account.Balance" />
+<input type="hidden" id="hidSMSCost" value="@Model.Account.SMSSegmentCost" />
+<input type="hidden" id="hidMMSCost" value="@Model.Account.MMSSegmentCost" />
+
+<div id="msg-cont" class="messages_container container">
+    <div class="row">
+        @Html.Partial("_PanelLeft", Model)
+        @Html.Partial("_PanelRight", Model)
+    </div>
+</div>
+<div id="modal-new"></div>
+<div id="modal-del"></div>
+<div id="apply-contact-modal"></div>
+<div id="edit-contact-modal"></div>
+<div class="clearfix"></div>

@@ -1,0 +1,90 @@
+﻿@model TextPortCore.Models.MessagingContainer
+<div class="col-md-7 mx-0 d-none d-lg-inline" id="pnl-right">
+    <div id="msgs-header" class="row border-bottom pt-2 pb-1">
+        <div class="col-1 d-lg-none">
+            <i class="back-chat-div false-link fa fa-arrow-left fa-big text-primary" title="Back"></i>
+        </div>
+        <div class="col">
+            <h5 id="active_num_title" class="text-primary text-center pl-0 pl-lg-2"></h5>
+            <div id="new-number-panel" class="d-none">
+                <label class="form-label text-primary msg-h4">New Recipient</label>
+                <div class="form-row">
+                    <div class="col-1"><label class="form-control form-label" id="country-code-label"></label></div>
+                    <div class="col-11"><input class="form-control col-10" id="new_recipient_number"></div>
+                    @*placeholder="(000) 000-0000"*@
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row mesgs">
+        <div id="msg_list" class="msg_history">
+            @Html.Partial("_MessageList", Model)
+        </div>
+    </div>
+    <div id="msg_area">
+        <div class="row">
+            <div class="msg-icons-cont border-right align-items-center text-primary">
+                <div class="text-center pt-3 pt-lg-2">
+                    <i id="emoji-sel-button" class="fa fa-image fa-smile-o msg_function_icon"></i>
+                </div>
+                <div class="text-center pt-2 pt-lg-1">
+                    <form action="/messages/UploadFile/" class="dropzone" id="mmsDropzone">
+                        <span class="dz-message"><i class="fa fa-image msg_function_icon"></i></span>
+                    </form>
+                </div>
+            </div>
+            <div class="col px-0 border-right">
+                <textarea id="message_text" class="message_texarea" data-emojiable="true" data-emoji-ta-id="emojipick_1"></textarea>
+            </div>
+            <div class="msg-icons-cont align-items-center">
+                <div class="text-center pt-4 pt-lg-3">
+                    @if (Model.VirtualNumberCount > 0)
+                    {
+                        <button id="btn_send_message" class="btn text-primary p-0"><i class="fa fa-paper-plane fa fa-big"></i></button>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="msg-footer" class="row border-top bg-light py-1">
+        <div id="sms-counter" class="col-12 counter-font">
+            <div class="row">
+                <div class="col float-left">
+                    Chars: <span class="length"></span>/<span class="remaining"></span>
+                </div>
+                <div class="col text-center">
+                    Segments: <span class="messages"></span>
+                </div>
+                <div class="col pr-0 float-right">
+                    <span class="float-right">
+                        Cost: $<span class="cost"></span>
+                    </span>
+                </div>
+                <div class="float-right counter-info">
+                    <button class="btn p-0" data-toggle="popover" title="Cost Info" data-content="" data-html="true">
+                        <i class="fa fa-info-circle text-primary"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="msg_area_disabled" class="msg_area_disabled text-center alert alert-danger" style="display: none">
+    <p>Messages cannot be sent because your balance is exhausted</p>
+    <p><a href="/account/balance">Top up your account</a></p>
+</div>
+<div id="popover-content" class="d-none">
+    <ul class="small">
+        <li>Text messages from all providers are divided into segments of either 160 or 70 characters.</li>
+        <li>
+            Segment length depends on the characters being sent. Segments containing only plain text alphanumeric charcters will accommodate up to 160 characters.
+            Messages containing extended characters (e.g. 😀, ½, Ë) require additional encoding (UCS-2) and will accommodate up to 70 characters.
+        </li>
+        <li>Message rates are calculated using your base messaging rate multiplied by the segment count.</li>
+        <li>MMS (picture) messages are charged at a flat rate.</li>
+        <li>Base messging rates are displayed on your <a href="/account/profile">profile page</a>.</li>
+        <li>To reduce cost, it's recommended that you use plain text when sending bulk messages.</li>
+    </ul>
+</div>
+
+

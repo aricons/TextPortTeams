@@ -1,0 +1,249 @@
+﻿@using TextPortCore.Models;
+
+@model  InboxContainer
+@{
+    ViewBag.Title = "TextPort: Inbox - Received Messages";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script type="text/javascript" src="/scripts/jquery.twbsPagination.min.js"></script>
+<script type="text/javascript" src="~/scripts/bootbox/bootbox.min.js"></script>
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        setSortIndicator();
+        loadMessages(1);
+        $('#delSelected').tooltip();
+        $('#cbSelectAll').tooltip();
+    });
+
+    function loadMessages(page) {
+        var operation = $("#operation").val();
+        var recordsPerPage = $("#rowsToShow option:selected").val();
+        var previousRecordsPerPage = $("#prevRecordsPerPage").val();
+        var sortBy = $("#sortBy").val();
+        var prevSortBy = $("#prevSortBy").val();
+        var sortOrder = $("#sortOrder").val();
+        var filterBy = $("#filterBy").val();
+        var prevFilterBy = $("#prevFilterBy").val();
+
+        $("#currentPage").val(page);
+        $("#prevRecordsPerPage").val(recordsPerPage);
+        $("#prevFilterBy").val(filterBy);
+
+        var params = {
+            Operation: operation,
+            Page: page,
+            RecordsPerPage: recordsPerPage,
+            PreviousRecordsPerPage: previousRecordsPerPage,
+            Filter: filterBy,
+            PrevFilter: prevFilterBy,
+            SortBy: sortBy,
+            PrevSortBy: prevSortBy,
+            SortOrder: sortOrder
+        };
+
+        $.post({
+            url: '/bulk/getinboxpage',
+            data: JSON.stringify(params),
+            contentType: "application/json",
+            cache: false,
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert(textStatus + ": Message data load failed. " + errorThrown);
+            },
+            success: function (inboxData) {
+                $("#msg-list").html(inboxData.html);
+                $("#recordLabel").text(inboxData.recordLabel);
+                $("#currentPage").val(inboxData.page);
+                $("#recordsPerPage").val(inboxData.recordsPerPage);
+                $("#sortOrder").val(inboxData.sortOrder);
+
+                setSortIndicator();
+                $("#cbSelectAll").prop("checked", false);
+
+                $('#paginator').twbsPagination('destroy');
+                $("#paginator").twbsPagination({
+                    totalPages: inboxData.pageCount,
+                    visiblePages: 10,
+                    startPage: inboxData.page,
+                    initiateStartPageClick: false,
+                    onPageClick: function (event, page) {
+                        $("#operation").val('page');
+                        loadMessages(page);
+                    }
+                });
+            }
+        })
+    }
+
+    function setFilter() {
+        $("#operation").val('filter');
+        var filterBy = $("#messageType option:selected").val();
+        $("#filterBy").val(filterBy);
+        loadMessages($("#currentPage").val());
+        $("#prevFilterBy").val(filterBy);
+    }
+
+    function changeRowCount() {
+        loadMessages($("#currentPage").val());
+    }
+
+    function changeSort(sortBy) {
+        $("#operation").val('sort');
+        $("#sortBy").val(sortBy);
+        loadMessages($("#currentPage").val());
+        $("#prevSortBy").val(sortBy);
+    }
+
+    function selectAll() {
+        $(".cbsel").prop("checked", $("#cbSelectAll").prop("checked"));
+    }
+
+    function setSortIndicator() {
+        $('.sort-ind').hide();
+        $("#img-sort-" + $("#sortBy").val()).attr('src', "/content/images/arw-sort-" + $("#sortOrder").val() + "-16.png").show();
+    }
+
+    function deleteSelected() {
+        var MessageIdList = { Ids: [] };
+        var messageCount = 0;
+
+        $(".cbsel:checked").each(function () {
+            var id = $(this).attr("id").split('_')[1];
+            if (id != "") {
+                MessageIdList.Ids.push({ Id: id });
+            }
+        });
+
+        messageCount = MessageIdList.Ids.length;
+        if (messageCount > 0) {
+            var messageDesc = "messages";
+            var warningDesc = "These " + messageDesc;
+            if (messageCount == 1) {
+                messageDesc = "message";
+                warningDesc = "This " + messageDesc;
+            }
+            bootbox.confirm({
+                title: "Delete " + messageCount + " " + messageDesc + "?",
+                message: "Are you sure you want delete " + messageCount + " " + " " + messageDesc + "?<br /><br /><strong>Warning:</strong> " + warningDesc + " will be removed permanently and can not be recovered.",
+                buttons: {
+                    cancel: {
+                        label: '<i class="fa fa-times"></i> Cancel'
+                    },
+                    confirm: {
+                        label: '<i class="fa fa-check"></i> Delete'
+                    }
+                },
+                callback: function (result) {
+                    if (result) {
+                        $.post({
+                            url: '/bulk/deleteinboxmessages',
+                            data: JSON.stringify(MessageIdList),
+                            contentType: "application/json",
+                            cache: false,
+                            error: function (jqXHR, textStatus, errorThrown) {
+                                alert(textStatus + ": Message delect operation failed. " + errorThrown);
+                            },
+                            success: function (result) {
+                                //bootbox.alert({
+                                //    title: "Messages deleted",
+                                //    message: result.message,
+                                //    callback: function () { }
+                                //});
+                                loadMessages($("#currentPage").val());
+                            }
+                        })
+                    }
+                }
+            });
+        }
+        else {
+            bootbox.alert({
+                title: "No messages selected",
+                message: "No messages were selected for deletion",
+                callback: function () { }
+            })
+        }
+    }
+</script>
+
+<h2 class="pb-2">Message History</h2>
+<input type="hidden" id="operation" value="page" />
+<input type="hidden" id="prevRecordsPerPage" value="15" />
+<input type="hidden" id="currentPage" value="1" />
+<input type="hidden" id="filterBy" value="1" />
+<input type="hidden" id="prevFilterBy" value="" />
+<input type="hidden" id="sortBy" value="TimeStamp" />
+<input type="hidden" id="prevSortBy" value="TimeStamp" />
+<input type="hidden" id="sortOrder" value="desc" />
+<input type="hidden" id="recordsPerPage" value="15" />
+
+<div class="row">
+    <div class="col-12">
+        <label id="recordLabel" class="pt-0 mt-0 mb-0 small text-right float-right"></label>
+    </div>
+</div>
+<div class="row mt-1 mb-1">
+    <div class="col-9">
+        <div class="form-inline">
+            <div class="form-group">
+                <label for="messageType" class="col-form-label-sm ml-0 mr-3">Show</label>
+                <select class="form-control form-control-sm" id="messageType" onchange="setFilter()">
+                    <option value="1">Received</option>
+                    <option value="0">Sent</option>
+                    <option value="2">Sent + Received</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="col-form-label-sm mx-3 pl-3">Rows</label>
+                <select class="form-control form-control-sm" id="rowsToShow" onchange="changeRowCount()">
+                    <option value="10">10</option>
+                    <option value="15" selected>15</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                    <option value="200">200</option>
+                </select>
+            </div>
+        </div>
+    </div>
+    <div class="col-3">
+        <div class="float-right">
+            <div class="form-group my-0">
+                <a id="delSelected" href="javascript:deleteSelected()" title="Delete all selected messages" data-placement="left">
+                    <div style="width: 70px; text-align: center" class="fa fa-trash fa-lg text-primary"></div>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-12">
+        <table class="table table-striped table-sm">
+            <thead>
+                <tr class="bg-primary text-white">
+                    <th scope="col" class="text-center" style="width: 100px; padding-bottom: 11px">Sent/Recv</th>
+                    <th scope="col" style="width: 170px">
+                        <a href="javascript:changeSort('TimeStamp')" class="list-head btn btn-primary pl-0">Date/Time</a>
+                        <img id="img-sort-TimeStamp" src="" class="sort-ind" />
+                    </th>
+                    <th scope="col" style="width: 160px">
+                        <a href="javascript:changeSort('MobileNumber')" class="list-head btn btn-primary pl-0">Remote #</a>
+                        <img id="img-sort-MobileNumber" src="" class="sort-ind" />
+                    </th>
+                    <th scope="col" style="width: 160px">
+                        <a href="javascript:changeSort('VirtualNumber')" class="list-head btn btn-primary pl-0">My Number</a>
+                        <img id="img-sort-VirtualNumber" src="" class="sort-ind" />
+                    </th>
+                    <th scope="col" style="padding-bottom: 11px">Message</th>
+                    <th scope="col" class="text-center" style="width: 70px">
+                        <span>Select</span>
+                        <input type="checkbox" id="cbSelectAll" title="Select all messages on this page" data-placement="left" onclick="selectAll()" />
+                    </th>
+                </tr>
+            </thead>
+            <tbody id="msg-list"></tbody>
+        </table>
+    </div>
+</div>
+<ul id="paginator" class="pagination justify-content-center"></ul>

@@ -1,0 +1,89 @@
+﻿@using TextPortCore.Models
+@model NumbersContainer
+@{
+    ViewBag.Title = "Manage Numbers";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<link rel="stylesheet" href="~/content/css/messaging.css">
+
+<script type="text/javascript">
+    $(function () {
+        $('#cbShowAll').on("click", function (e) {
+            if ($(this).is(":checked")) {
+                window.location.href = "/numbers/manage?exp=1";
+            }
+            else if ($(this).is(":not(:checked)")) {
+                window.location.href = "/numbers/manage";
+            }
+        });
+
+        $('#menu_numbers').addClass("active");
+    });
+
+    //function showHistory(virtualNumberId) {
+    //    showModal("historyModalCont", "/numbers/numberhistory/" + virtualNumberId);
+    //}
+</script>
+
+<div class="row">
+    @Html.Partial("_SideMenuBar")
+    <div class="col-12 col-md-9">
+        <div class="card">
+            <div class="card-header">
+                <div class="row">
+                    <div class="col-6">
+                        <h4>My Numbers</h4>
+                    </div>
+                    <div class="col-6 text-right">
+                        @Html.ActionLink("Get a Number", "GetNumber", "Numbers", null, htmlAttributes: new { @class = "btn btn-success" })
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <td colspan="6">
+                                <input id="cbShowAll" type="checkbox" checked="@Model.ShowExpiredNumbers" />
+                                <label>Show expired numbers</label>
+                            </td>
+                        </tr>
+                        <tr class="bg-primary">
+                            <th scope="col" class="text-white">Number</th>
+                            <th scope="col" class="text-white">Country</th>
+                            <th scope="col" class="text-white">Purchased</th>
+                            <th scope="col" class="text-white">Expires</th>
+                            <th scope="col" class="text-white">Active</th>
+                            <th scope="col" class="text-white">Renew</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{ int rowId = 1; }
+                        @foreach (DedicatedVirtualNumber vn in Model.Numbers)
+                        {
+                            string bgClass;
+                            if (rowId % 2 == 0)
+                            {
+                                bgClass = "table-primary";
+                            }
+                            else
+                            {
+                                bgClass = string.Empty;
+                            }
+                            rowId++;
+                            <tr class="@bgClass">
+                                <td><a href="#" class="modal-button" data-toggle="modal" data-target="#modal-cont" data-url="/numbers/numberhistory/@vn.VirtualNumberId">@vn.NumberDisplayFormat</a></td>
+                                <td>US</td>
+                                <td>@String.Format("{0:yyyy-MM-dd}", vn.CreateDate)</td>
+                                <td>@String.Format("{0:yyyy-MM-dd}", vn.ExpirationDate)</td>
+                                <td>@(vn.Cancelled ? "No" : "Yes")</td>
+                                <td>@Html.ActionLink("Renew", "RenewNumber", "Numbers", new { id = vn.VirtualNumberId }, htmlAttributes: new { @class = "" })</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

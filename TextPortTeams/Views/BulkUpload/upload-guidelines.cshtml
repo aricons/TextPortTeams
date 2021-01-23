@@ -1,0 +1,78 @@
+﻿
+@{
+    ViewData["Title"] = "Bulk Texting Upload File Formats and Guidelines | TextPort";
+    ViewData["Description"] = "Send bulk text messages from Excel or CSV upload files. Mass-texting for advertising and marketing.";
+    ViewData["Keywords"] = "bulk texting, send text messages in bulk, text message uploads";
+    ViewData["Url"] = "https://textport.com/bulk/upload-guidelines";
+}
+
+<div class="container legal">
+    <h1>Bulk Texting Upload File Formats</h1>
+    <p>
+        Message lists can be uploaded to the Bulk Messaging page from either Excel or CSV (Comma Separated Values) files.
+    </p>
+    <h2>Sample Files</h2>
+    <div class="row">
+        <div class="col-4">
+            <img src="~/content/images/bulk/excelsample1.jpg" width="320" />
+            <figcaption class="figure-caption">Excel (.XLSX or .XLS)</figcaption>
+        </div>
+        <div class="col-4">
+            <img src="~/content/images/bulk/csvsamplequoted.jpg" width="320" />
+            <figcaption class="figure-caption">CSV with quoted message (recommended)</figcaption>
+        </div>
+        <div class="col-4">
+            <img src="~/content/images/bulk/csvsampleunquoted.jpg" width="320" />
+            <figcaption class="figure-caption">Excel with non-quoted message (Only if message has no commas)</figcaption>
+        </div>
+    </div>
+    <h2>Formatting</h2>
+    <h4>Files should conform to the following guidelines:</h4>
+    <ul>
+        <li>
+            Two Columns
+            <ul>
+                <li>First Column: Recipient's number</li>
+                <li>Second Column: Text message</li>
+            </ul>
+        </li>
+        <li>No column headers.</li>
+        <li>
+            CSV Files
+            <ul>
+                <li>Values can be quoted or unquoted.</li>
+                <li>If your message contains commas, enclose the message in quotes, since a CSV file uses a comma separator.</li>
+                <li>File extension can be either .txt or .csv</li>
+            </ul>
+        </li>
+        <li>
+            Excel Files
+            <ul>
+                <li>Use a single worksheet/tab.</li>
+                <li>No header row.</li>
+            </ul>
+        </li>
+        <li>
+            Number Format
+            <ul>
+                <li>
+                    Any commonly-used number formatting can be submitted. The following are all acceptable:
+                    <ul>
+                        <li>2135551212, 12135551212, (213)555-1212, 1 (213)555-1212, 213-555-1212, 213.555.1212</li>
+                    </ul>
+                </li>
+            </ul>
+        </li>
+    </ul>
+    <h2>File Validation</h2>
+    <p>
+        The file will validated to check for missing or invalid numbers, or blank messages. If all data is accurate the "Send"
+        button will be enabled and the messages can be submitted.
+    </p>
+
+    <h2>Limits</h2>
+    <p>
+        There is no limit to the number of messages you can submit in a single batch, however we recommend you
+        break uploads up into batches of 250 messages or fewer per submission. This makes error correction easier.
+    </p>
+</div>

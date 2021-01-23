@@ -1,0 +1,103 @@
+﻿@model  TextPortCore.Models.SupportRequestModel
+@using TextPortCore.Helpers
+@{
+    ViewData["Title"] = "Contact us for text messaging solutions | TextPort";
+    ViewData["Description"] = "Contact TextPort for online texting, bulk SMS and SMS API services. Virtual phone numbers, API and Email-to-SMS Gateway";
+    ViewData["Keywords"] = "texting from computer, online texting, temporary texting number";
+    ViewData["Url"] = "https://textport.com/contact";
+}
+
+<script src='https://www.google.com/recaptcha/api.js'></script>
+<script>
+    $(function () {
+        $('#Category').on("change", function (e) {
+            var selection = $("#Category option:selected").val();
+            if (selection === "Block") {
+                window.location.href = "/block";
+            }
+        });
+    });
+</script>
+
+<div class="contact">
+    <div class="container">
+        <h1>Contact Us</h1>
+        <div class="row">
+            <div class="col-md-8">
+                <div class="well well-sm">
+                    @using (Html.BeginForm("Contact", "Home", FormMethod.Post, new { id = "form-contact" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.HiddenFor(m => m.SupportId)
+                        @Html.HiddenFor(m => m.RequestType)
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    @Html.LabelFor(m => m.RequestorName, new { @class = "form-label" })
+                                    @Html.TextBoxFor(m => m.RequestorName, new { @class = "form-control", placeholder = "Name" })
+                                    @Html.ValidationMessageFor(m => m.RequestorName, null, new { @class = "text-danger" })
+                                </div>
+                                <div class="form-group">
+                                    @Html.LabelFor(m => m.RequestorEmail, new { @class = "form-label" })
+                                    @Html.TextBoxFor(m => m.RequestorEmail, new { @class = "form-control", placeholder = "Email" })
+                                    @Html.ValidationMessageFor(m => m.RequestorEmail, null, new { @class = "text-danger" })
+                                </div>
+                                <div class="form-group">
+                                    @Html.LabelFor(m => m.Category, new { @class = "form-label" })
+                                    @Html.DropDownListFor(m => m.Category, new SelectList(Model.CategoriesList, "Value", "Text"), new { @class = "form-control" })
+                                    @Html.ValidationMessageFor(m => m.Category, null, new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    @Html.LabelFor(m => m.Message, new { @class = "form-label" })
+                                    @Html.TextAreaFor(m => m.Message, new { @class = "form-control", placeholder = "Message" })
+                                    @Html.ValidationMessageFor(m => m.Message, null, new { @class = "text-danger" })
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <div class="g-recaptcha pull-right pb-2 mb-1" data-sitekey="6Ldl-rQUAAAAALacF1sl4vM1WHQL5OhAYRFdLlnQ"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <button type="submit" class="btn btn-primary pull-right" id="btnContactUs">
+                                        Send Message
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        if (Model.SubmissionStatus != RequestStatus.Pending)
+                        {
+                            <div class="row">
+                                <div class="col-md-12 pt-4">
+                                    <div class="form-group">
+                                        <div class="alert @(Model.SubmissionStatus == RequestStatus.Success ? "alert-success" : "alert-danger")" role="alert">
+                                            @Html.Raw(Model.SubmissionMessage)
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+            <div class="col-md-4 email">
+                <div class="email-head pt-4">
+                    <h4>Email Us</h4>
+                </div>
+                <div class="email">
+                    <span class="fa fa-envelope mt-2 mr-2"></span>
+                    <a href="mailto:support@textport.com">support[at]textport.com</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

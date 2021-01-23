@@ -1,0 +1,68 @@
+﻿@using TextPortCore.Models
+@model BlogPostsContainer
+@{
+    ViewData["Title"] = "Blog - News and Trends | TextPort";
+    ViewData["Description"] = "News, ideas and information on text messaging and how to use it to improve business communications";
+    ViewData["Keywords"] = "text messaging news, trends and information, SMS industry news and articles";
+    ViewData["Url"] = "https://textport.com/blog";
+}
+<script type="text/javascript" src="/scripts/jquery.twbsPagination.min.js"></script>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        var currentPage = 1;
+        var pageCount = 1;
+
+        if ($("#pageNumber").val() != "") {
+            currentPage = parseInt($("#pageNumber").val());
+        }
+        if ($("#pageCount").val() != "") {
+            pageCount = parseInt($("#pageCount").val());
+        }
+
+        $('#pagination').twbsPagination({
+            totalPages: pageCount,
+            startPage: currentPage,
+            visiblePages: 5,
+            initiateStartPageClick: false,
+            hideOnlyOnePage: true,
+            onPageClick: function (event, page) {
+                window.open("/blog?page=" + page, '_self');
+            }
+        });
+
+        $(".page-link").each(function () {
+            $(this).attr("href", "/blog?page=" + $(this).text());
+        });
+    });
+</script>
+
+<input type="hidden" id="pageNumber" value="@Model.Page" />
+<input type="hidden" id="pageCount" value="@Model.PageCount" />
+
+<div class="row">
+    <div class="col-md-8">
+        <h1 class="my-4">
+            TextPort Blog@*<small>SMS News and Information</small>*@
+        </h1>
+        @foreach (BlogPost post in Model.Posts)
+        {
+            <div class="card mb-5">
+                <img class="card-img-top w-50 h-50 img-thumbnail rounded border-0 mx-auto align-content-center" src="@post.ImageUrl" alt="@post.Title" />
+                <div class="card-body">
+                    <h2 class="card-title">@post.Title</h2>
+                    <p class="card-text">@Html.Raw(post.Introduction)</p>
+                    <a href="/blog/@post.UrlName" class="btn btn-primary">Read More &rarr;</a>
+                </div>
+                <div class="card-footer text-muted">
+                    Posted on @String.Format("{0:MMMM dd, yyyy}", post.Date) by TextPort
+                </div>
+            </div>
+        }
+        <ul id="pagination" class="pagination justify-content-center mb-4"></ul>
+    </div>
+    <div class="col-md-4">
+        <div class="mt-md-5">&nbsp;</div>
+        @Html.Partial("_recent-articles", new BlogRecentPosts(20))
+    </div>
+</div>
