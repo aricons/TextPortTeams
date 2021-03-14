@@ -14,26 +14,26 @@ namespace TextPortCore.Data
     {
         #region "Select Methods"
 
-        public List<Contact> GetContactsForAccount(int accountId)
+        public List<Contact> GetContactsForBranch(int branchId)
         {
             try
             {
-                return _context.Contacts.Where(x => x.AccountId == accountId).OrderBy(x => x.Name).ToList();
+                return _context.Contacts.Where(x => x.BranchId == branchId).OrderBy(x => x.Name).ToList();
             }
             catch (Exception ex)
             {
                 ErrorHandling eh = new ErrorHandling();
-                eh.LogException("ContactsDA.GetContactsForAccount", ex);
+                eh.LogException("ContactsDA.GetContactsForBranch", ex);
             }
 
             return null;
         }
 
-        public Contact GetContactByContactId(int accountId, int contactId)
+        public Contact GetContactByContactId(int branchId, int contactId)
         {
             try
             {
-                return _context.Contacts.FirstOrDefault(x => x.AccountId == accountId && x.ContactId == contactId);
+                return _context.Contacts.FirstOrDefault(x => x.BranchId == branchId && x.ContactId == contactId);
             }
             catch (Exception ex)
             {
@@ -87,7 +87,7 @@ namespace TextPortCore.Data
                     Contact oldContact = new Contact()
                     {
                         ContactId = ctc.ContactId,
-                        AccountId = ctc.AccountId,
+                        BranchId = ctc.BranchId,
                         MobileNumber = ctc.MobileNumber,
                         Name = ctc.Name,
                         DateAdded = ctc.DateAdded
@@ -122,7 +122,7 @@ namespace TextPortCore.Data
         {
             try
             {
-                Contact ctc = _context.Contacts.FirstOrDefault(x => x.AccountId == contact.AccountId && x.MobileNumber == contact.MobileNumber);
+                Contact ctc = _context.Contacts.FirstOrDefault(x => x.BranchId == contact.BranchId && x.MobileNumber == contact.MobileNumber);
 
                 if (ctc == null)
                 {
@@ -133,7 +133,7 @@ namespace TextPortCore.Data
                     Contact oldContact = new Contact()
                     {
                         ContactId = ctc.ContactId,
-                        AccountId = ctc.AccountId,
+                        BranchId = ctc.BranchId,
                         MobileNumber = ctc.MobileNumber,
                         Name = ctc.Name,
                         DateAdded = ctc.DateAdded
@@ -203,19 +203,19 @@ namespace TextPortCore.Data
 
         public void ApplyContactToAccountAndNumber(Contact contact)
         {
-            SqlParameter accountIdParam = new SqlParameter("@AccountId", contact.AccountId);
+            SqlParameter branchIdParam = new SqlParameter("@BranchId", contact.BranchId);
             SqlParameter mobileNumberParam = new SqlParameter("@MobileNumber", Utilities.NumberToE164(contact.MobileNumber, "1"));
             SqlParameter contactIdParam = new SqlParameter("@ContactId", contact.ContactId);
 
-            int res = _context.Database.ExecuteSqlCommand("Contacts_ApplyContactForAccountAndNumber @AccountId, @MobileNumber, @ContactId", accountIdParam, mobileNumberParam, contactIdParam);
+            int res = _context.Database.ExecuteSqlCommand("Contacts_ApplyContactForBranchAndNumber @BranchId, @MobileNumber, @ContactId", branchIdParam, mobileNumberParam, contactIdParam);
         }
 
         public void RemoveContactForAccountAndNumber(Contact contact)
         {
-            SqlParameter accountIdParam = new SqlParameter("@AccountId", contact.AccountId);
+            SqlParameter branchIdParam = new SqlParameter("@BranchId", contact.BranchId);
             SqlParameter mobileNumberParam = new SqlParameter("@MobileNumber", Utilities.NumberToE164(contact.MobileNumber, "1"));
 
-            int res = _context.Database.ExecuteSqlCommand("Contacts_RemoveContactForAccountAndNumber @AccountId, @MobileNumber", accountIdParam, mobileNumberParam);
+            int res = _context.Database.ExecuteSqlCommand("Contacts_RemoveContactForBranchAndNumber @BranchId, @MobileNumber", branchIdParam, mobileNumberParam);
         }
 
         #endregion

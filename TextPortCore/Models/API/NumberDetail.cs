@@ -22,7 +22,7 @@ namespace TextPortCore.Models.API
         public int RenewalCount { get; set; }
 
         /// <summary>Name of the API application that the number is assigned to</summary>
-        public string APIApplicationName { get; set; }
+        //public string APIApplicationName { get; set; }
 
         // Constructors
         public NumberDetail()
@@ -31,7 +31,7 @@ namespace TextPortCore.Models.API
             this.DateAssigned = DateTime.MinValue;
             this.ExpirationDate = DateTime.MinValue;
             this.RenewalCount = 0;
-            this.APIApplicationName = string.Empty;
+            //this.APIApplicationName = string.Empty;
         }
 
         public NumberDetail(DedicatedVirtualNumber vn)
@@ -40,7 +40,7 @@ namespace TextPortCore.Models.API
             this.DateAssigned = vn.CreateDate;
             this.ExpirationDate = vn.ExpirationDate;
             this.RenewalCount = vn.RenewalCount;
-            this.APIApplicationName = vn.APIApplicationId.ToString();
+            //this.APIApplicationName = vn.APIApplicationId.ToString();
         }
     }
 }

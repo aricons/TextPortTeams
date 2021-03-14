@@ -7,7 +7,7 @@ namespace TextPortCore.Models
     {
         public int? ContactId { get; set; }
 
-        public int AccountId { get; set; }
+        public int BranchId { get; set; }
 
         [Display(Name = "Date Added")]
         public DateTime DateAdded { get; set; }

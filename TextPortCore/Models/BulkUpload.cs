@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Web.Mvc;
 
 using TextPortCore.Data;
-using TextPortCore.Helpers;
 
 namespace TextPortCore.Models
 {
@@ -42,9 +40,8 @@ namespace TextPortCore.Models
 
             using (TextPortDA da = new TextPortDA())
             {
-                this.Balance = da.GetAccountBalance(accountId);
-
-                List<DedicatedVirtualNumber> dvns = da.GetNumbersForAccount(accountId, false);
+                this.Balance = 0;
+                List<DedicatedVirtualNumber> dvns = da.GetNumbersForBranch(accountId, false);
                 foreach (DedicatedVirtualNumber dvn in dvns)
                 {
                     this.VirtualNumbers.Add(new SelectListItem()

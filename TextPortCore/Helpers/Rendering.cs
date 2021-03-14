@@ -22,7 +22,7 @@ namespace TextPortCore.Helpers
             {
                 foreach (MMSFile mms in msg.MMSFiles)
                 {
-                    mHtml += $"<div><img src=\"{MMSUtils.GetMMSFileURL(msg.AccountId, mms.StorageId, mms.FileName)}\" alt = \"@mms.FileName\" /></div>";
+                    mHtml += $"<div><img src=\"{MMSUtils.GetMMSFileURL(msg.BranchId, mms.StorageId, mms.FileName)}\" alt = \"@mms.FileName\" /></div>";
                 }
             }
             mHtml += $"<p>{msg.MessageText}</p>";

@@ -6,8 +6,10 @@
         public int Page { get; set; }
         public int RecordsPerPage { get; set; }
         public int PreviousRecordsPerPage { get; set; }
+        public string SearchString { get; set; }
         public byte Filter { get; set; }
         public byte PrevFilter { get; set; }
+        public string SearchBy { get; set; }
         public string SortBy { get; set; }
         public string PrevSortBy { get; set; }
         public string SortOrder { get; set; }
@@ -18,8 +20,10 @@
             this.Page = 1;
             this.RecordsPerPage = 10;
             this.PreviousRecordsPerPage = 10;
+            this.SearchString = string.Empty;
             this.Filter = 1;
             this.PrevFilter = 1;
+            this.SearchBy = string.Empty;
             this.SortBy = "TimeStamp";
             this.PrevSortBy = string.Empty;
             this.SortOrder = "desc";

@@ -25,7 +25,7 @@ namespace TextPortCore.Integrations.Bandwidth
 
         public DisconnectTelephoneNumberOrder(DedicatedVirtualNumber number)
         {
-            string name = $"{number.NumberBandwidthFormat}-{number.AccountId}-{DateTime.Now:yyMMdd}";
+            string name = $"{number.NumberBandwidthFormat}-{number.BranchId}-{DateTime.Now:yyMMdd}";
             this.Name = name;
             this.DisconnectMode = "normal";
             //this.CustomerOrderId = name;

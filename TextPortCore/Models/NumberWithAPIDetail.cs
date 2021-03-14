@@ -7,11 +7,11 @@ using TextPortCore.Helpers;
 
 namespace TextPortCore.Models
 {
-    public partial class NumberWithAPIDetail
+    public partial class NumberWithBranchDetail
     {
         public int VirtualNumberId { get; set; }
 
-        public int AccountId { get; set; }
+        public int BranchId { get; set; }
 
         public int CountryId { get; set; }
 
@@ -36,9 +36,7 @@ namespace TextPortCore.Models
 
         public bool Cancelled { get; set; }
 
-        public int? APIApplicationId { get; set; }
-
-        public string ApiAppName { get; set; }
+        public string BranchName { get; set; }
 
         public string NumberDisplayFormat
         {
@@ -57,11 +55,10 @@ namespace TextPortCore.Models
         }
 
         // Constructors
-        public NumberWithAPIDetail()
+        public NumberWithBranchDetail()
         {
-            this.AccountId = 0;
-            this.ApiAppName = string.Empty;
-            this.APIApplicationId = 0;
+            this.BranchId = 0;
+            this.BranchName = string.Empty;
             this.Cancelled = false;
             this.CountryCode = string.Empty;
             this.CreateDate = DateTime.MinValue;
@@ -74,10 +71,10 @@ namespace TextPortCore.Models
             this.VirtualNumberId = 0;
         }
 
-        public NumberWithAPIDetail(DedicatedVirtualNumber dvn)
+        public NumberWithBranchDetail(DedicatedVirtualNumber dvn)
         {
-            this.AccountId = dvn.AccountId;
-
+            this.BranchId = dvn.BranchId;
+            this.BranchName = dvn.Branch.BranchName;
             this.Cancelled = dvn.Cancelled;
             this.CountryCode = dvn.CountryCode;
             this.CreateDate = dvn.CreateDate;
@@ -88,8 +85,6 @@ namespace TextPortCore.Models
             this.VirtualNumber = dvn.VirtualNumber;
             this.CountryId = dvn.CountryId;
             this.VirtualNumberId = dvn.VirtualNumberId;
-            this.APIApplicationId = dvn.APIApplicationId;
-            this.ApiAppName = string.Empty;
         }
     }
 }

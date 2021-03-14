@@ -122,16 +122,16 @@ namespace TextPortCore.Data
             return false;
         }
 
-        public bool AssignAPIApplicationToVirtualNumber(int apiApplicationId, int virtualNumberId)
+        public bool AssignBranchToVirtualNumber(int branchId, int virtualNumberId)
         {
             try
             {
-                if (apiApplicationId > 0 && virtualNumberId > 0)
+                if (branchId > 0 && virtualNumberId > 0)
                 {
                     DedicatedVirtualNumber dvn = _context.DedicatedVirtualNumbers.FirstOrDefault(x => x.VirtualNumberId == virtualNumberId);
                     if (dvn != null)
                     {
-                        dvn.APIApplicationId = apiApplicationId;
+                        dvn.BranchId = branchId;
                         SaveChanges();
                     }
                 }
@@ -139,12 +139,12 @@ namespace TextPortCore.Data
             catch (Exception ex)
             {
                 ErrorHandling eh = new ErrorHandling();
-                eh.LogException("ApiDA.AssignAPIAppToVirtualNumber", ex);
+                eh.LogException("ApiDA.AssignBranchToVirtualNumber", ex);
             }
             return false;
         }
 
-        public bool UnAssignAPIApplicationFromVirtualNumber(int virtualNumberId)
+        public bool UnAssignBranchFromVirtualNumber(int virtualNumberId)
         {
             try
             {
@@ -153,7 +153,7 @@ namespace TextPortCore.Data
                     DedicatedVirtualNumber dvn = _context.DedicatedVirtualNumbers.FirstOrDefault(x => x.VirtualNumberId == virtualNumberId);
                     if (dvn != null)
                     {
-                        dvn.APIApplicationId = null;
+                        dvn.BranchId = 1;
                         SaveChanges();
                     }
                 }
@@ -161,7 +161,7 @@ namespace TextPortCore.Data
             catch (Exception ex)
             {
                 ErrorHandling eh = new ErrorHandling();
-                eh.LogException("ApiDA.UnAssignAPIApplicationFromVirtualNumber", ex);
+                eh.LogException("ApiDA.UnAssignBranchFromVirtualNumber", ex);
             }
             return false;
         }

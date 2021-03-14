@@ -48,10 +48,9 @@
         }
         else {
             // Not on messages page, or not the active virtual number. Pop up a note.
-            //alert("Not on messages page. New message received: " + notification.MessageText);
             $.jnoty(notification.MessageText, {
                 sticky: false,
-                header: 'Message received from ' + numberToE164(notification.MobileNumber) + ' to ' + numberToE164(notification.VirtualNumber),
+                header: 'Message received from ' + notification.MobileNumber + ' to ' + notification.VirtualNumber,
                 theme: 'jnoty-info',
                 life: 6000
             });
@@ -108,14 +107,14 @@ function numberToDisplay(number, countryCode) {
 }
 
 function getCountryCodeFromNumber(number) {
-    if (number.length >= 1) {
-        number = number.replace(/\D/g, '');
-        if (number.substr(0, 1) === "1") {
-            return "1";
-        }
-        else {
-            return number.substr(0, 2); // Assumes 2-digit country codes only.
-        }
-    }
-    return "";
+    //if (number.length >= 1) {
+    //    number = number.replace(/\D/g, '');
+    //    if (number.substr(0, 1) === "1") {
+    //        return "1";
+    //    }
+    //    else {
+    //        return number.substr(0, 2); // Assumes 2-digit country codes only.
+    //    }
+    //}
+    return "1";
 }

@@ -30,16 +30,7 @@ namespace TextPortCore.Models
         public MessageNotification(Message msg)
         {
             this.AccountId = msg.Account.AccountId;
-            // If the inbound message is directed to the free texting account, generate a unique 
-            // username so any notifications get pushed to the correct SignalR client.
-            if (msg.AccountId == Conversion.StringToIntOrZero(ConfigurationManager.AppSettings["FreeTextAccountId"]))
-            {
-                this.UserName = msg.SessionId;
-            }
-            else
-            {
-                this.UserName = msg.Account.UserName;
-            }
+            this.UserName = msg.Account.UserName;
             this.MobileNumber = msg.MobileNumber;
             this.VirtualNumberId = msg.VirtualNumberId;
             this.VirtualNumber = msg.DedicatedVirtualNumber.VirtualNumber;

@@ -59,8 +59,6 @@ namespace TextPortAPI.Controllers
                     using (TextPortDA da = new TextPortDA())
                     {
                         string validationMessage = string.Empty;
-                        newBalance = da.GetAccountBalance(accountId);
-
                         foreach (Message message in messages)
                         {
                             validationMessage = string.Empty;

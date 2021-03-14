@@ -1,0 +1,31 @@
+﻿@using TextPortCore.Models;
+@using TextPortCore.ViewModels;
+@model  UserListContainer
+@if (Model.UserList.Count > 0)
+{
+    foreach (User item in Model.UserList)
+    {
+        <tr id="tritem_@item.AccountId">
+            <td>@item.Name</td>
+            <td>@item.UserName</td>
+            <td>
+                @item.BranchName
+                @if (item.BranchCount > 1)
+                {
+                    <span>(+@(item.BranchCount - 1))</span>
+                }
+            </td>
+            <td>@item.RoleName</td>
+            <td>@item.Email</td>
+            <td>@item.Phone</td>
+            <td align="center">
+                <a href="#" class="text-primary btn-edit" data-toggle="modal" data-target="#modal-cont" data-id="@item.AccountId"><i class="fa fa-fw fa-edit"></i> Edit</a> |
+                <a href="javascript:deleteItem(@item.AccountId, '@item.Name')" class="text-danger"><i class="fa fa-fw fa-trash"></i> Delete</a>
+            </td>
+        </tr>
+    }
+}
+else
+{
+    <tr><td colspan="9" align="center">No Records Found</td></tr>
+}

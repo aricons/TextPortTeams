@@ -28,7 +28,7 @@ namespace TextPortCore.Integrations.Coinbase
             };
             this.metadata = new Metadata()
             {
-                account_id = regData.AccountId.ToString(),
+                account_id = regData.BranchId.ToString(),
                 virtual_number = regData.VirtualNumber,
                 number_cost = regData.NumberCost,
                 country_id = regData.CountryId,

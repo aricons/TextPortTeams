@@ -15,20 +15,20 @@ namespace TextPortServices.Processes
         // Public methods
         public static void CheckForVirtualNumberExpirations()
         {
-            CheckForVirtualNumberExpirationNotifications(7, NumberTypes.Regular);
-            CheckForVirtualNumberExpirationNotifications(2, NumberTypes.Regular);
+            //CheckForVirtualNumberExpirationNotifications(7, NumberTypes.Regular);
+            //CheckForVirtualNumberExpirationNotifications(2, NumberTypes.Regular);
 
-            CheckForVirtualNumberExpirationNotifications(7, NumberTypes.Pooled);
-            CheckForVirtualNumberExpirationNotifications(2, NumberTypes.Pooled);
+            //CheckForVirtualNumberExpirationNotifications(7, NumberTypes.Pooled);
+            //CheckForVirtualNumberExpirationNotifications(2, NumberTypes.Pooled);
 
-            CheckForAutoRenewNumberExpirtionLowBalanceNotifications(7, NumberTypes.Regular);
-            CheckForAutoRenewNumberExpirtionLowBalanceNotifications(2, NumberTypes.Regular);
+            //CheckForAutoRenewNumberExpirtionLowBalanceNotifications(7, NumberTypes.Regular);
+            //CheckForAutoRenewNumberExpirtionLowBalanceNotifications(2, NumberTypes.Regular);
 
-            CheckForAndCancelExpiredNumbers();
+            //CheckForAndCancelExpiredNumbers();
 
-            CheckForAndRenewAutoRenewNumbers();
+            //CheckForAndRenewAutoRenewNumbers();
 
-            CheckForAndCancelAutoRenewNumbersWithInsufficientBalance();
+            //CheckForAndCancelAutoRenewNumbersWithInsufficientBalance();
         }
 
         public static int GetPollingInterval()
@@ -52,140 +52,140 @@ namespace TextPortServices.Processes
         }
 
         // Private methods
-        public static void CheckForVirtualNumberExpirationNotifications(int days, NumberTypes numberType)
-        {
-            using (TextPortDA da = new TextPortDA())
-            {
-                List<NumberExpirationData> expirations = da.GetNumberExpirationNotifications(days, numberType, $"{days}DayExpirationNotification", "numbers/renew");
-                if (expirations != null)
-                {
-                    foreach (NumberExpirationData expiration in expirations)
-                    {
-                        //expiration.Email = "richard@arionconsulting.com"; // For testing
-                        if (sendVirtualNumberExpirationEmail(expiration))
-                        {
-                            da.SetVirtualNumberXDayReminderSentFlag(expiration.VirtualNumberID, days);
-                        }
-                    }
-                }
-            }
-        }
+        //public static void CheckForVirtualNumberExpirationNotifications(int days, NumberTypes numberType)
+        //{
+        //    using (TextPortDA da = new TextPortDA())
+        //    {
+        //        List<NumberExpirationData> expirations = da.GetNumberExpirationNotifications(days, numberType, $"{days}DayExpirationNotification", "numbers/renew");
+        //        if (expirations != null)
+        //        {
+        //            foreach (NumberExpirationData expiration in expirations)
+        //            {
+        //                //expiration.Email = "richard@arionconsulting.com"; // For testing
+        //                if (sendVirtualNumberExpirationEmail(expiration))
+        //                {
+        //                    da.SetVirtualNumberXDayReminderSentFlag(expiration.VirtualNumberID, days);
+        //                }
+        //            }
+        //        }
+        //    }
+        //}
 
-        public static void CheckForAutoRenewNumberExpirtionLowBalanceNotifications(int days, NumberTypes numberType)
-        {
-            using (TextPortDA da = new TextPortDA())
-            {
-                List<NumberExpirationData> expirations = da.GetAutoRenewBalanceWarningNotifications(days, numberType, $"{days}DayLowBalanceNotification", "account/topup");
-                if (expirations != null)
-                {
-                    foreach (NumberExpirationData expiration in expirations)
-                    {
-                        //expiration.Email = "richard@arionconsulting.com"; // For testing
-                        if (sendAutoRenewNumberLowBalanceNotificationEmail(expiration))
-                        {
-                            da.SetVirtualNumberXDayReminderSentFlag(expiration.VirtualNumberID, days);
-                        }
-                    }
-                }
-            }
-        }
+        //public static void CheckForAutoRenewNumberExpirtionLowBalanceNotifications(int days, NumberTypes numberType)
+        //{
+        //    using (TextPortDA da = new TextPortDA())
+        //    {
+        //        List<NumberExpirationData> expirations = da.GetAutoRenewBalanceWarningNotifications(days, numberType, $"{days}DayLowBalanceNotification", "account/topup");
+        //        if (expirations != null)
+        //        {
+        //            foreach (NumberExpirationData expiration in expirations)
+        //            {
+        //                //expiration.Email = "richard@arionconsulting.com"; // For testing
+        //                if (sendAutoRenewNumberLowBalanceNotificationEmail(expiration))
+        //                {
+        //                    da.SetVirtualNumberXDayReminderSentFlag(expiration.VirtualNumberID, days);
+        //                }
+        //            }
+        //        }
+        //    }
+        //}
 
-        public static void CheckForAndCancelExpiredNumbers()
-        {
-            try
-            {
-                using (TextPortDA da = new TextPortDA())
-                {
-                    List<NumberExpirationData> expirations = da.GetExpiredNumbers();
-                    if (expirations != null)
-                    {
-                        foreach (NumberExpirationData expiredNumber in expirations)
-                        {
-                            if (expiredNumber.NumberType == (int)NumberTypes.Regular)
-                            {
-                                if (disconnectVirtualNumberFromProvider(expiredNumber))
-                                {
-                                    da.SetVirtualNumberCancelledFlag(expiredNumber.VirtualNumberID, true);
-                                }
-                                else
-                                {
-                                    sendAdminEmailNotification("VnExpirationsPoller", "CheckForAndCancelExpiredNumbers", $"The call to disconnectVirtualNumberFromProvider for carrier {expiredNumber.CarrierId} failed when attempting to cancel the virtual number {expiredNumber.VirtualNumber} with virtual number ID {expiredNumber.VirtualNumberID}.");
-                                    da.IncrementVirtualNumberCancellationFailureCount(expiredNumber.VirtualNumberID);
-                                }
-                            }
-                            else
-                            {
-                                // Don't disconnect pooled numbers. Just set the cancelled flag.
-                                da.SetVirtualNumberCancelledFlag(expiredNumber.VirtualNumberID, true);
-                            }
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                sendAdminEmailNotification("VnExpirationsPoller", "CheckForAndCancelExpiredNumbers", $"An excpetion occurred with error message: {ex.Message}. Stack trace: {ex.StackTrace}");
-            }
-        }
+        //public static void CheckForAndCancelExpiredNumbers()
+        //{
+        //    try
+        //    {
+        //        using (TextPortDA da = new TextPortDA())
+        //        {
+        //            List<NumberExpirationData> expirations = da.GetExpiredNumbers();
+        //            if (expirations != null)
+        //            {
+        //                foreach (NumberExpirationData expiredNumber in expirations)
+        //                {
+        //                    if (expiredNumber.NumberType == (int)NumberTypes.Regular)
+        //                    {
+        //                        if (disconnectVirtualNumberFromProvider(expiredNumber))
+        //                        {
+        //                            da.SetVirtualNumberCancelledFlag(expiredNumber.VirtualNumberID, true);
+        //                        }
+        //                        else
+        //                        {
+        //                            sendAdminEmailNotification("VnExpirationsPoller", "CheckForAndCancelExpiredNumbers", $"The call to disconnectVirtualNumberFromProvider for carrier {expiredNumber.CarrierId} failed when attempting to cancel the virtual number {expiredNumber.VirtualNumber} with virtual number ID {expiredNumber.VirtualNumberID}.");
+        //                            da.IncrementVirtualNumberCancellationFailureCount(expiredNumber.VirtualNumberID);
+        //                        }
+        //                    }
+        //                    else
+        //                    {
+        //                        // Don't disconnect pooled numbers. Just set the cancelled flag.
+        //                        da.SetVirtualNumberCancelledFlag(expiredNumber.VirtualNumberID, true);
+        //                    }
+        //                }
+        //            }
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        sendAdminEmailNotification("VnExpirationsPoller", "CheckForAndCancelExpiredNumbers", $"An excpetion occurred with error message: {ex.Message}. Stack trace: {ex.StackTrace}");
+        //    }
+        //}
 
-        public static void CheckForAndRenewAutoRenewNumbers()
-        {
-            try
-            {
-                using (TextPortDA da = new TextPortDA())
-                {
-                    List<NumberExpirationData> renewals = da.GetAutoRenewNumbers();
-                    if (renewals != null)
-                    {
-                        foreach (NumberExpirationData autoRenewNumber in renewals)
-                        {
-                            if (da.AutoRenewNumber(autoRenewNumber.VirtualNumberID))
-                            {
-                                da.DebitFeeFromAccount(autoRenewNumber.AccountID, autoRenewNumber.Fee);
-                            }
-                            else
-                            {
-                                sendAdminEmailNotification("VnExpirationsPoller", "CheckForAndRenewAutoRenewNumbers.da.AutoRenewNumber", $"The call to auto-renew the number {autoRenewNumber.VirtualNumber} with virtual number ID {autoRenewNumber.VirtualNumberID} failed.");
-                            }
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                sendAdminEmailNotification("VnExpirationsPoller", "CheckForAndRenewAutoRenewNumbers", $"An excpetion occurred with error message {ex.Message}. Stack trace: {ex.StackTrace}");
-            }
-        }
+        //public static void CheckForAndRenewAutoRenewNumbers()
+        //{
+        //    try
+        //    {
+        //        using (TextPortDA da = new TextPortDA())
+        //        {
+        //            List<NumberExpirationData> renewals = da.GetAutoRenewNumbers();
+        //            if (renewals != null)
+        //            {
+        //                foreach (NumberExpirationData autoRenewNumber in renewals)
+        //                {
+        //                    if (da.AutoRenewNumber(autoRenewNumber.VirtualNumberID))
+        //                    {
+        //                        da.DebitFeeFromAccount(autoRenewNumber.AccountID, autoRenewNumber.Fee);
+        //                    }
+        //                    else
+        //                    {
+        //                        sendAdminEmailNotification("VnExpirationsPoller", "CheckForAndRenewAutoRenewNumbers.da.AutoRenewNumber", $"The call to auto-renew the number {autoRenewNumber.VirtualNumber} with virtual number ID {autoRenewNumber.VirtualNumberID} failed.");
+        //                    }
+        //                }
+        //            }
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        sendAdminEmailNotification("VnExpirationsPoller", "CheckForAndRenewAutoRenewNumbers", $"An excpetion occurred with error message {ex.Message}. Stack trace: {ex.StackTrace}");
+        //    }
+        //}
 
-        public static void CheckForAndCancelAutoRenewNumbersWithInsufficientBalance()
-        {
-            try
-            {
-                using (TextPortDA da = new TextPortDA())
-                {
-                    List<NumberExpirationData> cancellations = da.GetAutoRenewInsufficientBalanceExpirations();
-                    if (cancellations != null)
-                    {
-                        foreach (NumberExpirationData autoRenewNumber in cancellations)
-                        {
-                            if (disconnectVirtualNumberFromProvider(autoRenewNumber))
-                            {
-                                da.SetVirtualNumberCancelledFlag(autoRenewNumber.VirtualNumberID, true);
-                            }
-                            else
-                            {
-                                sendAdminEmailNotification("VnExpirationsPoller", "CheckForAndCancelAutoRenewNumbersWithInsufficientBalance", $"The call to CheckForAndCancelAutoRenewNumbersWithInsufficientBalance for provider {autoRenewNumber.CarrierId} failed when attempting to cancel the virtual number {autoRenewNumber.VirtualNumber} with virtual number ID {autoRenewNumber.VirtualNumberID}.");
-                                da.IncrementVirtualNumberCancellationFailureCount(autoRenewNumber.VirtualNumberID);
-                            }
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                sendAdminEmailNotification("VnExpirationsPoller", "CheckForAndCancelAutoRenewNumbersWithInsufficientBalance", $"An excpetion occurred with error message {ex.Message}. Stack trace: {ex.StackTrace}");
-            }
-        }
+        //public static void CheckForAndCancelAutoRenewNumbersWithInsufficientBalance()
+        //{
+        //    try
+        //    {
+        //        using (TextPortDA da = new TextPortDA())
+        //        {
+        //            List<NumberExpirationData> cancellations = da.GetAutoRenewInsufficientBalanceExpirations();
+        //            if (cancellations != null)
+        //            {
+        //                foreach (NumberExpirationData autoRenewNumber in cancellations)
+        //                {
+        //                    if (disconnectVirtualNumberFromProvider(autoRenewNumber))
+        //                    {
+        //                        da.SetVirtualNumberCancelledFlag(autoRenewNumber.VirtualNumberID, true);
+        //                    }
+        //                    else
+        //                    {
+        //                        sendAdminEmailNotification("VnExpirationsPoller", "CheckForAndCancelAutoRenewNumbersWithInsufficientBalance", $"The call to CheckForAndCancelAutoRenewNumbersWithInsufficientBalance for provider {autoRenewNumber.CarrierId} failed when attempting to cancel the virtual number {autoRenewNumber.VirtualNumber} with virtual number ID {autoRenewNumber.VirtualNumberID}.");
+        //                        da.IncrementVirtualNumberCancellationFailureCount(autoRenewNumber.VirtualNumberID);
+        //                    }
+        //                }
+        //            }
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        sendAdminEmailNotification("VnExpirationsPoller", "CheckForAndCancelAutoRenewNumbersWithInsufficientBalance", $"An excpetion occurred with error message {ex.Message}. Stack trace: {ex.StackTrace}");
+        //    }
+        //}
 
         private static bool disconnectVirtualNumberFromProvider(NumberExpirationData expiredNumber)
         {
@@ -195,7 +195,8 @@ namespace TextPortServices.Processes
                     using (Bandwidth bw = new Bandwidth())
                     {
                         string processingMessage = string.Empty;
-                        return bw.DisconnectVirtualNumber(new DedicatedVirtualNumber(expiredNumber), ref processingMessage);
+                        //return bw.DisconnectVirtualNumber(new DedicatedVirtualNumber(expiredNumber), ref processingMessage);
+                        return true;
                     }
 
                     //if (BwApi.CancelVirtualNumber(expData.VirtualNumber))

@@ -131,40 +131,40 @@ namespace TextPort.Controllers
             return Json(numbersItems, JsonRequestBehavior.AllowGet);
         }
 
-        [Authorize(Roles = "User")]
+        [Authorize]
         [HttpGet]
         public ActionResult Index()
         {
-            bool showExpiredNumbers = Request.QueryString["exp"] != null && Request.QueryString["exp"].Equals("1");
-            int accountId = Utilities.GetAccountIdFromClaim(ClaimsPrincipal.Current);
+            //bool showExpiredNumbers = Request.QueryString["exp"] != null && Request.QueryString["exp"].Equals("1");
+            //int accountId = Utilities.GetAccountIdFromClaim(ClaimsPrincipal.Current);
 
-            using (TextPortDA da = new TextPortDA())
-            {
-                Account acc = da.GetAccountById(accountId);
-                if (acc.ComplimentaryNumber == (byte)ComplimentaryNumberStatus.Eligible)
-                {
-                    return RedirectToAction("ComplimentaryNumber", new { id = accountId.ToString() });
-                }
-            }
+            //using (TextPortDA da = new TextPortDA())
+            //{
+            //    Account acc = da.GetAccountById(accountId);
+            //    //if (acc.ComplimentaryNumber == (byte)ComplimentaryNumberStatus.Eligible)
+            //    //{
+            //    //    return RedirectToAction("ComplimentaryNumber", new { id = accountId.ToString() });
+            //    //}
+            //}
 
-            NumbersContainer nc = new NumbersContainer(accountId, showExpiredNumbers);
+            NumbersContainer nc = new NumbersContainer();
             return View(nc);
         }
 
-        [Authorize(Roles = "User")]
+        [Authorize]
         [HttpGet]
         public ActionResult GetNumber()
         {
-            int accountId = Utilities.GetAccountIdFromClaim(ClaimsPrincipal.Current);
-            RegistrationData regData = new RegistrationData("VirtualNumber", accountId);
+            int branchId = Utilities.GetBranchIdFromClaim(ClaimsPrincipal.Current);
+            RegistrationData regData = new RegistrationData("VirtualNumber", branchId);
             return View(regData);
         }
 
-        [Authorize(Roles = "User")]
+        [Authorize]
         [HttpPost]
         public ActionResult GetNumber(RegistrationData regData)
         {
-            int accountId = Utilities.GetAccountIdFromClaim(ClaimsPrincipal.Current);
+            int branchId = Utilities.GetBranchIdFromClaim(ClaimsPrincipal.Current);
 
             regData.Success = false;
             regData.Status = "Failed";
@@ -172,7 +172,7 @@ namespace TextPort.Controllers
             regData.CompletionMessage = $"An error occurred while attempting to assign the number {regData.VirtualNumber} to your account. Please try again. If the problem persists please contact support.";
 
             // Make sure the number cost is not negative. Prevents against hacks where the NumberCost field is edited to a negative value.
-            if (!string.IsNullOrEmpty(regData.VirtualNumber) && accountId > 0 && regData.NumberCost >= 1)
+            if (!string.IsNullOrEmpty(regData.VirtualNumber) && branchId > 0)
             {
                 using (TextPortDA da = new TextPortDA())
                 {
@@ -199,21 +199,21 @@ namespace TextPort.Controllers
 
                     if (purchaseSuccessful)
                     {
-                        if (da.AddNumberToAccount(regData))
+                        if (da.AddNumberToBranch(regData))
                         {
                             regData.CompletionTitle = $"{regData.NumberDisplayFormat} Successfully Assigned";
-                            regData.CompletionMessage = $"The number {regData.NumberDisplayFormat} has been sucessfully assigned to your account for a period of {regData.LeasePeriod} {regData.LeasePeriodWord}.";
+                            regData.CompletionMessage = $"The number {regData.NumberDisplayFormat} has been successfully assigned.";
                             regData.Status = "Complete";
                             regData.Success = true;
 
-                            Account acc = da.GetAccountById(regData.AccountId);
-                            if (acc != null)
-                            {
-                                acc.Balance -= (Math.Abs(regData.NumberCost));
-                                da.SaveChanges();
+                            //Account acc = da.GetAccountById(regData.AccountId);
+                            //if (acc != null)
+                            //{
+                            //    acc.Balance -= (Math.Abs(regData.NumberCost));
+                            //    da.SaveChanges();
 
-                                Cookies.WriteBalance(acc.Balance);
-                            }
+                            //    Cookies.WriteBalance(acc.Balance);
+                            //}
                         }
                     }
                 }
@@ -221,7 +221,7 @@ namespace TextPort.Controllers
             return View("TransactionComplete", regData);
         }
 
-        [Authorize(Roles = "User")]
+        [Authorize]
         [HttpGet]
         public ActionResult RenewNumber(int id)
         {
@@ -242,7 +242,7 @@ namespace TextPort.Controllers
             return View(regData);
         }
 
-        [Authorize(Roles = "User")]
+        [Authorize]
         [HttpPost]
         public ActionResult RenewNumber(RegistrationData regData)
         {
@@ -307,21 +307,21 @@ namespace TextPort.Controllers
                         regData.Status = "Complete";
                         regData.Success = true;
 
-                        Account acc = da.GetAccountById(regData.AccountId);
-                        if (acc != null)
-                        {
-                            acc.Balance -= regData.NumberCost;
-                            da.SaveChanges();
+                        //Account acc = da.GetAccountById(regData.AccountId);
+                        //if (acc != null)
+                        //{
+                        //    acc.Balance -= regData.NumberCost;
+                        //    da.SaveChanges();
 
-                            Cookies.WriteBalance(acc.Balance);
-                        }
+                        //    Cookies.WriteBalance(acc.Balance);
+                        //}
                     }
                 }
             }
             return View("TransactionComplete", regData);
         }
 
-        [Authorize(Roles = "User")]
+        [Authorize]
         [HttpGet]
         public ActionResult ComplimentaryNumber(int id)
         {
@@ -332,18 +332,18 @@ namespace TextPort.Controllers
                 using (TextPortDA da = new TextPortDA())
                 {
                     Account acc = da.GetAccountById(accountId);
-                    if (acc.ComplimentaryNumber > 0)
-                    {
-                        RegistrationData regData = new RegistrationData("ComplimentaryNumber", accountId);
-                        regData.ShowAnnouncementBanner = (acc.ComplimentaryNumber == 1);
-                        return View("ComplimentaryNumber", regData);
-                    }
+                    //if (acc.ComplimentaryNumber > 0)
+                    //{
+                    //    RegistrationData regData = new RegistrationData("ComplimentaryNumber", accountId);
+                    //    regData.ShowAnnouncementBanner = (acc.ComplimentaryNumber == 1);
+                    //    return View("ComplimentaryNumber", regData);
+                    //}
                 }
             }
             return RedirectToAction("Profile", "Account");
         }
 
-        [Authorize(Roles = "User")]
+        [Authorize]
         [HttpPost]
         public JsonResult SetAutoRenew(AutoRenewSettings autoRenewSettings)
         {
@@ -386,7 +386,7 @@ namespace TextPort.Controllers
             return Json(autoRenewSettings, JsonRequestBehavior.AllowGet);
         }
 
-        [Authorize(Roles = "User")]
+        [Authorize]
         [HttpGet]
         public ActionResult NumberHistory(int id)
         {
@@ -395,88 +395,88 @@ namespace TextPort.Controllers
             return PartialView("_NumberHistory", history);
         }
 
-        [Authorize(Roles = "User")]
+        [Authorize]
         [HttpGet]
-        public ActionResult ApplyApi(int id)
+        public ActionResult ApplyBranch(int id)
         {
-            int accountId = Utilities.GetAccountIdFromClaim(ClaimsPrincipal.Current);
+            int branchId = Utilities.GetBranchIdFromClaim(ClaimsPrincipal.Current);
 
-            ApiApplicationsContainer apiApps = new ApiApplicationsContainer(accountId, 0, id);
+            BranchesContainer branches = new BranchesContainer(branchId, 0, id);
 
-            return PartialView("_ApplyApi", apiApps);
+            return PartialView("_ApplyBranch", branches);
         }
 
-        [Authorize(Roles = "User")]
+        [Authorize]
         [HttpPost]
-        public ActionResult ApplyApi(ApiApplicationsContainer apiApps)
+        public ActionResult ApplyBranch(BranchesContainer branches)
         {
             using (TextPortDA da = new TextPortDA())
             {
-                if (apiApps.CurrentApplicationId == 0)
+                if (branches.CurrentBranchId == 0)
                 {
-                    da.UnAssignAPIApplicationFromVirtualNumber(apiApps.VirtualNumberId);
+                    da.UnAssignBranchFromVirtualNumber(branches.VirtualNumberId);
                 }
                 else
                 {
-                    da.AssignAPIApplicationToVirtualNumber(apiApps.CurrentApplicationId, apiApps.VirtualNumberId);
+                    da.AssignBranchToVirtualNumber(branches.CurrentBranchId, branches.VirtualNumberId);
                 }
             }
-            NumbersContainer nc = new NumbersContainer(apiApps.AccountId, false);
+            NumbersContainer nc = new NumbersContainer();
             return View("Index", nc);
         }
 
-        [HttpGet]
-        [AllowAnonymous]
-        public ActionResult Renew(string id)
-        {
-            List<int> parameterValues = RandomString.ExtractJDelimitedValues(id);
-            if (parameterValues != null && parameterValues.Count >= 2)
-            {
-                int accountId = parameterValues[0];
-                int virtualNumberId = parameterValues[1];
+        //[HttpGet]
+        //[AllowAnonymous]
+        //public ActionResult Renew(string id)
+        //{
+        //    List<int> parameterValues = RandomString.ExtractJDelimitedValues(id);
+        //    if (parameterValues != null && parameterValues.Count >= 2)
+        //    {
+        //        int accountId = parameterValues[0];
+        //        int virtualNumberId = parameterValues[1];
 
-                if (accountId > 0 && virtualNumberId > 0)
-                {
-                    using (TextPortDA da = new TextPortDA())
-                    {
-                        Account account = da.GetAccountById(parameterValues[0]);
-                        if (account != null)
-                        {
-                            // As an extra security measure, get the virtual number record and check that the
-                            // account Id assigned to the virtual number is the same as the account ID that was
-                            // passed in as the account ID parameter. This requires that both the account ID parameter
-                            // and the virtual number ID parameter are both associated with the same account.
-                            DedicatedVirtualNumber dvn = da.GetVirtualNumberById(virtualNumberId);
-                            if (dvn != null)
-                            {
-                                if (dvn.AccountId == accountId)
-                                {
-                                    List<Claim> claims = new List<Claim> {
-                                        new Claim("AccountId", account.AccountId.ToString(), ClaimValueTypes.Integer),
-                                        new Claim(ClaimTypes.Name, account.UserName.ToString()),
-                                        new Claim(ClaimTypes.NameIdentifier, account.UserName.ToString()),
-                                        new Claim(ClaimTypes.Email, account.Email.ToString()),
-                                        new Claim(ClaimTypes.Role, "User")
-                                    };
+        //        if (accountId > 0 && virtualNumberId > 0)
+        //        {
+        //            using (TextPortDA da = new TextPortDA())
+        //            {
+        //                Account account = da.GetAccountById(parameterValues[0]);
+        //                if (account != null)
+        //                {
+        //                    // As an extra security measure, get the virtual number record and check that the
+        //                    // account Id assigned to the virtual number is the same as the account ID that was
+        //                    // passed in as the account ID parameter. This requires that both the account ID parameter
+        //                    // and the virtual number ID parameter are both associated with the same account.
+        //                    DedicatedVirtualNumber dvn = da.GetVirtualNumberById(virtualNumberId);
+        //                    if (dvn != null)
+        //                    {
+        //                        if (dvn.AccountId == accountId)
+        //                        {
+        //                            List<Claim> claims = new List<Claim> {
+        //                                new Claim("AccountId", account.AccountId.ToString(), ClaimValueTypes.Integer),
+        //                                new Claim(ClaimTypes.Name, account.UserName.ToString()),
+        //                                new Claim(ClaimTypes.NameIdentifier, account.UserName.ToString()),
+        //                                new Claim(ClaimTypes.Email, account.Email.ToString()),
+        //                                new Claim(ClaimTypes.Role, "User")
+        //                            };
 
-                                    ClaimsIdentity identity = new ClaimsIdentity(claims, "ApplicationCookie");
-                                    ClaimsPrincipal principal = new ClaimsPrincipal(identity);
+        //                            ClaimsIdentity identity = new ClaimsIdentity(claims, "ApplicationCookie");
+        //                            ClaimsPrincipal principal = new ClaimsPrincipal(identity);
 
-                                    var context = Request.GetOwinContext();
-                                    var authManager = context.Authentication;
+        //                            var context = Request.GetOwinContext();
+        //                            var authManager = context.Authentication;
 
-                                    authManager.SignIn(new AuthenticationProperties { IsPersistent = true }, identity);
+        //                            authManager.SignIn(new AuthenticationProperties { IsPersistent = true }, identity);
 
-                                    Cookies.Write("balance", account.Balance.ToString(), 0);
+        //                            Cookies.Write("balance", account.Balance.ToString(), 0);
 
-                                    return RedirectToAction("Index", "Numbers");
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            return RedirectToAction("Index", "Home");
-        }
+        //                            return RedirectToAction("Index", "Numbers");
+        //                        }
+        //                    }
+        //                }
+        //            }
+        //        }
+        //    }
+        //    return RedirectToAction("Index", "Home");
+        //}
     }
 }

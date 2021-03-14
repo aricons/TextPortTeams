@@ -171,53 +171,11 @@ namespace TextPortCore.Data
             return null;
         }
 
-        public IEnumerable<SelectListItem> GetFreeNumbersList(int countryId)
+        public IEnumerable<SelectListItem> GetVirtualNumbersForBranch(int branchId, bool includeExpiredNumbers)
         {
             try
             {
-                List<SelectListItem> freeNumbers = (from dvn in _context.DedicatedVirtualNumbers
-                                                    join pn in _context.PooledNumbers on dvn.VirtualNumberId equals pn.VirtualNumberId
-                                                    where dvn.NumberType == (byte)NumberTypes.Free && dvn.CountryId == countryId
-                                                    select new SelectListItem
-                                                    {
-                                                        Value = dvn.VirtualNumberId.ToString(),
-                                                        Text = $"{Utilities.NumberToDisplayFormat(pn.VirtualNumber, dvn.CountryId)} - {pn.Description}"
-                                                    }).ToList();
-
-                //List<SelectListItem> freeNumbers = _context.DedicatedVirtualNumbers.Join(_context.PooledNumbers)
-                //.Where(fn => fn.NumberType == (int)NumberTypes.Free)
-                //.OrderBy(pn => pn.VirtualNumber)
-                //    .Select(pn =>
-                //    new SelectListItem
-                //    {
-                //        Value = pn.VirtualNumberId.ToString(),
-                //        Text = $"{Utilities.NumberToDisplayFormat(pn.VirtualNumber, countryId)} - {pn.Description}"
-                //    }).ToList();
-
-                SelectListItem firstItem = new SelectListItem()
-                {
-                    Value = null,
-                    Text = "--- select a number ---"
-                };
-
-                freeNumbers.Insert(0, firstItem);
-
-                return new SelectList(freeNumbers, "Value", "Text");
-            }
-            catch (Exception ex)
-            {
-                ErrorHandling eh = new ErrorHandling();
-                eh.LogException("Lists.GetFreeNumbersList", ex);
-            }
-
-            return null;
-        }
-
-        public IEnumerable<SelectListItem> GetVirtualNumbersForAccount(int accountId, bool includeExpiredNumbers)
-        {
-            try
-            {
-                List<SelectListItem> virtualNumbers = _context.DedicatedVirtualNumbers.Where(x => x.AccountId == accountId && x.Cancelled == includeExpiredNumbers)
+                List<SelectListItem> virtualNumbers = _context.DedicatedVirtualNumbers.Where(x => x.BranchId == branchId && x.Cancelled == includeExpiredNumbers)
                 .OrderByDescending(x => x.VirtualNumberId)
                     .Select(vn =>
                     new SelectListItem
@@ -252,7 +210,6 @@ namespace TextPortCore.Data
                 Dictionary<string, string> areaCodesDict = new Dictionary<string, string>()
                 {
                     {"800", "800"},
-                    //{"833", "833"},
                     {"844", "844"},
                     {"855", "855"},
                     {"866", "866"},
@@ -326,62 +283,84 @@ namespace TextPortCore.Data
             return null;
         }
 
-        public IEnumerable<SelectListItem> GetSupportCategoriesList(SupportRequestType requestType)
+        public List<SelectListItem> GetStatesForDropDown()
         {
+            List<SelectListItem> stateItems = new List<SelectListItem>();
             try
             {
-                Dictionary<string, string> supportTypesDict;
-                if (requestType == SupportRequestType.Contact)
+                foreach (State s in _context.States.ToList())
                 {
-                    supportTypesDict = new Dictionary<string, string>()
+                    stateItems.Add(new SelectListItem()
                     {
-                        {"General", "General question" },
-                        {"Feedback", "I want to provide feedback" },
-                        {"Block", "I want to block my number" },
-                        {"Abuse", "I want to report abuse" }
-                    };
+                        Value = s.StateCode,
+                        Text = s.StateName,
+                    });
                 }
-                else
+            }
+            catch (Exception)
+            {
+            }
+            return stateItems;
+        }
+
+        public List<SelectListItem> GetBranchesForDropDown(bool showEmptyItem)
+        {
+            List<SelectListItem> branchItems = new List<SelectListItem>();
+            try
+            {
+                foreach (Branch b in _context.Branches.ToList())
                 {
-                    supportTypesDict = new Dictionary<string, string>()
+                    branchItems.Add(new SelectListItem()
                     {
-                        {"General", "I have a general question" },
-                        {"Feedback", "I want to provide feedback" },
-                        {"NotDelivered", "My messages were not delivered" },
-                        {"Block", "I want to block my number" },
-                        {"Error", "I received an error" },
-                        {"Abuse", "I want to report abuse" }
-                    };
+                        Value = b.BranchId.ToString(),
+                        Text = b.BranchName,
+                        Selected = false
+                    });
                 }
 
-                List<SelectListItem> items = supportTypesDict
-                        .Select(lp =>
-                        new SelectListItem
-                        {
-                            Value = lp.Key,
-                            Text = lp.Value
-                        }).ToList();
+                if (showEmptyItem)
+                {
+                    SelectListItem firstItem = new SelectListItem()
+                    {
+                        Value = "",
+                        Text = "--- select branch ---"
+                    };
 
-                string firstItemText = "--- select a category ---";
-                string firstitemValue = "-1";
+                    branchItems.Insert(0, firstItem);
+                }
+            }
+            catch (Exception)
+            {
+            }
+            return branchItems;
+        }
+
+        public List<SelectListItem> GetRolesForDropDown()
+        {
+            List<SelectListItem> roleItems = new List<SelectListItem>();
+            try
+            {
+                foreach (Role r in _context.Roles.ToList())
+                {
+                    roleItems.Add(new SelectListItem()
+                    {
+                        Value = r.RoleId.ToString(),
+                        Text = r.RoleName,
+                    });
+                }
 
                 SelectListItem firstItem = new SelectListItem()
                 {
-                    Value = firstitemValue,
-                    Text = firstItemText
+                    Value = "",
+                    Text = "--- select role ---"
                 };
 
-                items.Insert(0, firstItem);
-
-                return new SelectList(items, "Value", "Text");
+                roleItems.Insert(0, firstItem);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                ErrorHandling eh = new ErrorHandling();
-                eh.LogException("Lists.GetSupportCategoriesList", ex);
             }
-
-            return null;
+            return roleItems;
         }
 
         #endregion

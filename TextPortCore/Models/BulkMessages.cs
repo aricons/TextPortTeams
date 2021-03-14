@@ -15,7 +15,13 @@ namespace TextPortCore.Models
 
         public int AccountId { get; set; }
 
+        public Branch Branch { get; set; }
+
         public decimal Balance { get; set; }
+
+        [Required(ErrorMessage = "A branch must be selected")]
+        [Display(Name = "Send From Branch")]
+        public int BranchId { get; set; }
 
         [Required(ErrorMessage = "A virtual number must be selected")]
         [Display(Name = "Send From Number")]
@@ -27,7 +33,8 @@ namespace TextPortCore.Models
         [Display(Name = "Same Message to All Numbers")]
         public bool SameMessageToAllNumbers { get; set; }
 
-        //public List<SelectNumberItem> VirtualNumbers { get; set; }
+        public List<Branch> Branches { get; set; }
+
         public List<DedicatedVirtualNumber> VirtualNumbers { get; set; }
 
         public List<SelectListItem> MessageCountOptions { get; set; }
@@ -51,12 +58,15 @@ namespace TextPortCore.Models
 
         public string BalanceAlert { get; set; }
 
+        public string Role { get; set; }
+
         public Account Account { get; set; }
 
         /* Constructors */
         public BulkMessages()
         {
             this.AccountId = 0;
+            this.BranchId = 0;
             this.Balance = 0;
             this.MessageLimit = 0;
             this.SubmitType = "MANUAL";
@@ -67,34 +77,43 @@ namespace TextPortCore.Models
             this.VirtualNumbers = new List<DedicatedVirtualNumber>();
             this.ProcessingState = string.Empty;
             this.BalanceAlert = string.Empty;
+            this.Role = "User";
             this.Account = null;
         }
 
-        public BulkMessages(int accId, int gridRows)
+        public BulkMessages(int accId, int branchId, string role, int gridRows)
         {
             this.AccountId = accId;
             this.MessageLimit = gridRows;
             this.SubmitType = "MANUAL";
             this.Messages = new List<BulkMessageItem>();
             this.MessageText = string.Empty;
+            this.Role = role;
             this.MessageCountOptions = new List<SelectListItem>();
             this.VirtualNumbers = new List<DedicatedVirtualNumber>();
 
             using (TextPortDA da = new TextPortDA())
             {
+                this.Branch = da.GetBranchByBranchId(branchId);
+                this.BranchId = branchId;
                 this.Account = da.GetAccountById(accId);
                 this.Balance = this.Account.Balance;
-                this.VirtualNumbers = da.GetNumbersForAccount(accId, false);
-                //foreach (DedicatedVirtualNumber dvn in dvns)
-                //{
-                //    this.VirtualNumbers.Add(new SelectNumberItem()
-                //    {
-                //        Value = dvn.VirtualNumberId.ToString(),
-                //        Text = dvn.NumberDisplayFormat,
-                //        CountryCode = dvn.Country.CountryAlphaCode,
-                //        ImageUrl = $"/content/images/flags/20px/{dvn.Country.CountryAlphaCode}.png"
-                //    });
-                //};
+                this.VirtualNumbers = da.GetNumbersForBranch(branchId, false);
+
+                if (this.Role == "Administrative User")
+                {
+                    this.Branches = da.GetAllBranches();
+                }
+                else if (this.Role == "General Manager")
+                {
+                    List<int> branchIds = this.Account.BranchIds.Split(',').Select(Int32.Parse).ToList();
+                    this.Branches = this.Branches = da.GetBranchesForIds(branchIds);
+                }
+                else
+                {
+                    this.Branches = new List<Branch>() { this.Branch };
+                }
+
             }
 
             foreach (int opt in this.gridSizeOptions)

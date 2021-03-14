@@ -12,13 +12,17 @@ namespace TextPortCore.Models
 {
     public class ContactsContainer
     {
-        public int AccountId { get; set; }
+        [Display(Name = "Branch")]
+        [Required(ErrorMessage = "A branch must be selected")]
+        public int BranchId { get; set; }
 
-        //[Display(Name = "Select a Group")]
-        //public int CurrentGroupId { get; set; }
+        public string Role { get; set; }
 
-        //[Display(Name = "Group Name")]
-        //public Group CurrentGroup { get; set; }
+        public Branch Branch { get; set; }
+
+        public Account Account { get; set; }
+
+        public List<Branch> Branches { get; set; }
 
         public List<Contact> Contacts { get; set; }
 
@@ -26,49 +30,41 @@ namespace TextPortCore.Models
         // Constructors
         public ContactsContainer()
         {
-            this.AccountId = 0;
+            this.BranchId = 0;
             this.Contacts = new List<Contact>();
-            //this.CurrentContactId = 0;
-            //this.CurrentContact = new Contact();
+            this.Branch = null;
+            this.Account = null;
         }
 
-        public ContactsContainer(int accountId)
+        public ContactsContainer(int branchId, int accountId, string role)
         {
-            this.AccountId = accountId;
-            //this.CurrentGroupId = 0;
-            //this.CurrentGroup = new Group();
+            this.BranchId = branchId;
+            this.Role = role;
 
             using (TextPortDA da = new TextPortDA())
             {
-                this.Contacts = da.GetContactsForAccount(accountId);
+                this.Branch = da.GetBranchByBranchId(branchId);
+                this.Account = da.GetAccountById(accountId);
 
-                //if (this.GroupsList.Count() > 0)
-                //{
-                //    this.CurrentGroupId = Convert.ToInt32(this.GroupsList.FirstOrDefault().Value);
-                //}
+                if (this.Role == "Administrative User")
+                {
+                    this.Branches = da.GetAllBranches();
+                }
+                else if (this.Role == "General Manager")
+                {
+                    List<int> branchIds = this.Account.BranchIds.Split(',').Select(Int32.Parse).ToList();
+                    this.Branches = this.Branches = da.GetBranchesForIds(branchIds);
+                }
+                else
+                {
+                    this.Branches = new List<Branch>() { this.Branch };
+                }
 
-                //if (this.CurrentGroupId > 0)
-                //{
-                //    this.CurrentGroup.Members = da.GetMembersForGroup(this.CurrentGroupId);
-                //}
+                this.Contacts = da.GetContactsForBranch(branchId);
             }
         }
 
-        //public ContactsContainer(Group newGroup)
-        //{
-        //    using (TextPortDA da = new TextPortDA())
-        //    {
-        //        this.AccountId = newGroup.AccountId;
-        //        this.CurrentGroupId = newGroup.GroupId;
-        //        this.GroupsList = da.GetGroupsList(newGroup.AccountId);
-        //        this.CurrentGroup = new Group();
-        //        if (this.CurrentGroupId > 0)
-        //        {
-        //            this.CurrentGroup.Members = da.GetMembersForGroup(this.CurrentGroupId);
-        //        }
-        //    }
-        //}
-        //}
+
     }
 
     //public class DeleteGroupMemberRequest

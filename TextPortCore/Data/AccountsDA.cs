@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 using TextPortCore.Models;
 using TextPortCore.Helpers;
+using TextPortCore.ViewModels;
 
 namespace TextPortCore.Data
 {
@@ -76,6 +77,7 @@ namespace TextPortCore.Data
             {
                 if (Utilities.IsValidEmail(userNameOrEmail))
                 {
+                    //acc = _context.Accounts.Include(x => x.Role).Include(x => x.Branch).FirstOrDefault(x => x.Email == userNameOrEmail && x.Enabled);
                     acc = _context.Accounts.FirstOrDefault(x => x.Email == userNameOrEmail && x.Enabled);
                 }
                 else
@@ -85,6 +87,12 @@ namespace TextPortCore.Data
 
                 if (acc != null)
                 {
+                    int branchId = acc.BranchId;
+                    int roleId = acc.RoleId;
+
+                    acc.Branch = _context.Branches.FirstOrDefault(x => x.BranchId == branchId);
+                    acc.Role = _context.Roles.FirstOrDefault(x => x.RoleId == roleId);
+
                     string decryptedPassword = AESEncryptDecrypt.Decrypt(acc.Password, Constants.RC4Key);
                     if (password.Equals(decryptedPassword, StringComparison.CurrentCulture))
                     {
@@ -187,21 +195,67 @@ namespace TextPortCore.Data
 
         #region "Update Methods"
 
-        public bool UpdateAccount(Account account)
+        //public bool UpdateAccount(Account account)
+        //{
+        //    try
+        //    {
+        //        if (account != null)
+        //        {
+        //            Account dbRecord = _context.Accounts.FirstOrDefault(x => x.AccountId == account.AccountId);
+        //            if (dbRecord != null)
+        //            {
+        //                dbRecord.EnableEmailNotifications = account.EnableEmailNotifications;
+        //                dbRecord.EnableMobileForwarding = account.EnableMobileForwarding;
+        //                dbRecord.NotificationsEmailAddress = account.NotificationsEmailAddress;
+        //                dbRecord.ForwardVnmessagesTo = Utilities.NumberToE164(account.ForwardVnmessagesTo, "1");
+        //                dbRecord.TimeZoneId = account.TimeZoneId;
+        //                dbRecord.Email = account.Email;
+
+        //                _context.Accounts.Update(dbRecord);
+        //                this.SaveChanges();
+
+        //                return true;
+        //            }
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        ErrorHandling eh = new ErrorHandling();
+        //        eh.LogException("AccountsDA.UpdateAccount", ex);
+        //    }
+
+        //    return false;
+        //}
+
+        public bool UpdateAccount(UserViewModel uvm)
         {
             try
             {
-                if (account != null)
+                if (uvm != null)
                 {
-                    Account dbRecord = _context.Accounts.FirstOrDefault(x => x.AccountId == account.AccountId);
+                    Account dbRecord = _context.Accounts.FirstOrDefault(x => x.AccountId == uvm.AccountId);
                     if (dbRecord != null)
                     {
-                        dbRecord.EnableEmailNotifications = account.EnableEmailNotifications;
-                        dbRecord.EnableMobileForwarding = account.EnableMobileForwarding;
-                        dbRecord.NotificationsEmailAddress = account.NotificationsEmailAddress;
-                        dbRecord.ForwardVnmessagesTo = Utilities.NumberToE164(account.ForwardVnmessagesTo, "1");
-                        dbRecord.TimeZoneId = account.TimeZoneId;
-                        dbRecord.Email = account.Email;
+                        dbRecord.Name = uvm.Name;
+                        dbRecord.BranchId = uvm.BranchId;
+                        dbRecord.RoleId = uvm.RoleId;
+                        dbRecord.Email = uvm.Email;
+                        dbRecord.Phone = uvm.Phone;
+
+                        if (uvm.SelectedBranches != null && uvm.SelectedBranches.Any())
+                        {
+                            dbRecord.BranchIds = string.Join(",", uvm.SelectedBranches);
+                            dbRecord.BranchId = Convert.ToInt32(uvm.SelectedBranches.First());
+                        }
+                        else
+                        {
+                            dbRecord.BranchIds = null;
+                        }
+
+                        if (dbRecord.BranchId <= 0)
+                        {
+                            dbRecord.BranchId = 1;
+                        }
 
                         _context.Accounts.Update(dbRecord);
                         this.SaveChanges();
@@ -241,32 +295,6 @@ namespace TextPortCore.Data
             return false;
         }
 
-        public bool UpdateAccountCryptoTransactionDetails(RegistrationData regData)
-        {
-            try
-            {
-                if (regData != null)
-                {
-                    Account acc = _context.Accounts.FirstOrDefault(x => x.AccountId == regData.AccountId);
-                    if (acc != null)
-                    {
-                        acc.PaymentUrl = regData.PaymentUrl;
-                        acc.PaymentTransactionId = regData.PaymentTransactionId;
-                        SaveChanges();
-
-                        return true;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                ErrorHandling eh = new ErrorHandling();
-                eh.LogException("AccountDA.UpdateAccountCryptoTransactionDetails", ex);
-            }
-
-            return false;
-        }
-
         public bool SetComplimentaryNumberFlag(int accountId, ComplimentaryNumberStatus flagValue)
         {
             try
@@ -274,7 +302,6 @@ namespace TextPortCore.Data
                 Account acc = GetAccountById(accountId);
                 if (acc != null)
                 {
-                    acc.ComplimentaryNumber = (byte)flagValue;
                     SaveChanges();
 
                     return true;
@@ -338,6 +365,47 @@ namespace TextPortCore.Data
 
         #region "Insert Methods"
 
+        public int AddAccount(UserViewModel uvm)
+        {
+            try
+            {
+                Account newAccount = new Account();
+
+                newAccount.CreateDate = DateTime.UtcNow;
+                newAccount.UserName = uvm.UserName;
+                newAccount.Password = AESEncryptDecrypt.Encrypt(uvm.Password, Constants.RC4Key);
+                newAccount.Email = uvm.Email;
+                newAccount.Name = uvm.Name;
+                newAccount.RoleId = uvm.RoleId;
+                newAccount.BranchId = uvm.BranchId;
+                newAccount.Phone = uvm.Phone;
+                newAccount.Enabled = true;
+                newAccount.Balance = 10000;
+                newAccount.SMSSegmentCost = 0;
+                newAccount.MMSSegmentCost = 0;
+                newAccount.Deleted = false;
+                newAccount.LastLogin = null;
+                newAccount.LoginCount = 0;
+                newAccount.MessageInCount = 0;
+                newAccount.MessageOutCount = 0;
+                newAccount.TimeZoneId = 14;
+                newAccount.RegistrationVirtualNumber = null;
+
+                _context.Accounts.Add(newAccount);
+
+                _context.SaveChanges();
+
+                return newAccount.AccountId;
+            }
+            catch (Exception ex)
+            {
+                ErrorHandling eh = new ErrorHandling();
+                eh.LogException("AccountDA.AddAccount", ex);
+            }
+
+            return 0;
+        }
+
         public int AddAccount(RegistrationData rd)
         {
             try
@@ -365,8 +433,6 @@ namespace TextPortCore.Data
                 newAccount.Password = AESEncryptDecrypt.Encrypt(rd.Password, Constants.RC4Key);
                 newAccount.TimeZoneId = 5;
                 newAccount.UserName = rd.UserName;
-                newAccount.ComplimentaryNumber = 0;
-                newAccount.RegisteredAsTrial = rd.FreeTrial;
                 newAccount.RegistrationVirtualNumber = rd.VirtualNumber;
 
                 _context.Accounts.Add(newAccount);
@@ -432,47 +498,7 @@ namespace TextPortCore.Data
 
         #region "Update Methods"
 
-        public bool EnableTemporaryAccount(RegistrationData rd)
-        {
-            try
-            {
-                Account existingAccount = _context.Accounts.FirstOrDefault(x => x.AccountId == rd.AccountId);
-                if (existingAccount != null)
-                {
-                    existingAccount.Enabled = true;
-                    _context.SaveChanges();
-                    return true;
-                }
-            }
-            catch (Exception ex)
-            {
-                ErrorHandling eh = new ErrorHandling();
-                eh.LogException("AccountDA.EnableTemporaryAccount", ex);
-            }
 
-            return false;
-        }
-
-        public bool EnableTemporaryAccount(int accountId)
-        {
-            try
-            {
-                Account existingAccount = _context.Accounts.FirstOrDefault(x => x.AccountId == accountId);
-                if (existingAccount != null)
-                {
-                    existingAccount.Enabled = true;
-                    _context.SaveChanges();
-                    return true;
-                }
-            }
-            catch (Exception ex)
-            {
-                ErrorHandling eh = new ErrorHandling();
-                eh.LogException("AccountDA.EnableTemporaryAccount", ex);
-            }
-
-            return false;
-        }
 
         #endregion
     }

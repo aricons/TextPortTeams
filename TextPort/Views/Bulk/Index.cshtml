@@ -49,15 +49,13 @@
     $.validator.setDefaults({ ignore: [] });
 
     $(function () {
-        $("#VirtualNumberId").val($("#FromNumberId option:selected").val());
-
-        //$('#MessageLimit').on("change", function (e) {
-        //    $("#SubmitOperation").val("ChangeGridRows");
-        //    AJAXPost();
+        //$("#VirtualNumberId").val($("#FromNumberId option:selected").val());
+        //$('#FromNumberId').on("change", function (e) {
+        //    $("#VirtualNumberId").val($("#FromNumberId option:selected").val());
         //});
 
-        $('#FromNumberId').on("change", function (e) {
-            $("#VirtualNumberId").val($("#FromNumberId option:selected").val());
+        $('#BranchId').on("change", function (e) {
+            getNumbersForBranch($("#BranchId option:selected").val());
         });
 
         // Setup emoji picker
@@ -69,47 +67,6 @@
         });
         window.emojiPicker.discover();
 
-        //$('#emojipick_1').on("keyup", function (e) {
-        //    checkSendButtonEligibility();
-        //});
-
-        // Setup dropzone
-        //myDropzone = $("#mmsDropzone").dropzone({
-        //    url: "/messages/uploadfile",
-        //    method: 'POST',
-        //    addRemoveLinks: true,
-        //    thumbnailHeight: 30,
-        //    thumbnailWidth: 30,
-        //    maxFiles: 10,
-        //    maxFilesize: 4000,
-        //    success: function (file) {
-        //        file.previewElement.parentNode.removeChild(file.previewElement);
-        //        var fileId = $(file.xhr.response).attr("id");
-        //        var fileName = file.name.replace(/\s/g, "");
-        //        mmsFiles.push({ "UniqueName": fileId + "_" + fileName });
-
-        //        var lastMessageItem = $('.msg_item:last').attr('id');
-        //        if (typeof lastMessageItem != 'undefined') {
-        //            $("#" + lastMessageItem).after(file.xhr.response);
-        //        }
-        //        else {
-        //            $("#msg_list").html('');
-        //            var msgList = document.getElementById("msg_list");
-        //            msgList.insertAdjacentHTML("beforeend", file.xhr.response);
-        //        }
-
-        //        var ml = $("#msg_list");
-
-        //        // Animated
-        //        ml.animate({ scrollTop: ml.prop("scrollHeight") - ml.height() }, 50);
-
-        //        checkSendButtonEligibility();
-        //    },
-        //    error: function (file) {
-        //        alert("Upload error" + file.error);
-        //    },
-        //});
-
         if ($("#message_text").length) {
             $('#message_text').countSms('#sms-counter');
         }
@@ -118,12 +75,33 @@
             $("#MessageText").val($("#message_text").val());
         });
     });
+
+    function getNumbersForBranch(branchId) {
+        $.get({
+            url: "/messages/getnumbersforbranch?bid=" + branchId,
+            dataType: "json",
+            cache: false,
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert(textStatus + ": Number data load failed. " + errorThrown);
+            },
+            success: function (result) {
+                var $dd = $("#VirtualNumberId");
+                $dd.empty();
+
+                if (result.length) {
+                    $.each(result, function () {
+                        $dd.append($("<option />").val(this.VirtualNumberId).text(this.NumberDisplay));
+                    });
+                }
+            }
+        })
+    }
 </script>
 <div class="w-100">
     <h3 class="d-inline-block">@((Model.ProcessingState.Equals("PROCESSED")) ? "Bulk Processing Results" : "Send Bulk Texts")</h3>
     @if (Model.ProcessingState != "PENDING")
     {
-        <a href="/bulk-upload" class="d-inline-block float-right pt-2"><i class="fa fa-arrow-left pr-2"></i>Return to Message Entry</a>
+        <a href="/bulk" class="d-inline-block float-right pt-2"><i class="fa fa-arrow-left pr-2"></i>Return to Message Entry</a>
     }
 </div>
 <hr />
@@ -132,7 +110,6 @@
     @Html.HiddenFor(m => m.AccountId)
     @Html.HiddenFor(m => m.SubmitOperation)
     @Html.HiddenFor(m => m.SubmitType)
-    @Html.HiddenFor(m => m.VirtualNumberId)
     @Html.HiddenFor(m => m.MessageText)
     <input type="hidden" id="hidSMSCost" value="@Model.Account.SMSSegmentCost" />
     <input type="hidden" id="hidMMSCost" value="@Model.Account.MMSSegmentCost" />
@@ -145,20 +122,26 @@
     {
         <div class="form-group">
             <div class="row">
-                <div class="col-md-4 px-0">
+                <div class="col-md-4">
+                    @Html.LabelFor(m => m.BranchId, new { @class = "form-label" })
+                    <select name="BranchId" id="BranchId" class="form-control">
+                        @foreach (TextPortCore.Models.Branch branch in Model.Branches)
+                        {
+                            <option value="@branch.BranchId" @((branch.BranchId == Model.Branch.BranchId) ? "selected" : "")>@branch.BranchName</option>
+                        }
+                    </select>
+                    @Html.ValidationMessageFor(m => m.BranchId, null, new { @class = "text-danger" })
+                </div>
+                <div class="col-md-4">
                     @Html.LabelFor(m => m.VirtualNumberId, new { @class = "form-label" })
-                    <select id="FromNumberId" class="selectpicker form-control">
+                    <select name="VirtualNumberId" id="VirtualNumberId" class="form-control">
                         @foreach (DedicatedVirtualNumber vn in Model.VirtualNumbers)
                         {
-                            <option value="@vn.VirtualNumberId" data-number="@vn.VirtualNumber" data-content="<img src='@vn.ImageUrl' class='pr-2' />@vn.NumberDisplayFormat"></option>
+                            <option value="@vn.VirtualNumberId">@vn.NumberDisplayFormat</option>
                         }
                     </select>
                     @Html.ValidationMessageFor(m => m.VirtualNumberId, null, new { @class = "text-danger" })
                 </div>
-                @*<div class="col-md-4 offset-4 float-right">
-                        <label class="form-label">&nbsp;</label>
-                        <a class="form-control btn btn-primary float-right" href="/bulk-upload">Upload Numbers and Messages</a>
-                    </div>*@
             </div>
         </div>
         <div class="form-group">

@@ -25,15 +25,15 @@ namespace TextPortCore.Models
             this.NewAddress = new EmailToSMSAddress();
         }
 
-        public EmailToSMSContainer(int accountId)
+        public EmailToSMSContainer(int branchId)
         {
-            this.AccountId = accountId;
+            this.AccountId = branchId;
             this.VirtualNumbersList = new List<SelectListItem>();
             this.NewAddress = new EmailToSMSAddress();
 
             using (TextPortDA da = new TextPortDA())
             {
-                List<DedicatedVirtualNumber> dvns = da.GetNumbersForAccount(accountId, false);
+                List<DedicatedVirtualNumber> dvns = da.GetNumbersForBranch(branchId, false);
                 foreach (DedicatedVirtualNumber dvn in dvns)
                 {
                     this.VirtualNumbersList.Add(new SelectListItem()
@@ -43,7 +43,7 @@ namespace TextPortCore.Models
                     });
                 };
 
-                this.EmailAddressList = da.GetEmailToSMSAddressesForAccount(accountId);
+                this.EmailAddressList = da.GetEmailToSMSAddressesForAccount(branchId);
             }
         }
     }

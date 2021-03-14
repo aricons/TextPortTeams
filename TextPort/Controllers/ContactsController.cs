@@ -11,28 +11,63 @@ namespace TextPort.Controllers
 {
     public class ContactsController : Controller
     {
-        [Authorize(Roles = "User")]
+        [Authorize]
         [HttpGet]
         public ActionResult Index()
         {
             int accountId = Utilities.GetAccountIdFromClaim(ClaimsPrincipal.Current);
+            int branchId = Utilities.GetBranchIdFromClaim(ClaimsPrincipal.Current);
+            string role = Utilities.GetRoleFromClaim(ClaimsPrincipal.Current);
 
-            ContactsContainer cc = new ContactsContainer(accountId);
+            ContactsContainer cc = new ContactsContainer(branchId, accountId, role);
 
             return View(cc);
         }
 
-        [Authorize(Roles = "User")]
+        [Authorize]
         [HttpGet]
-        public ActionResult Add()
+        public ActionResult GetContactsForBranch(int id)
         {
             try
             {
-                int accountId = Utilities.GetAccountIdFromClaim(ClaimsPrincipal.Current);
+                int branchId = Utilities.GetBranchIdFromClaim(ClaimsPrincipal.Current);
+                if (id > 0)
+                {
+                    branchId = id;
+                }
+
+                List<Contact> contacts = new List<Contact>();
+                using (TextPortDA da = new TextPortDA())
+                {
+                    contacts = da.GetContactsForBranch(branchId);
+                }
+
+                return PartialView("_ContactsList", contacts);
+            }
+            catch (Exception ex)
+            {
+                string bar = ex.Message;
+                return null;
+            }
+        }
+
+        [Authorize]
+        [HttpGet]
+        public ActionResult Add(int id)
+        {
+            try
+            {
+                int branchId = Utilities.GetBranchIdFromClaim(ClaimsPrincipal.Current);
+                string role = Utilities.GetRoleFromClaim(ClaimsPrincipal.Current);
+
+                if (id > 0)
+                {
+                    branchId = id;
+                }
 
                 Contact newContact = new Contact()
                 {
-                    AccountId = accountId,
+                    BranchId = branchId,
                     Name = string.Empty,
                     MobileNumber = string.Empty
                 };
@@ -45,14 +80,12 @@ namespace TextPort.Controllers
             }
         }
 
-        [Authorize(Roles = "User")]
+        [Authorize]
         [HttpPost]
         public ActionResult Add(Contact newContact)
         {
             try
             {
-                int accountId = Utilities.GetAccountIdFromClaim(ClaimsPrincipal.Current);
-                newContact.AccountId = accountId;
                 newContact.DateAdded = DateTime.Now;
 
                 List<Contact> contacts = new List<Contact>();
@@ -61,7 +94,7 @@ namespace TextPort.Controllers
                 {
                     da.AddContact(newContact);
 
-                    contacts = da.GetContactsForAccount(accountId);
+                    contacts = da.GetContactsForBranch(newContact.BranchId);
                 }
 
                 return PartialView("_ContactsList", contacts);
@@ -73,18 +106,18 @@ namespace TextPort.Controllers
             }
         }
 
-        [Authorize(Roles = "User")]
+        [Authorize]
         [HttpGet]
         public ActionResult Edit(int id)
         {
             try
             {
                 Contact contact = null;
-                int accountId = Utilities.GetAccountIdFromClaim(ClaimsPrincipal.Current);
+                int branchId = Utilities.GetBranchIdFromClaim(ClaimsPrincipal.Current);
 
                 using (TextPortDA da = new TextPortDA())
                 {
-                    contact = da.GetContactByContactId(accountId, id);
+                    contact = da.GetContactByContactId(branchId, id);
                     contact.MobileNumber = Utilities.NumberToBandwidthFormat(contact.MobileNumber);
                 }
 
@@ -97,7 +130,7 @@ namespace TextPort.Controllers
             }
         }
 
-        [Authorize(Roles = "User")]
+        [Authorize]
         [HttpPost]
         public ActionResult Edit(Contact contact)
         {
@@ -107,11 +140,11 @@ namespace TextPort.Controllers
 
                 using (TextPortDA da = new TextPortDA())
                 {
-                    contact.AccountId = Utilities.GetAccountIdFromClaim(ClaimsPrincipal.Current);
+                    contact.BranchId = Utilities.GetBranchIdFromClaim(ClaimsPrincipal.Current);
                     contact.MobileNumber = Utilities.NumberToE164(contact.MobileNumber, "1");
                     da.UpdateContact(contact);
 
-                    contacts = da.GetContactsForAccount(contact.AccountId);
+                    contacts = da.GetContactsForBranch(contact.BranchId);
                 }
 
                 return PartialView("_ContactsList", contacts);
@@ -123,7 +156,7 @@ namespace TextPort.Controllers
             }
         }
 
-        [Authorize(Roles = "User")]
+        [Authorize]
         [HttpGet]
         public ActionResult Apply(int id, string number)
         {
@@ -141,7 +174,7 @@ namespace TextPort.Controllers
                 }
                 else
                 {
-                    contact.AccountId = Utilities.GetAccountIdFromClaim(ClaimsPrincipal.Current);
+                    contact.BranchId = Utilities.GetBranchIdFromClaim(ClaimsPrincipal.Current);
                     contact.Name = string.Empty;
                     contact.MobileNumber = number;
                 };
@@ -155,7 +188,7 @@ namespace TextPort.Controllers
             }
         }
 
-        [Authorize(Roles = "User")]
+        [Authorize]
         [HttpPost]
         public ActionResult Apply(Contact contact)
         {
@@ -163,8 +196,7 @@ namespace TextPort.Controllers
             {
                 using (TextPortDA da = new TextPortDA())
                 {
-                    //contact.MobileNumber = contact.MobileNumber;
-                    contact.AccountId = Utilities.GetAccountIdFromClaim(ClaimsPrincipal.Current);
+                    contact.BranchId = Utilities.GetBranchIdFromClaim(ClaimsPrincipal.Current);
                     da.AddOrReplaceContact(contact);
                 }
                 return null;
@@ -176,13 +208,13 @@ namespace TextPort.Controllers
             }
         }
 
-        [Authorize(Roles = "User")]
+        [Authorize]
         [HttpPost]
         public ActionResult DeleteContact(DeleteContactRequest request)
         {
             try
             {
-                int accountId = Utilities.GetAccountIdFromClaim(ClaimsPrincipal.Current);
+                int branchId = Utilities.GetBranchIdFromClaim(ClaimsPrincipal.Current);
 
                 List<Contact> contacts = new List<Contact>();
 
@@ -190,7 +222,7 @@ namespace TextPort.Controllers
                 {
                     da.DeleteContact(request.ContactId);
 
-                    contacts = da.GetContactsForAccount(accountId);
+                    contacts = da.GetContactsForBranch(branchId);
                 }
 
                 return PartialView("_ContactsList", contacts);

@@ -25,13 +25,23 @@ namespace TextPortCore.Models
         [Display(Name = "Email Address")]
         public string Email { get; set; }
 
+        [Display(Name = "Name")]
+        public string Name { get; set; }
+
+        public int BranchId { get; set; }
+
+        public string BranchIds { get; set; }
+
+        public int RoleId { get; set; }
+
+        [Display(Name = "Phone")]
+        public string Phone { get; set; }
+
         [Display(Name = "Time Zone")]
         public int TimeZoneId { get; set; }
 
         [Display(Name = "Date Created")]
         public DateTime CreateDate { get; set; }
-
-        public bool RegisteredAsTrial { get; set; }
 
         [Display(Name = "Last Login")]
         public DateTime? LastLogin { get; set; }
@@ -83,12 +93,10 @@ namespace TextPortCore.Models
 
         public bool Enabled { get; set; }
 
-        public byte ComplimentaryNumber { get; set; }
-
-        public string PaymentUrl { get; set; }
-
-        public string PaymentTransactionId { get; set; }
-
         public TimeZone TimeZone { get; set; }
+
+        public Role Role { get; set; }
+
+        public Branch Branch { get; set; }
     }
 }

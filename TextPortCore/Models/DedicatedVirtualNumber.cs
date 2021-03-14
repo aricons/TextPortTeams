@@ -9,7 +9,7 @@ namespace TextPortCore.Models
     {
         public int VirtualNumberId { get; set; }
 
-        public int AccountId { get; set; }
+        public int BranchId { get; set; }
 
         public int CountryId { get; set; }
 
@@ -22,8 +22,6 @@ namespace TextPortCore.Models
         [Required(ErrorMessage = "A number is required")]
         [Display(Name = "Number")]
         public string VirtualNumber { get; set; }
-
-        //public string Provider { get; set; }
 
         public string LeasePeriodType { get; set; }
 
@@ -40,8 +38,6 @@ namespace TextPortCore.Models
 
         [Display(Name = "Auto-Renew")]
         public bool AutoRenew { get; set; }
-
-        public int? APIApplicationId { get; set; }
 
         public bool IsDefault { get; set; }
 
@@ -84,7 +80,7 @@ namespace TextPortCore.Models
             }
         }
 
-        public Account Account { get; set; }
+        public Branch Branch { get; set; }
 
         public Carrier Carrier { get; set; }
 
@@ -95,14 +91,14 @@ namespace TextPortCore.Models
         {
             this.CarrierId = (int)Carriers.BandWidth;
             this.VirtualNumber = string.Empty;
-            this.AccountId = 0;
+            this.BranchId = 0;
         }
 
         public DedicatedVirtualNumber(NumberExpirationData expData)
         {
             this.VirtualNumberId = expData.VirtualNumberID;
             this.VirtualNumber = expData.VirtualNumber;
-            this.AccountId = expData.AccountID;
+            this.BranchId = expData.BranchId;
             this.CountryCode = expData.CountryCode;
             this.ExpirationDate = expData.ExpirationDate;
         }

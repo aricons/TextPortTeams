@@ -33,15 +33,15 @@
             // 
             // serviceProcessInstaller1
             // 
-            //this.serviceProcessInstaller1.Password = "Yowzer4";
-            //this.serviceProcessInstaller1.Username = "svcuser";
             this.serviceProcessInstaller1.Account = System.ServiceProcess.ServiceAccount.LocalSystem;
+            this.serviceProcessInstaller1.Password = null;
+            this.serviceProcessInstaller1.Username = null;
             // 
             // serviceInstaller1
             // 
-            this.serviceInstaller1.Description = "TextPort V2 Communications Service";
-            this.serviceInstaller1.DisplayName = "TextPort V2 Communications Service";
-            this.serviceInstaller1.ServiceName = "TextPort V2 Communications Service";
+            this.serviceInstaller1.Description = "TextPort StaffZone Communications Service";
+            this.serviceInstaller1.DisplayName = "TextPort StaffZone Communications Service";
+            this.serviceInstaller1.ServiceName = "TextPort StaffZone Communications Service";
             this.serviceInstaller1.StartType = System.ServiceProcess.ServiceStartMode.Automatic;
             // 
             // ProjectInstaller

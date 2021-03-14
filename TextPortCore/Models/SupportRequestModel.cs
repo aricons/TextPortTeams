@@ -84,7 +84,7 @@ namespace TextPortCore.Models
             this.SubmissionMessage = string.Empty;
             using (TextPortDA da = new TextPortDA())
             {
-                this.CategoriesList = da.GetSupportCategoriesList(requestType);
+                this.CategoriesList = null; //da.GetSupportCategoriesList(requestType);
             }
         }
     }

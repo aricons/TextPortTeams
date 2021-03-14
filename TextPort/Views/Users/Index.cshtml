@@ -1,0 +1,322 @@
+﻿@model TextPortCore.ViewModels.UserListContainer
+@using TextPortCore.Models
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "User Management";
+}
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>User Management</title>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twbs-pagination/1.4.2/jquery.twbsPagination.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootbox.js/5.5.2/bootbox.min.js"></script>
+
+    <script type="text/javascript">
+        var timer;
+
+        $(document).ajaxStart(function () {
+            timer && clearTimeout(timer);
+            timer = setTimeout(function () {
+                $('#spintiller').show();
+            }, 300);
+        }).ajaxStop(function () {
+            clearTimeout(timer);
+            $('#spintiller').hide();
+        }).ajaxComplete(function () {
+            clearTimeout(timer);
+            $('#spintiller').hide();
+        }).ajaxError(function () {
+            clearTimeout(timer);
+            $('#spintiller').hide();
+        });
+
+        $(document).ready(function () {
+            $.ajaxSetup({ cache: false });
+            setSortIndicator();
+            loadItems(1);
+
+            $('#btn-additem').on('click', function () {
+                var url = '/users/add-user';
+                var target = $(this).data('target');
+                $.get(url, function (data) {
+                    $(target).html(data);
+                    $(target + ' > .modal').modal({ keyboard: true }, 'show');
+                    $.validator.unobtrusive.parse("#form-add");
+                });
+                return false;
+            });
+
+            $(".sch-field").keyup(function (e) {
+                if (e.keyCode === 13 && e.target.value.length >= 5) {
+                    executeSearch();
+                }
+            });
+        });
+
+        function loadItems(page) {
+            var operation = $("#operation").val();
+            var recordsPerPage = 20; // $("#rowsToShow option:selected").val();
+            var previousRecordsPerPage = $("#prevRecordsPerPage").val();
+            var sortBy = $("#sortBy").val();
+            var prevSortBy = $("#prevSortBy").val();
+            var sortOrder = $("#sortOrder").val();
+            var searchString = $("#SearchString").val();
+            var searchBy = $("#SearchBy").val();
+            var searchState = $("#SearchState").val();
+
+            $("#currentPage").val(page);
+            $("#prevRecordsPerPage").val(recordsPerPage);
+
+            var params = {
+                Operation: operation,
+                Page: page,
+                RecordsPerPage: recordsPerPage,
+                PreviousRecordsPerPage: previousRecordsPerPage,
+                SortBy: sortBy,
+                PrevSortBy: prevSortBy,
+                SortOrder: sortOrder,
+                SearchString: searchString,
+                SearchBy: searchBy,
+                SearchState: searchState
+            };
+
+            $.post({
+                url: '/users/getuserpage',
+                data: JSON.stringify(params),
+                contentType: "application/json",
+                cache: false,
+                error: function (jqXHR, textStatus, errorThrown) {
+                    alert(textStatus + ": Message data load failed. " + errorThrown);
+                },
+                success: function (inboxData) {
+                    $("#inv-list").html(inboxData.html);
+                    $("#recordLabel").text(inboxData.recordLabel);
+                    $("#currentPage").val(inboxData.page);
+                    $("#recordsPerPage").val(inboxData.recordsPerPage);
+                    $("#sortOrder").val(inboxData.sortOrder);
+
+                    setSortIndicator();
+                    $("#cbSelectAll").prop("checked", false);
+
+                    $('#paginator').twbsPagination('destroy');
+                    $("#paginator").twbsPagination({
+                        totalPages: inboxData.pageCount,
+                        visiblePages: 10,
+                        startPage: inboxData.page,
+                        initiateStartPageClick: false,
+                        onPageClick: function (event, page) {
+                            $("#operation").val('page');
+                            loadItems(page);
+                        }
+                    });
+
+                    $('.btn-edit').on('click', function () {
+                        var id = $(this).data("id");
+                        var url = '/users/edit-user/' + id;
+                        var target = $(this).data('target');
+
+                        $.get(url, function (data) {
+                            $(target).html(data);
+                            $(target + ' > .modal').modal({ keyboard: true }, 'show');
+                        });
+
+                        $(target).on("submit", "#form-edit", function (e) {
+                            e.preventDefault();
+                            e.stopImmediatePropagation();
+                            var form = $(this);
+                            $.ajax({
+                                url: form.attr("action"),
+                                method: form.attr("method"),
+                                data: form.serialize(),
+                                success: function () {
+                                    $(target + ' > .modal').modal('toggle');
+                                    loadItems($("#currentPage").val());
+                                }
+                            });
+                        });
+                        return false;
+                    });
+                }
+            })
+        }
+
+        function resetSearch() {
+            clearSearchParams();
+            loadItems(1);
+        }
+
+        function changeRowCount() {
+            loadItems($("#currentPage").val());
+        }
+
+        function changeSort(sortBy) {
+            $("#operation").val('sort');
+            $("#sortBy").val(sortBy);
+            loadItems($("#currentPage").val());
+            $("#prevSortBy").val(sortBy);
+        }
+
+        function executeSearch() {
+            loadItems(1);
+        }
+
+        function clearSearchParams() {
+            $("#SearchString").val("");
+            $("#SearchBy").val("");
+            $("#StateFilter").val("");
+        }
+
+        function selectAll() {
+            $(".cbsel").prop("checked", $("#cbSelectAll").prop("checked"));
+        }
+
+        function setSortIndicator() {
+            $('.sort-ind').hide();
+            $("#img-sort-" + $("#sortBy").val()).attr('src', "/content/images/arw-sort-" + $("#sortOrder").val() + "-16.png").show();
+        }
+
+        function deleteItem(userId, userName) {
+            bootbox.confirm({
+                title: "Delete user?",
+                message: "Are you sure you want delete this user " + userName + "?",
+                buttons: {
+                    cancel: {
+                        label: '<i class="fa fa-times"></i> Cancel'
+                    },
+                    confirm: {
+                        label: '<i class="fa fa-check"></i> Delete'
+                    }
+                },
+                callback: function (result) {
+                    if (result) {
+                        var UserViewModel = {
+                            UserId: userId
+                        };
+                        $.post({
+                            url: '/users/delete-user',
+                            data: JSON.stringify(UserViewModel),
+                            contentType: "application/json",
+                            cache: false,
+                            error: function (jqXHR, textStatus, errorThrown) {
+                                alert(textStatus + ": Delete operation failed. " + errorThrown);
+                            },
+                            success: function (partialResult) {
+                                loadItems($("#currentPage").val());
+                            }
+                        })
+                    }
+                }
+            });
+        }
+    </script>
+
+    <style type="text/css">
+        .table th {
+            font-size: .9rem;
+            padding: 8px 5px;
+        }
+
+        .table td {
+            font-size: .8rem;
+            padding: 5px 5px;
+        }
+
+        #spintiller {
+            position: fixed;
+            top: 0px;
+            right: 0px;
+            width: 100%;
+            height: 100%;
+            background-color: #666;
+            background-image: url('/content/images/spintiller.gif');
+            background-repeat: no-repeat;
+            background-position: center;
+            z-index: 10000000;
+            opacity: 0.4;
+            filter: alpha(opacity=40); /* For IE8 and earlier */
+        }
+
+        .list-head {
+            color: #ffffff;
+            font-size: 0.9rem;
+            font-weight: 600;
+            padding: 0 4px 8px 2px
+        }
+
+            .list-head:hover {
+                color: #ffffff;
+            }
+    </style>
+</head>
+
+<body>
+    <input type="hidden" id="operation" value="page" />
+    <input type="hidden" id="prevRecordsPerPage" value="20" />
+    <input type="hidden" id="currentPage" value="1" />
+    <input type="hidden" id="sortBy" value="Name" />
+    <input type="hidden" id="prevSortBy" value="Name" />
+    <input type="hidden" id="sortOrder" value="asc" />
+    <input type="hidden" id="recordsPerPage" value="30" />
+
+    <div class="content-wrapper">
+        <div class="card">
+            <div class="card-header">
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="h4">User Management</div>
+                    </div>
+                    <div class="col-md-4 text-right">
+                        <input type="button" id="btn-additem" class="btn btn-success float-right" data-toggle="modal" data-target="#modal-cont" value="Add User" />
+                    </div>
+                </div>
+            </div>
+            <div>
+                <div class="row pt-2">
+                    <div class="col-12 float-right">
+                        <div class="form-group">
+                            <label id="recordLabel" class="small float-right pr-2"></label>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <table class="table table-sm table-striped border-bottom">
+                        <thead>
+                            <tr class="text-white" style="background-color: #007bff">
+                                <th scope="col">
+                                    <a href="javascript:changeSort('Name')" class="list-head btn-link">Name</a>
+                                    <img id="img-sort-Name" src="" class="sort-ind" />
+                                </th>
+                                <th scope="col">
+                                    <a href="javascript:changeSort('UserName')" class="list-head btn-link">User Name</a>
+                                    <img id="img-sort-UserName" src="" class="sort-ind" />
+                                </th>
+                                <th scope="col">
+                                    <a href="javascript:changeSort('BranchName')" class="list-head btn-link">Branch</a>
+                                    <img id="img-sort-BranchName" src="" class="sort-ind" />
+                                </th>
+                                <th scope="col">
+                                    <a href="javascript:changeSort('RoleName')" class="list-head btn-link">Role</a>
+                                    <img id="img-sort-RoleName" src="" class="sort-ind" />
+                                </th>
+                                <th scope="col">
+                                    <a href="javascript:changeSort('Email')" class="list-head btn-link">Email</a>
+                                    <img id="img-sort-Email" src="" class="sort-ind" />
+                                </th>
+                                <th class="list-head" scope="col">Phone</th>
+                                <th class="list head text-center" style="width: 140px">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inv-list"></tbody>
+                    </table>
+                </div>
+                <ul id="paginator" class="pagination justify-content-center"></ul>
+            </div>
+        </div>
+    </div>
+    <div id="modal-cont"></div>
+    <div id="spintiller"></div>
+</body>
+</html>

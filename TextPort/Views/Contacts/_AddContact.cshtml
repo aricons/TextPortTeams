@@ -11,7 +11,7 @@
             </div>
             @using (Html.BeginForm("Add", "Contacts", FormMethod.Post, new { id = "add-contact-form" }))
             {
-                @Html.HiddenFor(m => m.AccountId)
+                @Html.HiddenFor(m => m.BranchId)
                 <div class="modal-body">
                     <div class="form-group">
                         @Html.LabelFor(m => m.Name, new { @class = "form-label" })

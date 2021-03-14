@@ -10,7 +10,7 @@
                 {
                     foreach (MMSFile mms in msg.MMSFiles)
                     {
-                        <div><img src="@MMSUtils.GetMMSFileURL(msg.AccountId, mms.StorageId, mms.FileName)" alt="@mms.FileName" /></div>
+                        <div><img src="@MMSUtils.GetMMSFileURL(msg.BranchId, mms.StorageId, mms.FileName)" alt="@mms.FileName" /></div>
                     }
                 }
                 <p>@msg.MessageText</p>
@@ -28,7 +28,7 @@
                 {
                     foreach (MMSFile mms in msg.MMSFiles)
                     {
-                        <div><img src="@MMSUtils.GetMMSFileURL(msg.AccountId, mms.StorageId, mms.FileName)" alt="@mms.FileName" /></div>
+                        <div><img src="@MMSUtils.GetMMSFileURL(msg.BranchId, mms.StorageId, mms.FileName)" alt="@mms.FileName" /></div>
                     }
                 }
                 <p>@msg.MessageText</p><span class="time_date">@string.Format("{0:MMMM dd, yy | hh:mm tt}", msg.TimeStamp)</span>

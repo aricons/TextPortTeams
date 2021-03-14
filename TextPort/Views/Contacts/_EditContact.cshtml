@@ -13,7 +13,7 @@
             {
                 <div class="modal-body">
                     @Html.HiddenFor(m => m.ContactId)
-                    @Html.HiddenFor(m => m.AccountId)
+                    @Html.HiddenFor(m => m.BranchId)
                     <div class="form-group">
                         @Html.LabelFor(m => m.Name, new { @class = "form-label" })
                         @Html.TextBoxFor(m => m.Name, new { @class = "form-control", placeholder = "Contact name" })

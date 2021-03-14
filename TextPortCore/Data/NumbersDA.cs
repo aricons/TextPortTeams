@@ -31,32 +31,6 @@ namespace TextPortCore.Data
             return "Invalid area code";
         }
 
-        //public List<SelectListItem> GetCountriesList(string purchaseType)
-        //{
-        //    List<SelectListItem> countriesList = new List<SelectListItem>();
-
-        //    try
-        //    {
-        //        List<Country> vncs = new List<Country>();
-        //        vncs = _context.Countries.Where(x => x.Enabled == true).OrderBy(x => x.SortOrder).ToList();
-
-        //        foreach (Country country in vncs)
-        //        {
-        //            SelectListItem listItem = new SelectListItem();
-        //            listItem.Text = $"{country.CountryName}";
-        //            listItem.Value = country.CountryId.ToString();
-
-        //            countriesList.Add(listItem);
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        ErrorHandling eh = new ErrorHandling();
-        //        eh.LogException("NumbersDA.GetCountriesList", ex);
-        //    }
-        //    return countriesList;
-        //}
-
         public List<Country> GetCountriesList()
         {
             List<Country> countriesList = new List<Country>();
@@ -87,345 +61,46 @@ namespace TextPortCore.Data
             return null;
         }
 
-        public List<DedicatedVirtualNumber> GetNumbersForAccount(int accountId, bool includeExpiredNumbers)
+        public List<DedicatedVirtualNumber> GetNumbersForBranch(int branchId, bool includeExpiredNumbers)
         {
             try
             {
                 if (includeExpiredNumbers)
                 {
-                    return _context.DedicatedVirtualNumbers.Include(x => x.Country).Where(x => x.AccountId == accountId).OrderBy(x => x.CountryId).ThenByDescending(x => x.CreateDate).ToList();
+                    return _context.DedicatedVirtualNumbers.Include(x => x.Country).Where(x => x.BranchId == branchId).OrderBy(x => x.CountryId).ThenByDescending(x => x.CreateDate).ToList();
                 }
                 else
                 {
-                    return _context.DedicatedVirtualNumbers.Include(x => x.Country).Where(x => x.AccountId == accountId && x.Cancelled == false).OrderBy(x => x.CountryId).ThenByDescending(x => x.CreateDate).ToList();
+                    return _context.DedicatedVirtualNumbers.Include(x => x.Country).Where(x => x.BranchId == branchId && x.Cancelled == false).OrderBy(x => x.CountryId).ThenByDescending(x => x.CreateDate).ToList();
                 }
             }
             catch (Exception ex)
             {
                 ErrorHandling eh = new ErrorHandling();
-                eh.LogException("NumbersDA.GetNumbersForAccount", ex);
+                eh.LogException("NumbersDA.GetNumbersForBranch", ex);
             }
             return new List<DedicatedVirtualNumber>();
         }
 
-        public List<PooledNumber> GetPooledNumbers()
+        public List<DedicatedVirtualNumber> GetActiveNumbers()
         {
             try
             {
-                return _context.PooledNumbers.Where(x => x.Enabled == true && x.IsFreeNumber == false).OrderBy(x => x.VirtualNumber).ToList();
+                return _context.DedicatedVirtualNumbers.Include(x => x.Branch).Where(x => x.Cancelled == false).OrderBy(x => x.Branch.BranchName).ThenByDescending(x => x.CreateDate).ToList();
             }
             catch (Exception ex)
             {
                 ErrorHandling eh = new ErrorHandling();
-                eh.LogException("NumbersDA.GetPooledNumbers", ex);
+                eh.LogException("NumbersDA.GetNumbersForBranch", ex);
             }
-            return new List<PooledNumber>();
-        }
-
-        public List<PooledNumber> GetFreeNumbers()
-        {
-            try
-            {
-                return _context.PooledNumbers.Where(x => x.Enabled == true && x.IsFreeNumber == true).OrderBy(x => x.VirtualNumber).ToList();
-            }
-            catch (Exception ex)
-            {
-                ErrorHandling eh = new ErrorHandling();
-                eh.LogException("NumbersDA.GetFreeNumbers", ex);
-            }
-            return new List<PooledNumber>();
-        }
-
-        public List<NumberExpirationData> GetNumberExpirationNotifications(int days, NumberTypes numberType, string notificationType, string emailLinkAction)
-        {
-            IEnumerable<NumberExpirationData> numbersExpiring = new List<NumberExpirationData>();
-
-            switch (days)
-            {
-                case 7:
-                    numbersExpiring =
-                        from
-                            dvn in _context.DedicatedVirtualNumbers
-                        join
-                            acc in _context.Accounts on dvn.AccountId equals acc.AccountId
-                        where
-                            dvn.Cancelled == false
-                            && (dvn.ExpirationDate - DateTime.UtcNow).TotalMinutes <= (Constants.MinutesInDay * days)
-                            && dvn.NumberType == (int)numberType
-                            && dvn.SevenDayReminderSent == null
-                            && dvn.AutoRenew == false
-                        select
-                            new NumberExpirationData()
-                            {
-                                AccountID = dvn.AccountId,
-                                CountryCode = dvn.CountryCode,
-                                DaysUntilExpiration = DateAndTime.GetDaysBetweenTwoDates(DateTime.UtcNow, dvn.ExpirationDate),
-                                HoursUntilExpiration = DateAndTime.GetRemainingHoursBetweenTwoDates(DateTime.UtcNow, dvn.ExpirationDate),
-                                Email = acc.Email,
-                                Balance = acc.Balance,
-                                ExpirationDate = dvn.ExpirationDate,
-                                CarrierId = dvn.CarrierId,
-                                NumberType = dvn.NumberType,
-                                UserName = acc.UserName,
-                                VirtualNumber = dvn.VirtualNumber,
-                                VirtualNumberID = dvn.VirtualNumberId,
-                                AutoRenew = dvn.AutoRenew,
-                                LeasePeriod = dvn.LeasePeriod,
-                                LeasePeriodType = dvn.LeasePeriodType,
-                                Fee = dvn.Fee,
-                                NotificationType = notificationType,
-                                EmailAction = emailLinkAction
-                            };
-                    break;
-
-                case 2:
-                    numbersExpiring =
-                        from
-                            dvn in _context.DedicatedVirtualNumbers
-                        join
-                            acc in _context.Accounts on dvn.AccountId equals acc.AccountId
-                        where
-                           dvn.Cancelled == false
-                           && (dvn.ExpirationDate - DateTime.UtcNow).TotalMinutes <= (Constants.MinutesInDay * days)
-                           && dvn.NumberType == (int)numberType
-                           && dvn.TwoDayReminderSent == null
-                           && dvn.AutoRenew == false
-                        select new NumberExpirationData()
-                        {
-                            AccountID = dvn.AccountId,
-                            CountryCode = dvn.CountryCode,
-                            DaysUntilExpiration = DateAndTime.GetDaysBetweenTwoDates(DateTime.UtcNow, dvn.ExpirationDate),
-                            HoursUntilExpiration = DateAndTime.GetRemainingHoursBetweenTwoDates(DateTime.UtcNow, dvn.ExpirationDate),
-                            Email = acc.Email,
-                            Balance = acc.Balance,
-                            ExpirationDate = dvn.ExpirationDate,
-                            CarrierId = dvn.CarrierId,
-                            NumberType = dvn.NumberType,
-                            UserName = acc.UserName,
-                            VirtualNumber = dvn.VirtualNumber,
-                            VirtualNumberID = dvn.VirtualNumberId,
-                            AutoRenew = dvn.AutoRenew,
-                            LeasePeriod = dvn.LeasePeriod,
-                            LeasePeriodType = dvn.LeasePeriodType,
-                            Fee = dvn.Fee,
-                            NotificationType = notificationType,
-                            EmailAction = emailLinkAction
-                        };
-                    break;
-            }
-
-            return numbersExpiring.ToList();
-        }
-
-        public List<NumberExpirationData> GetAutoRenewBalanceWarningNotifications(int days, NumberTypes numberType, string notificationType, string emailLinkAction)
-        {
-            IEnumerable<NumberExpirationData> numbersExpiring = new List<NumberExpirationData>();
-
-            switch (days)
-            {
-                case 7:
-                    numbersExpiring =
-                        from
-                            dvn in _context.DedicatedVirtualNumbers
-                        join
-                            acc in _context.Accounts on dvn.AccountId equals acc.AccountId
-                        where
-                            dvn.Cancelled == false
-                            && (dvn.ExpirationDate - DateTime.UtcNow).TotalMinutes <= (Constants.MinutesInDay * days)
-                            && dvn.NumberType == (int)numberType
-                            && dvn.SevenDayReminderSent == null
-                            && dvn.AutoRenew == true
-                            && acc.Balance < dvn.Fee
-                        select
-                            new NumberExpirationData()
-                            {
-                                AccountID = dvn.AccountId,
-                                CountryCode = dvn.CountryCode,
-                                DaysUntilExpiration = DateAndTime.GetDaysBetweenTwoDates(DateTime.UtcNow, dvn.ExpirationDate),
-                                HoursUntilExpiration = DateAndTime.GetRemainingHoursBetweenTwoDates(DateTime.UtcNow, dvn.ExpirationDate),
-                                Email = acc.Email,
-                                Balance = acc.Balance,
-                                ExpirationDate = dvn.ExpirationDate,
-                                CarrierId = dvn.CarrierId,
-                                NumberType = dvn.NumberType,
-                                UserName = acc.UserName,
-                                VirtualNumber = dvn.VirtualNumber,
-                                VirtualNumberID = dvn.VirtualNumberId,
-                                AutoRenew = dvn.AutoRenew,
-                                LeasePeriod = dvn.LeasePeriod,
-                                LeasePeriodType = dvn.LeasePeriodType,
-                                Fee = dvn.Fee,
-                                NotificationType = notificationType,
-                                EmailAction = emailLinkAction
-                            };
-                    break;
-
-                case 2:
-                    numbersExpiring =
-                        from
-                            dvn in _context.DedicatedVirtualNumbers
-                        join
-                            acc in _context.Accounts on dvn.AccountId equals acc.AccountId
-                        where
-                           dvn.Cancelled == false
-                           && (dvn.ExpirationDate - DateTime.UtcNow).TotalMinutes <= (Constants.MinutesInDay * days)
-                           && dvn.NumberType == (int)numberType
-                           && dvn.TwoDayReminderSent == null
-                           && dvn.AutoRenew == true
-                           && acc.Balance < dvn.Fee
-                        select new NumberExpirationData()
-                        {
-                            AccountID = dvn.AccountId,
-                            CountryCode = dvn.CountryCode,
-                            DaysUntilExpiration = DateAndTime.GetDaysBetweenTwoDates(DateTime.UtcNow, dvn.ExpirationDate),
-                            HoursUntilExpiration = DateAndTime.GetRemainingHoursBetweenTwoDates(DateTime.UtcNow, dvn.ExpirationDate),
-                            Email = acc.Email,
-                            Balance = acc.Balance,
-                            ExpirationDate = dvn.ExpirationDate,
-                            CarrierId = dvn.CarrierId,
-                            NumberType = dvn.NumberType,
-                            UserName = acc.UserName,
-                            VirtualNumber = dvn.VirtualNumber,
-                            VirtualNumberID = dvn.VirtualNumberId,
-                            AutoRenew = dvn.AutoRenew,
-                            LeasePeriod = dvn.LeasePeriod,
-                            LeasePeriodType = dvn.LeasePeriodType,
-                            Fee = dvn.Fee,
-                            NotificationType = notificationType,
-                            EmailAction = emailLinkAction
-                        };
-                    break;
-            }
-
-            return numbersExpiring.ToList();
-        }
-
-        public List<NumberExpirationData> GetExpiredNumbers()
-        {
-            IEnumerable<NumberExpirationData> numbersExpiring = new List<NumberExpirationData>();
-
-            numbersExpiring =
-                from
-                    dvn in _context.DedicatedVirtualNumbers
-                join
-                    acc in _context.Accounts on dvn.AccountId equals acc.AccountId
-                where
-                    dvn.ExpirationDate <= DateTime.UtcNow
-                    && dvn.SevenDayReminderSent != null
-                    && dvn.TwoDayReminderSent != null
-                    && dvn.Cancelled == false
-                    && dvn.AutoRenew == false
-                select
-                    new NumberExpirationData()
-                    {
-                        AccountID = dvn.AccountId,
-                        CountryCode = dvn.CountryCode,
-                        DaysUntilExpiration = DateAndTime.GetDaysBetweenTwoDates(DateTime.UtcNow, dvn.ExpirationDate),
-                        HoursUntilExpiration = DateAndTime.GetRemainingHoursBetweenTwoDates(DateTime.UtcNow, dvn.ExpirationDate),
-                        Email = acc.Email,
-                        Balance = acc.Balance,
-                        ExpirationDate = dvn.ExpirationDate,
-                        CarrierId = dvn.CarrierId,
-                        NumberType = dvn.NumberType,
-                        UserName = acc.UserName,
-                        VirtualNumber = dvn.VirtualNumber,
-                        VirtualNumberID = dvn.VirtualNumberId,
-                        AutoRenew = dvn.AutoRenew,
-                        LeasePeriod = dvn.LeasePeriod,
-                        LeasePeriodType = dvn.LeasePeriodType,
-                        Fee = dvn.Fee,
-                        NotificationType = string.Empty,
-                        EmailAction = "void"
-                    };
-
-            return numbersExpiring.ToList();
-        }
-
-        public List<NumberExpirationData> GetAutoRenewNumbers()
-        {
-            IEnumerable<NumberExpirationData> numbersExpiring = new List<NumberExpirationData>();
-
-            numbersExpiring =
-                from
-                    dvn in _context.DedicatedVirtualNumbers
-                join
-                    acc in _context.Accounts on dvn.AccountId equals acc.AccountId
-                where
-                    dvn.ExpirationDate <= DateTime.UtcNow
-                    && dvn.Cancelled == false
-                    && dvn.AutoRenew == true
-                    && acc.Balance >= dvn.Fee
-                select
-                    new NumberExpirationData()
-                    {
-                        AccountID = dvn.AccountId,
-                        CountryCode = dvn.CountryCode,
-                        DaysUntilExpiration = DateAndTime.GetDaysBetweenTwoDates(DateTime.UtcNow, dvn.ExpirationDate),
-                        HoursUntilExpiration = DateAndTime.GetRemainingHoursBetweenTwoDates(DateTime.UtcNow, dvn.ExpirationDate),
-                        Email = acc.Email,
-                        Balance = acc.Balance,
-                        ExpirationDate = dvn.ExpirationDate,
-                        CarrierId = dvn.CarrierId,
-                        NumberType = dvn.NumberType,
-                        UserName = acc.UserName,
-                        VirtualNumber = dvn.VirtualNumber,
-                        VirtualNumberID = dvn.VirtualNumberId,
-                        AutoRenew = dvn.AutoRenew,
-                        LeasePeriod = dvn.LeasePeriod,
-                        LeasePeriodType = dvn.LeasePeriodType,
-                        Fee = dvn.Fee,
-                        NotificationType = string.Empty,
-                        EmailAction = string.Empty
-                    };
-
-            return numbersExpiring.ToList();
-        }
-
-        public List<NumberExpirationData> GetAutoRenewInsufficientBalanceExpirations()
-        {
-            IEnumerable<NumberExpirationData> numbersExpiring = new List<NumberExpirationData>();
-
-            numbersExpiring =
-                from
-                    dvn in _context.DedicatedVirtualNumbers
-                join
-                    acc in _context.Accounts on dvn.AccountId equals acc.AccountId
-                where
-                    dvn.ExpirationDate <= DateTime.UtcNow
-                    && dvn.NumberType == (int)NumberTypes.Regular
-                    && dvn.Cancelled == false
-                    && dvn.AutoRenew == true
-                    && acc.Balance < dvn.Fee
-                select
-                    new NumberExpirationData()
-                    {
-                        AccountID = dvn.AccountId,
-                        CountryCode = dvn.CountryCode,
-                        DaysUntilExpiration = DateAndTime.GetDaysBetweenTwoDates(DateTime.UtcNow, dvn.ExpirationDate),
-                        HoursUntilExpiration = DateAndTime.GetRemainingHoursBetweenTwoDates(DateTime.UtcNow, dvn.ExpirationDate),
-                        Email = acc.Email,
-                        Balance = acc.Balance,
-                        ExpirationDate = dvn.ExpirationDate,
-                        CarrierId = dvn.CarrierId,
-                        UserName = acc.UserName,
-                        VirtualNumber = dvn.VirtualNumber,
-                        VirtualNumberID = dvn.VirtualNumberId,
-                        AutoRenew = dvn.AutoRenew,
-                        LeasePeriod = dvn.LeasePeriod,
-                        LeasePeriodType = dvn.LeasePeriodType,
-                        Fee = dvn.Fee,
-                        NotificationType = string.Empty,
-                        EmailAction = string.Empty
-                    };
-
-            return numbersExpiring.ToList();
+            return new List<DedicatedVirtualNumber>();
         }
 
         #endregion
 
         #region "Insert Methods"
 
-        public bool AddNumberToAccount(RegistrationData rd)
+        public bool AddNumberToBranch(RegistrationData rd)
         {
             try
             {
@@ -465,7 +140,7 @@ namespace TextPortCore.Data
 
                 DedicatedVirtualNumber number = new DedicatedVirtualNumber()
                 {
-                    AccountId = rd.AccountId,
+                    BranchId = rd.BranchId,
                     CancellationFailureCount = 0,
                     Cancelled = false,
                     CarrierId = rd.CarrierId,
@@ -497,49 +172,6 @@ namespace TextPortCore.Data
             {
                 ErrorHandling eh = new ErrorHandling();
                 eh.LogException("NumbersDA.AddNumberToAccount", ex);
-            }
-            return false;
-        }
-
-        public bool AddTrialNumberToAccount(ActivateAccountRequest actReq)
-        {
-            try
-            {
-                DateTime expirationDate = DateTime.UtcNow.AddDays(15);
-                expirationDate = expirationDate.AddHours(-6);
-
-                DedicatedVirtualNumber number = new DedicatedVirtualNumber()
-                {
-                    AccountId = actReq.AccountId,
-                    CancellationFailureCount = 0,
-                    Cancelled = false,
-                    CountryCode = "1",
-                    CarrierId = 1,
-                    NumberType = (byte)NumberTypes.Pooled,
-                    CreateDate = DateTime.Now,
-                    ExpirationDate = expirationDate,
-                    IsDefault = true,
-                    Fee = 0,
-                    ReminderFailureCount = 0,
-                    RenewalCount = 0,
-                    SevenDayReminderSent = null,
-                    TwoDayReminderSent = null,
-                    VirtualNumber = actReq.VirtualNumber,
-                    CountryId = (int)Countries.UnitedStates,
-                    VirtualNumberId = 0
-                };
-
-                _context.DedicatedVirtualNumbers.Add(number);
-                _context.SaveChanges();
-
-                actReq.VirtualNumberId = number.VirtualNumberId;
-
-                return true;
-            }
-            catch (Exception ex)
-            {
-                ErrorHandling eh = new ErrorHandling();
-                eh.LogException("NumbersDA.AddTrialNumberToAccount", ex);
             }
             return false;
         }

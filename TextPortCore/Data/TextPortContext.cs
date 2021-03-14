@@ -1,9 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.Configuration;
 using System;
-using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Debug;
+//using Microsoft.EntityFrameworkCore.Metadata;
+//using Microsoft.Extensions.Logging;
+//using Microsoft.Extensions.Logging.Debug;
 
 using TextPortCore.Models;
 
@@ -19,7 +19,6 @@ namespace TextPortCore.Data
         {
             var optionsBuilder = new DbContextOptionsBuilder<TextPortContext>();
             optionsBuilder.UseSqlServer(ConfigurationManager.ConnectionStrings["TextPortContext"].ConnectionString);
-            //TextPortContext context = new TextPortContext(optionsBuilder.Options);
 
             // Disable lazy loading.
             this.ChangeTracker.LazyLoadingEnabled = false;
@@ -31,6 +30,7 @@ namespace TextPortCore.Data
         public virtual DbSet<BadEmailDomain> BadEmailDomains { get; set; }
         public virtual DbSet<BlockedNumber> BlockedNumbers { get; set; }
         public virtual DbSet<BlogPost> BlogPosts { get; set; }
+        public virtual DbSet<Branch> Branches { get; set; }
         public virtual DbSet<Carrier> Carriers { get; set; }
         public virtual DbSet<CarrierResponseCode> CarrierResponseCodes { get; set; }
         public virtual DbSet<CensoredWord> CensoredWords { get; set; }
@@ -47,11 +47,13 @@ namespace TextPortCore.Data
         public virtual DbSet<NpaNxxCity> NpaNxxCities { get; set; }
         public virtual DbSet<NpaNxxThou> NpaNxxThous { get; set; }
         public virtual DbSet<NumberPrice> NumberPricing { get; set; }
-        public virtual DbSet<PurchaseTransaction> PurchaseTransactions { get; set; }
-        public virtual DbSet<SupportRequest> SupportRequests { get; set; }
         public virtual DbSet<PooledNumber> PooledNumbers { get; set; }
+        public virtual DbSet<PurchaseTransaction> PurchaseTransactions { get; set; }
+        public virtual DbSet<StopRequest> StopRequests { get; set; }
+        public virtual DbSet<SupportRequest> SupportRequests { get; set; }
+        public virtual DbSet<Role> Roles { get; set; }
+        public virtual DbSet<State> States { get; set; }
         public virtual DbSet<Models.TimeZone> TimeZones { get; set; }
-        public virtual DbSet<ZipLatLong> ZipLatLongs { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -96,8 +98,6 @@ namespace TextPortCore.Data
 
                 entity.Property(e => e.Enabled).HasDefaultValueSql("((0))");
 
-                entity.Property(e => e.RegisteredAsTrial).HasDefaultValueSql("((0))");
-
                 entity.Property(e => e.EnableEmailNotifications).HasDefaultValueSql("((0))");
 
                 entity.Property(e => e.EnableMobileForwarding).HasDefaultValueSql("((0))");
@@ -133,9 +133,9 @@ namespace TextPortCore.Data
                     .HasMaxLength(10)
                     .IsUnicode(false);
 
-                entity.Property(e => e.ComplimentaryNumber).HasColumnType("byte");
-
-                entity.HasOne(e => e.TimeZone).WithOne().HasForeignKey<TextPortCore.Models.TimeZone>(e => e.TimeZoneId);
+                entity.HasOne(e => e.TimeZone).WithOne().HasForeignKey<Models.TimeZone>(e => e.TimeZoneId);
+                //entity.HasOne(e => e.Role).WithOne().HasForeignKey<Role>(e => e.RoleId);
+                //entity.HasOne(e => e.Branch).WithOne().HasForeignKey<Branch>(e => e.BranchId);
             });
 
             modelBuilder.Entity<APIApplication>(entity =>
@@ -246,9 +246,9 @@ namespace TextPortCore.Data
 
                 entity.HasKey(e => e.ContactId);
 
-                entity.HasIndex(e => e.AccountId);
+                entity.HasIndex(e => e.BranchId);
 
-                entity.HasIndex(e => new { e.AccountId, e.Name });
+                entity.HasIndex(e => new { e.BranchId, e.Name });
             });
 
             modelBuilder.Entity<Country>(entity =>
@@ -285,11 +285,9 @@ namespace TextPortCore.Data
 
                 entity.HasKey(e => e.VirtualNumberId);
 
-                entity.HasIndex(e => e.AccountId);
+                entity.HasIndex(e => e.BranchId);
 
                 entity.Property(e => e.VirtualNumberId).HasColumnName("VirtualNumberID");
-
-                entity.Property(e => e.AccountId).HasColumnName("AccountID");
 
                 entity.Property(e => e.CountryCode)
                     .IsRequired()
@@ -304,7 +302,7 @@ namespace TextPortCore.Data
 
                 entity.Property(e => e.AutoRenew).HasDefaultValueSql("((0))");
 
-                entity.Property(e => e.APIApplicationId);
+                entity.Property(e => e.BranchId);
 
                 entity.Property(e => e.Fee).HasColumnType("money");
 
@@ -321,7 +319,7 @@ namespace TextPortCore.Data
 
                 entity.HasOne(e => e.Country).WithMany();
 
-                entity.HasOne(e => e.Account).WithMany();
+                entity.HasOne(e => e.Branch).WithMany();
             });
 
             modelBuilder.Entity<EmailToSMSAddress>(entity =>
@@ -378,11 +376,9 @@ namespace TextPortCore.Data
 
                 entity.HasKey(e => e.GroupId);
 
-                entity.HasIndex(e => e.AccountId);
+                entity.HasIndex(e => e.BranchId);
 
                 entity.Property(e => e.GroupId).HasColumnName("GroupID");
-
-                entity.Property(e => e.AccountId).HasColumnName("AccountID");
 
                 entity.Property(e => e.GroupName)
                     .IsRequired()
@@ -416,9 +412,11 @@ namespace TextPortCore.Data
 
             modelBuilder.Entity<Message>(entity =>
             {
-                entity.ToTable("MessagesOut");
+                entity.ToTable("Messages");
 
                 entity.HasKey(e => e.MessageId);
+
+                entity.HasIndex(e => e.BranchId);
 
                 entity.HasIndex(e => e.AccountId);
 
@@ -614,6 +612,29 @@ namespace TextPortCore.Data
                 entity.Property(e => e.VirtualNumber).HasMaxLength(20);
 
                 entity.Property(e => e.Description).HasMaxLength(40);
+            });
+
+            modelBuilder.Entity<Models.Role>(entity =>
+            {
+                entity.ToTable("Roles");
+
+                entity.HasKey(e => e.RoleId);
+            });
+
+            modelBuilder.Entity<State>(entity =>
+            {
+                entity.ToTable("States");
+
+                entity.HasKey(e => e.StateId);
+            });
+
+            modelBuilder.Entity<StopRequest>(entity =>
+            {
+                entity.ToTable("StopRequests");
+
+                entity.HasKey(e => e.StopId);
+
+                entity.HasIndex(e => e.MobileNumber);
             });
 
             modelBuilder.Entity<Models.TimeZone>(entity =>

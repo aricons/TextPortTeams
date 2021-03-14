@@ -32,7 +32,7 @@ namespace TextPortServices.Processes
                 int loopCountLimit = getLoopCountLimit();
                 string messagePath = ConfigurationManager.AppSettings["SemaphoreFilesPath"];
                 string bulkMessagePath = ConfigurationManager.AppSettings["BulkSemaphoreFilesPath"];
-                int maxBulkMessagesToProcessPerLoop =  int.Parse(ConfigurationManager.AppSettings["MaxBulkMessagesToProcessPerLoop"]);
+                int maxBulkMessagesToProcessPerLoop = int.Parse(ConfigurationManager.AppSettings["MaxBulkMessagesToProcessPerLoop"]);
 
                 while (loopCounter <= loopCountLimit)
                 {
@@ -58,7 +58,7 @@ namespace TextPortServices.Processes
             }
             catch (Exception ex)
             {
-                EventLogging.WriteEventLogEntry("An error occurred in OutboundMessageWatcher.Watch. Message: " + ex.Message, System.Diagnostics.EventLogEntryType.Error);
+                EventLogging.WriteEventLogEntry("An error occurred in OutboundMessageWatcher.Watch. Message: " + ex.Message + "Stack trace: " + ex.StackTrace, System.Diagnostics.EventLogEntryType.Error);
                 Thread.CurrentThread.Abort();
             }
         }
@@ -101,7 +101,7 @@ namespace TextPortServices.Processes
             }
             catch (Exception ex)
             {
-                EventLogging.WriteEventLogEntry("An error occurred in processSemaphoreFile. Message: " + ex.Message, System.Diagnostics.EventLogEntryType.Error);
+                EventLogging.WriteEventLogEntry("An error occurred in processSemaphoreFile. Message: " + ex.Message + ". Stack trace: " + ex.StackTrace, System.Diagnostics.EventLogEntryType.Error);
             }
 
             try

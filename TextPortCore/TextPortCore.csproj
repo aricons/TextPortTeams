@@ -33,9 +33,10 @@
     <Compile Include="Models\Account.cs" />
     <Compile Include="Models\AccountView.cs" />
     <Compile Include="Models\ActivateAccountRequest.cs" />
+    <Compile Include="Models\AddGroupContainer.cs" />
     <Compile Include="Models\APIApplication.cs" />
     <Compile Include="Models\APIApplicationModel.cs" />
-    <Compile Include="Models\ApiApplicationsContainer.cs" />
+    <Compile Include="Models\BranchesContainer.cs" />
     <Compile Include="Models\API\BalanceResult.cs" />
     <Compile Include="Models\API\DeliveryReceipt.cs" />
     <Compile Include="Models\API\Message.cs" />
@@ -54,6 +55,7 @@
     <Compile Include="Models\BlogPost.cs" />
     <Compile Include="Models\BlogPostsContainer.cs" />
     <Compile Include="Models\BlogRecentPosts.cs" />
+    <Compile Include="Models\Branch.cs" />
     <Compile Include="Models\BulkMessages.cs" />
     <Compile Include="Models\BulkMessagesUpload.cs" />
     <Compile Include="Models\BulkUpload.cs" />
@@ -73,7 +75,6 @@
     <Compile Include="Models\EmailToSMSMessage.cs" />
     <Compile Include="Models\ErrorLog.cs" />
     <Compile Include="Models\ForgotPasswordRequest.cs" />
-    <Compile Include="Models\FreeTextContainer.cs" />
     <Compile Include="Models\FreeTextIPAddress.cs" />
     <Compile Include="Models\FreeTextResult.cs" />
     <Compile Include="Models\Group.cs" />
@@ -101,7 +102,10 @@
     <Compile Include="Models\PurchaseCustomField.cs" />
     <Compile Include="Models\PurchasesContainer.cs" />
     <Compile Include="Models\PurchaseTransactionDetail.cs" />
+    <Compile Include="Models\Role.cs" />
     <Compile Include="Models\SelectNumberItem.cs" />
+    <Compile Include="Models\State.cs" />
+    <Compile Include="Models\StopRequest.cs" />
     <Compile Include="Models\SupportRequestModel.cs" />
     <Compile Include="Models\TempImage.cs" />
     <Compile Include="Models\MessageList.cs" />
@@ -114,6 +118,12 @@
     <Compile Include="Models\SupportRequest.cs" />
     <Compile Include="Models\TimeZone.cs" />
     <Compile Include="Models\Country.cs" />
+    <Compile Include="Models\User.cs" />
+    <Compile Include="Models\ViewModels\BranchNumbersList.cs" />
+    <Compile Include="Models\ViewModels\BranchListContainer.cs" />
+    <Compile Include="Models\ViewModels\BranchViewModel.cs" />
+    <Compile Include="Models\ViewModels\UserListContainer.cs" />
+    <Compile Include="Models\ViewModels\UserViewModel.cs" />
     <Compile Include="Models\ZipLatLong.cs" />
   </ItemGroup>
 

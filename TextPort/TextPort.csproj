@@ -48,6 +48,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Dapper, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapper.2.0.78\lib\net461\Dapper.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.AspNet.SignalR.Core, Version=2.4.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.AspNet.SignalR.Core.2.4.1\lib\net45\Microsoft.AspNet.SignalR.Core.dll</HintPath>
     </Reference>
@@ -499,6 +502,7 @@
     <Compile Include="App_Start\Startup.Auth.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\AccountController.cs" />
+    <Compile Include="Controllers\BranchesController.cs" />
     <Compile Include="Controllers\BulkUploadController.cs" />
     <Compile Include="Controllers\ContactsController.cs" />
     <Compile Include="Controllers\EmailToSMSController.cs" />
@@ -512,6 +516,7 @@
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\MessagesController.cs" />
     <Compile Include="Controllers\NumbersController.cs" />
+    <Compile Include="Controllers\UsersController.cs" />
     <Compile Include="DependencyInjection.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -550,6 +555,8 @@
     <Content Include="Content\bootstrap.min.css" />
     <Content Include="Content\css\animate.css" />
     <Content Include="Content\css\api.css" />
+    <Content Include="Content\css\bsmultiselect\BsMultiSelect.css" />
+    <Content Include="Content\css\bsmultiselect\BsMultiSelect.min.css" />
     <Content Include="Content\css\emoji.css" />
     <Content Include="Content\css\emojionearea.min.css" />
     <Content Include="Content\css\jnoty.css" />
@@ -1048,6 +1055,9 @@
     <Content Include="Content\images\flags\20px\zm.png" />
     <Content Include="Content\images\flags\20px\zw.png" />
     <Content Include="Content\images\ip-address-lookup.png" />
+    <Content Include="Content\images\logo-sml.png" />
+    <Content Include="Content\images\logo.gif" />
+    <Content Include="Content\images\logo.png" />
     <Content Include="Content\images\messages_page.png" />
     <Content Include="Content\images\messages_page_100.png" />
     <Content Include="Content\images\messages_page_25.png" />
@@ -1063,6 +1073,7 @@
     <Content Include="Content\images\numberwithappassigned.png" />
     <Content Include="Content\images\phone-icon.png" />
     <Content Include="Content\images\reverse-phone-lookup.png" />
+    <Content Include="Content\images\spintiller.gif" />
     <Content Include="Content\images\temporary-phone-number.png" />
     <Content Include="Content\images\text-from-computer-256.png" />
     <Content Include="Content\images\text-from-computer-512.png" />
@@ -1099,6 +1110,11 @@
     <Content Include="Content\bootstrap-reboot.css.map" />
     <Content Include="Content\bootstrap-grid.min.css.map" />
     <Content Include="Content\bootstrap-grid.css.map" />
+    <Content Include="Scripts\bsmultiselect\BsMultiSelect.esm.js" />
+    <Content Include="Scripts\bsmultiselect\BsMultiSelect.esm.min.js" />
+    <Content Include="Scripts\bsmultiselect\BsMultiSelect.js" />
+    <Content Include="Scripts\bsmultiselect\BsMultiSelect.min.js" />
+    <Content Include="Scripts\bsmultiselect\BsMultiSelect2.js" />
     <Content Include="Scripts\dropzone\basic.css" />
     <Content Include="Scripts\dropzone\basic.min.css" />
     <Content Include="Scripts\dropzone\dropzone-amd-module.js" />
@@ -1258,6 +1274,8 @@
     <Content Include="Content\highlight\highlight\README.ru.md" />
     <Content Include="Content\bootstrap-select.css.map" />
     <Content Include="Content\images\flags\20px\h20.zip" />
+    <Content Include="Content\css\bsmultiselect\BsMultiSelect.css.map" />
+    <Content Include="Content\css\bsmultiselect\BsMultiSelect.min.css.map" />
     <None Include="Properties\PublishProfiles\Beta.pubxml" />
     <Content Include="Scripts\emoji\emoji-picker.coffee" />
     <Content Include="Scripts\emoji\emoji-picker.js.map" />
@@ -1304,6 +1322,11 @@
     <Content Include="Scripts\i18n\defaults-am_ET.js.map" />
     <Content Include="Scripts\bootstrap-select.min.js.map" />
     <Content Include="Scripts\bootstrap-select.js.map" />
+    <Content Include="Scripts\bsmultiselect\BsMultiSelect.esm.js.map" />
+    <Content Include="Scripts\bsmultiselect\BsMultiSelect.esm.min.js.map" />
+    <Content Include="Scripts\bsmultiselect\BsMultiSelect.js.map" />
+    <Content Include="Scripts\bsmultiselect\BsMultiSelect.min.js.map" />
+    <Content Include="Scripts\bsmultiselect\BsMultiSelect2.js.map" />
     <None Include="Scripts\jquery-3.4.1.intellisense.js" />
     <Content Include="Scripts\jnoty\jnoty.js" />
     <Content Include="Scripts\jnoty\jnoty.min.js" />
@@ -1340,10 +1363,6 @@
     </Content>
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
-    </Content>
-    <Content Include="Web.Release.config">
-      <DependentUpon>Web.config</DependentUpon>
-      <SubType>Designer</SubType>
     </Content>
     <Content Include="Views\Web.config" />
     <Content Include="Views\_ViewStart.cshtml" />
@@ -1420,7 +1439,7 @@
     <Content Include="Views\ApiSettings\_AddApplication.cshtml" />
     <Content Include="Views\ApiSettings\_ApplicationDetails.cshtml" />
     <Content Include="Views\ApiSettings\_FullApplication.cshtml" />
-    <Content Include="Views\Numbers\_ApplyApi.cshtml" />
+    <Content Include="Views\Numbers\_ApplyBranch.cshtml" />
     <Content Include="Views\Messages\_ConfirmDeleteMessages.cshtml" />
     <Content Include="Views\Account\Activate.cshtml" />
     <Content Include="Views\Home\virtual-mobile-numbers.cshtml" />
@@ -1468,6 +1487,15 @@
     <Content Include="Views\Account\_PurchaseCrypto.cshtml" />
     <Content Include="Views\BulkUpload\Index.cshtml" />
     <Content Include="Views\BulkUpload\_ResultsList.cshtml" />
+    <Content Include="Views\Users\Index.cshtml" />
+    <Content Include="Views\Users\_UserList.cshtml" />
+    <Content Include="Views\Users\_AddUser.cshtml" />
+    <Content Include="Views\Users\_EditUser.cshtml" />
+    <Content Include="Views\Branches\_AddBranch.cshtml" />
+    <Content Include="Views\Branches\_EditBranch.cshtml" />
+    <Content Include="Views\Branches\_BranchList.cshtml" />
+    <Content Include="Views\Branches\Index.cshtml" />
+    <Content Include="Views\Messages\_BranchDDList.cshtml" />
     <None Include="Web.Beta.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

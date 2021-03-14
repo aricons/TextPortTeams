@@ -102,7 +102,7 @@ namespace TextPortCore.Integrations.Bandwidth
 
                         if (orderStatus.Equals("COMPLETE", StringComparison.CurrentCultureIgnoreCase))
                         {
-                            regData.OrderingMessage += $"Order complete. Number successfully assigned to account ID {regData.AccountId}.";
+                            regData.OrderingMessage += $"Order complete. Number successfully assigned to branch ID {regData.BranchId}.";
                             return true;
                         }
                         else if (orderStatus.Equals("FAILED", StringComparison.CurrentCultureIgnoreCase))

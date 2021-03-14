@@ -69,7 +69,7 @@ namespace TextPort.WebServices
 
                                                     int messageId = 0;
                                                     decimal newBalance = 0;
-                                                    if (!da.NumberIsBlocked(message.MobileNumber, MessageDirection.Outbound))
+                                                    if (!da.IsNumberStopped(message.MobileNumber))
                                                     {
                                                         messageId = da.InsertMessage(message, ref newBalance);
                                                         if (messageId > 0)
@@ -95,7 +95,7 @@ namespace TextPort.WebServices
                                                     else
                                                     {
                                                         responseItem.Result = "Failed";
-                                                        responseItem.ProcessingMessage += $"BLOCKED: The recipient at number {message.MobileNumber} has reported abuse from this account abuse and requested their number be blocked. TextPort does not condone the exchange of abusive, harrassing or defamatory messages.";
+                                                        responseItem.ProcessingMessage += $"OPT-OUT: The recipient at number {message.MobileNumber} has opted out of text notifications.";
                                                     }
                                                 }
                                                 else
@@ -255,7 +255,7 @@ namespace TextPort.WebServices
                     accountId = acct.AccountId;
                     balance = acct.Balance;
 
-                    List<DedicatedVirtualNumber> numbers = da.GetNumbersForAccount(accountId, false);
+                    List<DedicatedVirtualNumber> numbers = da.GetNumbersForBranch(accountId, false);
                     if (numbers != null)
                     {
                         DedicatedVirtualNumber number = numbers.FirstOrDefault();

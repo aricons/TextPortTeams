@@ -33,8 +33,8 @@ namespace TextPortCore.Integrations.Bandwidth
         public Order(RegistrationData regData, string siteId)
         {
             string number = Utilities.NumberToBandwidthFormat(regData.VirtualNumber);
-            this.Name = $"VN {regData.AccountId} {number}";
-            this.CustomerOrderId = $"{regData.AccountId}-{number}";
+            this.Name = $"VN {regData.BranchId} {number}";
+            this.CustomerOrderId = $"{regData.BranchId}-{number}";
             this.SiteId = siteId;
             this.ExistingTelephoneNumberOrderType = new ExistingTelephoneNumberOrderTypeItem(number);
             this.PartialAllowed = false;

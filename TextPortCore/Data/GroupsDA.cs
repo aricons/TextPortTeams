@@ -13,16 +13,16 @@ namespace TextPortCore.Data
 
         #region "Select Methods"
 
-        public List<Group> GetGroupsForAccount(int accountId)
+        public List<Group> GetGroupsForBranch(int branchId)
         {
             try
             {
-                return _context.Groups.Where(x => x.AccountId == accountId).ToList();
+                return _context.Groups.Where(x => x.BranchId == branchId).ToList();
             }
             catch (Exception ex)
             {
                 ErrorHandling eh = new ErrorHandling();
-                eh.LogException("GroupsDA.GetGroupsForAccount", ex);
+                eh.LogException("GroupsDA.GetGroupsForBranch", ex);
             }
             return null;
         }
@@ -41,12 +41,12 @@ namespace TextPortCore.Data
             return null;
         }
 
-        public List<SelectListItem> GetGroupsList(int accountId)
+        public List<SelectListItem> GetGroupsList(int branchId)
         {
             List<SelectListItem> groupsList = new List<SelectListItem>();
             try
             {
-                foreach (Group group in _context.Groups.Where(x => x.AccountId == accountId).ToList())
+                foreach (Group group in _context.Groups.Where(x => x.BranchId == branchId).ToList())
                 {
                     SelectListItem listItem = new SelectListItem();
 
@@ -68,14 +68,19 @@ namespace TextPortCore.Data
 
         #region "Insert Methods"
 
-        public bool AddGroup(Group group)
+        public bool AddGroup(AddGroupContainer gc)
         {
             try
             {
-                _context.Groups.Add(group);
+                Group newGroup = new Group()
+                {
+                    BranchId = gc.BranchId,
+                    GroupName = gc.GroupName,
+                };
+                _context.Groups.Add(newGroup);
                 _context.SaveChanges();
 
-                int foo = group.GroupId;
+                int foo = newGroup.GroupId;
 
                 return true;
             }

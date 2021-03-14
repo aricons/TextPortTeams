@@ -19,51 +19,60 @@ namespace TextPort.Controllers
     {
         private readonly TextPortContext _context;
 
-        public HomeController(TextPortContext context)
-        {
-            _context = context;
-        }
+        //public HomeController(TextPortContext context)
+        //{
+        //    _context = context;
+        //}
 
         public ActionResult Index()
         {
-            return View();
+            LoginCredentials creds = new LoginCredentials();
+            return View(creds);
         }
 
-        [AllowAnonymous]
-        [HttpGet]
-        public ActionResult Login()
-        {
-            try
-            {
-                LoginCredentials creds = new LoginCredentials();
-                return PartialView("_Login", creds);
-            }
-            catch (Exception ex)
-            {
-                string bar = ex.Message;
-                return null;
-            }
-        }
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public ActionResult Index()
+        //{
+        //    LoginCredentials creds = new LoginCredentials();
+        //    return View(creds);
+        //}
 
-        [AllowAnonymous]
-        [HttpGet]
-        public ActionResult Loginm()
-        {
-            try
-            {
-                LoginCredentials creds = new LoginCredentials();
-                return PartialView("Loginm", creds);
-            }
-            catch (Exception ex)
-            {
-                string bar = ex.Message;
-                return null;
-            }
-        }
+        //[AllowAnonymous]
+        //[HttpGet]
+        //public ActionResult Login()
+        //{
+        //    try
+        //    {
+        //        LoginCredentials creds = new LoginCredentials();
+        //        return PartialView("_Login", creds);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        string bar = ex.Message;
+        //        return null;
+        //    }
+        //}
+
+        //[AllowAnonymous]
+        //[HttpGet]
+        //public ActionResult Loginm()
+        //{
+        //    try
+        //    {
+        //        LoginCredentials creds = new LoginCredentials();
+        //        return PartialView("Loginm", creds);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        string bar = ex.Message;
+        //        return null;
+        //    }
+        //}
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Loginm(LoginCredentials model)
+        public ActionResult Index(LoginCredentials model)
         {
             Account account = null;
             var result = new { success = "false", response = "Unable to validate credentials." };
@@ -75,11 +84,14 @@ namespace TextPort.Controllers
                     if (da.ValidateLogin(model.UserNameOrEmail, model.LoginPassword, ref account))
                     {
                         List<Claim> claims = new List<Claim> {
-                        new Claim("AccountId", account.AccountId.ToString(), ClaimValueTypes.Integer),
-                        new Claim(ClaimTypes.Name, account.UserName.ToString()),
-                        new Claim(ClaimTypes.NameIdentifier, account.UserName.ToString()),
-                        new Claim(ClaimTypes.Email, account.Email.ToString()),
-                        new Claim(ClaimTypes.Role, "User") };
+                            new Claim("AccountId", account.AccountId.ToString(), ClaimValueTypes.Integer),
+                            new Claim("BranchId", account.BranchId.ToString(), ClaimValueTypes.Integer),
+                            new Claim("BranchName", account.Branch.BranchName, ClaimValueTypes.Integer),
+                            new Claim(ClaimTypes.Name, account.UserName.ToString()),
+                            new Claim(ClaimTypes.NameIdentifier, account.UserName.ToString()),
+                            new Claim(ClaimTypes.Email, account.Email.ToString()),
+                            new Claim(ClaimTypes.Role, account.Role.RoleName)
+                        };
 
                         ClaimsIdentity identity = new ClaimsIdentity(claims, "ApplicationCookie");
                         ClaimsPrincipal principal = new ClaimsPrincipal(identity);
@@ -91,16 +103,7 @@ namespace TextPort.Controllers
 
                         Cookies.Write("balance", account.Balance.ToString(), 0);
 
-                        if (account.ComplimentaryNumber == (byte)ComplimentaryNumberStatus.Eligible)
-                        {
-                            //result = new { success = "true", response = Url.Action($"ComplimentaryNumber/{account.AccountId}", "Numbers") };
-                            return RedirectToAction($"ComplimentaryNumber/{account.AccountId}", "Numbers");
-                        }
-                        else
-                        {
-                            //result = new { success = "true", response = Url.Action("index", "messages") };
-                            return RedirectToAction("index", "messages");
-                        }
+                        return RedirectToAction("index", "messages");
                     }
                     else
                     {
@@ -287,7 +290,7 @@ namespace TextPort.Controllers
                             response.SubmissionMessage = getContactSupportResponseText(request.Category, supportId);
                         }
                     }
-                    response.CategoriesList = da.GetSupportCategoriesList(request.RequestType);
+                    response.CategoriesList = null;//  da.GetSupportCategoriesList(request.RequestType);
                 }
             }
             else

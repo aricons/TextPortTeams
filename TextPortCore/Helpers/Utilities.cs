@@ -25,6 +25,27 @@ namespace TextPortCore.Helpers
             return 0;
         }
 
+        public static int GetBranchIdFromClaim(ClaimsPrincipal claim)
+        {
+            if (claim != null)
+            {
+                string branchIdStr = claim.FindFirst("BranchId").Value;
+                return (!string.IsNullOrEmpty(branchIdStr)) ? Convert.ToInt32(branchIdStr) : 0;
+            }
+
+            return 0;
+        }
+
+        public static string GetRoleFromClaim(ClaimsPrincipal claim)
+        {
+            if (claim != null)
+            {
+                return claim.Claims.FirstOrDefault(x => x.Type == "http://schemas.microsoft.com/ws/2008/06/identity/claims/role").Value;
+            }
+
+            return "User";
+        }
+
         public static bool IsValidEmail(string email)
         {
             if (string.IsNullOrWhiteSpace(email))

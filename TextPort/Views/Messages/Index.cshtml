@@ -1,11 +1,12 @@
 ﻿@model TextPortCore.Models.MessagingContainer
 @using TextPortCore.Helpers;
 @{
-    ViewData["Title"] = "My Messages";
+    ViewData["Title"] = "Messages";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 <link rel="stylesheet" href="~/content/css/messaging.css">
+<link rel="stylesheet" href="~/content/css/emoji.css">
 <link rel="stylesheet" href="~/content/css/emoji.css">
 <link rel="stylesheet" href="~/Scripts/dropzone/basic.css">
 
@@ -25,6 +26,13 @@
     $.ajaxSetup({ cache: false });
     $(function () {
         scrWidth = window.screen.width;
+
+        $('#from_branch').on("change", function (e) {
+            clearNewRecipient();
+            getRecentsForBranch($("#from_branch option:selected").val());
+            $("#active_num_title").html("");
+            $('#emojipick_1').attr('placeholder', '');
+        });
 
         $('#from_number').on("change", function (e) {
             clearNewRecipient();
@@ -47,9 +55,10 @@
         $('#new_recipient_number').on("keyup", function (e) {
             var newNumber = $("#new_recipient_number").cleanVal();
             if (newNumber.length >= 10) {
-                newNumber = $("#country-code-label").text().replace('+', '') + newNumber;
+                newNumber = "1" + newNumber;
+                //newNumber = $("#country-code-label").text().replace('+', '') + newNumber;
                 $("#hidActiveDestinationNumber").val(newNumber);
-                $("#active_num_title").html(numberToDisplay(newNumber, ""));
+                $("#active_num_title").html(numberToDisplay(newNumber, "1"));
             }
             else {
                 $("#hidActiveDestinationNumber").val('');
@@ -279,27 +288,14 @@
     }
 
     function enterNewRecipient() {
-        //var masks = ['000-000-0000', '0000-000000'];
         if ($("#new-number-panel").hasClass("d-none")) {
             togglePanels();
             $("#msg_list").html('');
             $("#active_num_title").addClass("d-none");
             $("#new-number-panel").removeClass("d-none");
-            var countryCode = getCountryCodeFromNumber($("#from_number option:selected").attr("data-number"));
-            $("#country-code-label").text("+" + countryCode);
+            //var countryCode = getCountryCodeFromNumber($("#from_number option:selected").attr("data-number"));
+            //$("#country-code-label").text("+1");
             $('#emojipick_1').attr('placeholder', '');
-
-            //$("#new_recipient_number").unmask();
-            //$("#new_recipient_number").val('');
-            //if (countryCode === "1") {
-            //    $("#new_recipient_number").attr("placeholder", "000-000-0000");
-            //}
-            //else {
-            //    $("#new_recipient_number").attr("placeholder", "0000-000000");
-            //}
-
-            //var masks = ['000-000-0000', '0000-0000000'];
-            //var mask = (countryCode === "1") ? masks[0] : masks[1];
             $("#new_recipient_number").mask('000-000-0000');
 
             sizePanels();
@@ -341,7 +337,7 @@
             $('#recents-btn-icon').addClass('fa-chevron-down');
             togglePanels('messages');
             sizePanels();
-            $('#emojipick_1').attr('placeholder', 'Message to ' + numberToDisplay(number, ""));
+            $('#emojipick_1').attr('placeholder', 'Message to ' + numberToDisplay(number, "1"));
         });
     }
 
@@ -373,11 +369,47 @@
             $("#seg-count").html(charCount);
     }
 
+    function getRecentsForBranch(branchId) {
+
+        $("#hidBranchId").val(branchId);
+        var url = "/messages/getnumbersforbranch?bid=" + branchId;
+        var newVirtualNumberId = 0;
+
+        $.get({
+            url: url,
+            dataType: "json",
+            cache: false,
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert(textStatus + ": Number data load failed. " + errorThrown);
+            },
+            success: function (result) {
+                var $dd = $("#from_number");
+                $dd.empty();
+                $("#recents").html('');
+
+                if (result.length) {
+                    newVirtualNumberId = result[0].VirtualNumberId;
+
+                    $.each(result, function () {
+                        $dd.append($("<option />").val(this.VirtualNumberId).text(this.NumberDisplay));
+                    });
+
+                    getRecentsForVirtualNumber(newVirtualNumberId);
+                    setChangeDetect();
+                }
+                else {
+                    $("#msg_list").html('');
+                }
+                initApplyNameModal();
+            }
+        })
+    }
+
     function getRecentsForVirtualNumber(virtualNumberId) {
         $("#hidActiveVirtualNumberId").val(virtualNumberId);
+        var branchId = $("#hidBranchId").val();
 
-        var url = '@Url.Action("GetRecentToNumbersForDedicatedVirtualNumber", "Messages")';
-        url = url + "?aid=" + @Model.Account.AccountId + "&vnid=" + virtualNumberId;
+        var url = "/messages/getrecenttonumbersfordedicatedvirtualnumber?bid=" + branchId + "&vnid=" + virtualNumberId;
 
         $.get({
             url: url,
@@ -396,7 +428,7 @@
                     var newActiveNumber = activeNumberElem.split('_')[1];
                     $("#hidActiveDestinationNumber").val(newActiveNumber);
                     $("#active_num_title").html(numberToDisplay(newActiveNumber, ""));
-                    $('#emojipick_1').attr('placeholder', 'Message to ' + numberToDisplay(newActiveNumber, ""));
+                    $('#emojipick_1').attr('placeholder', 'Message to ' + numberToDisplay(newActiveNumber, "1"));
                     getMessagesForNumber(newActiveNumber);
                     setChangeDetect();
                 }
@@ -409,12 +441,12 @@
     }
 
     function getMessagesForNumber(number) {
-
         $('#new_recipient_number').val('');
         activeVirtualNumberId = $("#hidActiveVirtualNumberId").val();
 
-        var url = '@Url.Action("GetMessagesForNumber", "Messages")';
-        url = url + "?aid=" + @Model.Account.AccountId + "&vnid=" + activeVirtualNumberId + "&num=" + number;
+        var branchId = $("#hidBranchId").val();
+        var url = "/messages/getmessagesfornumber?bid=" + branchId + "&vnid=" + activeVirtualNumberId + "&num=" + number;
+
         $.get({
             url: url,
             dataType: "html",
@@ -465,7 +497,7 @@
     function sendMessage() {
 
         if ($("#new_recipient_number").val() != "") {
-            $("#hidActiveDestinationNumber").val($("#country-code-label").text().replace("+", "") + $("#new_recipient_number").cleanVal());
+            $("#hidActiveDestinationNumber").val("1" + $("#new_recipient_number").cleanVal());
         }
         var message = $("#message_text").val();
         var fromNumberId = $("#hidActiveVirtualNumberId").val();
@@ -481,6 +513,7 @@
                     }
 
                     var messageData = {
+                        BranchId: $("#hidBranchId").val(),
                         VirtualNumberId: $("#hidActiveVirtualNumberId").val(),
                         MobileNumber: $("#hidActiveDestinationNumber").val(),
                         MessageText: $("#message_text").val(),
@@ -488,7 +521,7 @@
                     };
 
                     $.post({
-                        url: '@Url.Action("SendMessage", "Messages")',
+                        url: 'messages/sendmessage',
                         data: JSON.stringify(messageData),
                         contentType: "application/json",
                         error: function (jqXHR, textStatus, errorThrown) {
@@ -503,7 +536,6 @@
 
                                 // Clear all dropzone files
                                 var dz = Dropzone.forElement("#mmsDropzone");
-                                //dz.removeAllFiles();
                                 dz.files = [];
                                 mmsFiles = [];
 
@@ -585,7 +617,7 @@
         var delData = {
             DeleteType: "VN",
             AccountId: 0,
-            VirtualNumber: numberToE164($("#from_number option:selected").text()),
+            VirtualNumber: numberToE164("1", $("#from_number option:selected").text()),
             VirtualNumberId: $("#hidActiveVirtualNumberId").val()
         };
 
@@ -651,6 +683,7 @@
     }
 </script>
 
+<input type="hidden" id="hidBranchId" value="@Model.Branch.BranchId" />
 <input type="hidden" id="hidActiveVirtualNumberId" value="@Model.ActiveVirtualNumberId" />
 <input type="hidden" id="hidActiveDestinationNumber" value="@Model.ActiveDestinationNumber" />
 <input type="hidden" id="hidBalance" value="@Model.Account.Balance" />

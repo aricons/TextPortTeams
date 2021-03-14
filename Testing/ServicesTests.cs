@@ -22,7 +22,7 @@ namespace Testing
         public void TestCheckForVirtualNumberExpirations()
         {
             int days = 7;
-            VnExpirationsPoller.CheckForVirtualNumberExpirationNotifications(days, NumberTypes.Regular);
+            //VnExpirationsPoller.CheckForVirtualNumberExpirationNotifications(days, NumberTypes.Regular);
 
             int foo = days;
         }
@@ -31,7 +31,7 @@ namespace Testing
         public void TestCheckForPooledVirtualNumberExpirations()
         {
             int days = 2;
-            VnExpirationsPoller.CheckForVirtualNumberExpirationNotifications(days, NumberTypes.Pooled);
+            //VnExpirationsPoller.CheckForVirtualNumberExpirationNotifications(days, NumberTypes.Pooled);
 
             int foo = days;
         }
@@ -40,7 +40,7 @@ namespace Testing
         public void TestCheckForAutoRenewNumberLowBalanceExpirations()
         {
             int days = 7;
-            VnExpirationsPoller.CheckForAutoRenewNumberExpirtionLowBalanceNotifications(days, NumberTypes.Regular);
+            //VnExpirationsPoller.CheckForAutoRenewNumberExpirtionLowBalanceNotifications(days, NumberTypes.Regular);
 
             int foo = days;
         }
@@ -48,7 +48,7 @@ namespace Testing
         [TestMethod]
         public void TestCheckForAndCancelExpiredNumbers()
         {
-            VnExpirationsPoller.CheckForAndCancelExpiredNumbers();
+            //VnExpirationsPoller.CheckForAndCancelExpiredNumbers();
 
             int foo = 2;
         }
@@ -56,7 +56,7 @@ namespace Testing
         [TestMethod]
         public void CheckForAndRenewAutoRenewNumbers()
         {
-            VnExpirationsPoller.CheckForAndRenewAutoRenewNumbers();
+            //VnExpirationsPoller.CheckForAndRenewAutoRenewNumbers();
 
             int foo = 2;
         }
@@ -64,7 +64,7 @@ namespace Testing
         [TestMethod]
         public void TestCheckForAndCancelAutoRenewNumbersWithInsufficientBalance()
         {
-            VnExpirationsPoller.CheckForAndCancelAutoRenewNumbersWithInsufficientBalance();
+            //VnExpirationsPoller.CheckForAndCancelAutoRenewNumbersWithInsufficientBalance();
 
             int foo = 2;
         }

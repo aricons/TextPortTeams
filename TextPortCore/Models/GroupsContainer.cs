@@ -12,38 +12,67 @@ namespace TextPortCore.Models
 {
     public class GroupsContainer
     {
-        public int AccountId { get; set; }
+        [Display(Name = "Branch")]
+        public int BranchId { get; set; }
 
-        [Display(Name = "Select a Group")]
+        public string Role { get; set; }
+
+        public Branch Branch { get; set; }
+
+        public Account Account { get; set; }
+
+        [Display(Name = "Groups")]
         public int CurrentGroupId { get; set; }
 
         [Display(Name = "Group Name")]
         public Group CurrentGroup { get; set; }
 
-        public IEnumerable<SelectListItem> GroupsList { get; set; }
+        public List<Branch> Branches { get; set; }
+
+        public List<Group> GroupsList { get; set; }
 
 
         // Constructors
         public GroupsContainer()
         {
-            this.AccountId = 0;
+            this.BranchId = 0;
+            this.Branch = null;
+            this.Account = null;
+            this.Role = "User";
             this.CurrentGroupId = 0;
             this.CurrentGroup = new Group();
         }
 
-        public GroupsContainer(int accountId)
+        public GroupsContainer(int branchId, int accountId, string role)
         {
-            this.AccountId = accountId;
+            this.BranchId = branchId;
+            this.Role = role;
             this.CurrentGroupId = 0;
             this.CurrentGroup = new Group();
 
             using (TextPortDA da = new TextPortDA())
             {
-                this.GroupsList = da.GetGroupsList(accountId);
+                this.Account = da.GetAccountById(accountId);
+                this.Branch = da.GetBranchByBranchId(branchId);
+                this.GroupsList = da.GetGroupsForBranch(branchId);
+
+                if (this.Role == "Administrative User")
+                {
+                    this.Branches = this.Branches = da.GetAllBranches();
+                }
+                else if (this.Role == "General Manager")
+                {
+                    List<int> branchIds = this.Account.BranchIds.Split(',').Select(Int32.Parse).ToList();
+                    this.Branches = this.Branches = da.GetBranchesForIds(branchIds);
+                }
+                else
+                {
+                    this.Branches = new List<Branch>() { this.Branch };
+                }
 
                 if (this.GroupsList.Count() > 0)
                 {
-                    this.CurrentGroupId = Convert.ToInt32(this.GroupsList.FirstOrDefault().Value);
+                    this.CurrentGroupId = Convert.ToInt32(this.GroupsList.FirstOrDefault().GroupId);
                 }
 
                 if (this.CurrentGroupId > 0)
@@ -53,17 +82,34 @@ namespace TextPortCore.Models
             }
         }
 
-        public GroupsContainer(Group newGroup)
+        public GroupsContainer(Group newGroup, int accountId, string role)
         {
             using (TextPortDA da = new TextPortDA())
             {
-                this.AccountId = newGroup.AccountId;
+                this.Role = role;
+                this.Account = da.GetAccountById(accountId);
+                this.BranchId = newGroup.BranchId;
+                this.Branch = da.GetBranchByBranchId(this.BranchId);
                 this.CurrentGroupId = newGroup.GroupId;
-                this.GroupsList = da.GetGroupsList(newGroup.AccountId);
+                this.GroupsList = da.GetGroupsForBranch(newGroup.BranchId);
                 this.CurrentGroup = new Group();
                 if (this.CurrentGroupId > 0)
                 {
                     this.CurrentGroup.Members = da.GetMembersForGroup(this.CurrentGroupId);
+                }
+
+                if (this.Role == "Administrative User")
+                {
+                    this.Branches = this.Branches = da.GetAllBranches();
+                }
+                else if (this.Role == "General Manager")
+                {
+                    List<int> branchIds = this.Account.BranchIds.Split(',').Select(Int32.Parse).ToList();
+                    this.Branches = this.Branches = da.GetBranchesForIds(branchIds);
+                }
+                else
+                {
+                    this.Branches = new List<Branch>() { this.Branch };
                 }
             }
         }

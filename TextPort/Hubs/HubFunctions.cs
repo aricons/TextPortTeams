@@ -21,10 +21,10 @@ namespace TextPort.Hubs
 
             // If the userName is a GUID, send to the client connection ID because this may be the first instance of
             // a free texting session, and the user ID may not be set yet.
-            if (notification.UserName.Length == 36)
-            {
-                _hubContext.Clients.Client(notification.UserName).messageNotification(JsonConvert.SerializeObject(notification, Formatting.Indented));
-            }
+            //if (notification.UserName.Length == 36)
+            //{
+            //    _hubContext.Clients.Client(notification.UserName).messageNotification(JsonConvert.SerializeObject(notification, Formatting.Indented));
+            //}
         }
 
 

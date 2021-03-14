@@ -8,6 +8,12 @@
 
 <script>
     $(function () {
+
+        $('#BranchId').on("change", function (e) {
+            getNumbersForBranch($("#BranchId option:selected").val());
+            getGroupsForBranch($("#BranchId option:selected").val());
+        });
+
         $('.modal-button-group').on('click', function () {
             var url = '/group/getmemberlist/' + $("#GroupId option:selected").val();
             var target = $(this).data('target');
@@ -19,26 +25,96 @@
             return false;
         });
     });
+
+    function getNumbersForBranch(branchId) {
+        $.get({
+            url: "/messages/getnumbersforbranch?bid=" + branchId,
+            dataType: "json",
+            cache: false,
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert(textStatus + ": Number data load failed. " + errorThrown);
+            },
+            success: function (result) {
+                var $dd = $("#VirtualNumberId");
+                $dd.empty();
+                if (result.length) {
+                    $.each(result, function () {
+                        $dd.append($("<option />").val(this.VirtualNumberId).text(this.NumberDisplay));
+                    });
+                }
+            }
+        });
+    }
+
+    function getGroupsForBranch(branchId) {
+        $.get({
+            url: "/group/getgroupsforbranch?bid=" + branchId,
+            dataType: "json",
+            cache: false,
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert(textStatus + ": Group data load failed. " + errorThrown);
+            },
+            success: function (result) {
+                var $dd = $("#GroupId");
+                $dd.empty();
+                if (result.length) {
+                    $.each(result, function () {
+                        $dd.append($("<option />").val(this.GroupId).text(this.GroupName));
+                    });
+                }
+            }
+        });
+    }
 </script>
 
+<br />
 <div class="container">
     <h2>Send a Group Text</h2>
     <hr />
     @using (Html.BeginForm("Index", "Group", FormMethod.Post, new { id = "form-bulk" }))
     {
+        @Html.HiddenFor(m => m.Role)
         @Html.HiddenFor(m => m.AccountId)
         <div class="form-group">
-            @Html.LabelFor(m => m.VirtualNumberId, new { @class = "form-label-md" })
-            @Html.DropDownListFor(x => Model.VirtualNumberId, new SelectList(Model.VirtualNumbers, "Value", "Text", Model.VirtualNumberId), new { @class = "form-control col-md-4" })
-            @Html.ValidationMessageFor(m => m.VirtualNumberId, null, new { @class = "text-danger" })
+            <div class="row">
+                <div class="col-md-5">
+                    @Html.LabelFor(m => m.BranchId, new { @class = "form-label" })
+                    <select name="BranchId" id="BranchId" class="form-control">
+                        @foreach (TextPortCore.Models.Branch branch in Model.Branches)
+                        {
+                            <option value="@branch.BranchId" @((branch.BranchId == Model.Branch.BranchId) ? "selected" : "")>@branch.BranchName</option>
+                        }
+                    </select>
+                    @Html.ValidationMessageFor(m => m.BranchId, null, new { @class = "text-danger" })
+                </div>
+                <div class="col-md-5">
+                    @Html.LabelFor(m => m.VirtualNumberId, new { @class = "form-label" })
+                    <select name="VirtualNumberId" id="VirtualNumberId" class="form-control">
+                        @foreach (DedicatedVirtualNumber vn in Model.VirtualNumbers)
+                        {
+                            <option value="@vn.VirtualNumberId">@vn.NumberDisplayFormat</option>
+                        }
+                    </select>
+                    @Html.ValidationMessageFor(m => m.VirtualNumberId, null, new { @class = "text-danger" })
+                </div>
+            </div>
         </div>
         <div class="form-group">
-            @Html.LabelFor(m => m.GroupId, new { @class = "form-label-md" })
-            <div class="form-row">
-                @Html.DropDownListFor(x => Model.GroupId, new SelectList(Model.GroupsList, "Value", "Text", Model.GroupId), new { @class = "form-control col-md-4 ml-1" })
-                &nbsp;<input type="button" class="btn btn-link modal-button-group" data-toggle="modal" data-target="#modal-cont" data-url="/group/getmemberslist" value="Show Group Members" />
+            <div class="row">
+                <div class="col-md-5">
+                    @Html.LabelFor(m => m.GroupId, new { @class = "form-label" })
+                    <select name="GroupId" id="GroupId" class="form-control">
+                        @foreach (Group g in Model.GroupsList)
+                        {
+                            <option value="@g.GroupId">@g.GroupName</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-5">
+                    <input type="button" class="btn btn-link modal-button-group mt-4" data-toggle="modal" data-target="#modal-cont" data-url="/group/getmemberlist" value="Show Group Members" />
+                </div>
+                @Html.ValidationMessageFor(m => m.GroupId, null, new { @class = "text-danger" })
             </div>
-            @Html.ValidationMessageFor(m => m.GroupId, null, new { @class = "text-danger" })
         </div>
         if (!string.IsNullOrEmpty(Model.BalanceAlert))
         {
@@ -54,7 +130,7 @@
         {
             <div class="form-group">
                 @Html.LabelFor(m => m.Message, new { @class = "form-label-md" })
-                @Html.TextAreaFor(m => m.Message, new { @class = "form-control col-md-6", rows = "5" })
+                @Html.TextAreaFor(m => m.Message, new { @class = "form-control col-md-10", rows = "5" })
                 @Html.ValidationMessageFor(m => m.Message, null, new { @class = "text-danger" })
             </div>
             <div class="form-group mt-0">

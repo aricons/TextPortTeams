@@ -27,7 +27,7 @@ namespace Testing
         [TestMethod]
         public void ProcessOutboundMessage()
         {
-            int messageId = 12003906;
+            int messageId = 12637320;
 
             using (TextPortDA da = new TextPortDA())
             {
@@ -106,7 +106,7 @@ namespace Testing
                 //VirtualNumber = "9495035607",
                 //VirtualNumber = "9095052389",
                 VirtualNumber = "8122692012",
-                AccountId = 1
+                BranchId = 1
             };
 
             using (Bandwidth bw = new Bandwidth())
@@ -126,7 +126,7 @@ namespace Testing
 
             DedicatedVirtualNumber number = new DedicatedVirtualNumber()
             {
-                AccountId = 1,
+                BranchId = 1,
                 VirtualNumber = "19095052389"
             };
 
@@ -363,7 +363,7 @@ namespace Testing
 
             RegistrationData regData = new RegistrationData()
             {
-                AccountId = 1,
+                BranchId = 1,
                 NumberCost = 5,
                 TotalCost = (decimal)35,
                 VirtualNumber = "18122692012",

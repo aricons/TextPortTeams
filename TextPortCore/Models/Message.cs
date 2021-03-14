@@ -11,6 +11,8 @@ namespace TextPortCore.Models
     {
         public int MessageId { get; set; }
 
+        public int BranchId { get; set; }
+
         public int AccountId { get; set; }
 
         public DateTime TimeStamp { get; set; }
@@ -57,6 +59,8 @@ namespace TextPortCore.Models
         public int? EmailToSMSAddressId { get; set; }
 
         public Account Account { get; set; }
+
+        public Branch Branch { get; set; }
 
         public DedicatedVirtualNumber DedicatedVirtualNumber { get; set; }
 
@@ -108,10 +112,11 @@ namespace TextPortCore.Models
             this.IsMMS = false;
         }
 
-        public Message(BulkMessageItem bulkMessage, MessageTypes msgType, int accountId, int sourceNumberId, string sourceNumber)
+        public Message(BulkMessageItem bulkMessage, MessageTypes msgType, int accountId, int branchId, int sourceNumberId, string sourceNumber)
         {
             // Bulk outbound message
             this.AccountId = accountId;
+            this.BranchId = branchId;
             this.MessageType = (byte)msgType;
             this.Direction = (byte)MessageDirection.Outbound;
             this.QueueStatus = (byte)QueueStatuses.NotProcessed;
@@ -121,7 +126,7 @@ namespace TextPortCore.Models
             this.MobileNumber = Utilities.NumberToE164(bulkMessage.Number, "1");
             this.GatewayMessageId = string.Empty;
             this.TimeStamp = DateTime.UtcNow;
-            this.MessageText = bulkMessage.MessageText;
+            this.MessageText = applyOptOutTrailer(bulkMessage.MessageText, MessageTypes.Bulk);
             this.Segments = Utilities.GetSegmentCount(bulkMessage.MessageText);
             this.Account = null;
             this.Contact = null;
@@ -142,7 +147,7 @@ namespace TextPortCore.Models
             this.MobileNumber = destinationNumber;
             this.GatewayMessageId = string.Empty;
             this.TimeStamp = DateTime.UtcNow;
-            this.MessageText = emailToSMSMessage.MessageText;
+            this.MessageText = applyOptOutTrailer(emailToSMSMessage.MessageText, MessageTypes.EmailToSMS);
             this.Segments = Utilities.GetSegmentCount(emailToSMSMessage.MessageText);
             this.Account = null;
             this.Contact = null;
@@ -165,7 +170,7 @@ namespace TextPortCore.Models
             this.MobileNumber = apiMessage.To;
             this.GatewayMessageId = string.Empty;
             this.TimeStamp = DateTime.UtcNow;
-            this.MessageText = apiMessage.MessageText;
+            this.MessageText = applyOptOutTrailer(apiMessage.MessageText, MessageTypes.API);
             this.Segments = Utilities.GetSegmentCount(apiMessage.MessageText);
             this.Account = null;
             this.Contact = null;
@@ -182,8 +187,9 @@ namespace TextPortCore.Models
             this.Direction = (byte)MessageDirection.Inbound;
             this.CustomerCost = 0;
             this.DedicatedVirtualNumber = dvn;
-            this.Account = dvn.Account;
-            this.AccountId = dvn.AccountId;
+            this.Branch = dvn.Branch;
+            this.BranchId = dvn.BranchId;
+            this.AccountId = 0;
             this.Ipaddress = Utilities.GetUserHostAddress();
             this.VirtualNumberId = dvn.VirtualNumberId;
             this.SessionId = sessionId;
@@ -202,7 +208,7 @@ namespace TextPortCore.Models
                 {
                     if (!mediaItem.EndsWith(".smil", StringComparison.CurrentCultureIgnoreCase) && !mediaItem.EndsWith("smil.xml", StringComparison.CurrentCultureIgnoreCase))
                     {
-                        string localFileName = WebFunctions.GetImageFromURL(mediaItem, this.AccountId);
+                        string localFileName = WebFunctions.GetImageFromURL(mediaItem, this.BranchId);
 
                         if (!string.IsNullOrEmpty(localFileName))
                         {
@@ -213,6 +219,21 @@ namespace TextPortCore.Models
                         }
                     }
                 }
+            }
+        }
+
+        private string applyOptOutTrailer(string messageText, MessageTypes messageType)
+        {
+            switch (messageType)
+            {
+                case MessageTypes.API:
+                case MessageTypes.Bulk:
+                case MessageTypes.BulkUpload:
+                case MessageTypes.Group:
+                    return $"{messageText} Reply STOP to opt out";
+
+                default:
+                    return messageText;
             }
         }
 

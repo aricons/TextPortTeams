@@ -5,7 +5,6 @@ using System.Web;
 using System.Web.Mvc;
 using System.Security.Claims;
 
-using TextPort.Helpers;
 using TextPortCore.Models;
 using TextPortCore.Data;
 using TextPortCore.Helpers;
@@ -14,15 +13,17 @@ namespace TextPort.Controllers
 {
     public class MessagesController : Controller
     {
-        [Authorize(Roles = "User")]
+        // [Authorize(Roles = "Administrative User, Branch Manager, User")]
+        [Authorize]
         [HttpGet]
         public ActionResult Index()
         {
+            int branchId = Utilities.GetBranchIdFromClaim(ClaimsPrincipal.Current);
             int accountId = Utilities.GetAccountIdFromClaim(ClaimsPrincipal.Current);
-            if (accountId > 0)
+            string role = Utilities.GetRoleFromClaim(ClaimsPrincipal.Current);
+            if (branchId > 0 && accountId > 0)
             {
-                MessagingContainer mc = new MessagingContainer(accountId);
-                Cookies.WriteBalance(mc.Account.Balance); // Get the updated balance for safety.
+                MessagingContainer mc = new MessagingContainer(branchId, accountId, role);
                 return View(mc);
             }
             else
@@ -33,29 +34,46 @@ namespace TextPort.Controllers
             return View();
         }
 
+        [Authorize]
         [HttpGet]
-        public ActionResult IndexNew()
+        public ActionResult GetNumbersForBranch(int bid)
         {
-            int accountId = 1;
-            if (accountId > 0)
+            try
             {
-                MessagingContainer mc = new MessagingContainer(accountId);
-                Cookies.WriteBalance(mc.Account.Balance); // Get the updated balance for safety.
-                return View(mc);
+                using (TextPortDA da = new TextPortDA())
+                {
+                    List<NumberDDItem> numbersList = new List<NumberDDItem>();
+
+                    foreach (DedicatedVirtualNumber n in da.GetNumbersForBranch(bid, false))
+                    {
+                        numbersList.Add(new NumberDDItem()
+                        {
+                            VirtualNumberId = n.VirtualNumberId.ToString(),
+                            Number = n.VirtualNumber,
+                            NumberDisplay = n.NumberDisplayFormat
+                        });
+                    }
+
+                    return Json(numbersList, JsonRequestBehavior.AllowGet);
+                }
             }
-            return View();
+            catch (Exception ex)
+            {
+                string bar = ex.Message;
+                return null;
+            }
         }
 
-        [Authorize(Roles = "User")]
+        [Authorize]
         [HttpGet]
-        public ActionResult GetRecentToNumbersForDedicatedVirtualNumber(int aid, int vnid)
+        public ActionResult GetRecentToNumbersForDedicatedVirtualNumber(int bid, int vnid)
         {
             try
             {
                 using (TextPortDA da = new TextPortDA())
                 {
                     List<Recent> recentsList = new List<Recent>();
-                    recentsList = da.GetRecentToNumbersForDedicatedVirtualNumber(aid, vnid);
+                    recentsList = da.GetRecentToNumbersForDedicatedVirtualNumber(bid, vnid);
                     if (recentsList.Any())
                     {
                         recentsList.FirstOrDefault().IsActiveMessage = true;
@@ -71,16 +89,16 @@ namespace TextPort.Controllers
             }
         }
 
-        [Authorize(Roles = "User")]
+        [Authorize]
         [HttpGet]
-        public ActionResult GetMessagesForNumber(int aid, int vnid, string num)
+        public ActionResult GetMessagesForNumber(int bid, int vnid, string num)
         {
             try
             {
                 using (TextPortDA da = new TextPortDA())
                 {
                     MessageList messageList = new MessageList();
-                    messageList.Messages = da.GetMessagesForAccountAndRecipient(aid, vnid, num);
+                    messageList.Messages = da.GetMessagesForBranchAndRecipient(bid, vnid, num);
 
                     return PartialView("_MessageList", messageList);
                 }
@@ -99,21 +117,21 @@ namespace TextPort.Controllers
         }
 
         // For Google Analytics tracking. Send() and Receive()
-        [Authorize(Roles = "User")]
+        [Authorize]
         [HttpGet]
         public ActionResult Send()
         {
             return PartialView("_SendMessage", new Message() { MessageText = "TextPort sent message placeholder", TimeStamp = DateTime.UtcNow });
         }
 
-        [Authorize(Roles = "User")]
+        [Authorize]
         [HttpGet]
         public ActionResult Receive()
         {
             return PartialView("_ReceiveMessage", new Message() { MessageText = "TextPort received message placeholder", TimeStamp = DateTime.UtcNow });
         }
 
-        [Authorize(Roles = "User")]
+        [Authorize]
         [HttpPost]
         public ActionResult SendMessage([System.Web.Http.FromBody] Message message)
         {
@@ -132,14 +150,14 @@ namespace TextPort.Controllers
                 {
                     using (TextPortDA da = new TextPortDA())
                     {
-                        if (da.NumberIsBlocked(message.MobileNumber, MessageDirection.Outbound))
+                        if (da.IsNumberStopped(message.MobileNumber))
                         {
-                            message.MessageText = $"BLOCKED: The recipient at number {message.MobileNumber} has reported abuse from this account. We have blocked the number at their request. TextPort does not condone the exchange of abusive, harrassing or defamatory messages.";
+                            message.MessageText = $"OPT-OUT: The recipient at number {message.MobileNumber} has opted out of text notifications.";
                             MessageList messageList = new MessageList()
                             {
                                 Messages = { message }
                             };
-                            return PartialView("_MessageListNew", messageList);
+                            return PartialView("_MessageList", messageList);
                         }
 
                         decimal newBalance = 0;
@@ -165,21 +183,21 @@ namespace TextPort.Controllers
             return null;
         }
 
-        [Authorize(Roles = "User")]
+        [Authorize]
         [HttpPost]
         public ActionResult UploadFile(HttpPostedFileBase file)
         {
             string responseHtml = string.Empty;
-            string accountIdStr = ClaimsPrincipal.Current.FindFirst("AccountId").Value;
+            int branchId = Utilities.GetBranchIdFromClaim(ClaimsPrincipal.Current);
             int imageId = RandomString.RandomNumber();
 
             try
             {
                 string fileName = Utilities.RemoveWhitespace(file.FileName);
                 var fileHandler = new FileHandling();
-                if (fileHandler.SaveMMSFile(file.InputStream, Convert.ToInt32(accountIdStr), $"{imageId}_{fileName}", false))
+                if (fileHandler.SaveMMSFile(file.InputStream, branchId, $"{imageId}_{fileName}", false))
                 {
-                    TempImage mi = new TempImage(Convert.ToInt32(accountIdStr), imageId, fileName, MessageDirection.Outbound, ImageStorageRepository.Archive);
+                    TempImage mi = new TempImage(branchId, imageId, fileName, MessageDirection.Outbound, ImageStorageRepository.Archive);
                     return PartialView("_TempImage", mi);
                 }
             }
@@ -196,17 +214,17 @@ namespace TextPort.Controllers
             });
         }
 
-        [Authorize(Roles = "User")]
+        [Authorize]
         [HttpPost]
         public ActionResult DeleteMMSFile([System.Web.Http.FromBody] FileNameParameter fileNameParam)
         {
             string responseMesssage = string.Empty;
-            string accountIdStr = ClaimsPrincipal.Current.FindFirst("AccountId").Value;
+            int branchId = Utilities.GetBranchIdFromClaim(ClaimsPrincipal.Current);
 
             try
             {
                 var fileHandler = new FileHandling();
-                if (fileHandler.DeleteMMSFile(Convert.ToInt32(accountIdStr), fileNameParam.FileName, false))
+                if (fileHandler.DeleteMMSFile(branchId, fileNameParam.FileName, false))
                 {
                     responseMesssage = "File deleted";
                     return Json(new
@@ -229,7 +247,7 @@ namespace TextPort.Controllers
             });
         }
 
-        [Authorize(Roles = "User")]
+        [Authorize]
         [HttpPost]
         public ActionResult DeleteMessagesForNumber(DeleteMessageInfo deleteMessageInfo)
         {
@@ -269,7 +287,7 @@ namespace TextPort.Controllers
             });
         }
 
-        [Authorize(Roles = "User")]
+        [Authorize]
         [HttpPost]
         public ActionResult GetDeletePromptModal(DeleteMessageInfo deleteMessageInfo)
         {
@@ -318,7 +336,7 @@ namespace TextPort.Controllers
             }
         }
 
-        [Authorize(Roles = "User")]
+        [Authorize]
         [HttpGet]
         public ActionResult SignalRTest()
         {
@@ -329,5 +347,13 @@ namespace TextPort.Controllers
         {
             public string FileName { get; set; }
         }
+
+        public class NumberDDItem
+        {
+            public string VirtualNumberId { get; set; }
+            public string Number { get; set; }
+            public string NumberDisplay { get; set; }
+        }
+
     }
 }

@@ -11,27 +11,33 @@ namespace TextPort.Controllers
 {
     public class GroupController : Controller
     {
-        [Authorize(Roles = "User")]
+        [Authorize]
         [HttpGet]
         public ActionResult Index()
         {
+            int branchId = Utilities.GetBranchIdFromClaim(ClaimsPrincipal.Current);
             int accountId = Utilities.GetAccountIdFromClaim(ClaimsPrincipal.Current);
+            string role = Utilities.GetRoleFromClaim(ClaimsPrincipal.Current);
 
-            GroupText groupText = new GroupText(accountId);
+            if (accountId > 0 && branchId > 0)
+            {
+                GroupText groupText = new GroupText(branchId, accountId, role);
+                return View(groupText);
+            }
 
-            return View(groupText);
+            return View();
         }
 
-        [Authorize(Roles = "User")]
+        [Authorize]
         [HttpPost]
         public ActionResult Index(GroupText groupText)
         {
-            int accountId = Utilities.GetAccountIdFromClaim(ClaimsPrincipal.Current);
-
             List<GroupTextResult> results = new List<GroupTextResult>();
+            int branchId = 0;
 
-            if (groupText.GroupId > 0)
+            if (groupText.GroupId > 0 && groupText.BranchId > 0)
             {
+                branchId = groupText.BranchId;
                 groupText.ProcessingState = ProcessingStates.ProcessedSuccessfully;
 
                 using (TextPortDA da = new TextPortDA())
@@ -44,14 +50,17 @@ namespace TextPort.Controllers
                         {
                             Message message = new Message(groupText.AccountId, (byte)MessageTypes.Group, groupText.VirtualNumberId, groupText.Message)
                             {
+                                BranchId = branchId,
                                 MobileNumber = member.MobileNumber
                             };
 
-                            string result = string.Empty;
-                            if (da.NumberIsBlocked(message.MobileNumber, MessageDirection.Outbound))
+                            string result;
+                            bool isStopped = false;
+                            if (da.IsNumberStopped(message.MobileNumber))
                             {
-                                message.MessageText = $"BLOCKED: The recipient at number {message.MobileNumber} has reported abuse from this account abuse and requested their number be blocked. TextPort does not condone the exchange of abusive, harrassing or defamatory messages.";
+                                message.MessageText = $"OPT-OUT: The recipient at number {message.MobileNumber} has opted out of text notifications. The message will not be sent.";
                                 result = "Failed";
+                                isStopped = true;
                             }
                             else
                             {
@@ -60,23 +69,24 @@ namespace TextPort.Controllers
 
                                 result = (message.Send()) ? "Success" : "Failed";
                             }
-                            results.Add(new GroupTextResult(member.MemberName, member.MobileNumber, result));
+                            results.Add(new GroupTextResult(member.MemberName, member.MobileNumber, result, isStopped));
                         }
                     }
 
                     groupText.ResultsList = results;
 
                     // Repopulate the drop-downs.
-                    groupText.GroupsList = da.GetGroupsList(groupText.AccountId);
+                    groupText.GroupsList = da.GetGroupsForBranch(branchId);
+                    groupText.VirtualNumbers = da.GetNumbersForBranch(branchId, false);
+                    groupText.Branch = da.GetBranchByBranchId(branchId);
 
-                    List<DedicatedVirtualNumber> dvns = da.GetNumbersForAccount(accountId, false);
-                    foreach (DedicatedVirtualNumber dvn in dvns)
+                    if (groupText.Role == "Administrative User" || groupText.Role == "Branch Manager")
                     {
-                        groupText.VirtualNumbers.Add(new SelectListItem()
-                        {
-                            Value = dvn.VirtualNumberId.ToString(),
-                            Text = dvn.NumberDisplayFormat
-                        });
+                        groupText.Branches = groupText.Branches = da.GetAllBranches();
+                    }
+                    else
+                    {
+                        groupText.Branches = new List<Branch>() { da.GetBranchByBranchId(branchId) };
                     };
                 }
             }
@@ -84,7 +94,26 @@ namespace TextPort.Controllers
             return View(groupText);
         }
 
-        [Authorize(Roles = "User")]
+        [Authorize]
+        [HttpGet]
+        public ActionResult GetGroupsForBranch(int bid)
+        {
+            try
+            {
+                using (TextPortDA da = new TextPortDA())
+                {
+                    List<Group> groupsList = da.GetGroupsForBranch(bid);
+                    return Json(groupsList, JsonRequestBehavior.AllowGet);
+                }
+            }
+            catch (Exception ex)
+            {
+                string bar = ex.Message;
+                return null;
+            }
+        }
+
+        [Authorize]
         [HttpGet]
         public ActionResult Getmemberlist(int id)
         {

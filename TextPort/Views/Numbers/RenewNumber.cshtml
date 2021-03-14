@@ -87,7 +87,7 @@
                         @using (Html.BeginForm("RenewNumber", "Numbers", FormMethod.Post, new { id = "form-extend-number" }))
                         {
                             @Html.HiddenFor(m => m.NumberCost)
-                            @Html.HiddenFor(m => m.AccountId)
+                            @Html.HiddenFor(m => m.BranchId)
                             @Html.HiddenFor(m => m.PurchaseType)
                             @Html.HiddenFor(m => m.PayPalCustom)
                             @Html.HiddenFor(m => m.VirtualNumber)
@@ -106,14 +106,6 @@
                                 @Html.DropDownListFor(m => m.LeasePeriodCode, new SelectList(Model.LeasePeriodsList, "Value", "Text"), new { @class = "col-6 form-control" })
                                 @Html.ValidationMessageFor(m => m.LeasePeriodCode, null, new { @class = "text-danger" })
                             </div>
-                            @*<div class="row lower-label mb-0">
-                                    <div class="col-5 pl-0">
-                                        <label>Number Cost</label>
-                                    </div>
-                                    <div class="col-1 pr-0">
-                                        <label id="NumberCostTxt" class="float-right"></label>
-                                    </div>
-                                </div>*@
                             <div class="row lower-label mb-0">
                                 <div class="col-5 pl-0">
                                     <label>Available Credit</label>

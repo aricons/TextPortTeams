@@ -9,7 +9,7 @@ namespace TextPortCore.Models
     {
         public int VirtualNumberID { get; set; }
         public string VirtualNumber { get; set; }
-        public int AccountID { get; set; }
+        public int BranchId { get; set; }
         public string Email { get; set; }
         public decimal Balance { get; set; }
         public DateTime ExpirationDate { get; set; }
@@ -62,7 +62,7 @@ namespace TextPortCore.Models
         {
             DaysUntilExpiration = 0;
             HoursUntilExpiration = 0;
-            AccountID = 0;
+            BranchId = 0;
             Email = string.Empty;
             Balance = 0;
             ExpirationDate = DateTime.MinValue;
@@ -94,7 +94,7 @@ namespace TextPortCore.Models
             //string linkKey = $"{leader}J{this.AccountID + Constants.AccountIdScramblerOffset}J{firstFiller}J{this.VirtualNumberID}J{trailer}";
 
             string linkBase = $"https://textport.com/{this.EmailAction}";
-            string linkKey = RandomString.GenerateJDelimitedUrlParameter(new List<int>() { this.AccountID, this.VirtualNumberID });
+            string linkKey = RandomString.GenerateJDelimitedUrlParameter(new List<int>() { this.BranchId, this.VirtualNumberID });
 
             return $"{linkBase}/{linkKey}";
         }

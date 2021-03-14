@@ -39,8 +39,9 @@ namespace TextPort.Controllers
         public ActionResult Index(BulkMessagesUpload messageData)
         {
             int accountId = Utilities.GetAccountIdFromClaim(ClaimsPrincipal.Current);
-            decimal remainingBalance = 0;
+            int branchId = messageData.BranchId;
             MessageTypes messageType = (messageData.SubmitType == "UPLOAD") ? MessageTypes.BulkUpload : MessageTypes.Bulk;
+            decimal remainingBalance = 0;
 
             try
             {
@@ -48,8 +49,6 @@ namespace TextPort.Controllers
                 {
                     using (TextPortDA da = new TextPortDA())
                     {
-                        remainingBalance = da.GetAccountBalance(accountId);
-
                         messageData.ProcessingState = "PROCESSED";
                         if (messageData.Messages.Count > 0 && messageData.VirtualNumberId > 0)
                         {
@@ -61,44 +60,34 @@ namespace TextPort.Controllers
                                     {
                                         if (!string.IsNullOrEmpty(message.MessageText))
                                         {
-                                            if (remainingBalance > 0M)
+                                            Message bulkMessage = new Message(message, messageType, accountId, branchId, messageData.VirtualNumberId, string.Empty);
+
+                                            if (!da.IsNumberStopped(bulkMessage.MobileNumber))
                                             {
-                                                Message bulkMessage = new Message(message, messageType, accountId, messageData.VirtualNumberId, string.Empty);
-
-                                                if (!da.NumberIsBlocked(bulkMessage.MobileNumber, MessageDirection.Outbound))
+                                                if (da.InsertMessage(bulkMessage, ref remainingBalance) > 0)
                                                 {
-                                                    if (da.InsertMessage(bulkMessage, ref remainingBalance) > 0)
+                                                    if (bulkMessage.Send())
                                                     {
-                                                        Cookies.Write("balance", remainingBalance.ToString(), 0);
-
-                                                        if (bulkMessage.Send())
-                                                        {
-                                                            message.ProcessingStatus = "OK";
-                                                            message.ProcessingResult = $"Messaage to {message.Number} queued successfully.";
-                                                        }
-                                                        else
-                                                        {
-                                                            message.ProcessingStatus = "FAIL";
-                                                            message.ProcessingResult = $"Error queuing message to {message.Number}.";
-                                                        }
+                                                        message.ProcessingStatus = "OK";
+                                                        message.ProcessingResult = $"Messaage to {message.Number} queued successfully.";
                                                     }
                                                     else
                                                     {
                                                         message.ProcessingStatus = "FAIL";
-                                                        message.ProcessingResult = $"Error saving message for {message.Number}.";
+                                                        message.ProcessingResult = $"Error queuing message to {message.Number}.";
                                                     }
                                                 }
                                                 else
                                                 {
                                                     message.ProcessingStatus = "FAIL";
-                                                    message.ProcessingResult = $"BLOCKED: The recipient at number {bulkMessage.MobileNumber} has reported abuse from this account abuse and requested their number be blocked. TextPort does not condone the exchange of abusive, harrassing or defamatory messages.";
-                                                    message.MessageText = message.ProcessingResult;
+                                                    message.ProcessingResult = $"Error saving message for {message.Number}.";
                                                 }
                                             }
                                             else
                                             {
                                                 message.ProcessingStatus = "FAIL";
-                                                message.ProcessingResult = $"The account balance is exhausted.";
+                                                message.ProcessingResult = $"OPT OUT: The recipient at number {bulkMessage.MobileNumber} has opted out of text message notifications.";
+                                                message.MessageText = message.ProcessingResult;
                                             }
                                         }
                                         else

@@ -10,15 +10,13 @@ using TextPort.Helpers;
 using TextPortCore.Models;
 using TextPortCore.Data;
 using TextPortCore.Helpers;
-using TextPortCore.Integrations.Coinbase;
-using TextPortCore.Integrations.Bandwidth;
 
 namespace TextPort.Controllers
 {
     public class AccountController : Controller
     {
         [HttpPost]
-        //[ValidateAntiForgeryToken]
+        [ValidateAntiForgeryToken]
         public ActionResult ValidateLogin(LoginCredentials model)
         {
             Account account = null;
@@ -32,10 +30,12 @@ namespace TextPort.Controllers
                     {
                         List<Claim> claims = new List<Claim> {
                             new Claim("AccountId", account.AccountId.ToString(), ClaimValueTypes.Integer),
+                            new Claim("BranchId", account.BranchId.ToString(), ClaimValueTypes.Integer),
+                            new Claim("BranchName", account.Branch.BranchName, ClaimValueTypes.Integer),
                             new Claim(ClaimTypes.Name, account.UserName.ToString()),
                             new Claim(ClaimTypes.NameIdentifier, account.UserName.ToString()),
                             new Claim(ClaimTypes.Email, account.Email.ToString()),
-                            new Claim(ClaimTypes.Role, "User")
+                            new Claim(ClaimTypes.Role, account.Role.RoleName)
                         };
 
                         ClaimsIdentity identity = new ClaimsIdentity(claims, "ApplicationCookie");
@@ -48,18 +48,11 @@ namespace TextPort.Controllers
 
                         Cookies.Write("balance", account.Balance.ToString(), 0);
 
-                        if (account.ComplimentaryNumber == (byte)ComplimentaryNumberStatus.Eligible)
-                        {
-                            result = new { success = "true", response = Url.Action($"ComplimentaryNumber/{account.AccountId}", "Numbers") };
-                        }
-                        else
-                        {
-                            result = new { success = "true", response = Url.Action("index", "messages") };
-                        }
+                        return RedirectToAction("Index", "Messages");
                     }
                     else
                     {
-                        result = new { success = "false", response = "Invalid username, email or password" };
+                        return RedirectToAction("Index", "Home");
                     }
                 }
             }
@@ -71,7 +64,7 @@ namespace TextPort.Controllers
             return Json(result);
         }
 
-        [Authorize(Roles = "User")]
+        [Authorize]
         public ActionResult Logout()
         {
             Request.GetOwinContext().Authentication.SignOut();
@@ -126,25 +119,25 @@ namespace TextPort.Controllers
                         case "VirtualNumberSignUp":
                         case "FreeTrial":
                             // Add a temporary account (Enabled flag set to 0).
-                            regData.AccountId = da.AddTemporaryAccount(regData);
+                            regData.BranchId = da.AddTemporaryAccount(regData);
                             break;
                     }
 
                     switch (regData.PurchaseMethod)
                     {
-                        case "Crypto":
-                            using (Coinbase coinbase = new Coinbase())
-                            {
-                                ChargeResponse chargeResponse = coinbase.CreateCharge(regData);
-                                if (chargeResponse != null)
-                                {
-                                    regData.PaymentUrl = chargeResponse.data.hosted_url;
-                                    regData.PaymentTransactionId = chargeResponse.data.id;
+                        //case "Crypto":
+                        //    using (Coinbase coinbase = new Coinbase())
+                        //    {
+                        //        ChargeResponse chargeResponse = coinbase.CreateCharge(regData);
+                        //        if (chargeResponse != null)
+                        //        {
+                        //            regData.PaymentUrl = chargeResponse.data.hosted_url;
+                        //            regData.PaymentTransactionId = chargeResponse.data.id;
 
-                                    da.UpdateAccountCryptoTransactionDetails(regData);
-                                }
-                            }
-                            return PartialView("_PurchaseCrypto", regData);
+                        //            da.UpdateAccountCryptoTransactionDetails(regData);
+                        //        }
+                        //    }
+                        //    return PartialView("_PurchaseCrypto", regData);
 
                         default:
                             return PartialView("_Purchase", regData);
@@ -166,187 +159,187 @@ namespace TextPort.Controllers
         {
             try
             {
-                using (TextPortDA da = new TextPortDA())
-                {
-                    switch (regData.PurchaseType)
-                    {
-                        case "VirtualNumberSignUp":
-                            regData.CompletionTitle = "Operation Failed";
-                            regData.CompletionMessage = "An error occurred while processing the request. We apologize fo any inconvenience. <a href=\"/home/support\">Please submit a support request to report this issue.</a>";
+                //using (TextPortDA da = new TextPortDA())
+                //{
+                //    switch (regData.PurchaseType)
+                //    {
+                //        case "VirtualNumberSignUp":
+                //            regData.CompletionTitle = "Operation Failed";
+                //            regData.CompletionMessage = "An error occurred while processing the request. We apologize fo any inconvenience. <a href=\"/home/support\">Please submit a support request to report this issue.</a>";
 
-                            if (da.EnableTemporaryAccount(regData))
-                            {
-                                if (!string.IsNullOrEmpty(regData.VirtualNumber))
-                                {
-                                    // Log the user in
-                                    List<Claim> claims = new List<Claim> {
-                                            new Claim("AccountId", regData.AccountId.ToString(), ClaimValueTypes.Integer),
-                                            new Claim(ClaimTypes.Name, regData.UserName.ToString()),
-                                            new Claim(ClaimTypes.Email, regData.EmailAddress.ToString()),
-                                            new Claim(ClaimTypes.Role, "User") };
+                //            if (da.EnableTemporaryAccount(regData))
+                //            {
+                //                if (!string.IsNullOrEmpty(regData.VirtualNumber))
+                //                {
+                //                    // Log the user in
+                //                    List<Claim> claims = new List<Claim> {
+                //                            new Claim("AccountId", regData.AccountId.ToString(), ClaimValueTypes.Integer),
+                //                            new Claim(ClaimTypes.Name, regData.UserName.ToString()),
+                //                            new Claim(ClaimTypes.Email, regData.EmailAddress.ToString()),
+                //                            new Claim(ClaimTypes.Role, "User") };
 
-                                    ClaimsIdentity identity = new ClaimsIdentity(claims, "ApplicationCookie");
-                                    ClaimsPrincipal principal = new ClaimsPrincipal(identity);
+                //                    ClaimsIdentity identity = new ClaimsIdentity(claims, "ApplicationCookie");
+                //                    ClaimsPrincipal principal = new ClaimsPrincipal(identity);
 
-                                    var context = Request.GetOwinContext();
-                                    var authManager = context.Authentication;
+                //                    var context = Request.GetOwinContext();
+                //                    var authManager = context.Authentication;
 
-                                    authManager.SignIn(new AuthenticationProperties { IsPersistent = false }, identity);
+                //                    authManager.SignIn(new AuthenticationProperties { IsPersistent = false }, identity);
 
-                                    using (Bandwidth bw = new Bandwidth())
-                                    {
-                                        if (bw.PurchaseVirtualNumber(regData))
-                                        {
-                                            if (da.AddNumberToAccount(regData))
-                                            {
-                                                regData.CompletionTitle = "Registration Complete";
-                                                regData.CompletionMessage = "Your account and number were successfully registered.";
+                //                    using (Bandwidth bw = new Bandwidth())
+                //                    {
+                //                        if (bw.PurchaseVirtualNumber(regData))
+                //                        {
+                //                            if (da.AddNumberToBranch(regData))
+                //                            {
+                //                                regData.CompletionTitle = "Registration Complete";
+                //                                regData.CompletionMessage = "Your account and number were successfully registered.";
 
-                                                Account acc = da.GetAccountById(regData.AccountId);
-                                                if (acc != null)
-                                                {
-                                                    acc.Balance += (Constants.InitialBalanceAllocation + regData.CreditPurchaseAmount);
-                                                    da.SaveChanges();
+                //                                Account acc = da.GetAccountById(regData.AccountId);
+                //                                if (acc != null)
+                //                                {
+                //                                    acc.Balance += (Constants.InitialBalanceAllocation + regData.CreditPurchaseAmount);
+                //                                    da.SaveChanges();
 
-                                                    if (regData.CreditPurchaseAmount > 0)
-                                                    {
-                                                        regData.CompletionMessage += $" {regData.CreditPurchaseAmount:C} was applied to your account.";
-                                                    }
+                //                                    if (regData.CreditPurchaseAmount > 0)
+                //                                    {
+                //                                        regData.CompletionMessage += $" {regData.CreditPurchaseAmount:C} was applied to your account.";
+                //                                    }
 
-                                                    Cookies.WriteBalance(acc.Balance);
+                //                                    Cookies.WriteBalance(acc.Balance);
 
-                                                    return PartialView("_RegistrationComplete", regData);
-                                                }
-                                            }
-                                            else
-                                            {
-                                                regData.CompletionMessage += " The number was unable to be assigned to your account.";
-                                            }
-                                        }
-                                        else
-                                        {
-                                            regData.CompletionTitle = "Registration Partially Complete";
-                                            regData.CompletionMessage = $"Your account was registered, but there was a problem assigning a number to your account. <a href=\"/numbers/complimentarynumber/{regData.AccountId}\">Click here to select a new number.</a> You will not be charged for the replacement number.";
+                //                                    return PartialView("_RegistrationComplete", regData);
+                //                                }
+                //                            }
+                //                            else
+                //                            {
+                //                                regData.CompletionMessage += " The number was unable to be assigned to your account.";
+                //                            }
+                //                        }
+                //                        else
+                //                        {
+                //                            regData.CompletionTitle = "Registration Partially Complete";
+                //                            regData.CompletionMessage = $"Your account was registered, but there was a problem assigning a number to your account. <a href=\"/numbers/complimentarynumber/{regData.AccountId}\">Click here to select a new number.</a> You will not be charged for the replacement number.";
 
-                                            da.SetComplimentaryNumberFlag(regData.AccountId, ComplimentaryNumberStatus.FailureEligible);
+                //                            da.SetComplimentaryNumberFlag(regData.AccountId, ComplimentaryNumberStatus.FailureEligible);
 
-                                            return PartialView("_RegistrationComplete", regData);
-                                        }
-                                    }
-                                }
-                                else
-                                {
-                                    regData.CompletionMessage += " No number was specified.";
-                                }
-                            }
-                            else
-                            {
-                                regData.CompletionMessage += " Account creation failed.";
-                            }
-                            break;
+                //                            return PartialView("_RegistrationComplete", regData);
+                //                        }
+                //                    }
+                //                }
+                //                else
+                //                {
+                //                    regData.CompletionMessage += " No number was specified.";
+                //                }
+                //            }
+                //            else
+                //            {
+                //                regData.CompletionMessage += " Account creation failed.";
+                //            }
+                //            break;
 
-                        case "ComplimentaryNumber":
-                            regData.CompletionTitle = "Number assignment failed";
-                            regData.CompletionMessage = $"An error occurred while assigning your number. <a href=\"/numbers/complimentarynumber/{regData.AccountId}\">Click here to select a new number.</a> You will not be charged for the replacement number. ";
+                //        case "ComplimentaryNumber":
+                //            regData.CompletionTitle = "Number assignment failed";
+                //            regData.CompletionMessage = $"An error occurred while assigning your number. <a href=\"/numbers/complimentarynumber/{regData.AccountId}\">Click here to select a new number.</a> You will not be charged for the replacement number. ";
 
-                            if (!string.IsNullOrEmpty(regData.VirtualNumber))
-                            {
-                                using (Bandwidth bw = new Bandwidth())
-                                {
-                                    if (bw.PurchaseVirtualNumber(regData))
-                                    {
-                                        if (da.AddNumberToAccount(regData))
-                                        {
-                                            regData.CompletionTitle = "Number Successfully Assigned";
-                                            regData.CompletionMessage = $"The number {regData.NumberDisplayFormat} has been sucessfully assigned to your account.";
+                //            if (!string.IsNullOrEmpty(regData.VirtualNumber))
+                //            {
+                //                using (Bandwidth bw = new Bandwidth())
+                //                {
+                //                    if (bw.PurchaseVirtualNumber(regData))
+                //                    {
+                //                        if (da.AddNumberToBranch(regData))
+                //                        {
+                //                            regData.CompletionTitle = "Number Successfully Assigned";
+                //                            regData.CompletionMessage = $"The number {regData.NumberDisplayFormat} has been sucessfully assigned to your account.";
 
-                                            da.SetComplimentaryNumberFlag(regData.AccountId, ComplimentaryNumberStatus.Claimed);
+                //                            //da.SetComplimentaryNumberFlag(regData.AccountId, ComplimentaryNumberStatus.Claimed);
 
-                                            Account acc = da.GetAccountById(regData.AccountId);
-                                            if (acc != null)
-                                            {
-                                                acc.Balance += (Constants.InitialBalanceAllocation);
-                                                da.SaveChanges();
+                //                            //Account acc = da.GetAccountById(regData.AccountId);
+                //                            //if (acc != null)
+                //                            //{
+                //                            //    acc.Balance += (Constants.InitialBalanceAllocation);
+                //                            //    da.SaveChanges();
 
-                                                // For migration. Apply the new virtualnumber ID to all existing messages where the virtual number ID is 0.
-                                                da.ApplyVirtualNumberIdToAllMessages(acc.AccountId, regData.VirtualNumberId);
+                //                            //    // For migration. Apply the new virtualnumber ID to all existing messages where the virtual number ID is 0.
+                //                            //    da.ApplyVirtualNumberIdToAllMessages(acc.AccountId, regData.VirtualNumberId);
 
-                                                Cookies.WriteBalance(acc.Balance);
-                                            }
+                //                            //    Cookies.WriteBalance(acc.Balance);
+                //                            //}
 
-                                            return PartialView("_RegistrationComplete", regData);
-                                        }
-                                    }
-                                    else
-                                    {
-                                        da.SetComplimentaryNumberFlag(regData.AccountId, ComplimentaryNumberStatus.FailureEligible);
-                                    }
-                                }
-                            }
-                            break;
+                //                            return PartialView("_RegistrationComplete", regData);
+                //                        }
+                //                    }
+                //                    else
+                //                    {
+                //                        da.SetComplimentaryNumberFlag(regData.AccountId, ComplimentaryNumberStatus.FailureEligible);
+                //                    }
+                //                }
+                //            }
+                //            break;
 
-                        case "VirtualNumberRenew":
-                            if (!string.IsNullOrEmpty(regData.VirtualNumber))
-                            {
-                                DedicatedVirtualNumber vn = da.GetVirtualNumberById(regData.VirtualNumberId);
-                                if (vn != null)
-                                {
-                                    vn.ExpirationDate = vn.ExpirationDate.AddMonths(regData.LeasePeriod);
-                                    vn.RenewalCount = vn.RenewalCount + 1;
-                                    vn.Fee = regData.TotalCost;
-                                    vn.SevenDayReminderSent = null;
-                                    vn.TwoDayReminderSent = null;
-                                    da.SaveChanges();
+                //        case "VirtualNumberRenew":
+                //            if (!string.IsNullOrEmpty(regData.VirtualNumber))
+                //            {
+                //                DedicatedVirtualNumber vn = da.GetVirtualNumberById(regData.VirtualNumberId);
+                //                if (vn != null)
+                //                {
+                //                    vn.ExpirationDate = vn.ExpirationDate.AddMonths(regData.LeasePeriod);
+                //                    vn.RenewalCount = vn.RenewalCount + 1;
+                //                    vn.Fee = regData.TotalCost;
+                //                    vn.SevenDayReminderSent = null;
+                //                    vn.TwoDayReminderSent = null;
+                //                    da.SaveChanges();
 
-                                    regData.CompletionTitle = "Number Renewal Complete";
-                                    regData.CompletionMessage = $"The number {regData.NumberDisplayFormat} has been sucessfully renewed for {regData.LeasePeriod} {regData.LeasePeriodWord}.";
+                //                    regData.CompletionTitle = "Number Renewal Complete";
+                //                    regData.CompletionMessage = $"The number {regData.NumberDisplayFormat} has been sucessfully renewed for {regData.LeasePeriod} {regData.LeasePeriodWord}.";
 
-                                    if (regData.CreditPurchaseAmount > 0)
-                                    {
-                                        Account acc = da.GetAccountById(regData.AccountId);
-                                        if (acc != null)
-                                        {
-                                            acc.Balance += (regData.CreditPurchaseAmount);
-                                            da.SaveChanges();
+                //                    if (regData.CreditPurchaseAmount > 0)
+                //                    {
+                //                        Account acc = da.GetAccountById(regData.AccountId);
+                //                        if (acc != null)
+                //                        {
+                //                            acc.Balance += (regData.CreditPurchaseAmount);
+                //                            da.SaveChanges();
 
-                                            if (regData.CreditPurchaseAmount > 0)
-                                            {
-                                                regData.CompletionMessage += $" {regData.CreditPurchaseAmount:C} was applied to your account.";
-                                            }
+                //                            if (regData.CreditPurchaseAmount > 0)
+                //                            {
+                //                                regData.CompletionMessage += $" {regData.CreditPurchaseAmount:C} was applied to your account.";
+                //                            }
 
-                                            Cookies.WriteBalance(acc.Balance);
-                                        }
-                                    }
-                                    return PartialView("_RegistrationComplete", regData);
-                                }
-                            }
-                            break;
+                //                            Cookies.WriteBalance(acc.Balance);
+                //                        }
+                //                    }
+                //                    return PartialView("_RegistrationComplete", regData);
+                //                }
+                //            }
+                //            break;
 
-                        case "Credit":
-                            regData.CompletionTitle = "Credit purchase failed";
-                            regData.CompletionMessage = "An error occurred while assigning credit to your account. If the credit is not reflected on your account, <a href=\"/home/support\">please submit a support request.</a>";
+                //        case "Credit":
+                //            regData.CompletionTitle = "Credit purchase failed";
+                //            regData.CompletionMessage = "An error occurred while assigning credit to your account. If the credit is not reflected on your account, <a href=\"/home/support\">please submit a support request.</a>";
 
-                            if (regData != null)
-                            {
-                                if (regData.AccountId > 0)
-                                {
-                                    AccountView av = new AccountView(regData.AccountId);
-                                    Account acc = da.GetAccountById(regData.AccountId);
-                                    if (acc != null)
-                                    {
-                                        acc.Balance += Convert.ToDecimal(regData.CreditPurchaseAmount);
-                                        da.SaveChanges();
+                //            if (regData != null)
+                //            {
+                //                if (regData.AccountId > 0)
+                //                {
+                //                    AccountView av = new AccountView(regData.AccountId);
+                //                    Account acc = da.GetAccountById(regData.AccountId);
+                //                    if (acc != null)
+                //                    {
+                //                        acc.Balance += Convert.ToDecimal(regData.CreditPurchaseAmount);
+                //                        da.SaveChanges();
 
-                                        Cookies.WriteBalance(acc.Balance);
-                                    }
-                                }
+                //                        Cookies.WriteBalance(acc.Balance);
+                //                    }
+                //                }
 
-                                regData.CompletionTitle = "Credit Purchase Complete";
-                                regData.CompletionMessage = $"{regData.CreditPurchaseAmount:C2} credit was sucessfully added to your account";
-                            }
-                            return PartialView("_RegistrationComplete", regData);
-                    }
-                }
+                //                regData.CompletionTitle = "Credit Purchase Complete";
+                //                regData.CompletionMessage = $"{regData.CreditPurchaseAmount:C2} credit was sucessfully added to your account";
+                //            }
+                //            return PartialView("_RegistrationComplete", regData);
+                //    }
+                //}
             }
             catch (Exception ex)
             {
@@ -356,7 +349,7 @@ namespace TextPort.Controllers
             return PartialView("_RegistrationFailed", regData);
         }
 
-        [Authorize(Roles = "User")]
+        [Authorize]
         [HttpGet]
         public ActionResult Profile()
         {
@@ -369,31 +362,31 @@ namespace TextPort.Controllers
             return View();
         }
 
-        [Authorize(Roles = "User")]
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Profile(AccountView av)
-        {
-            av.Status = RequestStatus.Failed;
+        //[Authorize]
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public ActionResult Profile(AccountView av)
+        //{
+        //    av.Status = RequestStatus.Failed;
 
-            using (TextPortDA da = new TextPortDA())
-            {
-                if (da.UpdateAccount(av.Account))
-                {
-                    av.Status = RequestStatus.Success;
-                    av.ConfirmationMessage = "Your settings have been updated.";
-                }
-                else
-                {
-                    av.ConfirmationMessage = "There was a problem updating your settings.";
-                }
-                av.TimeZones = da.GetTimeZones();
+        //    using (TextPortDA da = new TextPortDA())
+        //    {
+        //        if (da.UpdateAccount(av.Account))
+        //        {
+        //            av.Status = RequestStatus.Success;
+        //            av.ConfirmationMessage = "Your settings have been updated.";
+        //        }
+        //        else
+        //        {
+        //            av.ConfirmationMessage = "There was a problem updating your settings.";
+        //        }
+        //        av.TimeZones = da.GetTimeZones();
 
-                return View(av);
-            }
-        }
+        //        return View(av);
+        //    }
+        //}
 
-        [Authorize(Roles = "User")]
+        [Authorize]
         [HttpGet]
         public ActionResult Balance()
         {
@@ -443,85 +436,85 @@ namespace TextPort.Controllers
                 }
 
                 // Check to see if the user is attempting to use a temporary email domain to get a free account to send spam texts.
-                string emailDomain = da.DoesEmailContainBadDomain(emailaddress);
-                if (!string.IsNullOrEmpty(emailDomain))
-                {
-                    return Json($"The email domain {emailDomain} cannot be accepted for trial registrations.", JsonRequestBehavior.AllowGet);
-                }
+                //string emailDomain = da.DoesEmailContainBadDomain(emailaddress);
+                //if (!string.IsNullOrEmpty(emailDomain))
+                //{
+                //    return Json($"The email domain {emailDomain} cannot be accepted for trial registrations.", JsonRequestBehavior.AllowGet);
+                //}
             }
             return Json(true, JsonRequestBehavior.AllowGet);
         }
 
-        [HttpGet]
-        [AllowAnonymous]
-        public ActionResult Activate(string id)
-        {
-            ActivateAccountRequest actReq = new ActivateAccountRequest(id);
-            actReq.Success = false;
-            actReq.CompletionTitle = "Account Activation Failed";
+        //[HttpGet]
+        //[AllowAnonymous]
+        //public ActionResult Activate(string id)
+        //{
+        //    ActivateAccountRequest actReq = new ActivateAccountRequest(id);
+        //    actReq.Success = false;
+        //    actReq.CompletionTitle = "Account Activation Failed";
 
-            if (!string.IsNullOrEmpty(actReq.ActivationKey))
-            {
-                using (TextPortDA da = new TextPortDA())
-                {
-                    Account acc = da.GetAccountByAccountValidationKey(actReq.ActivationKey);
-                    if (acc != null)
-                    {
-                        if (!acc.Enabled && !acc.AccountValidated)
-                        {
-                            actReq.AccountId = acc.AccountId;
-                            actReq.UserName = acc.UserName;
-                            actReq.EmailAddress = acc.Email;
-                            actReq.VirtualNumber = acc.RegistrationVirtualNumber;
+        //    if (!string.IsNullOrEmpty(actReq.ActivationKey))
+        //    {
+        //        using (TextPortDA da = new TextPortDA())
+        //        {
+        //            Account acc = da.GetAccountByAccountValidationKey(actReq.ActivationKey);
+        //            if (acc != null)
+        //            {
+        //                if (!acc.Enabled && !acc.AccountValidated)
+        //                {
+        //                    actReq.AccountId = acc.AccountId;
+        //                    actReq.UserName = acc.UserName;
+        //                    actReq.EmailAddress = acc.Email;
+        //                    actReq.VirtualNumber = acc.RegistrationVirtualNumber;
 
-                            if (da.SetAccountActivationAndEnabledFlags(acc.AccountId, true))
-                            {
-                                // Log the user in
-                                List<Claim> claims = new List<Claim> {
-                                        new Claim("AccountId", actReq.AccountId.ToString(), ClaimValueTypes.Integer),
-                                        new Claim(ClaimTypes.Name, actReq.UserName.ToString()),
-                                        new Claim(ClaimTypes.Email, actReq.EmailAddress.ToString()),
-                                        new Claim(ClaimTypes.Role, "User") };
+        //                    if (da.SetAccountActivationAndEnabledFlags(acc.AccountId, true))
+        //                    {
+        //                        // Log the user in
+        //                        List<Claim> claims = new List<Claim> {
+        //                                new Claim("AccountId", actReq.AccountId.ToString(), ClaimValueTypes.Integer),
+        //                                new Claim(ClaimTypes.Name, actReq.UserName.ToString()),
+        //                                new Claim(ClaimTypes.Email, actReq.EmailAddress.ToString()),
+        //                                new Claim(ClaimTypes.Role, "User") };
 
-                                ClaimsIdentity identity = new ClaimsIdentity(claims, "ApplicationCookie");
-                                ClaimsPrincipal principal = new ClaimsPrincipal(identity);
+        //                        ClaimsIdentity identity = new ClaimsIdentity(claims, "ApplicationCookie");
+        //                        ClaimsPrincipal principal = new ClaimsPrincipal(identity);
 
-                                var context = Request.GetOwinContext();
-                                var authManager = context.Authentication;
+        //                        var context = Request.GetOwinContext();
+        //                        var authManager = context.Authentication;
 
-                                authManager.SignIn(new AuthenticationProperties { IsPersistent = false }, identity);
+        //                        authManager.SignIn(new AuthenticationProperties { IsPersistent = false }, identity);
 
-                                if (da.AddTrialNumberToAccount(actReq))
-                                {
-                                    actReq.Success = true;
-                                    actReq.CompletionTitle = "Account Successfully Activated!";
-                                    actReq.CreditAmount = Constants.InitialFreeTrialBalanceAllocation;
-                                    Cookies.WriteBalance(actReq.CreditAmount);
-                                }
-                                else
-                                {
-                                    actReq.CompletionMessage += " The number was unable to be assigned to your account.";
-                                }
-                            }
-                        }
-                        else
-                        {
-                            actReq.CompletionTitle = "Account Already Activated";
-                            actReq.CompletionMessage = $"The activation key {actReq.ActivationKey} has already been used to activate an account with username {acc.UserName}. It is not necessary to re-activate the account.";
-                        }
-                    }
-                    else
-                    {
-                        actReq.CompletionMessage = "Invalid activation token.";
-                    }
-                }
-            }
-            else
-            {
-                actReq.CompletionMessage = "Missing activation token.";
-            }
-            return View(actReq);
-        }
+        //                        if (da.AddTrialNumberToAccount(actReq))
+        //                        {
+        //                            actReq.Success = true;
+        //                            actReq.CompletionTitle = "Account Successfully Activated!";
+        //                            actReq.CreditAmount = Constants.InitialFreeTrialBalanceAllocation;
+        //                            Cookies.WriteBalance(actReq.CreditAmount);
+        //                        }
+        //                        else
+        //                        {
+        //                            actReq.CompletionMessage += " The number was unable to be assigned to your account.";
+        //                        }
+        //                    }
+        //                }
+        //                else
+        //                {
+        //                    actReq.CompletionTitle = "Account Already Activated";
+        //                    actReq.CompletionMessage = $"The activation key {actReq.ActivationKey} has already been used to activate an account with username {acc.UserName}. It is not necessary to re-activate the account.";
+        //                }
+        //            }
+        //            else
+        //            {
+        //                actReq.CompletionMessage = "Invalid activation token.";
+        //            }
+        //        }
+        //    }
+        //    else
+        //    {
+        //        actReq.CompletionMessage = "Missing activation token.";
+        //    }
+        //    return View(actReq);
+        //}
 
         [HttpGet]
         [AllowAnonymous]
@@ -652,7 +645,7 @@ namespace TextPort.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "User")]
+        [Authorize]
         public ActionResult ChangePassword()
         {
             ChangePasswordRequest request = new ChangePasswordRequest();
@@ -662,7 +655,7 @@ namespace TextPort.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "User")]
+        [Authorize]
         [ValidateAntiForgeryToken]
         public ActionResult ChangePassword([System.Web.Http.FromBody] ChangePasswordRequest request)
         {
@@ -714,60 +707,60 @@ namespace TextPort.Controllers
             return View(request);
         }
 
-        [HttpGet]
-        [AllowAnonymous]
-        public ActionResult TopUp(string id)
-        {
-            List<int> parameterValues = RandomString.ExtractJDelimitedValues(id);
+        //[HttpGet]
+        //[AllowAnonymous]
+        //public ActionResult TopUp(string id)
+        //{
+        //    List<int> parameterValues = RandomString.ExtractJDelimitedValues(id);
 
-            if (parameterValues != null && parameterValues.Count >= 2)
-            {
-                int accountId = parameterValues[0];
-                int virtualNumberId = parameterValues[1];
+        //    if (parameterValues != null && parameterValues.Count >= 2)
+        //    {
+        //        int accountId = parameterValues[0];
+        //        int virtualNumberId = parameterValues[1];
 
-                if (accountId > 0 && virtualNumberId > 0)
-                {
-                    using (TextPortDA da = new TextPortDA())
-                    {
-                        Account account = da.GetAccountById(parameterValues[0]);
-                        if (account != null)
-                        {
-                            // As an extra security measure, get the virtual number record and check that the
-                            // account Id assigned to the virtual number is the same as the account ID that was
-                            // passed in as the account ID parameter. This requires that both the account ID parameter
-                            // and the virtual number ID parameter are both associated with the same account.
-                            DedicatedVirtualNumber dvn = da.GetVirtualNumberById(virtualNumberId);
-                            if (dvn != null)
-                            {
-                                if (dvn.AccountId == accountId)
-                                {
-                                    List<Claim> claims = new List<Claim> {
-                                        new Claim("AccountId", account.AccountId.ToString(), ClaimValueTypes.Integer),
-                                        new Claim(ClaimTypes.Name, account.UserName.ToString()),
-                                        new Claim(ClaimTypes.NameIdentifier, account.UserName.ToString()),
-                                        new Claim(ClaimTypes.Email, account.Email.ToString()),
-                                        new Claim(ClaimTypes.Role, "User")
-                                    };
+        //        if (accountId > 0 && virtualNumberId > 0)
+        //        {
+        //            using (TextPortDA da = new TextPortDA())
+        //            {
+        //                Account account = da.GetAccountById(parameterValues[0]);
+        //                if (account != null)
+        //                {
+        //                    // As an extra security measure, get the virtual number record and check that the
+        //                    // account Id assigned to the virtual number is the same as the account ID that was
+        //                    // passed in as the account ID parameter. This requires that both the account ID parameter
+        //                    // and the virtual number ID parameter are both associated with the same account.
+        //                    DedicatedVirtualNumber dvn = da.GetVirtualNumberById(virtualNumberId);
+        //                    if (dvn != null)
+        //                    {
+        //                        if (dvn.AccountId == accountId)
+        //                        {
+        //                            List<Claim> claims = new List<Claim> {
+        //                                new Claim("AccountId", account.AccountId.ToString(), ClaimValueTypes.Integer),
+        //                                new Claim(ClaimTypes.Name, account.UserName.ToString()),
+        //                                new Claim(ClaimTypes.NameIdentifier, account.UserName.ToString()),
+        //                                new Claim(ClaimTypes.Email, account.Email.ToString()),
+        //                                new Claim(ClaimTypes.Role, "User")
+        //                            };
 
-                                    ClaimsIdentity identity = new ClaimsIdentity(claims, "ApplicationCookie");
-                                    ClaimsPrincipal principal = new ClaimsPrincipal(identity);
+        //                            ClaimsIdentity identity = new ClaimsIdentity(claims, "ApplicationCookie");
+        //                            ClaimsPrincipal principal = new ClaimsPrincipal(identity);
 
-                                    var context = Request.GetOwinContext();
-                                    var authManager = context.Authentication;
+        //                            var context = Request.GetOwinContext();
+        //                            var authManager = context.Authentication;
 
-                                    authManager.SignIn(new AuthenticationProperties { IsPersistent = true }, identity);
+        //                            authManager.SignIn(new AuthenticationProperties { IsPersistent = true }, identity);
 
-                                    Cookies.Write("balance", account.Balance.ToString(), 0);
+        //                            Cookies.Write("balance", account.Balance.ToString(), 0);
 
-                                    return RedirectToAction("Balance", "Account");
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            return RedirectToAction("Index", "Home");
-        }
+        //                            return RedirectToAction("Balance", "Account");
+        //                        }
+        //                    }
+        //                }
+        //            }
+        //        }
+        //    }
+        //    return RedirectToAction("Index", "Home");
+        //}
 
         [HttpGet]
         [AllowAnonymous]
@@ -777,7 +770,7 @@ namespace TextPort.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "User")]
+        [Authorize]
         public ActionResult Test()
         {
             return View();

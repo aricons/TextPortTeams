@@ -11,29 +11,39 @@ namespace TextPort.Controllers
 {
     public class GroupsController : Controller
     {
-        [Authorize(Roles = "User")]
+        [Authorize]
         [HttpGet]
         public ActionResult Index()
         {
+            int branchId = Utilities.GetBranchIdFromClaim(ClaimsPrincipal.Current);
             int accountId = Utilities.GetAccountIdFromClaim(ClaimsPrincipal.Current);
+            string role = Utilities.GetRoleFromClaim(ClaimsPrincipal.Current);
 
-            GroupsContainer gc = new GroupsContainer(accountId);
+            GroupsContainer gc = new GroupsContainer(branchId, accountId, role);
 
             return View(gc);
         }
 
-        [Authorize(Roles = "User")]
         [HttpGet]
-        public ActionResult Add()
+        public ActionResult GetGroupsForBranch(int bid)
         {
             try
             {
-                Group newGroup = new Group()
+                using (TextPortDA da = new TextPortDA())
                 {
-                    AccountId = Utilities.GetAccountIdFromClaim(ClaimsPrincipal.Current)
-                };
+                    List<GroupDDItem> groupsList = new List<GroupDDItem>();
 
-                return PartialView("_AddGroup", newGroup);
+                    foreach (Group g in da.GetGroupsForBranch(bid))
+                    {
+                        groupsList.Add(new GroupDDItem()
+                        {
+                            GroupId = g.GroupId.ToString(),
+                            GroupName = g.GroupName
+                        });
+                    }
+
+                    return Json(groupsList, JsonRequestBehavior.AllowGet);
+                }
             }
             catch (Exception ex)
             {
@@ -42,10 +52,36 @@ namespace TextPort.Controllers
             }
         }
 
-        [Authorize(Roles = "User")]
+        [Authorize]
+        [HttpGet]
+        public ActionResult Add(int id)
+        {
+            int branchId = Utilities.GetBranchIdFromClaim(ClaimsPrincipal.Current);
+            int accountId = Utilities.GetAccountIdFromClaim(ClaimsPrincipal.Current);
+            string role = Utilities.GetRoleFromClaim(ClaimsPrincipal.Current);
+
+            if (id > 0)
+            {
+                branchId = id;
+            }
+
+            try
+            {
+                AddGroupContainer newGroupContainer = new AddGroupContainer(branchId, accountId, role);
+
+                return PartialView("_AddGroup", newGroupContainer);
+            }
+            catch (Exception ex)
+            {
+                string bar = ex.Message;
+                return null;
+            }
+        }
+
+        [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Add(Group newGroup)
+        public ActionResult Add(AddGroupContainer newGroup)
         {
             try
             {
@@ -54,7 +90,10 @@ namespace TextPort.Controllers
                     da.AddGroup(newGroup);
                 }
 
-                return View("Index", new GroupsContainer(newGroup));
+                int branchId = Utilities.GetBranchIdFromClaim(ClaimsPrincipal.Current);
+                int accountId = Utilities.GetAccountIdFromClaim(ClaimsPrincipal.Current);
+                string role = Utilities.GetRoleFromClaim(ClaimsPrincipal.Current);
+                return View("Index", new GroupsContainer(newGroup.BranchId, accountId, role));
             }
             catch (Exception ex)
             {
@@ -63,7 +102,7 @@ namespace TextPort.Controllers
             }
         }
 
-        [Authorize(Roles = "User")]
+        [Authorize]
         [HttpGet]
         public ActionResult AddMember(int id)
         {
@@ -85,7 +124,7 @@ namespace TextPort.Controllers
             }
         }
 
-        [Authorize(Roles = "User")]
+        [Authorize]
         [HttpPost]
         public ActionResult AddMember(GroupMember newMember)
         {
@@ -110,7 +149,7 @@ namespace TextPort.Controllers
             }
         }
 
-        [Authorize(Roles = "User")]
+        [Authorize]
         [HttpPost]
         public ActionResult DeleteMember(DeleteGroupMemberRequest request)
         {
@@ -147,6 +186,12 @@ namespace TextPort.Controllers
                 string bar = ex.Message;
                 return null;
             }
+        }
+
+        public class GroupDDItem
+        {
+            public string GroupId { get; set; }
+            public string GroupName { get; set; }
         }
     }
 }

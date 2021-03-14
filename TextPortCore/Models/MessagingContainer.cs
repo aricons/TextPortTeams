@@ -9,13 +9,22 @@ namespace TextPortCore.Models
 {
     public class MessagingContainer
     {
+        private Branch branch;
         private Account account;
         private List<Message> messages;
+        private List<Branch> branches;
         private List<DedicatedVirtualNumber> numbers;
         private List<Contact> contacts;
         private List<Recent> recents;
+        private string role;
         private int activeVirtualNumberId;
         private string activeDestinationNumber;
+
+        public Branch Branch
+        {
+            get { return this.branch; }
+            set { this.branch = value; }
+        }
 
         public Account Account
         {
@@ -27,6 +36,12 @@ namespace TextPortCore.Models
         {
             get { return this.messages; }
             set { this.messages = value; }
+        }
+
+        public List<Branch> Branches
+        {
+            get { return this.branches; }
+            set { this.branches = value; }
         }
 
         public List<DedicatedVirtualNumber> Numbers
@@ -45,6 +60,12 @@ namespace TextPortCore.Models
         {
             get { return this.recents; }
             set { this.recents = value; }
+        }
+
+        public string Role
+        {
+            get { return this.role; }
+            set { this.role = value; }
         }
 
         public int ActiveVirtualNumberId
@@ -76,25 +97,41 @@ namespace TextPortCore.Models
 
 
         // Constructors
-        public MessagingContainer(int accountId)
+        public MessagingContainer(int branchId, int accountId, string role)
         {
             this.ActiveVirtualNumberId = 0;
+            this.Role = role;
 
             using (TextPortDA da = new TextPortDA())
             {
+                this.Branch = da.GetBranchByBranchId(branchId);
                 this.Account = da.GetAccountById(accountId);
-                this.Numbers = da.GetNumbersForAccount(accountId, false);
+                this.Numbers = da.GetNumbersForBranch(branchId, false);
+
+                if (this.Role == "Administrative User")
+                {
+                    this.Branches = this.Branches = da.GetAllBranches();
+                }
+                else if (this.Role == "General Manager")
+                {
+                    List<int> branchIds = this.Account.BranchIds.Split(',').Select(Int32.Parse).ToList();
+                    this.Branches = this.Branches = da.GetBranchesForIds(branchIds);
+                }
+                else
+                {
+                    this.Branches = new List<Branch>() { this.Branch };
+                }
 
                 if (this.Numbers.Any())
                 {
                     this.ActiveVirtualNumberId = this.Numbers.FirstOrDefault().VirtualNumberId;
                 }
-                this.Contacts = da.GetContactsForAccount(accountId);
-                this.Recents = da.GetRecentMessagesForAccountAndVirtualNumber(accountId, this.ActiveVirtualNumberId);
+                this.Contacts = da.GetContactsForBranch(branchId);
+                this.Recents = da.GetRecentMessagesForBranchAndVirtualNumber(branchId, this.ActiveVirtualNumberId);
                 if (this.Recents != null && this.Recents.Count > 0)
                 {
                     recents.FirstOrDefault().IsActiveMessage = true;
-                    this.Messages = da.GetMessagesForAccountAndRecipient(accountId, this.ActiveVirtualNumberId, this.Recents.FirstOrDefault().Number);
+                    this.Messages = da.GetMessagesForBranchAndRecipient(branchId, this.ActiveVirtualNumberId, this.Recents.FirstOrDefault().Number);
                     this.ActiveDestinationNumber = Utilities.NumberToE164(recents.FirstOrDefault().Number, "1");
                 }
                 else

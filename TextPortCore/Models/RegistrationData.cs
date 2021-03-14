@@ -30,7 +30,7 @@ namespace TextPortCore.Models
         private decimal creditCurrentBalance;
         private decimal creditPurchaseAmount;
         private decimal totalCost;
-        private int accountId;
+        private int branchId;
         private string status;
         private bool success;
         private string completionTitle;
@@ -253,18 +253,18 @@ namespace TextPortCore.Models
                 switch (this.PurchaseType)
                 {
                     case "Credit":
-                        return string.Format("CREDIT|{0}|{1:N2}", this.AccountId, this.CreditPurchaseAmount);
+                        return string.Format("CREDIT|{0}|{1:N2}", this.BranchId, this.CreditPurchaseAmount);
 
                     default:
-                        return string.Format("VMN|{0}|{1}|{2}|{3}|{4}|{5}", this.AccountId, this.VirtualNumber, this.CountryId, this.LeasePeriod, this.CreditPurchaseAmount, this.LeasePeriodWord);
+                        return string.Format("VMN|{0}|{1}|{2}|{3}|{4}|{5}", this.BranchId, this.VirtualNumber, this.CountryId, this.LeasePeriod, this.CreditPurchaseAmount, this.LeasePeriodWord);
                 }
             }
         }
 
-        public int AccountId
+        public int BranchId
         {
-            get { return this.accountId; }
-            set { this.accountId = value; }
+            get { return this.branchId; }
+            set { this.branchId = value; }
         }
 
         public string Status
@@ -396,7 +396,7 @@ namespace TextPortCore.Models
             this.LeasePeriod = 0;
             this.CreditCurrentBalance = 0;
             this.CreditPurchaseAmount = 0;
-            this.AccountId = 0;
+            this.BranchId = 0;
             this.Status = "Pending";
             this.Success = false;
             this.CompletionTitle = string.Empty;
@@ -415,11 +415,11 @@ namespace TextPortCore.Models
             List<SelectListItem> numbers = new List<SelectListItem>();
         }
 
-        public RegistrationData(string purcType, int accId)
+        public RegistrationData(string purcType, int branchId)
         {
             this.PurchaseType = purcType;
             this.PurchaseMethod = "PayPal";
-            this.AccountId = accId;
+            this.BranchId = branchId;
             this.UserName = string.Empty;
             this.Password = string.Empty;
             this.EmailAddress = string.Empty;
@@ -429,8 +429,8 @@ namespace TextPortCore.Models
             this.TollFreePrefix = string.Empty;
             this.VirtualNumber = string.Empty;
             this.CarrierId = (int)Carriers.BandWidth;
-            this.CreditCurrentBalance = 0;
-            this.CreditPurchaseAmount = 0;
+            this.CreditCurrentBalance = 1;
+            this.CreditPurchaseAmount = 1;
             this.Status = "Pending";
             this.Success = false;
             this.CompletionTitle = string.Empty;
@@ -445,26 +445,31 @@ namespace TextPortCore.Models
             this.NumberType = NumberTypes.Regular;
             this.CountryId = (int)Countries.UnitedStates;
 
-            if (purcType == "ComplimentaryNumber")
-            {
-                this.NumberCost = 0;
-                this.LeasePeriod = 1;
-            }
-            else if (purcType == "Credit")
-            {
-                this.LeasePeriod = 0;
-                this.NumberCost = 0;
-            }
-            else if (purcType == "FreeTrial")
-            {
-                this.NumberCost = 0;
-                this.LeasePeriodType = "W";
-                this.LeasePeriod = 2;
-                this.NumberType = NumberTypes.Pooled;
-                this.FreeTrial = true;
-                this.CreditPurchaseAmount = Constants.InitialFreeTrialBalanceAllocation;
-                this.AccountValidationKey = RandomString.GenerateRandomToken(30);
-            }
+            this.NumberCost = 0;
+            this.LeasePeriodCode = "Y|2|0";
+            this.LeasePeriod = 2;
+            this.NumberType = NumberTypes.Regular;
+
+            //if (purcType == "ComplimentaryNumber")
+            //{
+            //    this.NumberCost = 0;
+            //    this.LeasePeriod = 1;
+            //}
+            //else if (purcType == "Credit")
+            //{
+            //    this.LeasePeriod = 0;
+            //    this.NumberCost = 0;
+            //}
+            //else if (purcType == "FreeTrial")
+            //{
+            //    this.NumberCost = 0;
+            //    this.LeasePeriodType = "W";
+            //    this.LeasePeriod = 2;
+            //    this.NumberType = NumberTypes.Pooled;
+            //    this.FreeTrial = true;
+            //    this.CreditPurchaseAmount = Constants.InitialFreeTrialBalanceAllocation;
+            //    this.AccountValidationKey = RandomString.GenerateRandomToken(30);
+            //}
 
             // Initialize the numbers drop-down.
             List<SelectListItem> numbers = new List<SelectListItem>();
@@ -480,24 +485,18 @@ namespace TextPortCore.Models
             using (TextPortDA da = new TextPortDA())
             {
                 this.CountriesList = da.GetCountriesList();
-                this.LeasePeriodsList = da.GetLeasePeriods((int)Countries.UnitedStates);
-                this.CreditAmountsList = da.GetCreditAmounts(purcType);
-                this.TollFreeAreaCodesList = da.GetTollFreeAreaCodes();
+                //this.LeasePeriodsList = da.GetLeasePeriods((int)Countries.UnitedStates);
+                //this.CreditAmountsList = da.GetCreditAmounts(purcType);
+                //this.TollFreeAreaCodesList = da.GetTollFreeAreaCodes();
 
-                if (this.PurchaseType == "Credit" || this.PurchaseType == "VirtualNumber" || this.PurchaseType == "VirtualNumberRenew")
-                {
-                    Account acc = da.GetAccountById(AccountId);
-                    if (acc != null)
-                    {
-                        this.CreditCurrentBalance = acc.Balance;
-                    }
-                }
-                else if (this.PurchaseType == "FreeTrial")
-                {
-                    this.LeasePeriodType = "M";
-                    this.LeasePeriod = 15;
-                    this.NumbersList = da.GetPooledNumbersList(this.CountryId);
-                }
+                //if (this.PurchaseType == "Credit" || this.PurchaseType == "VirtualNumber" || this.PurchaseType == "VirtualNumberRenew")
+                //{
+                //Account acc = da.GetAccountById(AccountId);
+                //if (acc != null)
+                //{
+                //    this.CreditCurrentBalance = acc.Balance;
+                //}
+                //}
             }
         }
 

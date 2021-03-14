@@ -20,13 +20,23 @@
             return false;
         });
 
-        //$('.btn-del').on('click', function () {
-        //    alert("Delete?");
-        //    deleteGroupMember(this.id);
-        //});
+        $('#BranchId').on("change", function (e) {
+            getGroupsForBranch($("#BranchId option:selected").val());
+        });
 
         $('#CurrentGroupId').on("change", function (e) {
             getGroupMembers($("#CurrentGroupId option:selected").val());
+        });
+
+        $('#btnAddGroup').on('click', function () {
+            var url = '/groups/add/' + $("#BranchId option:selected").val();
+            var target = $(this).data('target');
+
+            $.get(url, function (data) {
+                $(target).html(data);
+                $(target + ' > .modal').modal({ keyboard: true }, 'show');
+            });
+            return false;
         });
 
         $('#modal-cont').on('shown.bs.modal', function (e) {
@@ -108,6 +118,30 @@
             }
         })
     }
+
+    function getGroupsForBranch(branchId) {
+        $.get({
+            url: "/groups/getgroupsforbranch?bid=" + branchId,
+            dataType: "json",
+            cache: false,
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert(textStatus + ": Number data load failed. " + errorThrown);
+            },
+            success: function (result) {
+                var $dd = $("#CurrentGroupId");
+                $("#members-list").html('');
+                $dd.empty();
+
+                if (result.length) {
+                    $.each(result, function () {
+                        $dd.append($("<option />").val(this.GroupId).text(this.GroupName));
+                    });
+
+                    getGroupMembers($("#CurrentGroupId option:selected").val());
+                };
+            }
+        })
+    }
 </script>
 
 <div class="row">
@@ -120,16 +154,32 @@
                         <h4>Groups</h4>
                     </div>
                     <div class="col-md-5 text-right">
-                        <input type="button" class="btn btn-success modal-button" data-toggle="modal" data-target="#modal-cont" data-url="/groups/add" value="Add a Group" />
+                        <input type="button" id="btnAddGroup" class="btn btn-success modal-button" data-toggle="modal" data-target="#modal-cont" data-url="/groups/add" value="Add a Group" />
                     </div>
                 </div>
             </div>
             <div class="card-body">
                 <div class="row">
-                    <div>
+                    <div class="col-5">
                         <div class="form-group">
-                            @Html.LabelFor(m => m.CurrentGroupId, new { @class = "col-10 form-label strong" })
-                            @Html.DropDownListFor(m => m.CurrentGroupId, new SelectList(Model.GroupsList, "Value", "Text", Model.CurrentGroupId), new { @class = "form-control" })
+                            @Html.LabelFor(m => m.BranchId, new { @class = "col-6 form-label strong" })
+                            <select id="BranchId" class="form-control">
+                                @foreach (TextPortCore.Models.Branch branch in Model.Branches)
+                                {
+                                    <option value="@branch.BranchId" @((branch.BranchId == Model.Branch.BranchId) ? "selected" : "")>@branch.BranchName</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-5">
+                        <div class="form-group">
+                            @Html.LabelFor(m => m.CurrentGroupId, new { @class = "col-6 form-label strong" })
+                            <select id="CurrentGroupId" class="form-control">
+                                @foreach (Group g in Model.GroupsList)
+                                {
+                                    <option value="@g.GroupId">@g.GroupName</option>
+                                }
+                            </select>
                         </div>
                     </div>
                 </div>

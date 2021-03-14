@@ -1,0 +1,25 @@
+﻿@using TextPortCore.Models;
+@using TextPortCore.ViewModels;
+@model  BranchListContainer
+@if (Model.BranchList.Count > 0)
+{
+    foreach (Branch item in Model.BranchList)
+    {
+        <tr id="tritem_@item.BranchId">
+            <td>@item.BranchName</td>
+            <td>@item.Address</td>
+            <td>@item.City</td>
+            <td>@item.State</td>
+            <td>@item.Zip</td>
+            <td>@item.Phone</td>
+            <td align="center">
+                <a href="#" class="text-primary btn-edit" data-toggle="modal" data-target="#modal-cont" data-id="@item.BranchId"><i class="fa fa-fw fa-edit"></i> Edit</a> |
+                <a href="javascript:deleteItem(@item.BranchId, '@item.BranchName')" class="text-danger"><i class="fa fa-fw fa-trash"></i> Delete</a>
+            </td>
+        </tr>
+    }
+}
+else
+{
+    <tr><td colspan="8" align="center">No Records Found</td></tr>
+}

@@ -8,7 +8,7 @@ namespace TextPortCore.Models
     {
         public int GroupId { get; set; }
 
-        public int AccountId { get; set; }
+        public int BranchId { get; set; }
 
         [Required(ErrorMessage = "A group name is required")]
         [Display(Name = "Group Name")]
@@ -21,7 +21,7 @@ namespace TextPortCore.Models
         public Group()
         {
             this.GroupId = 0;
-            this.AccountId = 0;
+            this.BranchId = 0;
             this.GroupName = string.Empty;
             this.Members = new List<GroupMember>();
         }

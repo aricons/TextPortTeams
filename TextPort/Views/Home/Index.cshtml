@@ -1,10 +1,42 @@
-﻿@{
+﻿@model TextPortCore.Models.LoginCredentials
+@{
     ViewData["Title"] = "Online Text Messaging for Business and Personal Use | TextPort";
     ViewData["Description"] = "Online text messaging service. Send and receive text messages online. Free trial. SMS API. Virtual Numbers. Bulk SMS. Affordable SMS pricing.";
     ViewData["Keywords"] = "online texting service, send and receive text messages online, bulk texting, virtual phone number, business sms service, sms api, email to sms gateway, free trial";
     ViewData["Url"] = "https://textport.com";
 }
+<style>
+    .login-form {
+        width: 440px;
+        margin: 50px auto;
+        font-size: 15px;
+    }
 
+        .login-form form {
+            margin-bottom: 15px;
+            background: #f7f7f7;
+            box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+            padding: 30px;
+        }
+
+        .login-form h2 {
+            margin: 0 0 15px;
+        }
+
+    .form-control, .btn {
+        min-height: 38px;
+        border-radius: 2px;
+    }
+
+    .btn {
+        font-size: 15px;
+        font-weight: bold;
+    }
+
+    h2 {
+        font-size: 2rem !important;
+    }
+</style>
 <script>
     $(function () {
         $("[data-toggle=popover]").popover({
@@ -23,114 +55,40 @@
 </script>
 
 <div class="row align-items-center main-banner">
-    <div class="col-lg-4">
-        <img class="rounded rounded mx-auto d-block mb-4 mb-lg-0" src="~/Content/images/textport-logo-256.png" alt="Text Messaging Services">
+    <div class="col-lg-6 text-center text-md-left">
+        <h1 class="font-weight-normal">Staff Zone Text Messaging</h1>
+        <h4>
+            Staff Zone text messaging portal
+        </h4>
     </div>
-    <div class="col-lg-7 text-center text-md-left">
-        <h1 class="font-weight-normal">Online Text Messaging Service</h1>
-        <h2>
-            Text messaging services for businesses, groups, and personal use. Send and receive texts using our bulk Texting, SMS API, or Email-to-SMS Gateway.
-            Send marketing messages, notifications, reminders, alerts and more.
-        </h2>
-        <div class="row">
-            <div class="col-md-7">
-                <a href="/account/signup" class="btn btn-lg btn-success center-block" id="sup_link">Sign Up</a>
-            </div>
-            <div class="col-md-5 mt-4 mt-md-0">
-                <a href="/free/send-text" class="btn btn-lg btn-outline-danger center-block float-md-right">Send a Free Text</a>
-            </div>
+    <div class="col-lg-6 text-center text-md-left">
+        <div class="login-form">
+            @using (Html.BeginForm("index", "home", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+                <h2 class="text-center">Log in</h2>
+                <div class="form-group">
+                    @Html.TextBoxFor(m => m.UserNameOrEmail, new { @class = "form-control", placeholder = "Username or email address" })
+                    @Html.ValidationMessageFor(m => m.UserNameOrEmail, null, new { @class = "text-danger" })
+                </div>
+                <div class="form-group">
+                    @Html.TextBoxFor(m => m.LoginPassword, new { @class = "form-control", placeholder = "Password", @type = "password" })
+                    @Html.ValidationMessageFor(m => m.LoginPassword, null, new { @class = "text-danger" })
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary btn-block">Log in</button>
+                </div>
+                <div class="clearfix">
+                    <a href="/account/forgotpassword" class="float-right">Forgot Password?</a>
+                </div>
+                if (!String.IsNullOrEmpty(Model.Result))
+                {
+                    <div id="loginMessage" class="alert alert-danger">
+                        <label>@Model.Result</label>
+                    </div>
+                }
+            }
         </div>
-    </div>
-</div>
-<div class="card text-white bg-secondary my-4 py-4 text-center sub-banner">
-    <div class="card-body">
-        <h2>Extend your business reach with TextPort texting solutions</h2>
-        <h3 class="text-white m-0">
-            Send texts, promotional messages, notifications, alerts and marketing announcements. Ideal for individuals, businesses, marketers, or groups.
-            Use our Bulk Texting, Email-to-SMS or REST API to send mass text messages. TextPort has a cost-effective solution for your SMS needs.
-        </h3>
-    </div>
-</div>
-<div class="row landing-cards">
-    <div class="col-md-4 mb-5">
-        <div class="card h-100">
-            <div class="card-body">
-                <h2 class="card-title">Online Text Messaging</h2>
-                <h3 class="card-text">
-                    Send and receive text messages online using TextPort's simple-to-use chat interface. Choose your own virtual phone number and start sending texts in minutes.
-                    Try before you buy and <a href="/free/send-text">send a free text</a> now.</a>
-                </h3>
-            </div>
-            <div class="card-footer">
-                <a href="#interface" class="btn btn-primary btn-sm">More Info</a>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4 mb-5">
-        <div class="card h-100">
-            <div class="card-body">
-                <h2 class="card-title">Bulk Texting</h2>
-                <h3 class="card-text">Send texts to your entire customer base at once. Upload lists of numbers and messages and send multiple texts in a single operation.</h3>
-            </div>
-            <div class="card-footer">
-                <a href="/bulk-texting" class="btn btn-primary btn-sm">More Info</a>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4 mb-5">
-        <div class="card h-100">
-            <div class="card-body">
-                <h2 class="card-title">SMS API</h2>
-                <h3 class="card-text">Easily integrate text messaging into your business or mobile applications with TextPort's REST API.</h3>
-            </div>
-            <div class="card-footer">
-                <a href="/api" class="btn btn-primary btn-sm">More Info</a>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row landing-cards">
-    <div class="col-md-4 mb-5">
-        <div class="card h-100">
-            <div class="card-body">
-                <h2 class="card-title">Email to SMS Gateway</h2>
-                <h3 class="card-text">Send text messages via email. Convert emails into text messages using our Email-to-SMS gateway. </h3>
-            </div>
-            <div class="card-footer">
-                <a href="email-to-sms-gateway" class="btn btn-primary btn-sm">More Info</a>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4 mb-5">
-        <div class="card h-100">
-            <div class="card-body">
-                <h2 class="card-title">Virtual Phone Numbers</h2>
-                <h3 class="card-text">Choose your own virtual phone number. Send texts without exposing your own personal mobile number. Assign multiple numbers and create a business presence in multiple area codes.</h3>
-            </div>
-            <div class="card-footer">
-                <a href="/virtual-phone-numbers" class="btn btn-primary btn-sm">More Info</a>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4 mb-5">
-        <div class="card h-100">
-            <div class="card-body">
-                <h2 class="card-title">Affordable</h2>
-                <h3 class="card-text">Send text messages for as little as 1.5 cents (compare to 4 cents for other services). Lease virtual numbers for $5 per month. Purchase as little as $1 in credit, then pay-as-you-go. Your credit will never expire.</h3>
-            </div>
-            <div class="card-footer">
-                <a href="#pricing" class="btn btn-primary btn-sm">More Info</a>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="background-lt-gray">
-    <div class="px-3 py-3 pt-md-4 pb-md-4 mx-auto text-center">
-        <h2>The Advantage of Text Messaging</h2>
-        <h3 class="lead">
-            As the use of SMS marketing continues to grow, there are still businesses that do not engage their customers using SMS.
-            Here are some compelling statistics that endorse the power of online texting and SMS marketing.
-        </h3>
     </div>
 </div>
 <div class="pt-3"></div>

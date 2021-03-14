@@ -1,0 +1,5 @@
+﻿@model TextPortCore.ViewModels.BranchNumbersList
+@foreach (TextPortCore.Models.DedicatedVirtualNumber number in Model.Numbers)
+{
+    <option value="@number.VirtualNumberId" data-number="@number.VirtualNumber" data-content="<img src='@number.ImageUrl' class='pr-2' />@number.NumberDisplayFormat"></option>
+}

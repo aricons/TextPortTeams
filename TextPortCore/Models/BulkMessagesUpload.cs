@@ -13,6 +13,8 @@ namespace TextPortCore.Models
     {
         private List<int> gridSizeOptions = new List<int>() { 5, 10, 15, 20, 50, 75, 100, 150, 200, 250 };
 
+        public int BranchId { get; set; }
+
         public int AccountId { get; set; }
 
         public decimal Balance { get; set; }
@@ -56,6 +58,7 @@ namespace TextPortCore.Models
         /* Constructors */
         public BulkMessagesUpload()
         {
+            this.BranchId = 0;
             this.AccountId = 0;
             this.Balance = 0;
             this.MessageLimit = 0;
@@ -72,6 +75,7 @@ namespace TextPortCore.Models
 
         public BulkMessagesUpload(int accId, int gridRows)
         {
+            this.BranchId = 0;
             this.AccountId = accId;
             this.MessageLimit = gridRows;
             this.SubmitType = "MANUAL";
@@ -84,7 +88,7 @@ namespace TextPortCore.Models
             {
                 this.Account = da.GetAccountById(accId);
                 this.Balance = this.Account.Balance;
-                this.VirtualNumbers = da.GetNumbersForAccount(accId, false);
+                this.VirtualNumbers = da.GetNumbersForBranch(accId, false);
                 //foreach (DedicatedVirtualNumber dvn in dvns)
                 //{
                 //    this.VirtualNumbers.Add(new SelectNumberItem()

@@ -51,8 +51,8 @@
                     }
 
                     bootbox.confirm({
-                        title: "Get " + number + "?",
-                        message: "Assign " + number + " to your account for a period of " + leasePeriod + " " + leasePeriodWord + "?<br />Your account will be debited $" + numberCost.formatMoney(),
+                        title: "Add " + number + "?",
+                        message: "Confirm that you want to add " + number + " to the numbers list.",
                         buttons: {
                             cancel: {
                                 label: '<i class="fa fa-times"></i> Cancel'
@@ -111,7 +111,7 @@
                     @using (Html.BeginForm("GetNumber", "Numbers", FormMethod.Post, new { id = "form-get-number" }))
                     {
                         @Html.HiddenFor(m => m.NumberCost)
-                        @Html.HiddenFor(m => m.AccountId)
+                        @Html.HiddenFor(m => m.BranchId)
                         @Html.HiddenFor(m => m.PurchaseType)
                         @Html.HiddenFor(m => m.PayPalCustom)
                         @Html.HiddenFor(m => m.VirtualNumberId)
@@ -120,6 +120,7 @@
                         @Html.HiddenFor(m => m.CompletionTitle)
                         @Html.HiddenFor(m => m.CompletionMessage)
                         @Html.HiddenFor(m => m.LeasePeriodType)
+                        @Html.HiddenFor(m => m.LeasePeriodCode)
                         @Html.HiddenFor(m => m.LeasePeriod)
                         @Html.HiddenFor(m => m.Success)
                         @Html.HiddenFor(m => m.Status)
@@ -148,22 +149,22 @@
                             @Html.Partial("_NumberPicker")
                         </div>
                         @Html.ValidationMessageFor(m => m.VirtualNumber, null, new { @class = "text-danger" })
-                        <div class="form-group pt-3">
-                            @Html.LabelFor(m => m.LeasePeriodCode, new { @class = "form-label" })
-                            @Html.DropDownListFor(m => m.LeasePeriodCode, new SelectList(Model.LeasePeriodsList, "Value", "Text"), new { @class = "col-md-5 form-control" })
-                            @Html.ValidationMessageFor(m => m.LeasePeriodCode, null, new { @class = "text-danger" })
-                        </div>
-                        <div class="row lower-label">
-                            <label>Available Credit</label>
-                            <label id="AvailableCredit">@Formatting.DisplayMoney(Model.CreditCurrentBalance)</label>
-                        </div>
-                        <div class="row lower-label">
-                            <label>Remaining Credit After Purchase</label>
-                            <label id="RemainingCredit"></label>
-                        </div>
+                        @*<div class="form-group pt-3">
+                                @Html.LabelFor(m => m.LeasePeriodCode, new { @class = "form-label" })
+                                @Html.DropDownListFor(m => m.LeasePeriodCode, new SelectList(Model.LeasePeriodsList, "Value", "Text"), new { @class = "col-md-5 form-control" })
+                                @Html.ValidationMessageFor(m => m.LeasePeriodCode, null, new { @class = "text-danger" })
+                            </div>
+                            <div class="row lower-label">
+                                <label>Available Credit</label>
+                                <label id="AvailableCredit">@Formatting.DisplayMoney(Model.CreditCurrentBalance)</label>
+                            </div>
+                            <div class="row lower-label">
+                                <label>Remaining Credit After Purchase</label>
+                                <label id="RemainingCredit"></label>
+                            </div>*@
                         <div id="creditOK">
-                            <div class="form-group">
-                                <button id="btnPurchase" type="button" class="btn btn-primary">@(Model.PurchaseType == "ComplimentaryNumber" ? "Select Number" : "Complete Purchase")</button>
+                            <div class="form-group mt-2">
+                                <button id="btnPurchase" type="button" class="btn btn-primary">@(Model.PurchaseType == "ComplimentaryNumber" ? "Select Number" : "Assign Number")</button>
                             </div>
                         </div>
                         <div id="creditInsufficient" style="display: none">

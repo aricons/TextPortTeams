@@ -63,12 +63,26 @@ namespace TextPortCore.Data
             return null;
         }
 
-        public List<Message> GetMessagesForAccountAndRecipient(int accountId, int virtualNumberId, string number)
+        public Message GetMessageByBranchIdAndVirtualNumberAndMobileNumber(int branchId, int virtualNumberId, string mobileNumber)
+        {
+            try
+            {
+                return _context.Messages.Include(x => x.Account).Include(x => x.DedicatedVirtualNumber).Where(x => x.BranchId == branchId && x.VirtualNumberId == virtualNumberId && x.MobileNumber == mobileNumber).OrderByDescending(x => x.MessageId).FirstOrDefault();
+            }
+            catch (Exception ex)
+            {
+                ErrorHandling eh = new ErrorHandling();
+                eh.LogException("MessagesDA.GetMessageByBranchIdAndVirtualNumberAndMobileNumber", ex);
+            }
+            return null;
+        }
+
+        public List<Message> GetMessagesForBranchAndRecipient(int branchId, int virtualNumberId, string number)
         {
             try
             {
                 List<Message> messages = _context.Messages.Include(m => m.MMSFiles).Include(m => m.Account).Include(m => m.Contact)
-                    .Where(m => m.AccountId == accountId
+                    .Where(m => m.BranchId == branchId
                         && m.VirtualNumberId == virtualNumberId
                         && m.MobileNumber == number
                         && m.MessageType != (byte)MessageTypes.Notification
@@ -88,7 +102,7 @@ namespace TextPortCore.Data
             return null;
         }
 
-        public List<Recent> GetRecentToNumbersForDedicatedVirtualNumber(int accountId, int virtualNumberId)
+        public List<Recent> GetRecentToNumbersForDedicatedVirtualNumber(int branchId, int virtualNumberId)
         {
             try
             {
@@ -97,7 +111,7 @@ namespace TextPortCore.Data
                             join acc in _context.Accounts on msg.AccountId equals acc.AccountId
                             join ctc in _context.Contacts on msg.ContactId equals ctc.ContactId into contacts
                             from contact in contacts.DefaultIfEmpty()
-                            where dvn.AccountId == accountId && dvn.VirtualNumberId == virtualNumberId && msg.DeleteFlag == null && msg.MessageType != (byte)MessageTypes.Notification
+                            where dvn.BranchId == branchId && dvn.VirtualNumberId == virtualNumberId && msg.DeleteFlag == null && msg.MessageType != (byte)MessageTypes.Notification
                             group new { msg.MessageId, msg.TimeStamp, msg.MessageText, dvn.CountryId, acc.TimeZoneId, contact.ContactId, contact.Name }
                             by msg.MobileNumber into numGroup
                             select new
@@ -125,7 +139,7 @@ namespace TextPortCore.Data
             return null;
         }
 
-        public List<Recent> GetRecentMessagesForAccountAndVirtualNumber(int accountId, int virtualNumberId)
+        public List<Recent> GetRecentMessagesForBranchAndVirtualNumber(int branchId, int virtualNumberId)
         {
             try
             {
@@ -134,7 +148,7 @@ namespace TextPortCore.Data
                             join acc in _context.Accounts on msg.AccountId equals acc.AccountId
                             join ctc in _context.Contacts on msg.ContactId equals ctc.ContactId into contacts
                             from contact in contacts.DefaultIfEmpty()
-                            where msg.AccountId == accountId && msg.VirtualNumberId == virtualNumberId && msg.DeleteFlag == null && msg.MessageType != (byte)MessageTypes.Notification
+                            where msg.BranchId == branchId && msg.VirtualNumberId == virtualNumberId && msg.DeleteFlag == null && msg.MessageType != (byte)MessageTypes.Notification
                             group new { msg.MessageId, msg.TimeStamp, msg.MessageText, dvn.CountryId, acc.TimeZoneId, contact.ContactId, contact.Name }
                             by msg.MobileNumber into numGroup
                             select new
@@ -330,11 +344,11 @@ namespace TextPortCore.Data
             {
                 if (getActiveNumbersOnly)
                 {
-                    return _context.DedicatedVirtualNumbers.Include(x => x.Account).FirstOrDefault(x => x.VirtualNumber == virtualNumber && x.Cancelled == false);
+                    return _context.DedicatedVirtualNumbers.Include(x => x.Branch).FirstOrDefault(x => x.VirtualNumber == virtualNumber && x.Cancelled == false);
                 }
                 else
                 {
-                    return _context.DedicatedVirtualNumbers.Include(x => x.Account).FirstOrDefault(x => x.VirtualNumber == virtualNumber);
+                    return _context.DedicatedVirtualNumbers.Include(x => x.Branch).FirstOrDefault(x => x.VirtualNumber == virtualNumber);
                 }
             }
             catch (Exception ex)
@@ -379,7 +393,7 @@ namespace TextPortCore.Data
             {
                 // This method is used to locate the originating (outbound) message sent from a virtual
                 // number to a specified mobile number for the given message type.
-                return _context.Messages.Include(x => x.DedicatedVirtualNumber).ThenInclude(x => x.Account).Where(x => x.VirtualNumberId == virtualNumberId &&
+                return _context.Messages.Include(x => x.DedicatedVirtualNumber).ThenInclude(x => x.Branch).Where(x => x.VirtualNumberId == virtualNumberId &&
                                         x.MessageType == (byte)messageType &&
                                         x.Direction == (byte)MessageDirection.Outbound &&
                                         x.MobileNumber == mobileNumber).OrderByDescending(x => x.MessageId).FirstOrDefault();
@@ -426,19 +440,19 @@ namespace TextPortCore.Data
             return null;
         }
 
-        public bool NumberIsBlocked(string mobileNumber, MessageDirection direction)
-        {
-            mobileNumber = Utilities.NumberToE164(mobileNumber, "1");
-            BlockedNumber bn = _context.BlockedNumbers.FirstOrDefault(x => x.MobileNumber == mobileNumber && x.Direction == (byte)direction);
-            if (bn != null)
-            {
-                bn.BlockCount++;
-                SaveChanges();
+        //public bool NumberIsBlocked(string mobileNumber, MessageDirection direction)
+        //{
+        //    mobileNumber = Utilities.NumberToE164(mobileNumber, "1");
+        //    BlockedNumber bn = _context.BlockedNumbers.FirstOrDefault(x => x.MobileNumber == mobileNumber && x.Direction == (byte)direction);
+        //    if (bn != null)
+        //    {
+        //        bn.BlockCount++;
+        //        SaveChanges();
 
-                return true;
-            }
-            return false;
-        }
+        //        return true;
+        //    }
+        //    return false;
+        //}
 
         #endregion
 
@@ -512,44 +526,34 @@ namespace TextPortCore.Data
                 // Check for a contact association
                 if (message.ContactId == null || message.ContactId == 0)
                 {
-                    int? contactId = _context.Contacts.FirstOrDefault(x => x.AccountId == message.AccountId && x.MobileNumber == message.MobileNumber)?.ContactId;
+                    int? contactId = _context.Contacts.FirstOrDefault(x => x.BranchId == message.BranchId && x.MobileNumber == message.MobileNumber)?.ContactId;
                     message.ContactId = (contactId != null) ? contactId : 0;
                 }
 
                 message.IsMMS = (message.MMSFiles?.Count > 0);
 
-                // Only insert the message, inbound or outbound if the account has a balance.
-                if (message.Account.Balance > 0)
+                // Only update deduct the cost from the balance if the message is outbound.
+                if (message.Direction == (int)MessageDirection.Outbound)
                 {
-                    // Only update deduct the cost from the balance if the message is outbound.
-                    if (message.Direction == (int)MessageDirection.Outbound)
-                    {
-                        if (message.Segments == null) message.Segments = 1;
+                    if (message.Segments == null) message.Segments = 1;
 
-                        // Deduct the message cost from the balance now. If the message fails, the cost can be credited back later once a response is received from the provider.
-                        message.CustomerCost = (message.IsMMS) ? message.Account.MMSSegmentCost : message.Account.SMSSegmentCost;
-                        message.CustomerCost *= message.Segments;
+                    // Deduct the message cost from the balance now. If the message fails, the cost can be credited back later once a response is received from the provider.
+                    message.CustomerCost = (message.IsMMS) ? message.Account.MMSSegmentCost : message.Account.SMSSegmentCost;
+                    message.CustomerCost *= message.Segments;
 
-                        message.Account.MessageOutCount++;
-                        message.Account.Balance -= (decimal)message.CustomerCost;
-                        newBalance = message.Account.Balance;
-                    }
-                    else if (message.Direction == (int)MessageDirection.Inbound)
-                    {
-                        message.Account.MessageInCount++;
-                    }
-
-                    _context.Messages.Add(message);
-                    _context.SaveChanges();
-
-                    return message.MessageId;
+                    message.Account.MessageOutCount++;
+                    //message.Account.Balance -= (decimal)message.CustomerCost;
+                    newBalance = message.Account.Balance;
                 }
-                else
+                else if (message.Direction == (int)MessageDirection.Inbound)
                 {
-                    message.Account.Balance = 0M;
-                    message.ProcessingMessage = "Insufficient balance";
-                    _context.SaveChanges();
+                    message.Account.MessageInCount++;
                 }
+
+                _context.Messages.Add(message);
+                _context.SaveChanges();
+
+                return message.MessageId;
             }
             catch (Exception ex)
             {

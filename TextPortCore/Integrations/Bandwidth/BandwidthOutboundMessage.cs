@@ -40,7 +40,7 @@ namespace TextPortCore.Integrations.Bandwidth
                 this.media = new List<string>();
                 foreach (MMSFile mmsFile in msg.MMSFiles)
                 {
-                    this.media.Add($"{ConfigurationManager.AppSettings["MMSPublicBaseUrl"]}{msg.AccountId}/{mmsFile.FileName}");
+                    this.media.Add($"{ConfigurationManager.AppSettings["MMSPublicBaseUrl"]}{msg.BranchId}/{mmsFile.FileName}");
                 }
             }
         }

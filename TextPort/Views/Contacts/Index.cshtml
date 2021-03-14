@@ -10,9 +10,13 @@
     $(function () {
         $('#menu_contacts').addClass("active");
 
+        $("#BranchId").on('change', function () {
+            getContactsForBranch($("#BranchId option:selected").val());
+        });
+
         // Add modals
         $('.add-contact-button').on('click', function () {
-            var url = $(this).data('url');
+            var url = '/contacts/add/' + $("#BranchId option:selected").val();
             var target = $(this).data('target');
             $.get(url, function (data) {
                 $(target).html(data);
@@ -30,6 +34,7 @@
             $('#btnAddContact').on("click", function (e) {
                 if ($("#add-contact-form").valid()) {
                     var contactData = {
+                        BranchId: $("#BranchId").val(),
                         MobileNumber: $("#MobileNumber").val(),
                         Name: $("#Name").val()
                     };
@@ -65,6 +70,7 @@
                 if ($("#edit-contact-form").valid()) {
                     var contactData = {
                         ContactId: $("#edit-contact-form #ContactId").val(),
+                        BranchId: $("#edit-contact-form #BranchId").val(),
                         MobileNumber: $("#edit-contact-form #MobileNumber").val(),
                         Name: $("#edit-contact-form #Name").val()
                     };
@@ -81,6 +87,20 @@
             url: url,
             data: JSON.stringify(contactData),
             contentType: "application/json",
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert(textStatus + ": Error adding contact. " + errorThrown);
+            },
+            success: function (contacts) {
+                $("#contacts-list").html(contacts);
+                initEditModal();
+            }
+        });
+    }
+
+    function getContactsForBranch(branchId) {
+        var url = '/contacts/getcontactsforbranch/' + branchId;
+        $.get({
+            url: url,
             error: function (jqXHR, textStatus, errorThrown) {
                 alert(textStatus + ": Error adding contact. " + errorThrown);
             },
@@ -150,7 +170,7 @@
             <div class="card-header">
                 <div class="row">
                     <div class="col-md-7">
-                        <h4>My Contacts</h4>
+                        <h4>Contacts Manager</h4>
                     </div>
                     <div class="col-md-5 text-right">
                         <input type="button" class="btn btn-success add-contact-button" data-target="#add-contact-modal" data-url="/contacts/add" value="Add a Contact" />
@@ -159,18 +179,33 @@
             </div>
             <div class="card-body">
                 <div class="row">
-                    <table class="table">
-                        <thead>
-                            <tr class="bg-primary">
-                                <th scope="col" class="text-white list-header">Name</th>
-                                <th scope="col" class="text-white list-header">Number</th>
-                                <th scope="col" class="text-white list-header text-center">Edit/Delete</th>
-                            </tr>
-                        </thead>
-                        <tbody id="contacts-list">
-                            @Html.Partial("_ContactsList", Model.Contacts)
-                        </tbody>
-                    </table>
+                    <div class="col-5">
+                        <div class="form-group">
+                            @Html.LabelFor(m => m.BranchId, new { @class = "form-label" })
+                            <select id="BranchId" class="form-control">
+                                @foreach (TextPortCore.Models.Branch branch in Model.Branches)
+                                {
+                                    <option value="@branch.BranchId" @((branch.BranchId == Model.Branch.BranchId) ? "selected" : "")>@branch.BranchName</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12">
+                        <table class="table">
+                            <thead>
+                                <tr class="bg-primary">
+                                    <th scope="col" class="text-white list-header">Name</th>
+                                    <th scope="col" class="text-white list-header">Number</th>
+                                    <th scope="col" class="text-white list-header text-center">Edit/Delete</th>
+                                </tr>
+                            </thead>
+                            <tbody id="contacts-list">
+                                @Html.Partial("_ContactsList", Model.Contacts)
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>

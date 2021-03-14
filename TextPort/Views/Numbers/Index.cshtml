@@ -63,39 +63,35 @@
             <div class="card-header">
                 <div class="row">
                     <div class="col-6">
-                        <h4>My Numbers</h4>
+                        <h4>Numbers</h4>
                     </div>
                     <div class="col-6 text-right">
-                        @Html.ActionLink("Get a Number", "GetNumber", "Numbers", null, htmlAttributes: new { @class = "btn btn-success" })
+                        @Html.ActionLink("Add a Number", "GetNumber", "Numbers", null, htmlAttributes: new { @class = "btn btn-success" })
                     </div>
                 </div>
             </div>
             <div class="card-body">
-                <div class="row">
-                    <div class="col mb-2 ml-1">
-                        <input id="cbShowAll" type="checkbox" checked="@Model.ShowExpiredNumbers" />
-                        <label>Show expired numbers</label>
-                    </div>
-                </div>
+                @*<div class="row">
+                        <div class="col mb-2 ml-1">
+                            <input id="cbShowAll" type="checkbox" checked="@Model.ShowExpiredNumbers" />
+                            <label>Show expired numbers</label>
+                        </div>
+                    </div>*@
                 <table class="table table-sm">
                     <thead>
                         <tr class="bg-primary">
                             <th scope="col" class="text-white">Number</th>
-                            <th scope="col" class="text-white">Country</th>
-                            <th scope="col" class="text-white">Purchased</th>
-                            <th scope="col" class="text-white">Expires</th>
+                            <th scope="col" class="text-white">Activated</th>
+                            @*<th scope="col" class="text-white">Expires</th>*@
                             <th scope="col" class="text-white">Active</th>
-                            <th scope="col" class="text-white text-center" style="width: 25px">Auto Extend</th>
-                            <th scope="col" class="text-white text-center">Extend</th>
-                            @if (Model.ApiAppCount > 0)
-                            {
-                                <th scope="col" class="text-white">API Application</th>
-                            }
+                            @*<th scope="col" class="text-white text-center" style="width: 25px">Auto Extend</th>
+                                <th scope="col" class="text-white text-center">Extend</th>*@
+                            <th scope="col" class="text-white">Branch</th>
                         </tr>
                     </thead>
                     <tbody>
                         @{ int rowId = 1; }
-                        @foreach (NumberWithAPIDetail vn in Model.Numbers)
+                        @foreach (NumberWithBranchDetail vn in Model.Numbers)
                         {
                             string bgClass;
                             if (rowId % 2 == 0)
@@ -109,33 +105,19 @@
                             rowId++;
                             <tr class="@bgClass">
                                 <td><a href="#" class="modal-button" data-toggle="modal" data-target="#modal-cont" data-url="/numbers/numberhistory/@vn.VirtualNumberId">@vn.NumberDisplayFormat</a></td>
-                                <td>@String.Format("{0:yyyy-MM-dd}", vn.CountryCode)</td>
                                 <td>@String.Format("{0:yyyy-MM-dd}", vn.CreateDate)</td>
-                                <td>@String.Format("{0:yyyy-MM-dd}", vn.ExpirationDate)</td>
+                                @*<td>@String.Format("{0:yyyy-MM-dd}", vn.ExpirationDate)</td>*@
                                 @if (!vn.Cancelled)
                                 {
                                     <td>Yes</td>
-                                    <td class="text-center">@Html.CheckBoxFor(x => vn.AutoRenew, new { id = "autoRenew_" + vn.VirtualNumberId.ToString(), @class = "btn-auto-renew" })</td>
-                                    if (vn.NumberType == (byte)NumberTypes.Pooled)
+                                    @*<td class="text-center">@Html.CheckBoxFor(x => vn.AutoRenew, new { id = "autoRenew_" + vn.VirtualNumberId.ToString(), @class = "btn-auto-renew" })</td>*@
+                                    if (string.IsNullOrEmpty(vn.BranchName))
                                     {
-                                        <td class="text-center">
-                                            Trial<sup><a href="#" class="btn p-1" tabindex="0" role="button" data-toggle="tooltip" title="Trial numbers cannot be extended"><i class="fa fa-info-circle text-primary"></i></a></sup>
-                                        </td>
+                                        <td><a href="#" class="modal-button" data-toggle="modal" data-target="#modal-cont" data-url="/numbers/applybranch/@vn.VirtualNumberId">Assign Branch</a></td>
                                     }
                                     else
                                     {
-                                        <td class="text-center">@Html.ActionLink("Extend", "RenewNumber", "Numbers", new { id = vn.VirtualNumberId }, htmlAttributes: new { @class = "" })</td>
-                                    }
-                                    if (Model.ApiAppCount > 0)
-                                    {
-                                        if (string.IsNullOrEmpty(vn.ApiAppName))
-                                        {
-                                            <td><a href="#" class="modal-button" data-toggle="modal" data-target="#modal-cont" data-url="/numbers/applyapi/@vn.VirtualNumberId">Apply</a></td>
-                                        }
-                                        else
-                                        {
-                                            <td><a href="#" class="modal-button" data-toggle="modal" data-target="#modal-cont" data-url="/numbers/applyapi/@vn.VirtualNumberId">@vn.ApiAppName</a></td>
-                                        }
+                                        <td><a href="#" class="modal-button" data-toggle="modal" data-target="#modal-cont" data-url="/numbers/applybranch/@vn.VirtualNumberId">@vn.BranchName</a></td>
                                     }
                                 }
                                 else

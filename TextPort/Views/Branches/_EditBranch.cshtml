@@ -1,0 +1,117 @@
+﻿@model TextPortCore.ViewModels.BranchViewModel
+<style>
+    .edit-header {
+        background-color: #007bff;
+        font-weight: 600;
+        color: white;
+    }
+</style>
+<div class="modal fade" id="user-modal">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            @using (Html.BeginForm("edit-branch", "branches", FormMethod.Post, new { id = "form-edit" }))
+            {
+                @Html.HiddenFor(m => m.BranchId)
+                <div class="modal-header bg-gradient-light">
+                    <h5 class="modal-title ">Edit Branch - @Model.BranchName</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body edit-container">
+                    <div class="card mb-2">
+                        <div class="card-header edit-header">
+                            <span class="h6 edit-header">Name &amp; Location</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div class="form-group">
+                                        <label>Branch Name</label>
+                                        @Html.TextBoxFor(m => m.BranchName, new { @class = "form-control form-control-sm" })
+                                        @Html.ValidationMessageFor(m => m.BranchName, null, new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div class="form-group">
+                                        <label>Address</label>
+                                        @Html.TextBoxFor(m => m.Address, new { @class = "form-control form-control-sm" })
+                                        @Html.ValidationMessageFor(m => m.Address, null, new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label>City</label>
+                                        @Html.TextBoxFor(m => m.City, new { @class = "form-control form-control-sm" })
+                                        @Html.ValidationMessageFor(m => m.City, null, new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-sm-2">
+                                    <div class="form-group">
+                                        <label>State</label>
+                                        @Html.DropDownListFor(m => m.State, Model.StatesList, new { @class = "form-control form-control-sm" })
+                                        @Html.ValidationMessageFor(m => m.State, null, new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-sm-4">
+                                    <div class="form-group">
+                                        <label>Zip</label>
+                                        @Html.TextBoxFor(m => m.Zip, new { @class = "form-control form-control-sm" })
+                                        @Html.ValidationMessageFor(m => m.Zip, null, new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card mb-2">
+                        <div class="card-header edit-header">
+                            <span class="h6 edit-header">Contact Details</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label>Manager Name</label>
+                                        @Html.TextBoxFor(m => m.Manager, new { @class = "form-control form-control-sm" })
+                                        @Html.ValidationMessageFor(m => m.Manager, null, new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label>Role</label>
+                                        @Html.TextBoxFor(m => m.Phone, new { @class = "form-control form-control-sm" })
+                                        @Html.ValidationMessageFor(m => m.Phone, null, new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card mb-2">
+                        <div class="card-header edit-header">
+                            <span class="h6 edit-header">Notes</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div class="form-group">
+                                        <label>Notes</label>
+                                        @Html.TextAreaFor(m => m.Notes, new { @class = "form-control form-control-sm", rows = "4" })
+                                        @Html.ValidationMessageFor(m => m.Notes, null, new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer justify-content-between">
+                    <button type="button" class="btn btn-default" id="modalClose" data-dismiss="modal"><span class='fa fa-window-close'></span>&nbsp;&nbsp;Cancel</button>
+                    <button type="submit" class="btn btn-primary"><span class='fa fa-save'></span>&nbsp;&nbsp;Save</button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
