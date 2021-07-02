@@ -237,6 +237,7 @@ namespace TextPortCore.Data
                     if (dbRecord != null)
                     {
                         dbRecord.Name = uvm.Name;
+                        dbRecord.UserName = uvm.UserName;
                         dbRecord.BranchId = uvm.BranchId;
                         dbRecord.RoleId = uvm.RoleId;
                         dbRecord.Email = uvm.Email;
@@ -388,7 +389,7 @@ namespace TextPortCore.Data
                 newAccount.LoginCount = 0;
                 newAccount.MessageInCount = 0;
                 newAccount.MessageOutCount = 0;
-                newAccount.TimeZoneId = 14;
+                newAccount.TimeZoneId = 10;
                 newAccount.RegistrationVirtualNumber = null;
 
                 _context.Accounts.Add(newAccount);
@@ -431,7 +432,7 @@ namespace TextPortCore.Data
                 newAccount.MessageInCount = 0;
                 newAccount.MessageOutCount = 0;
                 newAccount.Password = AESEncryptDecrypt.Encrypt(rd.Password, Constants.RC4Key);
-                newAccount.TimeZoneId = 5;
+                newAccount.TimeZoneId = 10;
                 newAccount.UserName = rd.UserName;
                 newAccount.RegistrationVirtualNumber = rd.VirtualNumber;
 
@@ -498,7 +499,42 @@ namespace TextPortCore.Data
 
         #region "Update Methods"
 
+        #endregion
 
+        #region "Delete Methods"
+
+
+        public bool DeleteAccount(UserViewModel uvm)
+        {
+            try
+            {
+                int accountId = uvm.AccountId;
+                if (accountId > 0)
+                {
+                    // Need to check if the account is part of the current context. If it is, detach it first before deleting.
+                    Account localAccount = _context.Set<Account>().Local.FirstOrDefault(x => x.AccountId == uvm.AccountId);
+                    if (localAccount != null)
+                    {
+                        _context.Entry(localAccount).State = Microsoft.EntityFrameworkCore.EntityState.Detached;
+                    }
+                    else
+                    {
+                        localAccount = _context.Accounts.FirstOrDefault(x => x.AccountId == accountId);
+                    }
+                    _context.Accounts.Remove(localAccount);
+                    _context.SaveChanges();
+
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorHandling eh = new ErrorHandling();
+                eh.LogException("AccountDA.AddAccount", ex);
+            }
+
+            return false;
+        }
 
         #endregion
     }

@@ -64,6 +64,15 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="row">
+                                <div class="col-sm-5">
+                                    <div class="form-group">
+                                        @Html.LabelFor(m => m.TimeZoneId, new { @class = "form-label" })
+                                        @Html.DropDownListFor(m => m.TimeZoneId, new SelectList(Model.TimeZonesList, "Value", "Text", Model.TimeZoneId), new { @class = "form-control form-control-sm" })
+                                        @Html.ValidationMessageFor(m => m.TimeZoneId, null, new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div class="card mb-2">

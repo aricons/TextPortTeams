@@ -33,7 +33,7 @@ namespace TextPortCore.Data
         {
             try
             {
-                List<Message> messages = _context.Messages.Include(m => m.MMSFiles).Include(x => x.Account).Where(x => x.VirtualNumberId == virtualNumberId && x.DeleteFlag == null).OrderByDescending(x => x.TimeStamp).ToList();
+                List<Message> messages = _context.Messages.Include(m => m.MMSFiles).Include(x => x.Branch).Where(x => x.VirtualNumberId == virtualNumberId && x.DeleteFlag == null).OrderByDescending(x => x.TimeStamp).ToList();
 
                 foreach (Message m in messages)
                 {
@@ -81,7 +81,7 @@ namespace TextPortCore.Data
         {
             try
             {
-                List<Message> messages = _context.Messages.Include(m => m.MMSFiles).Include(m => m.Account).Include(m => m.Contact)
+                List<Message> messages = _context.Messages.Include(m => m.MMSFiles).Include(m => m.Branch).Include(m => m.Contact)
                     .Where(m => m.BranchId == branchId
                         && m.VirtualNumberId == virtualNumberId
                         && m.MobileNumber == number
@@ -108,11 +108,11 @@ namespace TextPortCore.Data
             {
                 var query = from msg in _context.Messages
                             join dvn in _context.DedicatedVirtualNumbers on msg.VirtualNumberId equals dvn.VirtualNumberId
-                            join acc in _context.Accounts on msg.AccountId equals acc.AccountId
+                            join b in _context.Branches on msg.BranchId equals b.BranchId
                             join ctc in _context.Contacts on msg.ContactId equals ctc.ContactId into contacts
                             from contact in contacts.DefaultIfEmpty()
                             where dvn.BranchId == branchId && dvn.VirtualNumberId == virtualNumberId && msg.DeleteFlag == null && msg.MessageType != (byte)MessageTypes.Notification
-                            group new { msg.MessageId, msg.TimeStamp, msg.MessageText, dvn.CountryId, acc.TimeZoneId, contact.ContactId, contact.Name }
+                            group new { msg.MessageId, msg.TimeStamp, msg.MessageText, dvn.CountryId, b.TimeZoneId, contact.ContactId, contact.Name }
                             by msg.MobileNumber into numGroup
                             select new
                             {
@@ -145,11 +145,11 @@ namespace TextPortCore.Data
             {
                 var query = from msg in _context.Messages
                             join dvn in _context.DedicatedVirtualNumbers on msg.VirtualNumberId equals dvn.VirtualNumberId
-                            join acc in _context.Accounts on msg.AccountId equals acc.AccountId
+                            join b in _context.Branches on msg.BranchId equals b.BranchId
                             join ctc in _context.Contacts on msg.ContactId equals ctc.ContactId into contacts
                             from contact in contacts.DefaultIfEmpty()
                             where msg.BranchId == branchId && msg.VirtualNumberId == virtualNumberId && msg.DeleteFlag == null && msg.MessageType != (byte)MessageTypes.Notification
-                            group new { msg.MessageId, msg.TimeStamp, msg.MessageText, dvn.CountryId, acc.TimeZoneId, contact.ContactId, contact.Name }
+                            group new { msg.MessageId, msg.TimeStamp, msg.MessageText, dvn.CountryId, b.TimeZoneId, contact.ContactId, contact.Name }
                             by msg.MobileNumber into numGroup
                             select new
                             {
@@ -183,7 +183,7 @@ namespace TextPortCore.Data
         {
             try
             {
-                List<Message> messages = _context.Messages.Include(m => m.MMSFiles).Include(m => m.Account)
+                List<Message> messages = _context.Messages.Include(m => m.MMSFiles).Include(m => m.Branch)
                     .Where(m => m.AccountId == accountId
                         && m.SessionId == sessionId
                         && m.MessageType != (byte)MessageTypes.Notification

@@ -244,9 +244,9 @@ namespace TextPortCore.Models
 
         public void ConvertTimeStampToLocalTimeZone()
         {
-            if (this.Account != null)
+            if (this.Branch != null)
             {
-                this.TimeStamp = TimeFunctions.GetUsersLocalTime(this.TimeStamp, this.Account.TimeZoneId);
+                this.TimeStamp = TimeFunctions.GetUsersLocalTime(this.TimeStamp, this.Branch.TimeZoneId);
             }
         }
 

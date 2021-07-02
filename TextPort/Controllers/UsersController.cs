@@ -104,12 +104,11 @@ namespace TextPort.Controllers
         [Authorize]
         [HttpPost]
         [ActionName("delete-User")]
-        public ActionResult Delete(UserViewModel bvm)
+        public ActionResult Delete(UserViewModel uvm)
         {
             try
             {
-                //da.DeleteAccount(bvm);
-
+                da.DeleteAccount(uvm);
                 return View("Index", new UserListContainer());
             }
             catch (Exception ex)

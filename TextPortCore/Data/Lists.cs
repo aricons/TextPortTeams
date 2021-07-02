@@ -28,7 +28,7 @@ namespace TextPortCore.Data
                 SelectListItem firstItem = new SelectListItem()
                 {
                     Value = null,
-                    Text = "--- select a category ---"
+                    Text = "--- select time zone ---"
                 };
 
                 timeZones.Insert(0, firstItem);
@@ -308,7 +308,7 @@ namespace TextPortCore.Data
             List<SelectListItem> branchItems = new List<SelectListItem>();
             try
             {
-                foreach (Branch b in _context.Branches.ToList())
+                foreach (Branch b in _context.Branches.OrderBy(x => x.BranchName).ToList())
                 {
                     branchItems.Add(new SelectListItem()
                     {

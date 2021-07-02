@@ -32,6 +32,10 @@ namespace TextPortCore.ViewModels
         [Display(Name = "Zip")]
         public string Zip { get; set; }
 
+        [Required(ErrorMessage = "A time zone is required")]
+        [Display(Name = "Time Zone")]
+        public int TimeZoneId { get; set; }
+
         [Display(Name = "Phone")]
         public string Phone { get; set; }
 
@@ -43,10 +47,13 @@ namespace TextPortCore.ViewModels
 
         public List<SelectListItem> StatesList { get; set; }
 
+        public IEnumerable<SelectListItem> TimeZonesList { get; set; }
+
         public BranchViewModel()
         {
             using (TextPortDA da = new TextPortDA())
             {
+                this.TimeZonesList = da.GetTimeZones();
                 this.StatesList = da.GetStatesForDropDown();
             }
         }
@@ -59,6 +66,7 @@ namespace TextPortCore.ViewModels
                 if (branch != null)
                 {
                     this.BranchId = branch.BranchId;
+                    this.TimeZoneId = branch.TimeZoneId;
                     this.BranchName = branch.BranchName;
                     this.Address = branch.Address;
                     this.City = branch.City;
@@ -70,6 +78,7 @@ namespace TextPortCore.ViewModels
                 };
 
                 this.StatesList = da.GetStatesForDropDown();
+                this.TimeZonesList = da.GetTimeZones();
             }
         }
     }

@@ -18,6 +18,8 @@ namespace TextPortCore.Models
 
         public string Phone { get; set; }
 
+        public int TimeZoneId { get; set; }
+
         public string Manager { get; set; }
 
         public string Notes { get; set; }

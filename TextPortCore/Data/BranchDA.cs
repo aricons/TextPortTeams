@@ -71,6 +71,7 @@ namespace TextPortCore.Data
                     if (dbRecord != null)
                     {
                         dbRecord.BranchName = bvm.BranchName;
+                        dbRecord.TimeZoneId = bvm.TimeZoneId;
                         dbRecord.Address = bvm.Address;
                         dbRecord.City = bvm.City;
                         dbRecord.State = bvm.State;
@@ -107,6 +108,7 @@ namespace TextPortCore.Data
                 Branch newBranch = new Branch();
 
                 newBranch.BranchName = bvm.BranchName;
+                newBranch.TimeZoneId = bvm.TimeZoneId;
                 newBranch.Address = bvm.Address;
                 newBranch.City = bvm.City;
                 newBranch.State = bvm.State;

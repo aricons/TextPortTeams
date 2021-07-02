@@ -150,6 +150,11 @@ namespace TextPort.Controllers
                 {
                     using (TextPortDA da = new TextPortDA())
                     {
+                        if (message.BranchId > 0 && message.Branch == null)
+                        {
+                            message.Branch = da.GetBranchByBranchId(message.BranchId);
+                        }
+
                         if (da.IsNumberStopped(message.MobileNumber))
                         {
                             message.MessageText = $"OPT-OUT: The recipient at number {message.MobileNumber} has opted out of text notifications.";
